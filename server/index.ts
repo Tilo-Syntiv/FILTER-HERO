@@ -1,0 +1,176 @@
+import "dotenv/config";
+import express from "express";
+import { createServer } from "http";
+import path from "path";
+import { fileURLToPath } from "url";
+import { z } from "zod";
+import { PRODUCTS } from "../shared/products";
+import {
+  DEFAULT_SITE_URL,
+  absoluteUrl,
+  buildLlmsTxt,
+  sitemapPaths,
+} from "../shared/seo";
+import { submitContact } from "./contact";
+import { createCheckoutSession, handleStripeWebhook } from "./stripe";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const checkoutBodySchema = z.object({
+  items: z
+    .array(
+      z.object({
+        productId: z.number().int().positive(),
+        quantity: z.number().int().min(1).max(50),
+      }),
+    )
+    .min(1)
+    .max(50),
+});
+
+async function startServer() {
+  const app = express();
+  const server = createServer(app);
+  const isProd = process.env.NODE_ENV === "production";
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+
+  // Stripe webhook needs raw body — register before json parser
+  app.post(
+    "/api/stripe/webhook",
+    express.raw({ type: "application/json" }),
+    async (req, res) => {
+      try {
+        const result = await handleStripeWebhook(
+          req.body as Buffer,
+          req.headers["stripe-signature"] as string | undefined,
+        );
+        res.json(result);
+      } catch (err) {
+        console.error("[stripe webhook]", err);
+        res.status(400).json({
+          error: err instanceof Error ? err.message : "Webhook error",
+        });
+      }
+    },
+  );
+
+  app.use(express.json({ limit: "1mb" }));
+
+  const siteUrl = (
+    process.env.SITE_URL ||
+    process.env.VITE_SITE_URL ||
+    (isProd ? DEFAULT_SITE_URL : clientUrl) ||
+    DEFAULT_SITE_URL
+  ).replace(/\/$/, "");
+
+  app.get("/sitemap.xml", (_req, res) => {
+    const lastmod = new Date().toISOString().slice(0, 10);
+    const urls = sitemapPaths()
+      .map(
+        ({ path: p, changefreq, priority }) => `  <url>
+    <loc>${absoluteUrl(siteUrl, p)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>`,
+      )
+      .join("\n");
+    res
+      .type("application/xml")
+      .send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>
+`);
+  });
+
+  app.get("/robots.txt", (_req, res) => {
+    res
+      .type("text/plain")
+      .send(`User-agent: *
+Allow: /
+Disallow: /checkout/
+Disallow: /api/
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+Sitemap: ${absoluteUrl(siteUrl, "/sitemap.xml")}
+`);
+  });
+
+  app.get("/llms.txt", (_req, res) => {
+    res.type("text/plain").send(buildLlmsTxt(siteUrl));
+  });
+
+  app.get("/api/health", (_req, res) => {
+    res.json({ ok: true, brand: "Filter Hero" });
+  });
+
+  app.get("/api/products", (_req, res) => {
+    res.json({ products: PRODUCTS });
+  });
+
+  app.post("/api/checkout", async (req, res) => {
+    try {
+      const { items } = checkoutBodySchema.parse(req.body);
+      const session = await createCheckoutSession(items, clientUrl);
+      if (!session.url) {
+        res.status(500).json({ error: "No checkout URL returned" });
+        return;
+      }
+      res.json({ url: session.url });
+    } catch (err) {
+      console.error("[checkout]", err);
+      const message = err instanceof Error ? err.message : "Checkout failed";
+      const status = message.includes("not configured") ? 503 : 400;
+      res.status(status).json({ error: message });
+    }
+  });
+
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const result = await submitContact(req.body);
+      res.json(result);
+    } catch (err) {
+      console.error("[contact]", err);
+      const message = err instanceof Error ? err.message : "Contact failed";
+      res.status(400).json({ error: message });
+    }
+  });
+
+  if (isProd) {
+    const staticPath = path.resolve(__dirname, "public");
+    app.use(express.static(staticPath));
+    app.get("*", (_req, res) => {
+      res.sendFile(path.join(staticPath, "index.html"));
+    });
+  }
+
+  const port = Number(process.env.PORT) || (isProd ? 3000 : 3001);
+
+  server.listen(port, () => {
+    console.log(`API server running on http://localhost:${port}/`);
+  });
+}
+
+startServer().catch(console.error);
