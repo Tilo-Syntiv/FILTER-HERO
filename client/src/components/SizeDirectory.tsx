@@ -1,0 +1,169 @@
+import { useMemo, useState } from "react";
+import { Link } from "wouter";
+import { THICKNESSES, getSizesByThickness } from "@shared/products";
+
+const PREVIEW_COUNT = 36;
+const PAGE_SIZE = 100;
+
+type SizeDirectoryProps = {
+  depth?: number;
+  heading?: string;
+  compact?: boolean;
+};
+
+export default function SizeDirectory({
+  depth,
+  heading = "HVAC air filter sizes",
+  compact = false,
+}: SizeDirectoryProps) {
+  const activeDepth = depth ?? 1;
+  const [expanded, setExpanded] = useState(false);
+  const [page, setPage] = useState(0);
+  const sizes = useMemo(() => getSizesByThickness(activeDepth), [activeDepth]);
+  const totalPages = Math.max(1, Math.ceil(sizes.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages - 1);
+  const pageSizes = sizes.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
+  const visible =
+    expanded || safePage > 0 ? pageSizes : pageSizes.slice(0, PREVIEW_COUNT);
+  const canToggle = safePage === 0 && pageSizes.length > PREVIEW_COUNT;
+
+  const goPage = (next: number) => {
+    setPage(Math.max(0, Math.min(totalPages - 1, next)));
+    setExpanded(true);
+  };
+
+  return (
+    <section
+      id="size-directory"
+      className={compact ? "" : "py-16 md:py-20 scroll-mt-20"}
+      aria-label={heading}
+    >
+      <div className={compact ? "" : "container"}>
+        {!compact && (
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+            <div>
+              <h2
+                id="size-directory-heading"
+                className="text-2xl md:text-4xl font-bold tracking-tight"
+              >
+                {heading}
+              </h2>
+              <p className="text-muted-foreground mt-2 max-w-2xl">
+                {sizes.length} {activeDepth}" sizes. Click any size to buy it.
+              </p>
+            </div>
+            <Link
+              href="/sizes"
+              className="text-sm font-semibold text-primary hover:underline"
+            >
+              View all sizes
+            </Link>
+          </div>
+        )}
+
+        <nav className="flex flex-wrap gap-2 mb-6" aria-label="Filter thickness">
+          {THICKNESSES.map((d) => {
+            const active = activeDepth === d;
+            return (
+              <Link
+                key={d}
+                href={`/filters/${d}-inch`}
+                className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-colors ${
+                  active
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-white/70 border-border hover:border-primary/40"
+                }`}
+              >
+                {d}" filters
+              </Link>
+            );
+          })}
+          <Link
+            href="/custom-air-filters"
+            className="px-3 py-2 rounded-lg text-sm font-semibold border border-border bg-white/70 hover:border-primary/40"
+          >
+            Custom Air Filters
+          </Link>
+        </nav>
+
+        <p className="text-sm text-muted-foreground mb-3">
+          Page {safePage + 1} of {totalPages} · {sizes.length} sizes
+        </p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+          {visible.map((s) => (
+            <Link
+              key={s.slug}
+              href={`/sizes/${encodeURIComponent(s.slug)}`}
+              className="size-chip !py-3"
+            >
+              {s.slug}
+            </Link>
+          ))}
+        </div>
+
+        {canToggle && (
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="mt-6 mr-4 text-sm font-semibold text-primary hover:underline"
+          >
+            Show more sizes ({pageSizes.length - PREVIEW_COUNT} more on this page)
+          </button>
+        )}
+        {expanded && safePage === 0 && pageSizes.length > PREVIEW_COUNT && (
+          <button
+            type="button"
+            onClick={() => setExpanded(false)}
+            className="mt-6 text-sm font-semibold text-primary hover:underline"
+          >
+            Show less sizes....
+          </button>
+        )}
+
+        {totalPages > 1 && (
+          <div className="mt-8 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              className="px-3 py-2 text-sm rounded-lg border border-border disabled:opacity-40"
+              disabled={safePage === 0}
+              onClick={() => goPage(safePage - 1)}
+            >
+              Previous page
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i)
+              .filter((i) => i === 0 || i === totalPages - 1 || Math.abs(i - safePage) <= 2)
+              .map((i, idx, arr) => {
+                const prev = arr[idx - 1];
+                const gap = prev !== undefined && i - prev > 1;
+                return (
+                  <span key={i} className="contents">
+                    {gap && <span className="px-1 text-muted-foreground">…</span>}
+                    <button
+                      type="button"
+                      onClick={() => goPage(i)}
+                      className={`min-w-9 px-3 py-2 text-sm rounded-lg border ${
+                        i === safePage
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "border-border hover:border-primary/40"
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  </span>
+                );
+              })}
+            <button
+              type="button"
+              className="px-3 py-2 text-sm rounded-lg border border-border disabled:opacity-40"
+              disabled={safePage >= totalPages - 1}
+              onClick={() => goPage(safePage + 1)}
+            >
+              Next page
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

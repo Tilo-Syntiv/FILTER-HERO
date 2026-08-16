@@ -21,7 +21,9 @@ Edit `.env`:
 |----------|---------|
 | `PORT` | API port (default `3001`) |
 | `CLIENT_URL` | Frontend origin for Stripe redirects (`http://localhost:3000`) |
-| `STRIPE_SECRET_KEY` | Stripe secret key |
+| `STRIPE_SECRET_KEY` | Stripe secret key (`sk_test_…` / `sk_live_…`) — required for Checkout |
+| `STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (`pk_test_…`) |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Same publishable key for the Vite client |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
 | `CONTACT_TO` | Inbox for lead emails |
 | `RESEND_API_KEY` | Optional — if unset, leads save to `server/data/leads.json` only |

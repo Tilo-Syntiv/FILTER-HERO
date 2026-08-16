@@ -6,7 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import HowToMeasureGuide from "@/components/HowToMeasureGuide";
 import FilterSizeDiagram from "@/components/FilterSizeDiagram";
-import { getFilterSize, popularSizeSlugs } from "@shared/products";
+import {
+  catalogLengths,
+  catalogWidths,
+  getFilterSize,
+  popularSizeSlugs,
+  THICKNESSES,
+} from "@shared/products";
 
 interface FilterFinderProps {
   onSizeSelect?: (size: string) => void;
@@ -14,9 +20,9 @@ interface FilterFinderProps {
   compact?: boolean;
 }
 
-const WIDTHS = Array.from({ length: 27 }, (_, i) => String(i + 10));
-const LENGTHS = Array.from({ length: 27 }, (_, i) => String(i + 10));
-const DEPTHS = ["0.5", "1", "2", "4", "5"];
+const WIDTHS = catalogWidths().map(String);
+const LENGTHS = catalogLengths().map(String);
+const DEPTHS = THICKNESSES.map(String);
 
 export default function FilterFinder({
   onSizeSelect,

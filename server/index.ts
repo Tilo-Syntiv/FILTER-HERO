@@ -1,14 +1,19 @@
 import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { z } from "zod";
-import { PRODUCTS } from "../shared/products";
+import { FILTER_SIZES, MERV_TYPES, THICKNESSES } from "../shared/products";
 import {
   DEFAULT_SITE_URL,
   absoluteUrl,
+  buildAiTxt,
+  buildLlmsFullTxt,
   buildLlmsTxt,
+  injectSeoIntoHtml,
+  resolveDocumentSeo,
   sitemapPaths,
 } from "../shared/seo";
 import { submitContact } from "./contact";
@@ -114,6 +119,24 @@ Allow: /
 User-agent: Amazonbot
 Allow: /
 
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Google-CloudVertexBot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
 Sitemap: ${absoluteUrl(siteUrl, "/sitemap.xml")}
 `);
   });
@@ -122,12 +145,24 @@ Sitemap: ${absoluteUrl(siteUrl, "/sitemap.xml")}
     res.type("text/plain").send(buildLlmsTxt(siteUrl));
   });
 
+  app.get("/llms-full.txt", (_req, res) => {
+    res.type("text/plain").send(buildLlmsFullTxt(siteUrl));
+  });
+
+  app.get("/ai.txt", (_req, res) => {
+    res.type("text/plain").send(buildAiTxt(siteUrl));
+  });
+
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, brand: "Filter Hero" });
   });
 
   app.get("/api/products", (_req, res) => {
-    res.json({ products: PRODUCTS });
+    res.json({
+      sizeCount: FILTER_SIZES.length,
+      thicknesses: THICKNESSES,
+      merv: MERV_TYPES.map((t) => t.key),
+    });
   });
 
   app.post("/api/checkout", async (req, res) => {
@@ -160,9 +195,12 @@ Sitemap: ${absoluteUrl(siteUrl, "/sitemap.xml")}
 
   if (isProd) {
     const staticPath = path.resolve(__dirname, "public");
-    app.use(express.static(staticPath));
-    app.get("*", (_req, res) => {
-      res.sendFile(path.join(staticPath, "index.html"));
+    app.use(express.static(staticPath, { index: false }));
+    app.get("*", (req, res) => {
+      const indexPath = path.join(staticPath, "index.html");
+      const html = fs.readFileSync(indexPath, "utf8");
+      const seo = resolveDocumentSeo(req.path, siteUrl);
+      res.type("html").send(injectSeoIntoHtml(html, seo));
     });
   }
 

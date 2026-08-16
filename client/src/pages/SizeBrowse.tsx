@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "wouter";
-import { THICKNESSES, getSizesByThickness, type FilterSize } from "@shared/products";
+import { THICKNESSES, getSizesByThickness } from "@shared/products";
 import {
   allSizesSeo,
   buildBreadcrumbSchema,
@@ -8,20 +8,10 @@ import {
   thicknessSeo,
 } from "@shared/seo";
 import SiteHeader from "@/components/SiteHeader";
+import SizeDirectory from "@/components/SizeDirectory";
 import CartDrawer from "@/components/CartDrawer";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { BRAND_NAME } from "@/const";
-
-function SizeChip({ size }: { size: FilterSize }) {
-  return (
-    <Link
-      href={`/sizes/${encodeURIComponent(size.slug)}`}
-      className="size-chip"
-    >
-      {size.slug}
-    </Link>
-  );
-}
 
 function SiteFooter() {
   return (
@@ -63,33 +53,9 @@ export function AllSizesPage() {
         <p className="seo-answer text-muted-foreground mb-10 max-w-2xl">
           Browse every {BRAND_NAME} HVAC size by thickness. Pick your
           exact Width × Length × Depth, then choose MERV quality and pack quantity
-          on the next page.
+          on the next page. {allSizes.length} sizes in the catalog.
         </p>
-
-        {THICKNESSES.map((depth) => {
-          const sizes = getSizesByThickness(depth);
-          if (sizes.length === 0) return null;
-          return (
-            <section key={depth} className="mb-12" aria-labelledby={`depth-${depth}`}>
-              <div className="flex items-end justify-between mb-4 gap-4">
-                <h2 id={`depth-${depth}`} className="text-xl md:text-2xl font-bold">
-                  {depth}" filters
-                </h2>
-                <Link
-                  href={`/filters/${depth}-inch`}
-                  className="text-sm text-primary font-semibold hover:underline"
-                >
-                  View hub
-                </Link>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {sizes.map((s) => (
-                  <SizeChip key={s.slug} size={s} />
-                ))}
-              </div>
-            </section>
-          );
-        })}
+        <SizeDirectory compact />
       </main>
       <SiteFooter />
       <CartDrawer onRequestQuote={() => { window.location.href = "/#contact"; }} />
@@ -154,11 +120,11 @@ export function ThicknessHubPage({ depth }: { depth: number }) {
               Shop {depth}-inch thick HVAC and furnace air filters. Select your
               width × length. Every size is available in MERV 8, 11, 13, and Carbon.
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-              {sizes.map((s) => (
-                <SizeChip key={s.slug} size={s} />
-              ))}
-            </div>
+            <SizeDirectory
+              depth={depth}
+              heading={`${depth}" filters`}
+              compact
+            />
           </>
         )}
       </main>

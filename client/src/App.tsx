@@ -6,6 +6,7 @@ import CheckoutCancel from "@/pages/CheckoutCancel";
 import Home from "@/pages/Home";
 import SizeDetailPage from "@/pages/SizeDetail";
 import { AllSizesPage, ThicknessHubPage } from "@/pages/SizeBrowse";
+import CustomAirFiltersPage from "@/pages/CustomAirFilters";
 import { Route, Switch, useRoute } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/sizes" component={AllSizesPage} />
       <Route path="/sizes/:size" component={SizeRoute} />
       <Route path="/filters/:thickness" component={ThicknessRoute} />
+      <Route path="/custom-air-filters" component={CustomAirFiltersPage} />
       <Route path="/checkout/success" component={CheckoutSuccess} />
       <Route path="/checkout/cancel" component={CheckoutCancel} />
       <Route path="/404" component={NotFound} />

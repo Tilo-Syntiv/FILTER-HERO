@@ -107,13 +107,18 @@ export function useSeo({
     setMeta("property", "og:site_name", SITE_DEFAULTS.brand);
     setMeta("property", "og:locale", SITE_DEFAULTS.locale);
     setMeta("property", "og:image", ogImage);
+    setMeta("property", "og:image:alt", `${SITE_DEFAULTS.brand} — ${title}`);
 
     setMeta("name", "twitter:card", "summary_large_image");
     setMeta("name", "twitter:title", title);
     setMeta("name", "twitter:description", description);
     setMeta("name", "twitter:image", ogImage);
+    setMeta("name", "twitter:image:alt", `${SITE_DEFAULTS.brand} — ${title}`);
+
+    setLink("alternate", absoluteUrl(siteUrl, "/llms.txt"));
 
     const parsed = JSON.parse(jsonLdKey) as unknown[];
+    document.getElementById("jsonld-ssr")?.remove();
     if (parsed.length > 0) {
       setJsonLd("page", parsed.length === 1 ? parsed[0] : parsed);
     }

@@ -8,6 +8,7 @@ import {
   buildBreadcrumbSchema,
   buildFaqSchema,
   buildHowToMeasureSchema,
+  buildOnlineStoreSchema,
   buildOrganizationSchema,
   buildSpeakableSchema,
   buildWebSiteSchema,
@@ -20,6 +21,7 @@ import TrustSection from "@/components/TrustSection";
 import TrustMarquee from "@/components/TrustMarquee";
 import ThicknessCarousel from "@/components/ThicknessCarousel";
 import PopularSizesCarousel from "@/components/PopularSizesCarousel";
+import SizeDirectory from "@/components/SizeDirectory";
 import MervCarousel from "@/components/MervCarousel";
 import ContactForm from "@/components/ContactForm";
 import CartDrawer from "@/components/CartDrawer";
@@ -40,6 +42,7 @@ export default function Home() {
   const jsonLd = useMemo(
     () => [
       buildOrganizationSchema(siteUrl),
+      buildOnlineStoreSchema(siteUrl),
       buildWebSiteSchema(siteUrl),
       buildFaqSchema(SITE_FAQS),
       buildHowToMeasureSchema(siteUrl),
@@ -162,6 +165,8 @@ export default function Home() {
           </div>
         </section>
 
+        <SizeDirectory />
+
         <ThicknessCarousel />
 
         <PopularSizesCarousel />
@@ -269,6 +274,14 @@ export default function Home() {
                     </Link>
                   </li>
                 ))}
+                <li>
+                  <Link
+                    href="/custom-air-filters"
+                    className="hover:text-ice transition-colors"
+                  >
+                    Custom Air Filters
+                  </Link>
+                </li>
               </ul>
             </div>
             <div className="md:col-span-4">

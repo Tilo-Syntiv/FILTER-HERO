@@ -16,6 +16,7 @@ import {
   buildBreadcrumbSchema,
   buildFaqSchema,
   buildProductSchema,
+  buildSpeakableSchema,
   sizeSeo,
   type FaqItem,
 } from "@shared/seo";
@@ -114,6 +115,11 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
     const schemas: unknown[] = [
       buildBreadcrumbSchema(siteUrl, crumbs),
       buildFaqSchema(sizeFaqs),
+      buildSpeakableSchema(siteUrl, [
+        ".seo-answer",
+        ".seo-speakable-q",
+        ".seo-speakable-a",
+      ]),
     ];
     if (sizeMeta && variant) {
       schemas.push(
