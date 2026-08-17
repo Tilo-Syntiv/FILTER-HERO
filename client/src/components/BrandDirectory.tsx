@@ -13,6 +13,7 @@ export default function BrandDirectory({ compact = false }: { compact?: boolean 
     <section aria-label="Shop by HVAC brand">
       {!compact && (
         <div className="mb-8">
+          <span className="section-label">System match</span>
           <h2 className="text-2xl md:text-4xl font-bold tracking-tight">Shop by HVAC brand</h2>
           <p className="text-muted-foreground mt-2 max-w-2xl">
             {BRAND_NAME} replacement filters fit the same slots as OEM media for
@@ -57,9 +58,7 @@ export default function BrandDirectory({ compact = false }: { compact?: boolean 
         </div>
       )}
 
-      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
-        Popular brands
-      </p>
+      <p className="section-label">Popular brands</p>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 mb-10">
         {featured.map((b) => (
           <Link
@@ -72,9 +71,7 @@ export default function BrandDirectory({ compact = false }: { compact?: boolean 
         ))}
       </div>
 
-      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
-        All HVAC brands
-      </p>
+      <p className="section-label">All HVAC brands</p>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
         {rest.map((b) => (
           <Link

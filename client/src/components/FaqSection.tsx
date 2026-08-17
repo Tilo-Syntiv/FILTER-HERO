@@ -17,7 +17,7 @@ type FaqSectionProps = {
  */
 export default function FaqSection({
   faqs,
-  title = "Common questions",
+  title = "Filter questions, answered",
   subtitle = "Straight answers about filter size, MERV, and replacement timing.",
 }: FaqSectionProps) {
   return (
@@ -27,7 +27,7 @@ export default function FaqSection({
       aria-labelledby="faq-heading"
     >
       <div className="container max-w-3xl">
-        <span className="section-label">FAQ</span>
+        <span className="section-label">Answers</span>
         <h2
           id="faq-heading"
           className="text-3xl md:text-4xl font-bold mb-3 tracking-tight"

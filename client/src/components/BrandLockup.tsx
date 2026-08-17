@@ -66,13 +66,13 @@ function useKnockoutLogo(src: string) {
   return url ?? src;
 }
 
-function Wordmark({ tone }: { tone: LockupTone }) {
-  const filterClass = tone === "header" ? "text-navy" : "text-white";
-
+function Wordmark({ tone: _tone }: { tone: LockupTone }) {
   return (
-    <span className="flex items-baseline gap-[0.28em] font-semibold not-italic tracking-[-0.035em] leading-none [font-family:'Plus_Jakarta_Sans',sans-serif]">
-      <span className={filterClass}>Filter</span>
-      <span className="text-hero">Hero</span>
+    <span className="flex items-baseline gap-[0.28em] font-extrabold not-italic tracking-[-0.04em] leading-none [font-family:'Plus_Jakarta_Sans',sans-serif]">
+      <span className="text-white drop-shadow-[0_1px_1px_rgba(16,24,40,0.35)]">
+        Filter
+      </span>
+      <span className="brand-wordmark-hero">Hero</span>
     </span>
   );
 }
@@ -82,14 +82,14 @@ const sizes: Record<
   { mark: string; type: string; gap: string }
 > = {
   header: {
-    mark: "h-11 w-[4.15rem] md:h-12 md:w-[4.6rem]",
-    type: "text-lg md:text-xl",
-    gap: "gap-2.5",
+    mark: "h-8 w-[3rem] sm:h-9 sm:w-[3.4rem] md:h-12 md:w-[4.6rem]",
+    type: "text-base sm:text-lg md:text-[1.35rem]",
+    gap: "gap-1.5 sm:gap-2 md:gap-2.5",
   },
   footer: {
-    mark: "h-12 w-[4.6rem]",
-    type: "text-xl",
-    gap: "gap-3",
+    mark: "h-10 w-[3.8rem] sm:h-12 sm:w-[4.6rem]",
+    type: "text-lg sm:text-xl",
+    gap: "gap-2 sm:gap-3",
   },
 };
 
@@ -112,7 +112,7 @@ export default function BrandLockup({
         <img
           src={src}
           alt=""
-          className="relative z-[1] h-[168%] w-full max-w-none object-contain object-[center_8%] drop-shadow-[0_10px_18px_rgba(20,30,48,0.28)]"
+          className="relative z-[1] h-[168%] w-full max-w-none object-contain object-[center_8%]"
         />
       </span>
       <span className={`min-w-0 ${size.type}`}>

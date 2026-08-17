@@ -21,15 +21,16 @@ export default function MervCarousel() {
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
           <div>
-            <span className="section-label">Filtration level</span>
+            <span className="section-label">Defense level</span>
             <h2
               id="merv-heading"
               className="text-3xl md:text-4xl font-bold tracking-tight"
             >
-              Choose your quality
+              Choose your MERV
             </h2>
             <p className="text-muted-foreground mt-2 max-w-md">
-              Pick the MERV that matches your air quality goals
+              Everyday dust, pets, allergies, or odors — pick the rating that
+              matches your home
             </p>
           </div>
         </div>
@@ -80,8 +81,8 @@ export default function MervCarousel() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex -left-3 bg-white border-border shadow-sm" />
-          <CarouselNext className="hidden sm:flex -right-3 bg-white border-border shadow-sm" />
+          <CarouselPrevious className="hidden md:flex -left-3 bg-white border-border shadow-sm" />
+          <CarouselNext className="hidden md:flex -right-3 bg-white border-border shadow-sm" />
         </Carousel>
 
         <CarouselDots

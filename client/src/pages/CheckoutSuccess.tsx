@@ -37,7 +37,7 @@ export default function CheckoutSuccess() {
           Thank you for your order. A confirmation email will arrive from Stripe
           shortly. We'll get your filters on the way.
         </p>
-        <Button size="lg" onClick={() => setLocation("/")}>
+        <Button size="lg" className="w-full sm:w-auto" onClick={() => setLocation("/")}>
           Back to store
         </Button>
       </div>

@@ -145,7 +145,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
       <SiteHeader />
 
       <main className="container py-8 md:py-12">
-        <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground mb-4">
+        <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground mb-4 break-words">
           <Link href="/" className="hover:text-foreground">
             Home
           </Link>{" "}
@@ -168,13 +168,13 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
         </nav>
 
         {!inCatalog ? (
-          <div className="max-w-xl rounded-xl border border-dashed border-primary/30 bg-white/80 p-8">
-            <h1 className="text-3xl font-bold mb-3">{decoded}</h1>
+          <div className="max-w-xl rounded-xl border border-dashed border-primary/30 bg-white/80 p-5 sm:p-8">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-3 break-words">{decoded}</h1>
             <p className="text-muted-foreground mb-6">
               We don't list this exact size in the standard catalog yet. Request a
               quote and we'll confirm pricing and lead time for your dimensions.
             </p>
-            <Button size="lg" asChild>
+            <Button size="lg" className="hero-shop-btn w-full text-white sm:w-auto" asChild>
               <a href={`/#contact`}>Request a quote for {decoded}</a>
             </Button>
             <div className="mt-12">
@@ -185,7 +185,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-14">
             {/* Visual */}
             <div>
-              <div className="relative rounded-3xl overflow-hidden bg-[linear-gradient(145deg,#141e30_0%,#203868_55%,#3a66a3_100%)] aspect-[4/3] flex flex-col items-center justify-center text-white p-8">
+              <div className="relative rounded-3xl overflow-hidden bg-[linear-gradient(145deg,#141e30_0%,#203868_55%,#3a66a3_100%)] aspect-[4/3] flex flex-col items-center justify-center text-white p-5 sm:p-8">
                 <div
                   className="absolute inset-0 opacity-40"
                   style={{
@@ -197,7 +197,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                   <p className="text-xs uppercase tracking-[0.22em] text-ice/90 mb-4 font-semibold">
                     Filter Hero
                   </p>
-                  <p className="text-4xl md:text-6xl font-bold tracking-tight">
+                  <p className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight break-all">
                     {decoded}
                   </p>
                   <p className="mt-3 text-white/75 font-medium">{selectedType.name}</p>
@@ -217,7 +217,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
             {/* Buy box */}
             <div>
-              <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3 tracking-tight break-words">
                 {decoded} Air Filters
               </h1>
               <p className="seo-answer text-muted-foreground mb-10 leading-relaxed">
@@ -227,9 +227,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
               </p>
 
               <div className="mb-8">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
-                  1 · Choose quality
-                </h2>
+                <h2 className="section-label">1 · Choose MERV</h2>
                 <div className="grid grid-cols-2 gap-2.5">
                   {MERV_TYPES.map((t) => {
                     const active = t.key === mervKey;
@@ -258,9 +256,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
               </div>
 
               <div className="mb-8">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
-                  2 · Select quantity
-                </h2>
+                <h2 className="section-label">2 · Select quantity</h2>
                 <div className="space-y-2">
                   {PACK_TIERS.map((tier) => {
                     if (!variant) return null;
@@ -272,7 +268,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                         key={tier.minQty}
                         type="button"
                         onClick={() => setQty(tier.minQty)}
-                        className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border text-sm transition-all duration-200 ${
+                        className={`w-full flex flex-wrap items-center justify-between gap-2 px-3 sm:px-4 py-3.5 rounded-xl border text-sm transition-all duration-200 ${
                           active
                             ? "border-primary bg-primary/[0.06]"
                             : "border-border bg-white/60 hover:border-primary/35"
@@ -299,7 +295,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                 <div className="flex justify-between items-end mb-5">
                   <div>
                     <p className="text-sm text-muted-foreground">Pack total</p>
-                    <p className="text-4xl font-bold tracking-tight">${total.toFixed(2)}</p>
+                    <p className="text-3xl sm:text-4xl font-bold tracking-tight">${total.toFixed(2)}</p>
                     <p className="text-xs text-muted-foreground mt-1">
                       ${unitPrice.toFixed(2)} per filter
                     </p>
@@ -307,7 +303,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                 </div>
                 <Button
                   size="lg"
-                  className="w-full"
+                  className="hero-shop-btn w-full text-white"
                   disabled={!variant?.inStock}
                   onClick={handleAdd}
                 >
@@ -370,36 +366,37 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
         {inCatalog && (
           <section className="mt-16 pt-12 border-t border-border">
+            <span className="section-label">The facts</span>
             <h2 className="text-xl font-bold mb-4">Specifications</h2>
             <dl className="grid sm:grid-cols-2 gap-x-8 gap-y-3 text-sm max-w-2xl">
-              <div className="flex justify-between border-b border-border py-2">
-                <dt className="text-muted-foreground">Nominal size</dt>
-                <dd className="font-semibold">
+              <div className="flex justify-between gap-3 border-b border-border py-2">
+                <dt className="text-muted-foreground shrink-0">Nominal size</dt>
+                <dd className="font-semibold text-right break-words">
                   {sizeMeta!.width} × {sizeMeta!.length} × {sizeMeta!.depth} in
                 </dd>
               </div>
-              <div className="flex justify-between border-b border-border py-2">
-                <dt className="text-muted-foreground">Actual size</dt>
-                <dd className="font-semibold">
+              <div className="flex justify-between gap-3 border-b border-border py-2">
+                <dt className="text-muted-foreground shrink-0">Actual size</dt>
+                <dd className="font-semibold text-right break-words">
                   {sizeMeta!.actualWidth} × {sizeMeta!.actualLength} ×{" "}
                   {sizeMeta!.actualDepth} in
                 </dd>
               </div>
-              <div className="flex justify-between border-b border-border py-2">
-                <dt className="text-muted-foreground">MERV</dt>
-                <dd className="font-semibold">{selectedType.name}</dd>
+              <div className="flex justify-between gap-3 border-b border-border py-2">
+                <dt className="text-muted-foreground shrink-0">MERV</dt>
+                <dd className="font-semibold text-right break-words">{selectedType.name}</dd>
               </div>
-              <div className="flex justify-between border-b border-border py-2">
-                <dt className="text-muted-foreground">Filter type</dt>
-                <dd className="font-semibold">Pleated</dd>
+              <div className="flex justify-between gap-3 border-b border-border py-2">
+                <dt className="text-muted-foreground shrink-0">Filter type</dt>
+                <dd className="font-semibold text-right">Pleated</dd>
               </div>
-              <div className="flex justify-between border-b border-border py-2">
-                <dt className="text-muted-foreground">Frame</dt>
-                <dd className="font-semibold">Rigid cardboard</dd>
+              <div className="flex justify-between gap-3 border-b border-border py-2">
+                <dt className="text-muted-foreground shrink-0">Frame</dt>
+                <dd className="font-semibold text-right">Rigid cardboard</dd>
               </div>
-              <div className="flex justify-between border-b border-border py-2">
-                <dt className="text-muted-foreground">Best for</dt>
-                <dd className="font-semibold">HVAC / furnace</dd>
+              <div className="flex justify-between gap-3 border-b border-border py-2">
+                <dt className="text-muted-foreground shrink-0">Best for</dt>
+                <dd className="font-semibold text-right">HVAC / furnace</dd>
               </div>
             </dl>
           </section>
@@ -412,7 +409,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
         />
       </main>
 
-      <footer className="border-t border-border bg-deep text-white/80 py-8 mt-12">
+      <footer className="site-footer pt-8 mt-12">
         <div className="container text-sm">
           &copy; {new Date().getFullYear()} {BRAND_NAME}
         </div>

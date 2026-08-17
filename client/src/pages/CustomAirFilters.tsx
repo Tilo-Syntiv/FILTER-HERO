@@ -43,7 +43,8 @@ export default function CustomAirFiltersPage() {
           </Link>{" "}
           / Custom air filters
         </nav>
-        <h1 className="text-3xl md:text-4xl font-bold mb-3">Custom Air Filters</h1>
+        <span className="section-label">Odd size</span>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Custom Air Filters</h1>
         <p className="seo-answer text-muted-foreground mb-10 max-w-2xl leading-relaxed">
           If your slot is not on the standard size list, send Width × Length ×
           Depth (or a photo of the label) and we will quote a custom HVAC filter.
@@ -57,10 +58,19 @@ export default function CustomAirFiltersPage() {
           subtitle="How custom HVAC filter quotes work."
         />
         <div className="max-w-xl">
-          <h2 className="text-xl font-bold mb-4">Request a custom quote</h2>
+          <span className="section-label">Custom quote</span>
+          <h2 className="text-xl font-bold mb-4 tracking-tight">Request a custom quote</h2>
           <ContactForm intent="support" />
         </div>
       </main>
+      <footer className="site-footer pt-8 mt-12">
+        <div className="container flex flex-col sm:flex-row justify-between gap-4 text-sm">
+          <p>&copy; {new Date().getFullYear()} {BRAND_NAME}</p>
+          <Link href="/" className="section-link !text-ice hover:!text-white">
+            Home
+          </Link>
+        </div>
+      </footer>
       <CartDrawer onRequestQuote={() => { window.location.href = "/custom-air-filters"; }} />
     </div>
   );

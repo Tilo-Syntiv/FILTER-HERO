@@ -15,10 +15,10 @@ import { BRAND_NAME } from "@/const";
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-deep text-white/80 py-8 mt-12">
+    <footer className="site-footer pt-8 mt-12">
       <div className="container flex flex-col sm:flex-row justify-between gap-4 text-sm">
         <p>&copy; {new Date().getFullYear()} {BRAND_NAME}</p>
-        <Link href="/" className="hover:text-ice">
+        <Link href="/" className="section-link !text-ice hover:!text-white">
           Home
         </Link>
       </div>
@@ -49,7 +49,8 @@ export function AllSizesPage() {
     <div className="min-h-screen">
       <SiteHeader />
       <main className="container py-10 md:py-14">
-        <h1 className="text-3xl md:text-4xl font-bold mb-3">All filter sizes</h1>
+        <span className="section-label">Size catalog</span>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Every Filter Hero size</h1>
         <p className="seo-answer text-muted-foreground mb-10 max-w-2xl">
           Browse every {BRAND_NAME} HVAC size by thickness. Pick your
           exact Width × Length × Depth, then choose MERV quality and pack quantity
@@ -113,7 +114,8 @@ export function ThicknessHubPage({ depth }: { depth: number }) {
               </Link>{" "}
               / {depth}" filters
             </nav>
-            <h1 className="text-3xl md:text-4xl font-bold mb-3">
+            <span className="section-label">Depth first</span>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
               {depth}" air filters
             </h1>
             <p className="seo-answer text-muted-foreground mb-10 max-w-2xl">

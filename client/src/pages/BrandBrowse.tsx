@@ -21,10 +21,10 @@ import { BRAND_NAME } from "@/const";
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-deep text-white/80 py-8 mt-12">
+    <footer className="site-footer pt-8 mt-12">
       <div className="container flex flex-col sm:flex-row justify-between gap-4 text-sm">
         <p>&copy; {new Date().getFullYear()} {BRAND_NAME}</p>
-        <Link href="/" className="hover:text-ice">
+        <Link href="/" className="section-link !text-ice hover:!text-white">
           Home
         </Link>
       </div>
@@ -62,7 +62,8 @@ export function AllBrandsPage() {
     <div className="min-h-screen">
       <SiteHeader />
       <main className="container py-10 md:py-14">
-        <h1 className="text-3xl md:text-4xl font-bold mb-3">Shop by HVAC brand</h1>
+        <span className="section-label">System match</span>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Shop by HVAC brand</h1>
         <p className="seo-answer text-muted-foreground mb-10 max-w-2xl leading-relaxed">
           {BRAND_NAME} sells exact-fit replacement filters for major HVAC brands.
           These are {BRAND_NAME} pleated filters (MERV 8, 11, 13, and carbon)
@@ -136,7 +137,7 @@ export function BrandDetailPage({ slug }: { slug: string }) {
               </Link>{" "}
               / {brand.name}
             </nav>
-            <h1 className="text-3xl md:text-4xl font-bold mb-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
               {brand.name} air filters
             </h1>
             <p className="seo-answer text-muted-foreground mb-10 max-w-2xl leading-relaxed">
@@ -147,7 +148,7 @@ export function BrandDetailPage({ slug }: { slug: string }) {
 
             {brand.sizes.length > 0 ? (
               <>
-                <h2 className="text-xl font-bold mb-3">Shop by size</h2>
+                <h2 className="text-xl font-bold mb-3 tracking-tight">Shop by size</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 mb-10">
                   {brand.sizes.map((s) => {
                     const inCatalog = Boolean(catalogSizeForSlug(s));
@@ -172,13 +173,13 @@ export function BrandDetailPage({ slug }: { slug: string }) {
 
             {brand.models.length > 0 && (
               <>
-                <h2 className="text-xl font-bold mb-3">Shop by HVAC model number</h2>
+                <h2 className="text-xl font-bold mb-3 tracking-tight">Shop by HVAC model number</h2>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-10">
                   {brand.models.map((m) => (
                     <Link
                       key={m.code}
                       href={`/sizes/${encodeURIComponent(m.size)}`}
-                      className="rounded-lg border border-border bg-white/80 px-3 py-2.5 text-sm hover:border-primary/40"
+                      className="flex min-h-11 items-center rounded-lg border border-border bg-white/80 px-3 py-2.5 text-sm hover:border-primary/40"
                     >
                       <span className="font-semibold">{m.code}</span>
                       <span className="text-muted-foreground"> → {m.size}</span>
@@ -190,13 +191,13 @@ export function BrandDetailPage({ slug }: { slug: string }) {
 
             {brand.oemParts.length > 0 && (
               <>
-                <h2 className="text-xl font-bold mb-3">Shop by OEM part number</h2>
+                <h2 className="text-xl font-bold mb-3 tracking-tight">Shop by OEM part number</h2>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-10">
                   {brand.oemParts.map((p) => (
                     <Link
                       key={p.code}
                       href={`/sizes/${encodeURIComponent(p.size)}`}
-                      className="rounded-lg border border-border bg-white/80 px-3 py-2.5 text-sm hover:border-primary/40"
+                      className="flex min-h-11 items-center rounded-lg border border-border bg-white/80 px-3 py-2.5 text-sm hover:border-primary/40"
                     >
                       <span className="font-semibold">{p.code}</span>
                       <span className="text-muted-foreground"> → {p.size}</span>

@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { useHashScroll } from "@/hooks/useHashScroll";
 import { Link } from "wouter";
 import { THICKNESSES } from "@shared/products";
 import { featuredHvacBrands } from "@shared/hvac-brands";
@@ -32,6 +33,7 @@ import { useCart } from "@/contexts/CartContext";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 
 export default function Home() {
+  useHashScroll();
   const { cartSummaryText } = useCart();
   const [quoteSize, setQuoteSize] = useState("");
   const [quoteMessage, setQuoteMessage] = useState("");
@@ -81,7 +83,7 @@ export default function Home() {
       <main>
         <section
           id="finder"
-          className="py-16 md:py-24 scroll-mt-20 -mt-6 relative z-10"
+          className="py-16 md:py-24 scroll-mt-28 -mt-6 relative z-10"
         >
           <div className="container">
             <FilterFinder />
@@ -98,7 +100,7 @@ export default function Home() {
           <div className="container">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
               <div>
-                <span className="section-label">Replacement filters</span>
+                <span className="section-label">System match</span>
                 <h2 className="text-3xl md:text-4xl font-bold mb-2 tracking-tight">
                   Shop by HVAC brand
                 </h2>
@@ -107,10 +109,7 @@ export default function Home() {
                   other OEM slots. Same size as the original media.
                 </p>
               </div>
-              <Link
-                href="/brands"
-                className="text-primary font-semibold text-sm hover:underline"
-              >
+              <Link href="/brands" className="section-link">
                 See all brands
               </Link>
             </div>
@@ -134,18 +133,11 @@ export default function Home() {
 
         <FaqSection faqs={SITE_FAQS} />
 
-        <section className="py-20 md:py-28 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[linear-gradient(120deg,#203868_0%,#141e30_70%,#7f2328_160%)]" />
-          <div
-            className="absolute right-0 top-0 bottom-0 w-1/2 opacity-40"
-            style={{
-              background:
-                "radial-gradient(circle at 70% 50%, rgba(142,176,216,0.45), transparent 60%)",
-            }}
-          />
+        <section className="brand-band py-20 md:py-28 relative overflow-hidden">
           <div className="container relative text-center">
+            <span className="section-label">Need a match</span>
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-              Not sure of your size?
+              Can't read the label?
             </h2>
             <p className="text-base md:text-lg text-white/70 mb-8 max-w-xl mx-auto leading-relaxed">
               Send a photo of the label on your current filter — we’ll match it for
@@ -153,7 +145,7 @@ export default function Home() {
             </p>
             <Button
               size="lg"
-              className="bg-white text-navy hover:bg-ice"
+              className="hero-shop-btn w-full text-white sm:w-auto"
               onClick={() =>
                 scrollToContact({
                   message:
@@ -169,15 +161,15 @@ export default function Home() {
         <section
           id="contact"
           ref={contactRef}
-          className="py-16 md:py-24 scroll-mt-20"
+          className="py-16 md:py-24 scroll-mt-28"
         >
           <div className="container max-w-xl">
-            <span className="section-label">Support</span>
-            <h2 className="text-3xl md:text-4xl font-bold mb-3">Contact</h2>
+            <span className="section-label">Real support</span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">Contact Filter Hero</h2>
             <p className="text-muted-foreground mb-10 leading-relaxed">
               Questions about size, MERV, or an order — we’ll respond promptly.
             </p>
-            <div className="surface-panel rounded-2xl p-6 md:p-8">
+            <div className="surface-panel rounded-2xl p-4 sm:p-6 md:p-8">
               <ContactForm
                 defaultSize={quoteSize}
                 defaultMessage={quoteMessage}
@@ -189,7 +181,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="border-t border-border/60 bg-deep text-white/70 py-14">
+      <footer className="site-footer pt-14">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-12 gap-8 mb-12">
             <div className="col-span-2 md:col-span-5">

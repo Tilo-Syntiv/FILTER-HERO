@@ -97,8 +97,8 @@ export default function ProductGrid({
               <Button
                 onClick={() => onAddToCart?.(product)}
                 disabled={!product.inStock}
-                className="w-full"
-                variant={product.inStock ? "default" : "outline"}
+                className="hero-shop-btn w-full text-white"
+                variant="default"
               >
                 <ShoppingCart className="h-4 w-4 mr-2" />
                 {product.inStock ? "Add to Cart" : "Notify Me"}

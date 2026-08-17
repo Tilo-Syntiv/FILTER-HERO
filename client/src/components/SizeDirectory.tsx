@@ -13,7 +13,7 @@ type SizeDirectoryProps = {
 
 export default function SizeDirectory({
   depth,
-  heading = "HVAC air filter sizes",
+  heading = "Filter Hero sizes",
   compact = false,
 }: SizeDirectoryProps) {
   const activeDepth = depth ?? 1;
@@ -42,6 +42,7 @@ export default function SizeDirectory({
         {!compact && (
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
             <div>
+              <span className="section-label">Size catalog</span>
               <h2
                 id="size-directory-heading"
                 className="text-2xl md:text-4xl font-bold tracking-tight"
@@ -52,10 +53,7 @@ export default function SizeDirectory({
                 {sizes.length} {activeDepth}" sizes. Click any size to buy it.
               </p>
             </div>
-            <Link
-              href="/sizes"
-              className="text-sm font-semibold text-primary hover:underline"
-            >
+            <Link href="/sizes" className="section-link">
               View all sizes
             </Link>
           </div>
@@ -68,7 +66,7 @@ export default function SizeDirectory({
               <Link
                 key={d}
                 href={`/filters/${d}-inch`}
-                className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-colors ${
+                className={`inline-flex min-h-11 items-center px-3 py-2 rounded-lg text-sm font-semibold border transition-colors ${
                   active
                     ? "bg-primary text-primary-foreground border-primary"
                     : "bg-white/70 border-border hover:border-primary/40"
@@ -80,7 +78,7 @@ export default function SizeDirectory({
           })}
           <Link
             href="/custom-air-filters"
-            className="px-3 py-2 rounded-lg text-sm font-semibold border border-border bg-white/70 hover:border-primary/40"
+            className="inline-flex min-h-11 items-center px-3 py-2 rounded-lg text-sm font-semibold border border-border bg-white/70 hover:border-primary/40"
           >
             Custom Air Filters
           </Link>
@@ -125,7 +123,7 @@ export default function SizeDirectory({
           <div className="mt-8 flex flex-wrap items-center gap-2">
             <button
               type="button"
-              className="px-3 py-2 text-sm rounded-lg border border-border disabled:opacity-40"
+              className="min-h-11 px-3 py-2 text-sm rounded-lg border border-border disabled:opacity-40"
               disabled={safePage === 0}
               onClick={() => goPage(safePage - 1)}
             >
@@ -142,7 +140,7 @@ export default function SizeDirectory({
                     <button
                       type="button"
                       onClick={() => goPage(i)}
-                      className={`min-w-9 px-3 py-2 text-sm rounded-lg border ${
+                      className={`min-h-11 min-w-11 px-3 py-2 text-sm rounded-lg border ${
                         i === safePage
                           ? "bg-primary text-primary-foreground border-primary"
                           : "border-border hover:border-primary/40"
@@ -155,7 +153,7 @@ export default function SizeDirectory({
               })}
             <button
               type="button"
-              className="px-3 py-2 text-sm rounded-lg border border-border disabled:opacity-40"
+              className="min-h-11 px-3 py-2 text-sm rounded-lg border border-border disabled:opacity-40"
               disabled={safePage >= totalPages - 1}
               onClick={() => goPage(safePage + 1)}
             >

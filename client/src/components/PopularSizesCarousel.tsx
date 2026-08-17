@@ -20,7 +20,7 @@ export default function PopularSizesCarousel() {
   const sizes = popularSizeSlugs(16);
 
   return (
-    <section className="py-16 md:py-20 bg-deep text-white relative overflow-hidden">
+    <section className="brand-band py-16 md:py-20 relative overflow-hidden">
       <div
         className="absolute inset-0 opacity-30"
         style={{
@@ -31,18 +31,15 @@ export default function PopularSizesCarousel() {
       <div className="container relative">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
           <div>
-            <span className="section-label !text-ice !opacity-90">Bestsellers</span>
+            <span className="section-label">Most requested</span>
             <h2 className="text-3xl md:text-4xl font-bold mb-3 text-white">
-              Popular sizes
+              Popular Filter Hero sizes
             </h2>
             <p className="text-white/60 max-w-lg">
               Swipe through the most requested residential HVAC dimensions
             </p>
           </div>
-          <Link
-            href="/sizes"
-            className="text-ice font-semibold text-sm inline-flex items-center gap-1 hover:gap-2 transition-all"
-          >
+          <Link href="/sizes" className="section-link">
             View all sizes <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

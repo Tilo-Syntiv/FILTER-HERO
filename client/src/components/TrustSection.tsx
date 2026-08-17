@@ -30,9 +30,9 @@ export default function TrustSection() {
     <section className="py-16 md:py-24">
       <div className="container">
         <div className="text-center max-w-xl mx-auto mb-14">
-          <span className="section-label">Why us</span>
+          <span className="section-label">Why Filter Hero</span>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Built for a better filter buy
+            Built for an exact-fit buy
           </h2>
         </div>
 

@@ -15,60 +15,46 @@ const STEPS: {
   {
     key: "width",
     num: "01",
-    title: "Measure the Width",
-    body: "Measure the shorter outer edge of the filter frame, side to side.",
-    tag: "Edge-to-edge",
+    title: "Width — side to side",
+    body: "Lay the tape across the shorter face of the frame, left to right. That first number is Width.",
+    tag: "First number",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden>
-        <rect x="2" y="8" width="20" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
-        <path
-          d="M6 8v3M10 8v4M14 8v3M18 8v4"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
+        <rect x="3" y="7" width="18" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M5 12h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M5 10v4M19 10v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       </svg>
     ),
   },
   {
     key: "length",
     num: "02",
-    title: "Measure the Length",
-    body: "Measure the longer outer edge of the filter frame, top to bottom.",
-    tag: "Edge-to-edge",
+    title: "Length — top to bottom",
+    body: "Measure the taller face of the frame, top to bottom. That second number is Length.",
+    tag: "Second number",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden>
-        <rect x="8" y="2" width="8" height="20" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
-        <path
-          d="M8 6h3M8 10h4M8 14h3M8 18h4"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
+        <rect x="7" y="3" width="10" height="18" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M12 5v14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M10 5h4M10 19h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       </svg>
     ),
   },
   {
     key: "depth",
     num: "03",
-    title: "Measure the Depth",
-    body: 'Measure the thickness from front face to back face — usually 1", 2" or 4".',
-    tag: "Front-to-back",
+    title: "Depth — the thickness",
+    body: 'Measure the cardboard edge, front to back. Common depths are 1", 2", and 4".',
+    tag: "Third number",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden>
         <path
-          d="M12 3l9 5-9 5-9-5 9-5z"
+          d="M4 8h12l4 4v8H8L4 16V8z"
           stroke="currentColor"
           strokeWidth="1.8"
           strokeLinejoin="round"
         />
-        <path
-          d="M3 13l9 5 9-5"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        <path d="M16 8v4h4" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
       </svg>
     ),
   },
@@ -84,7 +70,7 @@ const NOTES = [
   {
     label: "Actual size",
     value: "19½ × 24½ × ¾",
-    desc: "The true dimensions when you put a tape measure to the filter itself.",
+    desc: "The true dimensions when you put a tape to the filter itself.",
     tone: "bg-navy",
   },
   {
@@ -101,21 +87,12 @@ export default function HowToMeasureGuide() {
   return (
     <div className="space-y-8 md:space-y-10">
       <div className="relative overflow-hidden rounded-3xl surface-panel">
-        <div className="relative bg-[linear-gradient(125deg,#141e30_0%,#203868_55%,#3a66a3_120%)] px-6 py-8 md:px-10 md:py-10 text-white overflow-hidden">
+        <div className="relative bg-[linear-gradient(125deg,#141e30_0%,#203868_55%,#3a66a3_120%)] px-4 py-7 md:px-10 md:py-10 text-white overflow-hidden">
           <div
             className="pointer-events-none absolute inset-0 opacity-40"
             style={{
               background:
                 "radial-gradient(500px 280px at 90% -10%, rgba(142,176,216,0.45), transparent 60%)",
-            }}
-          />
-          <div
-            className="pointer-events-none absolute inset-0 opacity-[0.07]"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(255,255,255,0.9) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.9) 1px, transparent 1px)",
-              backgroundSize: "36px 36px",
-              maskImage: "linear-gradient(180deg, black, transparent 85%)",
             }}
           />
           <p className="relative text-xs font-bold tracking-[0.2em] uppercase text-ice mb-3">
@@ -124,38 +101,69 @@ export default function HowToMeasureGuide() {
           <h3 className="relative text-2xl md:text-3xl font-bold tracking-tight mb-3 max-w-xl">
             How to measure your air filter
           </h3>
-          <p className="relative text-sm md:text-base text-white/75 max-w-xl leading-relaxed">
-            Grab a tape measure and check your existing filter in three steps —
-            Width, Length, then Depth — so {BRAND_NAME} can match you to the exact
-            size every time.
+          <p className="relative text-sm md:text-base text-white/75 max-w-2xl leading-relaxed">
+            Fastest path: read the size already printed on the cardboard. If that
+            ink is gone, put a tape on one edge at a time — Width, then Length,
+            then Depth — and {BRAND_NAME} will match the exact size.
           </p>
         </div>
 
-        <div className="relative px-4 pb-6 pt-6 md:px-8 md:pb-8">
+        <div className="relative px-4 pb-6 pt-6 md:px-8 md:pb-8 space-y-5">
+          <div className="rounded-2xl border border-ice/40 bg-white p-4 md:p-5">
+            <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-primary mb-3">
+              Skip the tape if you can
+            </p>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex-1 rounded-xl border-2 border-dashed border-navy/30 bg-[#f4f1ea] px-4 py-3">
+                <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-navy/60 mb-1">
+                  Printed on the frame
+                </p>
+                <p className="font-extrabold text-2xl md:text-3xl tracking-tight text-deep">
+                  <span className="text-ice">20</span>
+                  <span className="text-muted-foreground"> × </span>
+                  <span className="text-navy">25</span>
+                  <span className="text-muted-foreground"> × </span>
+                  <span className="text-hero">1</span>
+                </p>
+                <div className="mt-1 grid grid-cols-3 text-[10px] font-bold tracking-[0.12em] uppercase text-muted-foreground">
+                  <span>Width</span>
+                  <span className="text-center">Length</span>
+                  <span className="text-right">Depth</span>
+                </div>
+              </div>
+              <p className="sm:max-w-xs text-sm text-muted-foreground leading-relaxed">
+                Almost every filter already says{" "}
+                <strong className="text-foreground">Width × Length × Depth</strong> on
+                the cardboard. Shop that printed size — not the slightly smaller
+                number your tape will show.
+              </p>
+            </div>
+          </div>
+
           <div className="relative rounded-2xl border border-border/80 bg-[linear-gradient(180deg,#fafbfc_0%,#eef1f6_100%)] p-4 md:p-6 overflow-hidden">
-            <span className="absolute top-0 left-5 -translate-y-1/2 rounded-full bg-hero text-white text-[10px] md:text-xs font-bold tracking-[0.16em] uppercase px-3 py-1.5">
-              Live example
+            <span className="absolute top-0 left-3 -translate-y-1/2 rounded-full bg-hero text-white text-[10px] md:text-xs font-bold tracking-[0.12em] uppercase px-3 py-1.5">
+              If you do measure
             </span>
+            <p className="text-center text-sm text-muted-foreground mb-4 max-w-md mx-auto">
+              Tap a dimension. The yellow tape sits on that exact edge so Width,
+              Length, and Depth cannot be mixed up.
+            </p>
             <MeasureFilterDiagram
               active={activeDim}
               onActiveChange={setActiveDim}
               autoplay
             />
-            <p className="mt-5 text-center text-xs md:text-sm font-semibold text-foreground">
-              Always measure in this order{" "}
-              <span className="text-primary">Width × Length × Depth</span>
-            </p>
           </div>
         </div>
       </div>
 
       <div>
         <h4 className="text-lg md:text-xl font-bold mb-1 tracking-tight">
-          Three measurements, one perfect fit
+          Three edges, one order
         </h4>
         <p className="text-sm text-muted-foreground mb-5">
-          Round to the nearest ¼ inch — that&apos;s all the precision you need.
-          Tap a step or watch the diagram cycle.
+          Round to the nearest ¼ inch, then use the nominal size. Tap a step to
+          pin the tape on that edge.
         </p>
         <div className="grid sm:grid-cols-3 gap-3 md:gap-4">
           {STEPS.map((step) => {

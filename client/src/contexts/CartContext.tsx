@@ -27,8 +27,8 @@ type CartContextValue = {
   closeCart: () => void;
   toggleCart: () => void;
   addItem: (product: Product, qty?: number, unitPrice?: number) => void;
-  setQty: (productId: number, qty: number) => void;
-  removeItem: (productId: number) => void;
+  setQty: (productId: number, qty: number, price: number) => void;
+  removeItem: (productId: number, price: number) => void;
   clearCart: () => void;
   cartSummaryText: () => string;
 };
@@ -93,17 +93,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setIsOpen(true);
   }, []);
 
-  const setQty = useCallback((productId: number, qty: number) => {
+  const setQty = useCallback((productId: number, qty: number, price: number) => {
     setItems((prev) => {
-      if (qty <= 0) return prev.filter((i) => i.productId !== productId);
+      const sameLine = (i: CartItem) => i.productId === productId && i.price === price;
+      if (qty <= 0) return prev.filter((i) => !sameLine(i));
       return prev.map((i) =>
-        i.productId === productId ? { ...i, qty: Math.min(50, qty) } : i,
+        sameLine(i) ? { ...i, qty: Math.min(50, qty) } : i,
       );
     });
   }, []);
 
-  const removeItem = useCallback((productId: number) => {
-    setItems((prev) => prev.filter((i) => i.productId !== productId));
+  const removeItem = useCallback((productId: number, price: number) => {
+    setItems((prev) =>
+      prev.filter((i) => !(i.productId === productId && i.price === price)),
+    );
   }, []);
 
   const clearCart = useCallback(() => setItems([]), []);

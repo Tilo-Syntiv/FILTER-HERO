@@ -52,6 +52,7 @@ export default function ReviewsCarousel() {
     <div className="mt-20 pt-16 border-t border-border/80">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-10">
         <div>
+          <span className="section-label">From the field</span>
           <h3 className="text-xl md:text-2xl font-bold tracking-tight">
             What customers say
           </h3>
@@ -101,8 +102,8 @@ export default function ReviewsCarousel() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="hidden sm:flex -left-3 bg-white border-border shadow-sm" />
-        <CarouselNext className="hidden sm:flex -right-3 bg-white border-border shadow-sm" />
+        <CarouselPrevious className="hidden md:flex -left-3 bg-white border-border shadow-sm" />
+        <CarouselNext className="hidden md:flex -right-3 bg-white border-border shadow-sm" />
       </Carousel>
 
       <CarouselDots
