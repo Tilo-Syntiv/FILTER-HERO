@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
 import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
 import CustomQuoteForm from "@/components/CustomQuoteForm";
@@ -20,6 +20,8 @@ export default function CustomAirFiltersPage() {
   const siteUrl = getSiteUrl();
   const seo = customAirFiltersSeo(siteUrl);
   const [quoteCart, setQuoteCart] = useState("");
+  const [quoteSize, setQuoteSize] = useState("");
+  const search = useSearch();
   useHashScroll();
 
   useSeo({
@@ -41,7 +43,13 @@ export default function CustomAirFiltersPage() {
   useEffect(() => {
     const handed = takeQuoteHandoff();
     if (handed.cart) setQuoteCart(handed.cart);
+    if (handed.size) setQuoteSize(handed.size);
   }, []);
+
+  useEffect(() => {
+    const size = new URLSearchParams(search).get("size");
+    if (size) setQuoteSize(size);
+  }, [search]);
 
   return (
     <div className="min-h-screen">
@@ -68,7 +76,7 @@ export default function CustomAirFiltersPage() {
           <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
             Fill in your size. We’ll confirm fit, MERV options, and lead time.
           </p>
-          <CustomQuoteForm cartSummary={quoteCart} />
+          <CustomQuoteForm cartSummary={quoteCart} defaultSize={quoteSize} />
         </div>
         <FaqSection
           faqs={CUSTOM_FAQS}

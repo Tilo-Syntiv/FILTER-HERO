@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import HowToMeasureGuide from "@/components/HowToMeasureGuide";
 import FilterSizeDiagram from "@/components/FilterSizeDiagram";
 import PopularSizesCarousel from "@/components/PopularSizesCarousel";
+import { customQuotePath } from "@/lib/filter-size";
 import {
   catalogLengths,
   catalogWidths,
@@ -43,7 +44,7 @@ export default function FilterFinder({
     setLocation(
       getFilterSize(size)
         ? `/sizes/${encodeURIComponent(size)}`
-        : "/custom-air-filters",
+        : customQuotePath(size),
     );
   };
 

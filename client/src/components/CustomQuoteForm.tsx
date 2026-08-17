@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { MERV_TYPES } from "@shared/products";
+import { parseSizeSlug } from "@/lib/filter-size";
 
 const dimField = (label: string) =>
   z
@@ -42,22 +44,34 @@ function formatDim(n: number) {
   return String(Number(n.toFixed(3)));
 }
 
+function sizeDefaults(size: string) {
+  const parsed = parseSizeSlug(size);
+  return {
+    width: parsed?.width ?? "",
+    length: parsed?.length ?? "",
+    depth: parsed?.depth ?? "",
+  };
+}
+
 type CustomQuoteFormProps = {
   cartSummary?: string;
+  defaultSize?: string;
 };
 
-export default function CustomQuoteForm({ cartSummary = "" }: CustomQuoteFormProps) {
+export default function CustomQuoteForm({
+  cartSummary = "",
+  defaultSize = "",
+}: CustomQuoteFormProps) {
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      width: "",
-      length: "",
-      depth: "",
+      ...sizeDefaults(defaultSize),
       merv: "unsure",
       quantity: "6",
       name: "",
@@ -66,6 +80,14 @@ export default function CustomQuoteForm({ cartSummary = "" }: CustomQuoteFormPro
       notes: "",
     },
   });
+
+  useEffect(() => {
+    const parsed = parseSizeSlug(defaultSize);
+    if (!parsed) return;
+    setValue("width", parsed.width);
+    setValue("length", parsed.length);
+    setValue("depth", parsed.depth);
+  }, [defaultSize, setValue]);
 
   const onSubmit = async (values: FormValues) => {
     const size = `${formatDim(values.width)}x${formatDim(values.length)}x${formatDim(values.depth)}`;
@@ -96,15 +118,18 @@ export default function CustomQuoteForm({ cartSummary = "" }: CustomQuoteFormPro
           cartSummary: cartSummary || undefined,
         }),
       });
-      const data = (await res.json()) as { ok?: boolean; error?: string };
+      let data: { ok?: boolean; error?: string } = {};
+      try {
+        data = (await res.json()) as { ok?: boolean; error?: string };
+      } catch {
+        throw new Error("Failed to send");
+      }
       if (!res.ok || !data.ok) {
         throw new Error(data.error || "Failed to send");
       }
       toast.success("Quote request sent — we'll follow up with pricing and lead time.");
       reset({
-        width: "",
-        length: "",
-        depth: "",
+        ...sizeDefaults(""),
         merv: "unsure",
         quantity: "6",
         name: "",
@@ -118,7 +143,7 @@ export default function CustomQuoteForm({ cartSummary = "" }: CustomQuoteFormPro
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
       <fieldset>
         <legend className="section-label mb-3">Your filter size</legend>
         <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
@@ -131,7 +156,7 @@ export default function CustomQuoteForm({ cartSummary = "" }: CustomQuoteFormPro
               id="custom-width"
               type="number"
               inputMode="decimal"
-              step="0.125"
+              step="any"
               min={0.25}
               max={48}
               placeholder='e.g. 19.5"'
@@ -148,7 +173,7 @@ export default function CustomQuoteForm({ cartSummary = "" }: CustomQuoteFormPro
               id="custom-length"
               type="number"
               inputMode="decimal"
-              step="0.125"
+              step="any"
               min={0.25}
               max={48}
               placeholder='e.g. 23.5"'
@@ -165,7 +190,7 @@ export default function CustomQuoteForm({ cartSummary = "" }: CustomQuoteFormPro
               id="custom-depth"
               type="number"
               inputMode="decimal"
-              step="0.125"
+              step="any"
               min={0.25}
               max={48}
               placeholder='e.g. 1"'
@@ -197,6 +222,7 @@ export default function CustomQuoteForm({ cartSummary = "" }: CustomQuoteFormPro
             id="custom-qty"
             type="number"
             inputMode="numeric"
+            step={1}
             min={1}
             max={999}
             className="h-12 text-base font-semibold"

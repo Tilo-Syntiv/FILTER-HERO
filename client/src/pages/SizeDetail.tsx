@@ -176,7 +176,9 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                 quote and we'll confirm pricing and lead time for your dimensions.
               </p>
               <Button size="lg" className="hero-shop-btn w-full text-white sm:w-auto" asChild>
-                <a href={`/?size=${encodeURIComponent(decoded)}#contact`}>Request a quote for {decoded}</a>
+                <Link href={`/custom-air-filters?size=${encodeURIComponent(decoded)}`}>
+                  Request a quote for {decoded}
+                </Link>
               </Button>
             </div>
             <div className="mt-12">
@@ -225,7 +227,14 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
               <p className="seo-answer text-muted-foreground mb-10 leading-relaxed">
                 Buy {decoded} HVAC and furnace air filters from {BRAND_NAME}.
                 Choose MERV 8, 11, 13, or carbon and replace every 30–90
-                days depending on use.
+                days depending on use.{" "}
+                <Link
+                  href="/how-often-to-change-air-filter"
+                  className="font-semibold text-primary hover:underline"
+                >
+                  Get a change date for your home
+                </Link>
+                .
               </p>
 
               <div className="mb-8">

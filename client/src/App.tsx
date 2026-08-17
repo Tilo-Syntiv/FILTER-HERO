@@ -8,6 +8,7 @@ import SizeDetailPage from "@/pages/SizeDetail";
 import { AllSizesPage, ThicknessHubPage } from "@/pages/SizeBrowse";
 import { AllBrandsPage, BrandDetailPage } from "@/pages/BrandBrowse";
 import CustomAirFiltersPage from "@/pages/CustomAirFilters";
+import FilterChangeGuidePage from "@/pages/FilterChangeGuide";
 import { Route, Switch, useRoute } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -42,6 +43,7 @@ function Router() {
       <Route path="/brands" component={AllBrandsPage} />
       <Route path="/brands/:slug" component={BrandRoute} />
       <Route path="/custom-air-filters" component={CustomAirFiltersPage} />
+      <Route path="/how-often-to-change-air-filter" component={FilterChangeGuidePage} />
       <Route path="/checkout/success" component={CheckoutSuccess} />
       <Route path="/checkout/cancel" component={CheckoutCancel} />
       <Route path="/404" component={NotFound} />

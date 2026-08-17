@@ -31,6 +31,8 @@ export type FaqItem = {
   answer: string;
 };
 
+export const CHANGE_GUIDE_PATH = "/how-often-to-change-air-filter";
+
 /** Answer-first FAQs for AEO / VEO / AIO citation. */
 export const SITE_FAQS: FaqItem[] = [
   {
@@ -67,6 +69,49 @@ export const SITE_FAQS: FaqItem[] = [
     question: "Do you offer free shipping?",
     answer:
       `Yes. ${BRAND_NAME} offers free shipping on orders over $50 within the contiguous United States, with a 30-day fit guarantee on standard catalog sizes.`,
+  },
+];
+
+export const CHANGE_GUIDE_FAQS: FaqItem[] = [
+  {
+    question: "How often should I change my HVAC filter?",
+    answer:
+      "Most homes should change a 1-inch filter every 30 to 90 days. Change closer to 30 days with pets, allergies, high dust, wildfire smoke, or a fan that runs constantly. 2-inch filters often last 90–120 days. 4-inch and 5-inch media can last 6–12 months. Inspect monthly regardless of the schedule.",
+  },
+  {
+    question: "Do thicker air filters last longer?",
+    answer:
+      "Yes. Extra depth means more pleat area, so particles have more places to land before airflow drops. A 1-inch filter is typically a 30–90 day part. A 4-inch or 5-inch media cabinet filter can run for months — still check it every month.",
+  },
+  {
+    question: "Do pets mean I should change my filter more often?",
+    answer:
+      "Yes. One pet often cuts filter life by about a quarter. Multiple pets or heavy shedders can cut it nearly in half. MERV 11 or MERV 13 is a better match than MERV 8 in a pet home.",
+  },
+  {
+    question: "What MERV rating should I use if I have allergies?",
+    answer:
+      "MERV 13 is the usual upgrade for asthma and allergy-sensitive homes, if your HVAC system can handle the extra resistance. Change it on the early side of the 30–90 day window so capture stays high. Confirm with your equipment manual before jumping from MERV 8 to 13 on a 1-inch slot.",
+  },
+  {
+    question: "How do I know my air filter is done?",
+    answer:
+      "Pull it and hold it to a light. If you cannot see glow through the pleats, replace it. Other tells: gray or black media, weak vents, uneven rooms, whistling at the slot, extra dust on furniture, and a sudden jump in the energy bill.",
+  },
+  {
+    question: "What happens if I don't change my air filter?",
+    answer:
+      "Indoor air quality drops, the blower works harder, and energy use can rise 5–15% according to the U.S. Department of Energy. Leave it long enough and you risk iced coils, motor strain, and repair bills that dwarf the cost of a filter.",
+  },
+  {
+    question: "Should I run the HVAC fan on ON all the time?",
+    answer:
+      "Fan ON moves more air through the filter, which can help mix temperatures — and it loads the filter faster. Plan on changing sooner than the auto-fan schedule. If the house is dusty, Auto plus a higher MERV is often the calmer setup.",
+  },
+  {
+    question: "Can I wash a pleated HVAC filter?",
+    answer:
+      "No. Disposable pleated filters are not washable. Water collapses the media and ruins capture. When it’s loaded, replace it. Keep a spare on the shelf so you are never stuck with a clogged filter overnight.",
   },
 ];
 
@@ -157,6 +202,17 @@ export function brandSeo(siteUrl: string, name: string, slug: string) {
     path,
     canonical: absoluteUrl(siteUrl, path),
     type: "website" as const,
+  };
+}
+
+export function filterChangeGuideSeo(siteUrl: string) {
+  const path = CHANGE_GUIDE_PATH;
+  return {
+    title: `How Often to Change Your Air Filter | ${BRAND_NAME}`,
+    description: `Most 1-inch HVAC filters last 30–90 days. Pets, dust, and thickness change that number. Use the ${BRAND_NAME} Filter Clock to get a change date for your home.`,
+    path,
+    canonical: absoluteUrl(siteUrl, path),
+    type: "article" as const,
   };
 }
 
@@ -290,6 +346,69 @@ export function buildHowToMeasureSchema(siteUrl: string) {
   };
 }
 
+export function buildHowToChangeFilterSchema(siteUrl: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: "How to change an HVAC air filter",
+    description:
+      "Turn the system off, pull the old filter, light-test it, and seat a new filter with the airflow arrow pointing toward the equipment.",
+    totalTime: "PT5M",
+    url: absoluteUrl(siteUrl, CHANGE_GUIDE_PATH),
+    step: [
+      {
+        "@type": "HowToStep",
+        position: 1,
+        name: "Turn the HVAC system off",
+        text: "Set the thermostat to off before opening the filter slot.",
+      },
+      {
+        "@type": "HowToStep",
+        position: 2,
+        name: "Find every filter",
+        text: "Check wall or ceiling return grilles and the furnace or air handler rack. Large homes often have more than one filter.",
+      },
+      {
+        "@type": "HowToStep",
+        position: 3,
+        name: "Read the size and airflow arrow",
+        text: "Note Width × Length × Depth printed on the frame and the arrow direction toward the equipment.",
+      },
+      {
+        "@type": "HowToStep",
+        position: 4,
+        name: "Light-test the old filter",
+        text: "Hold the filter to a lamp. Replace it if little or no light passes through the pleats, or if the media is gray, torn, or wet.",
+      },
+      {
+        "@type": "HowToStep",
+        position: 5,
+        name: "Install the new filter",
+        text: "Slide the new filter in with the arrow pointing toward the furnace or air handler, restore power, and confirm airflow at a vent.",
+      },
+    ],
+  };
+}
+
+export function buildArticleSchema(
+  siteUrl: string,
+  seo: { title: string; description: string; path: string; canonical: string },
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: seo.title,
+    description: seo.description,
+    url: seo.canonical,
+    mainEntityOfPage: seo.canonical,
+    datePublished: "2026-08-17",
+    dateModified: "2026-08-17",
+    author: { "@type": "Organization", name: BRAND_NAME, url: absoluteUrl(siteUrl, "/") },
+    publisher: { "@type": "Organization", name: BRAND_NAME, url: absoluteUrl(siteUrl, "/") },
+    about: ["HVAC air filters", "Furnace filter replacement", "Indoor air quality"],
+  };
+}
+
 /** Speakable content for voice assistants (VEO). */
 export function buildSpeakableSchema(siteUrl: string, cssSelectors: string[]) {
   return {
@@ -390,6 +509,7 @@ export function sitemapPaths(): { path: string; changefreq: string; priority: st
   const paths: { path: string; changefreq: string; priority: string }[] = [
     { path: "/", changefreq: "daily", priority: "1.0" },
     { path: "/sizes", changefreq: "weekly", priority: "0.9" },
+    { path: CHANGE_GUIDE_PATH, changefreq: "monthly", priority: "0.8" },
     { path: "/custom-air-filters", changefreq: "monthly", priority: "0.7" },
     { path: "/brands", changefreq: "weekly", priority: "0.85" },
   ];
@@ -441,6 +561,7 @@ export function buildLlmsTxt(siteUrl: string): string {
 ## Key pages
 - Home / size finder: ${absoluteUrl(siteUrl, "/")}
 - All sizes: ${absoluteUrl(siteUrl, "/sizes")}
+- When to change a filter: ${absoluteUrl(siteUrl, CHANGE_GUIDE_PATH)}
 - Shop by HVAC brand: ${absoluteUrl(siteUrl, "/brands")}
 ${THICKNESSES.map((d) => `- ${d}" hub: ${absoluteUrl(siteUrl, `/filters/${d}-inch`)}`).join("\n")}
 
@@ -483,7 +604,7 @@ ${byDepth}
 
 ## Voice / answer snippets
 - Direct answer: You need the Width × Length × Depth printed on your current filter or measured from the slot.
-- Replacement: Most homes change HVAC filters every 30 to 90 days.
+- Replacement: Most homes change HVAC filters every 30 to 90 days. Pets, dust, and thickness change the interval — see ${absoluteUrl(siteUrl, CHANGE_GUIDE_PATH)}.
 - MERV: MERV 8 everyday, MERV 11 pets/allergies, MERV 13 higher filtration, carbon for odors.
 
 ## Video
@@ -516,7 +637,7 @@ export type DocumentSeo = {
   description: string;
   path: string;
   canonical: string;
-  type: "website" | "product";
+  type: "website" | "product" | "article";
   noindex?: boolean;
   jsonLd: unknown[];
 };
@@ -668,6 +789,23 @@ export function resolveDocumentSeo(pathname: string, siteUrl: string): DocumentS
     };
   }
 
+  if (path === CHANGE_GUIDE_PATH) {
+    const seo = filterChangeGuideSeo(siteUrl);
+    return {
+      ...seo,
+      jsonLd: [
+        buildBreadcrumbSchema(siteUrl, [
+          { name: "Home", path: "/" },
+          { name: "When to change your filter", path: CHANGE_GUIDE_PATH },
+        ]),
+        buildArticleSchema(siteUrl, seo),
+        buildHowToChangeFilterSchema(siteUrl),
+        buildFaqSchema(CHANGE_GUIDE_FAQS),
+        buildSpeakableSchema(siteUrl, [".seo-answer", ".seo-speakable-q", ".seo-speakable-a"]),
+      ],
+    };
+  }
+
   if (path.startsWith("/checkout")) {
     return {
       title: `Checkout | ${BRAND_NAME}`,
@@ -727,7 +865,7 @@ export function injectSeoIntoHtml(html: string, seo: DocumentSeo): string {
   out = replaceMeta(out, "property", "og:title", seo.title);
   out = replaceMeta(out, "property", "og:description", seo.description);
   out = replaceMeta(out, "property", "og:url", seo.canonical);
-  out = replaceMeta(out, "property", "og:type", seo.type === "product" ? "product" : "website");
+  out = replaceMeta(out, "property", "og:type", seo.type === "product" ? "product" : seo.type === "article" ? "article" : "website");
   out = replaceMeta(out, "name", "twitter:title", seo.title);
   out = replaceMeta(out, "name", "twitter:description", seo.description);
 

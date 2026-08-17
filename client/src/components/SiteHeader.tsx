@@ -5,7 +5,7 @@ import BrandLockup from "@/components/BrandLockup";
 import { useCart } from "@/contexts/CartContext";
 import { BRAND_EMAIL } from "@/const";
 import { scrollToHashTarget } from "@/hooks/useHashScroll";
-import { featuredHvacBrands } from "@shared/hvac-brands";
+import { featuredBrandFamilies, featuredHvacBrands } from "@shared/hvac-brands";
 import {
   catalogLengths,
   catalogWidths,
@@ -13,11 +13,13 @@ import {
   popularSizeSlugs,
   THICKNESSES,
 } from "@shared/products";
+import { customQuotePath } from "@/lib/filter-size";
 
 const WIDTHS = catalogWidths().map(String);
 const LENGTHS = catalogLengths().map(String);
 const DEPTHS = THICKNESSES.map(String);
 const FEATURED_BRANDS = featuredHvacBrands();
+const FEATURED_BRAND_FAMILIES = featuredBrandFamilies();
 const SHOP_BRANDS = FEATURED_BRANDS.slice(0, 8);
 const POPULAR = popularSizeSlugs(8);
 
@@ -69,7 +71,7 @@ function HeaderFinder({ onFound }: { onFound?: () => void }) {
     setLocation(
       getFilterSize(slug)
         ? `/sizes/${encodeURIComponent(slug)}`
-        : "/custom-air-filters",
+        : customQuotePath(slug),
     );
   };
 
@@ -177,11 +179,14 @@ export default function SiteHeader() {
   };
 
   const goCustomQuote = (event: ReactMouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
     closeMenus();
+    const href = event.currentTarget.getAttribute("href") || customQuotePath();
     if (window.location.pathname === "/custom-air-filters") {
-      event.preventDefault();
       scrollToHashTarget("custom-quote");
+      return;
     }
+    setLocation(href);
   };
 
   useEffect(() => {
@@ -211,7 +216,7 @@ export default function SiteHeader() {
       onPointerLeave={scheduleCloseDesktopMenu}
     >
       <div className="site-header-bar">
-      <div className="container flex flex-wrap items-center gap-x-2 gap-y-1 py-2.5 md:flex-nowrap md:py-3">
+      <div className="container flex flex-wrap items-center gap-x-2 gap-y-2 py-2.5 lg:flex-nowrap md:py-3">
         <BrandLockup tone="header" className="min-w-0 shrink-0" onClick={closeMenus} />
 
         <nav
@@ -241,14 +246,14 @@ export default function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden lg:block flex-1 min-w-0 max-w-2xl mx-2 xl:mx-4">
+        <div className="order-last w-full min-w-0 lg:order-none lg:flex-1 lg:max-w-2xl lg:mx-2 xl:mx-4">
           <HeaderFinder onFound={closeMenus} />
         </div>
 
         <div className="ml-auto flex items-center gap-1.5 shrink-0">
           <Link
             href="/custom-air-filters#custom-quote"
-            className="header-find-btn hidden md:inline-flex"
+            className="header-find-btn inline-flex shrink-0"
             onClick={goCustomQuote}
           >
             Custom size
@@ -366,20 +371,29 @@ export default function SiteHeader() {
 
           {desktopMenu === "brands" && (
             <div className="container py-7">
-              <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
+              <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-4">
                 Featured HVAC brands
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                {FEATURED_BRANDS.map((brand) => (
-                  <Link
-                    key={brand.slug}
-                    href={`/brands/${brand.slug}`}
-                    className="header-mega-tile"
-                    onClick={closeMenus}
-                  >
-                    <span className="text-sm font-extrabold tracking-tight">{brand.name}</span>
-                    <span className="text-xs text-ice/80 font-medium">Exact-fit replacements</span>
-                  </Link>
+              <div className="grid gap-5">
+                {FEATURED_BRAND_FAMILIES.map((family) => (
+                  <div key={family.id}>
+                    <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-white/55 mb-2">
+                      {family.label}
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                      {family.brands.map((brand) => (
+                        <Link
+                          key={brand.slug}
+                          href={`/brands/${brand.slug}`}
+                          className="header-mega-tile"
+                          onClick={closeMenus}
+                        >
+                          <span className="text-sm font-extrabold tracking-tight">{brand.name}</span>
+                          <span className="text-xs text-ice/80 font-medium">Exact-fit replacements</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
               <Link
@@ -411,7 +425,15 @@ export default function SiteHeader() {
                 <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
                   Support
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <Link
+                    href="/how-often-to-change-air-filter"
+                    className="header-mega-tile"
+                    onClick={closeMenus}
+                  >
+                    <span className="text-sm font-extrabold tracking-tight">When to change</span>
+                    <span className="text-xs text-ice/80 font-medium">Your Filter Clock</span>
+                  </Link>
                   <Link
                     href="/#contact"
                     className="header-mega-tile"

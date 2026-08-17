@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
-import { HVAC_BRAND_LIST, featuredHvacBrands, searchBrandCodes } from "@shared/hvac-brands";
+import { featuredBrandFamilies, otherBrandFamilies, searchBrandCodes } from "@shared/hvac-brands";
 import { BRAND_NAME } from "@/const";
 
 export default function BrandDirectory({ compact = false }: { compact?: boolean }) {
   const [query, setQuery] = useState("");
-  const featured = featuredHvacBrands();
-  const rest = HVAC_BRAND_LIST.filter((b) => !b.featured);
+  const featuredFamilies = featuredBrandFamilies();
+  const otherFamilies = otherBrandFamilies();
   const hits = useMemo(() => searchBrandCodes(query), [query]);
 
   return (
@@ -59,28 +59,46 @@ export default function BrandDirectory({ compact = false }: { compact?: boolean 
       )}
 
       <p className="section-label">Popular brands</p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 mb-10">
-        {featured.map((b) => (
-          <Link
-            key={b.slug}
-            href={`/brands/${b.slug}`}
-            className="size-chip !py-4 text-center"
-          >
-            {b.name}
-          </Link>
+      <div className="grid gap-6 mb-10">
+        {featuredFamilies.map((family) => (
+          <div key={family.id}>
+            <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-muted-foreground mb-2">
+              {family.label}
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+              {family.brands.map((b) => (
+                <Link
+                  key={b.slug}
+                  href={`/brands/${b.slug}`}
+                  className="size-chip !py-4 text-center"
+                >
+                  {b.name}
+                </Link>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
 
       <p className="section-label">All HVAC brands</p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
-        {rest.map((b) => (
-          <Link
-            key={b.slug}
-            href={`/brands/${b.slug}`}
-            className="size-chip !py-3 text-center text-sm"
-          >
-            {b.name}
-          </Link>
+      <div className="grid gap-6">
+        {otherFamilies.map((family) => (
+          <div key={family.id}>
+            <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-muted-foreground mb-2">
+              {family.label}
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+              {family.brands.map((b) => (
+                <Link
+                  key={b.slug}
+                  href={`/brands/${b.slug}`}
+                  className="size-chip !py-3 text-center text-sm"
+                >
+                  {b.name}
+                </Link>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </section>

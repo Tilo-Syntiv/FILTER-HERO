@@ -155,7 +155,7 @@ export function BrandDetailPage({ slug }: { slug: string }) {
                     return (
                       <Link
                         key={s}
-                        href={inCatalog ? `/sizes/${encodeURIComponent(s)}` : "/custom-air-filters"}
+                        href={inCatalog ? `/sizes/${encodeURIComponent(s)}` : `/custom-air-filters?size=${encodeURIComponent(s)}`}
                         className="size-chip !py-3"
                       >
                         {s}

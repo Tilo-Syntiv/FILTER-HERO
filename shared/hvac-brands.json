@@ -1167,7 +1167,7 @@
   {
     "slug": "rheem",
     "name": "Rheem",
-    "featured": false,
+    "featured": true,
     "sizes": [],
     "models": [],
     "oemParts": []
@@ -1175,7 +1175,7 @@
   {
     "slug": "ruud",
     "name": "Ruud",
-    "featured": false,
+    "featured": true,
     "sizes": [],
     "models": [],
     "oemParts": []

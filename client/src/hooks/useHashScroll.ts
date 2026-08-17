@@ -5,12 +5,17 @@ export function scrollToHashTarget(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-/** Scroll to a homepage section after arriving with a hash like /#finder. */
+/** Scroll to a section after arriving with a hash like /#finder or #custom-quote. */
 export function useHashScroll() {
   useEffect(() => {
     const id = window.location.hash.replace(/^#/, "");
     if (!id) return;
-    const timer = window.setTimeout(() => scrollToHashTarget(id), 80);
-    return () => window.clearTimeout(timer);
+    const run = () => scrollToHashTarget(id);
+    const raf = window.requestAnimationFrame(run);
+    const timer = window.setTimeout(run, 120);
+    return () => {
+      window.cancelAnimationFrame(raf);
+      window.clearTimeout(timer);
+    };
   }, []);
 }
