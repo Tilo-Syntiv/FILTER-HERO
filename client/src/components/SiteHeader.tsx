@@ -238,6 +238,7 @@ export default function SiteHeader() {
           </button>
         </div>
       </div>
+      </div>
 
       {shopOpen && (
         <div id="shop-mega" className="header-mega hidden lg:block">
@@ -252,7 +253,7 @@ export default function SiteHeader() {
                     key={d}
                     href={`/filters/${d}-inch`}
                     className="header-mega-tile"
-                    onClick={goHomeSection("finder")}
+                    onClick={closeMenus}
                   >
                     <span className="text-lg font-extrabold tracking-tight leading-none">
                       {formatDepth(d)}
@@ -263,7 +264,7 @@ export default function SiteHeader() {
                 <Link
                   href="/custom-air-filters"
                   className="header-mega-tile"
-                  onClick={goHomeSection("finder")}
+                  onClick={closeMenus}
                 >
                   <span className="text-sm font-extrabold tracking-tight">Custom</span>
                   <span className="text-xs text-ice/80 font-medium">Odd size? We cut it.</span>
@@ -281,7 +282,7 @@ export default function SiteHeader() {
                     key={slug}
                     href={`/sizes/${slug}`}
                     className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm font-semibold text-white hover:border-ice/60 hover:bg-white/10 transition-colors"
-                    onClick={goHomeSection("finder")}
+                    onClick={closeMenus}
                   >
                     {slug.replaceAll("x", " × ")}
                   </Link>
@@ -290,7 +291,7 @@ export default function SiteHeader() {
               <Link
                 href="/sizes"
                 className="inline-flex items-center gap-1.5 mt-4 text-sm font-bold text-ice hover:text-white transition-colors"
-                onClick={goHomeSection("finder")}
+                onClick={closeMenus}
               >
                 All sizes
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -307,7 +308,7 @@ export default function SiteHeader() {
                     <Link
                       href={`/brands/${brand.slug}`}
                       className="text-sm font-semibold text-white/85 hover:text-white transition-colors"
-                      onClick={goHomeSection("finder")}
+                      onClick={closeMenus}
                     >
                       {brand.name}
                     </Link>
@@ -317,7 +318,7 @@ export default function SiteHeader() {
               <Link
                 href="/brands"
                 className="inline-flex items-center gap-1.5 mt-4 text-sm font-bold text-ice hover:text-white transition-colors"
-                onClick={goHomeSection("finder")}
+                onClick={closeMenus}
               >
                 Every brand
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -349,7 +350,7 @@ export default function SiteHeader() {
                   key={d}
                   href={`/filters/${d}-inch`}
                   className="inline-flex min-h-11 items-center rounded-full border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white"
-                  onClick={goHomeSection("finder")}
+                  onClick={closeMenus}
                 >
                   {formatDepth(d)}
                 </Link>
@@ -361,28 +362,28 @@ export default function SiteHeader() {
             <Link
               href="/sizes"
               className="flex min-h-11 items-center px-3 py-2.5 rounded-xl text-white font-semibold hover:bg-white/8"
-              onClick={goHomeSection("finder")}
+              onClick={closeMenus}
             >
               Shop sizes
             </Link>
             <Link
               href="/brands"
               className="flex min-h-11 items-center px-3 py-2.5 rounded-xl text-white font-semibold hover:bg-white/8"
-              onClick={goHomeSection("finder")}
+              onClick={closeMenus}
             >
               Shop by brand
             </Link>
             <Link
               href="/custom-air-filters"
               className="flex min-h-11 items-center px-3 py-2.5 rounded-xl text-white font-semibold hover:bg-white/8"
-              onClick={goHomeSection("finder")}
+              onClick={closeMenus}
             >
               Custom air filters
             </Link>
             <Link
               href="/#contact"
               className="flex min-h-11 items-center px-3 py-2.5 rounded-xl text-white font-semibold hover:bg-white/8"
-              onClick={goHomeSection("finder")}
+              onClick={goHomeSection("contact")}
             >
               Contact
             </Link>
