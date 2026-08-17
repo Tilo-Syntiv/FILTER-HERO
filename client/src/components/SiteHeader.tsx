@@ -1,8 +1,9 @@
-import { useEffect, useId, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useEffect, useId, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, ChevronDown, Menu, ShoppingCart, X } from "lucide-react";
+import { ArrowRight, ChevronDown, Mail, MessageSquare, ShoppingCart } from "lucide-react";
 import BrandLockup from "@/components/BrandLockup";
 import { useCart } from "@/contexts/CartContext";
+import { BRAND_EMAIL } from "@/const";
 import { scrollToHashTarget } from "@/hooks/useHashScroll";
 import { featuredHvacBrands } from "@shared/hvac-brands";
 import {
@@ -16,12 +17,43 @@ import {
 const WIDTHS = catalogWidths().map(String);
 const LENGTHS = catalogLengths().map(String);
 const DEPTHS = THICKNESSES.map(String);
-const FEATURED_BRANDS = featuredHvacBrands().slice(0, 8);
+const FEATURED_BRANDS = featuredHvacBrands();
+const SHOP_BRANDS = FEATURED_BRANDS.slice(0, 8);
 const POPULAR = popularSizeSlugs(8);
+
+type DesktopMenu = "shop" | "brands" | "contact" | null;
 
 function formatDepth(value: string | number) {
   const n = Number(value);
   return n === 0.5 ? '½"' : `${n}"`;
+}
+
+function HeaderSizeField({
+  id,
+  short,
+  value,
+  onChange,
+  children,
+}: {
+  id: string;
+  short: string;
+  value: string;
+  onChange: (value: string) => void;
+  children: ReactNode;
+}) {
+  return (
+    <label htmlFor={id} className="header-finder-field">
+      <span className="header-finder-field-label">{short}</span>
+      <select
+        id={id}
+        className="header-finder-select"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        {children}
+      </select>
+    </label>
+  );
 }
 
 function HeaderFinder({ onFound }: { onFound?: () => void }) {
@@ -49,57 +81,51 @@ function HeaderFinder({ onFound }: { onFound?: () => void }) {
         go();
       }}
     >
-      <label className="sr-only" htmlFor={`${formId}-w`}>
-        Width
-      </label>
-      <select
-        id={`${formId}-w`}
-        className="header-finder-select"
-        value={width}
-        onChange={(e) => setWidth(e.target.value)}
-      >
-        {WIDTHS.map((w) => (
-          <option key={w} value={w}>
-            {w}"
-          </option>
-        ))}
-      </select>
-      <span className="text-ice/70 text-xs font-bold" aria-hidden>
-        ×
-      </span>
-      <label className="sr-only" htmlFor={`${formId}-l`}>
-        Length
-      </label>
-      <select
-        id={`${formId}-l`}
-        className="header-finder-select"
-        value={length}
-        onChange={(e) => setLength(e.target.value)}
-      >
-        {LENGTHS.map((l) => (
-          <option key={l} value={l}>
-            {l}"
-          </option>
-        ))}
-      </select>
-      <span className="text-ice/70 text-xs font-bold" aria-hidden>
-        ×
-      </span>
-      <label className="sr-only" htmlFor={`${formId}-d`}>
-        Depth
-      </label>
-      <select
-        id={`${formId}-d`}
-        className="header-finder-select"
-        value={depth}
-        onChange={(e) => setDepth(e.target.value)}
-      >
-        {DEPTHS.map((d) => (
-          <option key={d} value={d}>
-            {formatDepth(d)}
-          </option>
-        ))}
-      </select>
+      <p className="header-finder-prompt">Enter Your Filter Size</p>
+      <div className="header-finder-dims" role="group" aria-label="Filter size">
+        <HeaderSizeField
+          id={`${formId}-w`}
+          short="Width"
+          value={width}
+          onChange={setWidth}
+        >
+          {WIDTHS.map((w) => (
+            <option key={w} value={w}>
+              {w}"
+            </option>
+          ))}
+        </HeaderSizeField>
+        <span className="header-finder-times" aria-hidden>
+          ×
+        </span>
+        <HeaderSizeField
+          id={`${formId}-l`}
+          short="Length"
+          value={length}
+          onChange={setLength}
+        >
+          {LENGTHS.map((l) => (
+            <option key={l} value={l}>
+              {l}"
+            </option>
+          ))}
+        </HeaderSizeField>
+        <span className="header-finder-times" aria-hidden>
+          ×
+        </span>
+        <HeaderSizeField
+          id={`${formId}-d`}
+          short="Depth"
+          value={depth}
+          onChange={setDepth}
+        >
+          {DEPTHS.map((d) => (
+            <option key={d} value={d}>
+              {formatDepth(d)}
+            </option>
+          ))}
+        </HeaderSizeField>
+      </div>
       <button type="submit" className="header-find-btn">
         Find
         <ArrowRight className="h-3.5 w-3.5" />
@@ -111,13 +137,30 @@ function HeaderFinder({ onFound }: { onFound?: () => void }) {
 export default function SiteHeader() {
   const { itemCount, openCart } = useCart();
   const [, setLocation] = useLocation();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [shopOpen, setShopOpen] = useState(false);
+  const [desktopMenu, setDesktopMenu] = useState<DesktopMenu>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const closeMenuTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearCloseMenuTimer = () => {
+    if (closeMenuTimer.current) {
+      clearTimeout(closeMenuTimer.current);
+      closeMenuTimer.current = null;
+    }
+  };
+
+  const openDesktopMenu = (menu: DesktopMenu) => {
+    clearCloseMenuTimer();
+    setDesktopMenu(menu);
+  };
+
+  const scheduleCloseDesktopMenu = () => {
+    clearCloseMenuTimer();
+    closeMenuTimer.current = setTimeout(() => setDesktopMenu(null), 160);
+  };
 
   const closeMenus = () => {
-    setShopOpen(false);
-    setMobileOpen(false);
+    clearCloseMenuTimer();
+    setDesktopMenu(null);
   };
 
   const goHomeSection = (id: string) => (event: ReactMouseEvent<HTMLAnchorElement>) => {
@@ -133,13 +176,22 @@ export default function SiteHeader() {
     setLocation(`/#${id}`);
   };
 
+  const goCustomQuote = (event: ReactMouseEvent<HTMLAnchorElement>) => {
+    closeMenus();
+    if (window.location.pathname === "/custom-air-filters") {
+      event.preventDefault();
+      scrollToHashTarget("custom-quote");
+    }
+  };
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeMenus();
     };
     const onPointer = (e: globalThis.MouseEvent) => {
       if (!headerRef.current?.contains(e.target as Node)) {
-        setShopOpen(false);
+        clearCloseMenuTimer();
+        setDesktopMenu(null);
       }
     };
     document.addEventListener("keydown", onKey);
@@ -147,80 +199,61 @@ export default function SiteHeader() {
     return () => {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("mousedown", onPointer);
+      clearCloseMenuTimer();
     };
   }, []);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const onChange = () => {
-      if (mq.matches) setMobileOpen(false);
-    };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = mobileOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [mobileOpen]);
 
   return (
-    <header ref={headerRef} className="site-header sticky top-0 z-50">
+    <header
+      ref={headerRef}
+      className="site-header sticky top-0 z-50"
+      onPointerEnter={clearCloseMenuTimer}
+      onPointerLeave={scheduleCloseDesktopMenu}
+    >
       <div className="site-header-bar">
-      <div className="container flex items-center gap-3 py-2.5 md:py-3">
+      <div className="container flex flex-wrap items-center gap-x-2 gap-y-1 py-2.5 md:flex-nowrap md:py-3">
         <BrandLockup tone="header" className="min-w-0 shrink-0" onClick={closeMenus} />
 
-        <nav className="hidden lg:flex items-center ml-2" aria-label="Primary">
-          <button
-            type="button"
-            className="header-nav-link"
-            aria-expanded={shopOpen}
-            aria-controls="shop-mega"
-            onClick={() => {
-              setShopOpen((v) => !v);
-              setMobileOpen(false);
-            }}
-          >
-            Shop
-            <ChevronDown
-              className={`h-3.5 w-3.5 transition-transform ${shopOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-          <Link href="/brands" className="header-nav-link" onClick={closeMenus}>
-            Brands
-          </Link>
-          <Link href="/#contact" className="header-nav-link" onClick={goHomeSection("contact")}>
-            Contact
-          </Link>
+        <nav
+          className="order-last flex w-full items-center justify-center md:order-none md:w-auto md:justify-start lg:ml-2"
+          aria-label="Primary"
+        >
+          {([
+            ["shop", "Shop"],
+            ["brands", "Brands"],
+            ["contact", "Contact"],
+          ] as const).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              className="header-nav-link"
+              aria-expanded={desktopMenu === id}
+              aria-controls={`${id}-mega`}
+              onPointerEnter={() => openDesktopMenu(id)}
+              onFocus={() => openDesktopMenu(id)}
+              onClick={() => openDesktopMenu(id)}
+            >
+              {label}
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition-transform ${desktopMenu === id ? "rotate-180" : ""}`}
+              />
+            </button>
+          ))}
         </nav>
 
-        <div className="hidden xl:block flex-1 max-w-xl mx-4">
+        <div className="hidden lg:block flex-1 min-w-0 max-w-2xl mx-2 xl:mx-4">
           <HeaderFinder onFound={closeMenus} />
         </div>
 
         <div className="ml-auto flex items-center gap-1.5 shrink-0">
           <Link
-            href="/#finder"
-            className="header-find-btn hidden md:inline-flex xl:hidden"
-            onClick={goHomeSection("finder")}
+            href="/custom-air-filters#custom-quote"
+            className="header-find-btn hidden md:inline-flex"
+            onClick={goCustomQuote}
           >
-            Find size
+            Custom size
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
-          <button
-            type="button"
-            className="lg:hidden header-nav-link min-h-11 min-w-11 items-center justify-center px-2.5"
-            onClick={() => {
-              setMobileOpen((v) => !v);
-              setShopOpen(false);
-            }}
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileOpen}
-          >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
           <button
             type="button"
             className="header-cart"
@@ -238,81 +271,117 @@ export default function SiteHeader() {
       </div>
       </div>
 
-      {shopOpen && (
-        <div id="shop-mega" className="header-mega hidden lg:block">
-          <div className="container grid grid-cols-12 gap-8 py-7">
-            <div className="col-span-4">
-              <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
-                Thickness
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {THICKNESSES.map((d) => (
+      {desktopMenu && (
+        <div
+          id={`${desktopMenu}-mega`}
+          className="header-mega"
+          onPointerEnter={() => openDesktopMenu(desktopMenu)}
+          onPointerLeave={scheduleCloseDesktopMenu}
+        >
+          {desktopMenu === "shop" && (
+            <div className="container grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 py-5 md:py-7">
+              <div className="md:col-span-4">
+                <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
+                  Thickness
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {THICKNESSES.map((d) => (
+                    <Link
+                      key={d}
+                      href={`/filters/${d}-inch`}
+                      className="header-mega-tile"
+                      onClick={closeMenus}
+                    >
+                      <span className="text-lg font-extrabold tracking-tight leading-none">
+                        {formatDepth(d)}
+                      </span>
+                      <span className="text-xs text-ice/80 font-medium">Exact-fit filters</span>
+                    </Link>
+                  ))}
                   <Link
-                    key={d}
-                    href={`/filters/${d}-inch`}
+                    href="/custom-air-filters#custom-quote"
                     className="header-mega-tile"
-                    onClick={closeMenus}
+                    onClick={goCustomQuote}
                   >
-                    <span className="text-lg font-extrabold tracking-tight leading-none">
-                      {formatDepth(d)}
-                    </span>
-                    <span className="text-xs text-ice/80 font-medium">Exact-fit filters</span>
+                    <span className="text-sm font-extrabold tracking-tight">Custom</span>
+                    <span className="text-xs text-ice/80 font-medium">Odd size? We cut it.</span>
                   </Link>
-                ))}
+                </div>
+              </div>
+
+              <div className="md:col-span-4">
+                <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
+                  Popular sizes
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {POPULAR.map((slug) => (
+                    <Link
+                      key={slug}
+                      href={`/sizes/${slug}`}
+                      className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm font-semibold text-white hover:border-ice/60 hover:bg-white/10 transition-colors"
+                      onClick={closeMenus}
+                    >
+                      {slug.replaceAll("x", " × ")}
+                    </Link>
+                  ))}
+                </div>
                 <Link
-                  href="/custom-air-filters"
-                  className="header-mega-tile"
+                  href="/sizes"
+                  className="inline-flex items-center gap-1.5 mt-4 text-sm font-bold text-ice hover:text-white transition-colors"
                   onClick={closeMenus}
                 >
-                  <span className="text-sm font-extrabold tracking-tight">Custom</span>
-                  <span className="text-xs text-ice/80 font-medium">Odd size? We cut it.</span>
+                  All sizes
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+
+              <div className="md:col-span-4">
+                <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
+                  Shop by brand
+                </p>
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                  {SHOP_BRANDS.map((brand) => (
+                    <li key={brand.slug}>
+                      <Link
+                        href={`/brands/${brand.slug}`}
+                        className="text-sm font-semibold text-white/85 hover:text-white transition-colors"
+                        onClick={closeMenus}
+                      >
+                        {brand.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/brands"
+                  className="inline-flex items-center gap-1.5 mt-4 text-sm font-bold text-ice hover:text-white transition-colors"
+                  onClick={closeMenus}
+                >
+                  Every brand
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             </div>
+          )}
 
-            <div className="col-span-4">
+          {desktopMenu === "brands" && (
+            <div className="container py-7">
               <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
-                Popular sizes
+                Featured HVAC brands
               </p>
-              <div className="flex flex-wrap gap-2">
-                {POPULAR.map((slug) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                {FEATURED_BRANDS.map((brand) => (
                   <Link
-                    key={slug}
-                    href={`/sizes/${slug}`}
-                    className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm font-semibold text-white hover:border-ice/60 hover:bg-white/10 transition-colors"
+                    key={brand.slug}
+                    href={`/brands/${brand.slug}`}
+                    className="header-mega-tile"
                     onClick={closeMenus}
                   >
-                    {slug.replaceAll("x", " × ")}
+                    <span className="text-sm font-extrabold tracking-tight">{brand.name}</span>
+                    <span className="text-xs text-ice/80 font-medium">Exact-fit replacements</span>
                   </Link>
                 ))}
               </div>
-              <Link
-                href="/sizes"
-                className="inline-flex items-center gap-1.5 mt-4 text-sm font-bold text-ice hover:text-white transition-colors"
-                onClick={closeMenus}
-              >
-                All sizes
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-
-            <div className="col-span-4">
-              <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
-                Shop by brand
-              </p>
-              <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                {FEATURED_BRANDS.map((brand) => (
-                  <li key={brand.slug}>
-                    <Link
-                      href={`/brands/${brand.slug}`}
-                      className="text-sm font-semibold text-white/85 hover:text-white transition-colors"
-                      onClick={closeMenus}
-                    >
-                      {brand.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
               <Link
                 href="/brands"
                 className="inline-flex items-center gap-1.5 mt-4 text-sm font-bold text-ice hover:text-white transition-colors"
@@ -322,71 +391,59 @@ export default function SiteHeader() {
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {mobileOpen && (
-        <nav className="header-mobile lg:hidden border-t border-white/10 px-4 py-4 max-h-[min(78dvh,40rem)] overflow-y-auto space-y-5">
-          <HeaderFinder onFound={closeMenus} />
-          <Link
-            href="/#finder"
-            className="header-find-btn flex w-full h-12 text-sm justify-center"
-            onClick={goHomeSection("finder")}
-          >
-            Find your size
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-
-          <div>
-            <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-2 px-1">
-              Thickness
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {THICKNESSES.map((d) => (
-                <Link
-                  key={d}
-                  href={`/filters/${d}-inch`}
-                  className="inline-flex min-h-11 items-center rounded-full border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white"
-                  onClick={closeMenus}
-                >
-                  {formatDepth(d)}
-                </Link>
-              ))}
+          {desktopMenu === "contact" && (
+            <div className="container grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 py-5 md:py-7">
+              <div className="md:col-span-4">
+                <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
+                  Reach us
+                </p>
+                <a href={`mailto:${BRAND_EMAIL}`} className="header-mega-tile" onClick={closeMenus}>
+                  <span className="inline-flex items-center gap-2 text-sm font-extrabold tracking-tight">
+                    <Mail className="h-4 w-4" />
+                    Email
+                  </span>
+                  <span className="text-xs text-ice/80 font-medium">{BRAND_EMAIL}</span>
+                </a>
+              </div>
+              <div className="md:col-span-8">
+                <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
+                  Support
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <Link
+                    href="/#contact"
+                    className="header-mega-tile"
+                    onClick={goHomeSection("contact")}
+                  >
+                    <span className="inline-flex items-center gap-2 text-sm font-extrabold tracking-tight">
+                      <MessageSquare className="h-4 w-4" />
+                      Send a message
+                    </span>
+                    <span className="text-xs text-ice/80 font-medium">Size, MERV, or order help</span>
+                  </Link>
+                  <Link
+                    href="/#faq"
+                    className="header-mega-tile"
+                    onClick={goHomeSection("faq")}
+                  >
+                    <span className="text-sm font-extrabold tracking-tight">FAQ</span>
+                    <span className="text-xs text-ice/80 font-medium">Quick answers</span>
+                  </Link>
+                  <Link
+                    href="/custom-air-filters#custom-quote"
+                    className="header-mega-tile"
+                    onClick={goCustomQuote}
+                  >
+                    <span className="text-sm font-extrabold tracking-tight">Custom quote</span>
+                    <span className="text-xs text-ice/80 font-medium">Odd size? We cut it.</span>
+                  </Link>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <div className="grid gap-1">
-            <Link
-              href="/sizes"
-              className="flex min-h-11 items-center px-3 py-2.5 rounded-xl text-white font-semibold hover:bg-white/8"
-              onClick={closeMenus}
-            >
-              Shop sizes
-            </Link>
-            <Link
-              href="/brands"
-              className="flex min-h-11 items-center px-3 py-2.5 rounded-xl text-white font-semibold hover:bg-white/8"
-              onClick={closeMenus}
-            >
-              Shop by brand
-            </Link>
-            <Link
-              href="/custom-air-filters"
-              className="flex min-h-11 items-center px-3 py-2.5 rounded-xl text-white font-semibold hover:bg-white/8"
-              onClick={closeMenus}
-            >
-              Custom air filters
-            </Link>
-            <Link
-              href="/#contact"
-              className="flex min-h-11 items-center px-3 py-2.5 rounded-xl text-white font-semibold hover:bg-white/8"
-              onClick={goHomeSection("contact")}
-            >
-              Contact
-            </Link>
-          </div>
-        </nav>
+          )}
+        </div>
       )}
     </header>
   );

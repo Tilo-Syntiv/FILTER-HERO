@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
-import FilterFinder from "@/components/FilterFinder";
-import ContactForm from "@/components/ContactForm";
+import CustomQuoteForm from "@/components/CustomQuoteForm";
 import FaqSection from "@/components/FaqSection";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
+import { useHashScroll } from "@/hooks/useHashScroll";
 import { takeQuoteHandoff } from "@/lib/quote-handoff";
 import { BRAND_NAME } from "@/const";
 import {
@@ -20,6 +20,7 @@ export default function CustomAirFiltersPage() {
   const siteUrl = getSiteUrl();
   const seo = customAirFiltersSeo(siteUrl);
   const [quoteCart, setQuoteCart] = useState("");
+  useHashScroll();
 
   useSeo({
     ...seo,
@@ -55,22 +56,25 @@ export default function CustomAirFiltersPage() {
         <span className="section-label">Odd size</span>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Custom Air Filters</h1>
         <p className="seo-answer text-muted-foreground mb-10 max-w-2xl leading-relaxed">
-          If your slot is not on the standard size list, send Width × Length ×
-          Depth (or a photo of the label) and we will quote a custom HVAC filter.
+          If your slot is not a standard catalog size, enter Width × Length ×
+          Depth below. We cut custom HVAC filters to your measurements and send
+          back a quote.
         </p>
-        <div className="mb-16">
-          <FilterFinder showPopular compact />
+        <div
+          id="custom-quote"
+          className="max-w-xl mb-16 scroll-mt-28 surface-panel rounded-2xl p-4 sm:p-6 md:p-8"
+        >
+          <h2 className="text-xl font-bold mb-1 tracking-tight">Request a custom quote</h2>
+          <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+            Fill in your size. We’ll confirm fit, MERV options, and lead time.
+          </p>
+          <CustomQuoteForm cartSummary={quoteCart} />
         </div>
         <FaqSection
           faqs={CUSTOM_FAQS}
           title="Custom size questions"
           subtitle="How custom HVAC filter quotes work."
         />
-        <div id="custom-quote" className="max-w-xl scroll-mt-20">
-          <span className="section-label">Custom quote</span>
-          <h2 className="text-xl font-bold mb-4 tracking-tight">Request a custom quote</h2>
-          <ContactForm intent="support" cartSummary={quoteCart} />
-        </div>
       </main>
       <footer className="site-footer pt-8 mt-12">
         <div className="container flex flex-col sm:flex-row justify-between gap-4 text-sm">
