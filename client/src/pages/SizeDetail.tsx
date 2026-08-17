@@ -59,7 +59,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
   const handleAdd = () => {
     if (!variant || !variant.inStock) return;
-    addItem(variant, qty, unitPrice);
+    addItem(variant, qty);
     toast.success(`Added ${qty}× ${variant.size} (${selectedType.name})`);
   };
 
@@ -175,7 +175,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
               quote and we'll confirm pricing and lead time for your dimensions.
             </p>
             <Button size="lg" className="hero-shop-btn w-full text-white sm:w-auto" asChild>
-              <a href={`/#contact`}>Request a quote for {decoded}</a>
+              <a href={`/?size=${encodeURIComponent(decoded)}#contact`}>Request a quote for {decoded}</a>
             </Button>
             <div className="mt-12">
               <FilterFinder showPopular compact />

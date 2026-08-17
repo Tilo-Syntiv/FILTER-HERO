@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useHashScroll } from "@/hooks/useHashScroll";
 import { Link } from "wouter";
 import { THICKNESSES } from "@shared/products";
@@ -30,6 +30,7 @@ import BrandLockup from "@/components/BrandLockup";
 import Hero from "@/components/Hero";
 import FaqSection from "@/components/FaqSection";
 import { useCart } from "@/contexts/CartContext";
+import { takeQuoteHandoff } from "@/lib/quote-handoff";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 
 export default function Home() {
@@ -39,6 +40,15 @@ export default function Home() {
   const [quoteMessage, setQuoteMessage] = useState("");
   const [quoteCartSummary, setQuoteCartSummary] = useState("");
   const contactRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const handed = takeQuoteHandoff();
+    if (handed.size) setQuoteSize(handed.size);
+    if (handed.message) setQuoteMessage(handed.message);
+    if (handed.cart) setQuoteCartSummary(handed.cart);
+    const size = new URLSearchParams(window.location.search).get("size");
+    if (size) setQuoteSize(size);
+  }, []);
 
   const siteUrl = getSiteUrl();
   const seo = homeSeo(siteUrl);
@@ -259,12 +269,13 @@ export default function Home() {
       </footer>
 
       <CartDrawer
-        onRequestQuote={() =>
+        onRequestQuote={() => {
+          takeQuoteHandoff();
           scrollToContact({
             withCart: true,
             message: "Please help with the items in my cart (details attached).",
-          })
-        }
+          });
+        }}
       />
     </div>
   );

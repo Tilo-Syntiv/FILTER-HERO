@@ -115,7 +115,7 @@ export default function SizeDirectory({
             onClick={() => setExpanded(false)}
             className="mt-6 text-sm font-semibold text-primary hover:underline"
           >
-            Show less sizes....
+            Show less sizes
           </button>
         )}
 

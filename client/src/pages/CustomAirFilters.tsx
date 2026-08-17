@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
@@ -5,6 +6,7 @@ import FilterFinder from "@/components/FilterFinder";
 import ContactForm from "@/components/ContactForm";
 import FaqSection from "@/components/FaqSection";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
+import { takeQuoteHandoff } from "@/lib/quote-handoff";
 import { BRAND_NAME } from "@/const";
 import {
   CUSTOM_FAQS,
@@ -17,6 +19,8 @@ import {
 export default function CustomAirFiltersPage() {
   const siteUrl = getSiteUrl();
   const seo = customAirFiltersSeo(siteUrl);
+  const [quoteCart, setQuoteCart] = useState("");
+
   useSeo({
     ...seo,
     jsonLd: [
@@ -32,6 +36,11 @@ export default function CustomAirFiltersPage() {
       ]),
     ],
   });
+
+  useEffect(() => {
+    const handed = takeQuoteHandoff();
+    if (handed.cart) setQuoteCart(handed.cart);
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -57,10 +66,10 @@ export default function CustomAirFiltersPage() {
           title="Custom size questions"
           subtitle="How custom HVAC filter quotes work."
         />
-        <div className="max-w-xl">
+        <div id="custom-quote" className="max-w-xl scroll-mt-20">
           <span className="section-label">Custom quote</span>
           <h2 className="text-xl font-bold mb-4 tracking-tight">Request a custom quote</h2>
-          <ContactForm intent="support" />
+          <ContactForm intent="support" cartSummary={quoteCart} />
         </div>
       </main>
       <footer className="site-footer pt-8 mt-12">
@@ -71,7 +80,16 @@ export default function CustomAirFiltersPage() {
           </Link>
         </div>
       </footer>
-      <CartDrawer onRequestQuote={() => { window.location.href = "/custom-air-filters"; }} />
+      <CartDrawer
+        onRequestQuote={() => {
+          const handed = takeQuoteHandoff();
+          if (handed.cart) setQuoteCart(handed.cart);
+          document.getElementById("custom-quote")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }}
+      />
     </div>
   );
 }

@@ -38,7 +38,16 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
   const isProd = process.env.NODE_ENV === "production";
-  const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  const siteUrl = (
+    process.env.SITE_URL ||
+    process.env.VITE_SITE_URL ||
+    (isProd ? DEFAULT_SITE_URL : undefined) ||
+    DEFAULT_SITE_URL
+  ).replace(/\/$/, "");
+  const clientUrl = (
+    process.env.CLIENT_URL ||
+    (isProd ? siteUrl : "http://localhost:3000")
+  ).replace(/\/$/, "");
 
   // Stripe webhook needs raw body — register before json parser
   app.post(
@@ -61,13 +70,6 @@ async function startServer() {
   );
 
   app.use(express.json({ limit: "1mb" }));
-
-  const siteUrl = (
-    process.env.SITE_URL ||
-    process.env.VITE_SITE_URL ||
-    (isProd ? DEFAULT_SITE_URL : clientUrl) ||
-    DEFAULT_SITE_URL
-  ).replace(/\/$/, "");
 
   app.get("/sitemap.xml", (_req, res) => {
     const lastmod = new Date().toISOString().slice(0, 10);
@@ -205,10 +207,26 @@ Sitemap: ${absoluteUrl(siteUrl, "/sitemap.xml")}
   }
 
   const port = Number(process.env.PORT) || (isProd ? 3000 : 3001);
+  let retries = 0;
 
-  server.listen(port, () => {
-    console.log(`API server running on http://localhost:${port}/`);
+  const listen = () => {
+    server.listen(port, () => {
+      console.log(`API server running on http://localhost:${port}/`);
+    });
+  };
+
+  server.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "EADDRINUSE" && retries < 8) {
+      retries += 1;
+      console.warn(`[server] port ${port} in use, retry ${retries}/8`);
+      setTimeout(listen, 400);
+      return;
+    }
+    console.error(err);
+    process.exit(1);
   });
+
+  listen();
 }
 
 startServer().catch(console.error);

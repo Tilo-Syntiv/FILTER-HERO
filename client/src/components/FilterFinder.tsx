@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -33,13 +33,18 @@ export default function FilterFinder({
   const [width, setWidth] = useState("20");
   const [length, setLength] = useState("25");
   const [depth, setDepth] = useState("1");
+  const formId = useId();
 
   const goToSize = (size: string) => {
     if (onSizeSelect) {
       onSizeSelect(size);
       return;
     }
-    setLocation(`/sizes/${encodeURIComponent(size)}`);
+    setLocation(
+      getFilterSize(size)
+        ? `/sizes/${encodeURIComponent(size)}`
+        : "/custom-air-filters",
+    );
   };
 
   const handleFind = () => {
@@ -100,13 +105,13 @@ export default function FilterFinder({
           <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 mb-8">
             <div className="space-y-2">
               <Label
-                htmlFor="width"
+                htmlFor={`${formId}-width`}
                 className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
               >
                 Width
               </Label>
               <select
-                id="width"
+                id={`${formId}-width`}
                 value={width}
                 onChange={(e) => setWidth(e.target.value)}
                 className="select-modern"
@@ -121,13 +126,13 @@ export default function FilterFinder({
 
             <div className="space-y-2">
               <Label
-                htmlFor="length"
+                htmlFor={`${formId}-length`}
                 className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
               >
                 Length
               </Label>
               <select
-                id="length"
+                id={`${formId}-length`}
                 value={length}
                 onChange={(e) => setLength(e.target.value)}
                 className="select-modern"
@@ -142,13 +147,13 @@ export default function FilterFinder({
 
             <div className="space-y-2">
               <Label
-                htmlFor="depth"
+                htmlFor={`${formId}-depth`}
                 className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
               >
                 Depth
               </Label>
               <select
-                id="depth"
+                id={`${formId}-depth`}
                 value={depth}
                 onChange={(e) => setDepth(e.target.value)}
                 className="select-modern"

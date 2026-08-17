@@ -12,13 +12,14 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { useCart } from "@/contexts/CartContext";
+import { stashQuoteHandoff } from "@/lib/quote-handoff";
 
 type CartDrawerProps = {
   onRequestQuote: () => void;
 };
 
 export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
-  const { items, isOpen, closeCart, setQty, removeItem, subtotal, itemCount } =
+  const { items, isOpen, closeCart, setQty, removeItem, subtotal, itemCount, cartSummaryText } =
     useCart();
   const [checkingOut, setCheckingOut] = useState(false);
 
@@ -68,7 +69,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
           ) : (
             items.map((item) => (
               <div
-                key={`${item.productId}-${item.price}`}
+                key={item.productId}
                 className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4"
               >
                 <div className="min-w-0 flex-1">
@@ -76,7 +77,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
                     {item.size}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {item.name} · MERV {item.merv}
+                    {item.name}
                   </p>
                   <p className="text-sm font-medium mt-1">
                     ${item.price.toFixed(2)}
@@ -87,7 +88,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
                     variant="outline"
                     size="icon"
                     className="h-11 w-11"
-                    onClick={() => setQty(item.productId, item.qty - 1, item.price)}
+                    onClick={() => setQty(item.productId, item.qty - 1)}
                     aria-label="Decrease quantity"
                   >
                     <Minus className="h-3 w-3" />
@@ -99,7 +100,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
                     variant="outline"
                     size="icon"
                     className="h-11 w-11"
-                    onClick={() => setQty(item.productId, item.qty + 1, item.price)}
+                    onClick={() => setQty(item.productId, item.qty + 1)}
                     aria-label="Increase quantity"
                   >
                     <Plus className="h-3 w-3" />
@@ -108,7 +109,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
                     variant="ghost"
                     size="icon"
                     className="h-11 w-11 text-destructive"
-                    onClick={() => removeItem(item.productId, item.price)}
+                    onClick={() => removeItem(item.productId)}
                     aria-label="Remove item"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -138,6 +139,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
             className="w-full"
             disabled={items.length === 0}
             onClick={() => {
+              stashQuoteHandoff({ cart: cartSummaryText() });
               closeCart();
               onRequestQuote();
             }}
