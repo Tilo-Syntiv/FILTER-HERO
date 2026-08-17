@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { ShoppingCart, ChevronDown, Menu, X } from "lucide-react";
-import { BRAND_NAME } from "@/const";
+import BrandLockup from "@/components/BrandLockup";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
@@ -15,11 +15,7 @@ export default function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-border/70 bg-white/85 backdrop-blur-xl">
       <div className="container flex items-center justify-between py-3 gap-4">
         <Link href="/" className="flex items-center min-w-0">
-          <img
-            src="/logo.png"
-            alt={BRAND_NAME}
-            className="h-12 md:h-14 w-auto max-w-[280px] object-contain"
-          />
+          <BrandLockup tone="header" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-muted-foreground">
@@ -56,6 +52,12 @@ export default function SiteHeader() {
                   Custom Air Filters
                 </Link>
                 <Link
+                  href="/brands"
+                  className="block px-3 py-2.5 text-sm rounded-lg hover:bg-secondary text-foreground font-medium"
+                >
+                  Shop by brand
+                </Link>
+                <Link
                   href="/sizes"
                   className="block px-3 py-2.5 text-sm rounded-lg hover:bg-secondary text-primary font-semibold"
                 >
@@ -69,6 +71,12 @@ export default function SiteHeader() {
             className="px-3 py-2 rounded-lg hover:text-foreground hover:bg-secondary transition-colors"
           >
             Shop sizes
+          </Link>
+          <Link
+            href="/brands"
+            className="px-3 py-2 rounded-lg hover:text-foreground hover:bg-secondary transition-colors"
+          >
+            Shop by brand
           </Link>
           <Link
             href="/#contact"
@@ -126,6 +134,9 @@ export default function SiteHeader() {
           </Link>
           <Link href="/sizes" className="block px-3 py-2 rounded-lg hover:bg-secondary font-semibold" onClick={() => setMobileOpen(false)}>
             All sizes
+          </Link>
+          <Link href="/brands" className="block px-3 py-2 rounded-lg hover:bg-secondary" onClick={() => setMobileOpen(false)}>
+            Shop by brand
           </Link>
           <Link href="/#contact" className="block px-3 py-2 rounded-lg hover:bg-secondary" onClick={() => setMobileOpen(false)}>
             Contact

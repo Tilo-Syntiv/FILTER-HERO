@@ -10,6 +10,7 @@ import {
   unitPriceForQty,
   type FilterSize,
 } from "./products";
+import { HVAC_BRAND_LIST, getHvacBrand } from "./hvac-brands";
 
 /** Canonical production origin — override with VITE_SITE_URL / CLIENT_URL. */
 export const DEFAULT_SITE_URL = "https://filterhero.net";
@@ -56,6 +57,11 @@ export const SITE_FAQS: FaqItem[] = [
     question: "What is the difference between nominal and actual filter size?",
     answer:
       `Nominal size is the labeled size (for example 20×25×1). Actual size is slightly smaller so the filter slides into the slot. ${BRAND_NAME} lists both on each size page so you can verify fit.`,
+  },
+  {
+    question: "Do you sell filters for Carrier, Trane, Honeywell, and other HVAC brands?",
+    answer:
+      `Yes. ${BRAND_NAME} replacement filters are made to the same Width × Length × Depth as OEM media for major HVAC brands. Shop by brand, model number, or OEM part number, then choose MERV 8, 11, 13, or carbon.`,
   },
   {
     question: "Do you offer free shipping?",
@@ -132,6 +138,28 @@ export function sizeSeo(siteUrl: string, size: FilterSize | string) {
   };
 }
 
+export function allBrandsSeo(siteUrl: string) {
+  const path = "/brands";
+  return {
+    title: `Shop HVAC Filters by Brand | ${BRAND_NAME}`,
+    description: `Shop ${BRAND_NAME} replacement air filters by HVAC brand — Carrier, Trane, Honeywell, Lennox, Goodman, and more. Match size, model number, or OEM part number.`,
+    path,
+    canonical: absoluteUrl(siteUrl, path),
+    type: "website" as const,
+  };
+}
+
+export function brandSeo(siteUrl: string, name: string, slug: string) {
+  const path = `/brands/${slug}`;
+  return {
+    title: `${name} Air Filters | Replacement HVAC Filters | ${BRAND_NAME}`,
+    description: `Buy ${BRAND_NAME} replacement filters for ${name} systems. Same Width × Length × Depth as OEM media. Shop by size, HVAC model, or OEM part number.`,
+    path,
+    canonical: absoluteUrl(siteUrl, path),
+    type: "website" as const,
+  };
+}
+
 export function customAirFiltersSeo(siteUrl: string) {
   const path = "/custom-air-filters";
   return {
@@ -158,6 +186,7 @@ export function buildOrganizationSchema(siteUrl: string) {
       "Furnace filters",
       "MERV ratings",
       "Custom air filter sizes",
+      "OEM replacement HVAC filters",
     ],
     contactPoint: {
       "@type": "ContactPoint",
@@ -362,7 +391,15 @@ export function sitemapPaths(): { path: string; changefreq: string; priority: st
     { path: "/", changefreq: "daily", priority: "1.0" },
     { path: "/sizes", changefreq: "weekly", priority: "0.9" },
     { path: "/custom-air-filters", changefreq: "monthly", priority: "0.7" },
+    { path: "/brands", changefreq: "weekly", priority: "0.85" },
   ];
+  for (const b of HVAC_BRAND_LIST) {
+    paths.push({
+      path: `/brands/${b.slug}`,
+      changefreq: "weekly",
+      priority: b.featured ? "0.8" : "0.6",
+    });
+  }
   for (const d of THICKNESSES) {
     paths.push({
       path: `/filters/${d}-inch`,
@@ -404,6 +441,7 @@ export function buildLlmsTxt(siteUrl: string): string {
 ## Key pages
 - Home / size finder: ${absoluteUrl(siteUrl, "/")}
 - All sizes: ${absoluteUrl(siteUrl, "/sizes")}
+- Shop by HVAC brand: ${absoluteUrl(siteUrl, "/brands")}
 ${THICKNESSES.map((d) => `- ${d}" hub: ${absoluteUrl(siteUrl, `/filters/${d}-inch`)}`).join("\n")}
 
 ## Catalog
@@ -581,6 +619,38 @@ export function resolveDocumentSeo(pathname: string, siteUrl: string): DocumentS
       );
     }
     return { ...seo, jsonLd };
+  }
+
+  if (path === "/brands") {
+    const seo = allBrandsSeo(siteUrl);
+    return {
+      ...seo,
+      jsonLd: [
+        buildBreadcrumbSchema(siteUrl, [
+          { name: "Home", path: "/" },
+          { name: "Shop by brand", path: "/brands" },
+        ]),
+      ],
+    };
+  }
+
+  const brandMatch = path.match(/^\/brands\/([a-z0-9-]+)$/);
+  if (brandMatch) {
+    const brand = getHvacBrand(brandMatch[1]);
+    const seo = brandSeo(siteUrl, brand?.name ?? brandMatch[1], brandMatch[1]);
+    if (!brand) {
+      return { ...seo, title: `Brand not found | ${BRAND_NAME}`, noindex: true, jsonLd: [] };
+    }
+    return {
+      ...seo,
+      jsonLd: [
+        buildBreadcrumbSchema(siteUrl, [
+          { name: "Home", path: "/" },
+          { name: "Shop by brand", path: "/brands" },
+          { name: brand.name, path: `/brands/${brand.slug}` },
+        ]),
+      ],
+    };
   }
 
   if (path === "/custom-air-filters") {

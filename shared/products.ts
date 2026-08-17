@@ -1,5 +1,4 @@
 import FILTER_CATALOG from "./filter-catalog.json";
-import FEATURED_SIZES from "./featured-sizes.json";
 
 export type MervRating = 8 | 11 | 13;
 
@@ -193,24 +192,12 @@ export function getFilterSize(slug: string): FilterSize | undefined {
   return idx === undefined ? undefined : FILTER_SIZES[idx];
 }
 
+export function compareFilterSizes(a: FilterSize, b: FilterSize): number {
+  return a.width - b.width || a.length - b.length || a.depth - b.depth;
+}
+
 export function getSizesByThickness(depth: number): FilterSize[] {
-  const all = FILTER_SIZES.filter((s) => s.depth === depth);
-  const featuredKey = String(depth) as keyof typeof FEATURED_SIZES;
-  const featuredSlugs = FEATURED_SIZES[featuredKey] ?? [];
-  const bySlug = new Map(all.map((s) => [s.slug, s]));
-  const ordered: FilterSize[] = [];
-  const used = new Set<string>();
-  for (const slug of featuredSlugs) {
-    const hit = bySlug.get(slug);
-    if (hit) {
-      ordered.push(hit);
-      used.add(slug);
-    }
-  }
-  for (const s of all) {
-    if (!used.has(s.slug)) ordered.push(s);
-  }
-  return ordered;
+  return FILTER_SIZES.filter((s) => s.depth === depth).sort(compareFilterSizes);
 }
 
 export function getProductById(id: number): Product | undefined {

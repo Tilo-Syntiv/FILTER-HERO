@@ -1,8 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
 import { THICKNESSES } from "@shared/products";
+import { featuredHvacBrands } from "@shared/hvac-brands";
 import {
   SITE_FAQS,
   buildBreadcrumbSchema,
@@ -26,6 +25,8 @@ import MervCarousel from "@/components/MervCarousel";
 import ContactForm from "@/components/ContactForm";
 import CartDrawer from "@/components/CartDrawer";
 import SiteHeader from "@/components/SiteHeader";
+import BrandLockup from "@/components/BrandLockup";
+import Hero from "@/components/Hero";
 import FaqSection from "@/components/FaqSection";
 import { useCart } from "@/contexts/CartContext";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
@@ -73,85 +74,7 @@ export default function Home() {
     <div className="min-h-screen">
       <SiteHeader />
 
-      <section className="relative min-h-[88vh] flex items-end md:items-center overflow-hidden bg-deep">
-        <div className="absolute inset-0 bg-[linear-gradient(155deg,#141e30_0%,#203868_52%,#7f2328_120%)]" />
-        <div
-          className="hero-orb absolute -top-24 -right-24 w-[55vw] max-w-[640px] aspect-square rounded-full opacity-40"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(142,176,216,0.55) 0%, transparent 68%)",
-          }}
-        />
-        <div
-          className="absolute bottom-0 left-0 right-0 h-40"
-          style={{
-            background:
-              "linear-gradient(to top, rgba(246,247,249,1) 0%, transparent 100%)",
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.06]"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
-          }}
-        />
-
-        <div className="container relative z-10 pb-20 pt-28 md:py-32">
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-3xl"
-          >
-            <div className="relative inline-block mb-10">
-              <div
-                aria-hidden
-                className="absolute -inset-8 md:-inset-12 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.95)_0%,rgba(255,255,255,0.55)_45%,transparent_70%)]"
-              />
-              <img
-                src="/logo.png"
-                alt={BRAND_NAME}
-                className="relative h-16 md:h-24 w-auto"
-                width={320}
-                height={96}
-              />
-            </div>
-            <h1 className="text-[2.75rem] sm:text-5xl md:text-7xl font-bold text-white mb-5 leading-[1.02] tracking-[-0.04em]">
-              Every size.
-              <br />
-              <span className="text-ice">Exact fit.</span>
-            </h1>
-            <p className="seo-answer text-base md:text-xl text-white/75 mb-10 max-w-lg leading-relaxed">
-              Filter Hero sells exact-fit HVAC and furnace air filters.
-              Measure Width, Length, and Depth — then shop MERV 8, 11, 13, or carbon
-              in seconds.
-            </p>
-            <div className="flex gap-3 flex-wrap">
-              <Button
-                size="lg"
-                className="bg-hero text-white hover:bg-hero/90 font-semibold"
-                onClick={() =>
-                  document
-                    .getElementById("finder")
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
-              >
-                Find your filter size
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white hover:border-white/50"
-                asChild
-              >
-                <Link href="/sizes">Browse sizes</Link>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      <Hero />
 
       <TrustMarquee />
 
@@ -170,6 +93,40 @@ export default function Home() {
         <ThicknessCarousel />
 
         <PopularSizesCarousel />
+
+        <section className="py-16 md:py-20">
+          <div className="container">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+              <div>
+                <span className="section-label">Replacement filters</span>
+                <h2 className="text-3xl md:text-4xl font-bold mb-2 tracking-tight">
+                  Shop by HVAC brand
+                </h2>
+                <p className="text-muted-foreground max-w-xl">
+                  Filter Hero filters fit Carrier, Trane, Honeywell, Lennox, and
+                  other OEM slots. Same size as the original media.
+                </p>
+              </div>
+              <Link
+                href="/brands"
+                className="text-primary font-semibold text-sm hover:underline"
+              >
+                See all brands
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+              {featuredHvacBrands().map((b) => (
+                <Link
+                  key={b.slug}
+                  href={`/brands/${b.slug}`}
+                  className="size-chip !py-4 text-center"
+                >
+                  {b.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
 
         <MervCarousel />
 
@@ -236,13 +193,7 @@ export default function Home() {
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-12 gap-8 mb-12">
             <div className="col-span-2 md:col-span-5">
-              <img
-                src="/logo.png"
-                alt={BRAND_NAME}
-                className="h-12 w-auto mb-5 bg-white rounded-lg px-3 py-2"
-                width={200}
-                height={48}
-              />
+              <BrandLockup tone="footer" className="mb-5" />
               <p className="text-sm leading-relaxed max-w-xs">
                 Precise HVAC filters. Find your exact size and order with
                 confidence.
@@ -262,6 +213,11 @@ export default function Home() {
                 <li>
                   <Link href="/sizes" className="hover:text-ice transition-colors">
                     All sizes
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/brands" className="hover:text-ice transition-colors">
+                    Shop by brand
                   </Link>
                 </li>
                 {THICKNESSES.map((d) => (

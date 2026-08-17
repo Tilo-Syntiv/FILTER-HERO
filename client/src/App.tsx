@@ -6,6 +6,7 @@ import CheckoutCancel from "@/pages/CheckoutCancel";
 import Home from "@/pages/Home";
 import SizeDetailPage from "@/pages/SizeDetail";
 import { AllSizesPage, ThicknessHubPage } from "@/pages/SizeBrowse";
+import { AllBrandsPage, BrandDetailPage } from "@/pages/BrandBrowse";
 import CustomAirFiltersPage from "@/pages/CustomAirFilters";
 import { Route, Switch, useRoute } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -25,6 +26,12 @@ function SizeRoute() {
   return <SizeDetailPage sizeSlug={size} />;
 }
 
+function BrandRoute() {
+  const [, params] = useRoute("/brands/:slug");
+  const slug = params?.slug ?? "";
+  return <BrandDetailPage slug={slug} />;
+}
+
 function Router() {
   return (
     <Switch>
@@ -32,6 +39,8 @@ function Router() {
       <Route path="/sizes" component={AllSizesPage} />
       <Route path="/sizes/:size" component={SizeRoute} />
       <Route path="/filters/:thickness" component={ThicknessRoute} />
+      <Route path="/brands" component={AllBrandsPage} />
+      <Route path="/brands/:slug" component={BrandRoute} />
       <Route path="/custom-air-filters" component={CustomAirFiltersPage} />
       <Route path="/checkout/success" component={CheckoutSuccess} />
       <Route path="/checkout/cancel" component={CheckoutCancel} />

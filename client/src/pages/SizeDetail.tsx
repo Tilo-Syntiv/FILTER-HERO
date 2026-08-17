@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { BRAND_NAME } from "@/const";
+import { brandsForSize } from "@shared/hvac-brands";
 
 type SizeDetailPageProps = {
   sizeSlug: string;
@@ -325,6 +326,25 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                   </li>
                 </ul>
               </div>
+
+              {brandsForSize(decoded).length > 0 && (
+                <div className="mt-8">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+                    Fits these HVAC brands
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {brandsForSize(decoded).map((b) => (
+                      <Link
+                        key={b.slug}
+                        href={`/brands/${b.slug}`}
+                        className="size-chip !py-2 !px-3 !text-xs"
+                      >
+                        {b.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {related.length > 0 && (
                 <div className="mt-8">

@@ -239,6 +239,25 @@
   }
 }
 
+.hero-stage {
+  background-color: #c5e6f6;
+}
+
+.hero-shop-btn {
+  background: var(--hero);
+  clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+  padding-left: 1.85rem;
+  padding-right: 1.85rem;
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.hero-shop-btn:hover {
+  background: color-mix(in srgb, var(--hero) 88%, black);
+}
+
 @keyframes hero-drift {
   0%,
   100% {
@@ -260,6 +279,10 @@
 
 .hero-orb {
   animation: hero-drift 18s ease-in-out infinite;
+}
+
+.brand-emblem {
+  isolation: isolate;
 }
 
 .marquee-track {
