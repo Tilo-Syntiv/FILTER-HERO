@@ -116,7 +116,7 @@ export function liveUnitPrice(product: Priceable, qty: number): number | undefin
 /** Cheapest live undercut for merchandising "from $X"; undefined if no rows. */
 export function liveFromPrice(key: MervPriceKey): number | undefined {
   let min: number | undefined;
-  for (const row of LADDERS.values()) {
+  for (const row of Array.from(LADDERS.values())) {
     if (row.merv !== key) continue;
     for (const step of QTY_STEPS) {
       const fk = row[step.key];
