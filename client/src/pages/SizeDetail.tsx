@@ -317,7 +317,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                     <Check className="h-4 w-4 text-primary" /> Guaranteed fit
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-primary" /> Free shipping over $50
+                    <Check className="h-4 w-4 text-primary" /> FREE SHIPPING
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-primary" /> 30-day guarantee

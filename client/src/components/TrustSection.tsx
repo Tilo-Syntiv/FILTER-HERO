@@ -6,7 +6,7 @@ export default function TrustSection() {
   const trustPoints = [
     {
       icon: Truck,
-      title: "Free shipping over $50",
+      title: "FREE SHIPPING",
       description: "Contiguous US orders — clean air shouldn't wait",
     },
     {

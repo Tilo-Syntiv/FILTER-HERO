@@ -12,9 +12,9 @@ const scrollToFinder = () => {
 
 export default function Hero() {
   return (
-    <section className="hero-stage relative overflow-hidden">
+    <section className="hero-stage relative">
       {/* Mobile: character crop + live copy */}
-      <div className="relative lg:hidden min-h-[min(78dvh,42rem)]">
+      <div className="relative overflow-hidden lg:hidden min-h-[min(78dvh,42rem)]">
         <img
           src={HERO_MOBILE}
           alt="Filter Hero standing guard with MERV 8 air filters"
@@ -41,7 +41,7 @@ export default function Hero() {
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button
                 size="lg"
-                className="hero-shop-btn w-full text-white sm:w-auto"
+                className="hero-shop-btn hero-shop-btn-glow w-full text-white sm:w-auto"
                 onClick={scrollToFinder}
               >
                 Find your filter size
@@ -60,7 +60,7 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Desktop: full RESET.png artwork, clickable Shop Now */}
+      {/* Desktop: RESET artwork with the painted Shop Now as a live control */}
       <div className="relative hidden lg:block">
         <motion.img
           initial={{ opacity: 0 }}
@@ -80,17 +80,17 @@ export default function Hero() {
           Width, Length, and Depth — then shop MERV 8, 11, 13, or carbon in
           seconds.
         </p>
-        <Link
-          href="/sizes"
-          className="absolute z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero/50"
-          style={{
-            right: "1.8%",
-            bottom: "2.4%",
-            width: "17%",
-            height: "15%",
-          }}
-        >
-          <span className="sr-only">Shop now</span>
+        <Link href="/sizes" className="hero-live-cta" aria-label="Shop now">
+          <span className="hero-live-cta-glow" aria-hidden />
+          <img
+            src="/hero-shop-now.webp?v=reset"
+            alt=""
+            width={330}
+            height={88}
+            decoding="async"
+            draggable={false}
+            className="hero-live-cta-art"
+          />
         </Link>
       </div>
     </section>

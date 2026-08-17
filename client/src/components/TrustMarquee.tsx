@@ -1,14 +1,15 @@
-import { Truck, ShieldCheck, Crosshair, MessageCircle, Sparkles } from "lucide-react";
+import { Truck, ShieldCheck, Crosshair, MessageCircle, Sparkles, Hammer } from "lucide-react";
 
 const FEATURED = {
   icon: Truck,
-  label: "Free shipping over $50",
+  label: "FREE SHIPPING",
   hint: "Contiguous US",
 };
 
 const ITEMS = [
   { icon: ShieldCheck, label: "30-day fit guarantee" },
-  { icon: Crosshair, label: "Exact Width × Length × Depth" },
+  { icon: Crosshair, label: "All Sizes Available" },
+  { icon: Hammer, label: "Built To Last" },
   { icon: Sparkles, label: "MERV 8 · 11 · 13 · Carbon" },
   { icon: MessageCircle, label: "Real HVAC support" },
 ];
@@ -17,12 +18,12 @@ function ShipChip() {
   const Icon = FEATURED.icon;
   return (
     <span className="trust-ship-chip">
-      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/18">
-        <Icon className="h-3.5 w-3.5" strokeWidth={2.4} />
+      <span className="trust-chip-icon trust-chip-icon-hero">
+        <Icon className="h-4 w-4" strokeWidth={2.5} />
       </span>
       <span className="flex flex-col leading-none">
         <span>{FEATURED.label}</span>
-        <span className="mt-0.5 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-white/75">
+        <span className="mt-0.5 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-white/80">
           {FEATURED.hint}
         </span>
       </span>
@@ -39,8 +40,8 @@ function TrustChip({
 }) {
   return (
     <span className="trust-chip">
-      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-ice/20 text-ice">
-        <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
+      <span className="trust-chip-icon trust-chip-icon-ice">
+        <Icon className="h-4 w-4" strokeWidth={2.4} />
       </span>
       {label}
     </span>
@@ -70,7 +71,7 @@ export default function TrustMarquee() {
       </p>
 
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[#1b3258] to-transparent md:w-16"
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[#173056] to-transparent md:w-16"
         aria-hidden
       />
       <div
@@ -78,11 +79,11 @@ export default function TrustMarquee() {
         aria-hidden
       />
 
-      <div className="marquee-track trust-marquee-track flex w-max items-center py-3 md:py-3.5">
-        <div className="flex items-center gap-3 pr-3 md:gap-4 md:pr-4" aria-hidden>
+      <div className="marquee-track trust-marquee-track flex w-max items-center py-4 md:py-[1.15rem]">
+        <div className="flex items-center gap-3.5 pr-3.5 md:gap-5 md:pr-5" aria-hidden>
           <MarqueeSequence />
         </div>
-        <div className="marquee-dup flex items-center gap-3 pr-3 md:gap-4 md:pr-4" aria-hidden>
+        <div className="marquee-dup flex items-center gap-3.5 pr-3.5 md:gap-5 md:pr-5" aria-hidden>
           <MarqueeSequence />
         </div>
       </div>

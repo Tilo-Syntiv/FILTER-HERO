@@ -19,6 +19,11 @@ def main():
     webp_path = os.path.join(OUT_DIR, "hero-banner.webp")
     desktop.save(webp_path, "WEBP", quality=92, method=6)
 
+    # Live Shop Now overlay — same pixels as the painted CTA
+    shop = src.crop((1678, 754, 2008, 842))
+    shop_path = os.path.join(OUT_DIR, "hero-shop-now.webp")
+    shop.save(shop_path, "WEBP", quality=95, method=6)
+
     mobile = src.crop(
         (
             0,
@@ -37,6 +42,7 @@ def main():
 
     print("src", src.size)
     print("desktop", desktop.size, os.path.getsize(webp_path))
+    print("shop", shop.size, os.path.getsize(shop_path))
     print("mobile", mobile.size, os.path.getsize(mobile_path))
 
 

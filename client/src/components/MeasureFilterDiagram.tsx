@@ -9,10 +9,11 @@ const DIMS: {
   hint: string;
   inches: string;
   color: string;
+  text: string;
 }[] = [
-  { key: "width", label: "Width", hint: "Side to side", inches: "20", color: "#8eb0d8" },
-  { key: "length", label: "Length", hint: "Top to bottom", inches: "25", color: "#203868" },
-  { key: "depth", label: "Depth", hint: "Thickness", inches: "2", color: "#7f2328" },
+  { key: "width", label: "Width", hint: "Side to side", inches: "20", color: "#8eb0d8", text: "#141e30" },
+  { key: "length", label: "Length", hint: "Top to bottom", inches: "25", color: "#203868", text: "#ffffff" },
+  { key: "depth", label: "Depth", hint: "Thickness", inches: "2", color: "#7f2328", text: "#ffffff" },
 ];
 
 const CYCLE_MS = 3800;
@@ -140,7 +141,7 @@ function DimChip({
         x={w / 2}
         y={16}
         textAnchor="middle"
-        fill="#ffffff"
+        fill={dim.text}
         fontSize="11"
         fontWeight="800"
         letterSpacing="0.16em"
@@ -152,8 +153,8 @@ function DimChip({
         x={w / 2}
         y={30}
         textAnchor="middle"
-        fill="#ffffff"
-        opacity={0.9}
+        fill={dim.text}
+        opacity={0.78}
         fontSize="9"
         fontWeight="600"
         fontFamily="Manrope, sans-serif"
@@ -465,7 +466,7 @@ export default function MeasureFilterDiagram({
             fontWeight="800"
             letterSpacing="0.04em"
           >
-            <tspan fill={widthOn ? "#8eb0d8" : "#203868"}>20</tspan>
+            <tspan fill={widthOn ? "#3a66a3" : "#203868"}>20</tspan>
             <tspan fill="#8a96a8"> × </tspan>
             <tspan fill={lengthOn ? "#203868" : "#5c6b80"}>25</tspan>
             <tspan fill="#8a96a8"> × </tspan>
@@ -485,10 +486,10 @@ export default function MeasureFilterDiagram({
               className={[
                 "min-w-[5.5rem] rounded-2xl border px-3 py-2.5 text-center transition-all",
                 isOn
-                  ? "border-transparent text-white shadow-md"
+                  ? "border-transparent shadow-md"
                   : "border-border bg-white/90 text-muted-foreground hover:border-ice/60 hover:text-foreground",
               ].join(" ")}
-              style={isOn ? { background: dim.color } : undefined}
+              style={isOn ? { background: dim.color, color: dim.text } : undefined}
               aria-pressed={isOn}
             >
               <span className="block text-[10px] font-bold tracking-[0.16em] uppercase">
@@ -497,7 +498,7 @@ export default function MeasureFilterDiagram({
               <span
                 className={[
                   "block text-lg font-extrabold leading-tight",
-                  isOn ? "text-white" : "text-foreground",
+                  isOn ? "" : "text-foreground",
                 ].join(" ")}
               >
                 {dim.inches}"
