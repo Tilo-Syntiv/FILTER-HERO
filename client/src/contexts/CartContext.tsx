@@ -53,7 +53,7 @@ function lineFromProduct(product: Product, qty: number): CartItem {
     productId: product.id,
     size: product.size,
     merv: product.merv,
-    price: unitPriceForQty(product.price, safeQty),
+    price: unitPriceForQty(product.price, safeQty, product),
     name: lineLabel(product),
     qty: safeQty,
   };

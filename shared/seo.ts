@@ -613,7 +613,7 @@ export function resolveDocumentSeo(pathname: string, siteUrl: string): DocumentS
       jsonLd.push(
         buildProductSchema(siteUrl, sizeMeta, {
           mervName: merv8.name,
-          price: unitPriceForQty(variant.price, 1),
+          price: unitPriceForQty(variant.price, 1, variant),
           description: `${decoded} ${merv8.name} pleated HVAC air filter. ${merv8.description}`,
         }),
       );

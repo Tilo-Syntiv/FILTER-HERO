@@ -50,8 +50,8 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
     selectedType.isCarbon,
   );
 
-  const unitPrice = variant ? unitPriceForQty(variant.price, qty) : 0;
-  const total = variant ? packTotal(variant.price, qty) : 0;
+  const unitPrice = variant ? unitPriceForQty(variant.price, qty, variant) : 0;
+  const total = variant ? packTotal(variant.price, qty, variant) : 0;
   const savingsPct =
     variant && variant.price > 0
       ? Math.round((1 - unitPrice / variant.price) * 100)
@@ -126,7 +126,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
       schemas.push(
         buildProductSchema(siteUrl, sizeMeta, {
           mervName: selectedType.name,
-          price: unitPriceForQty(variant.price, 1),
+          price: unitPriceForQty(variant.price, 1, variant),
           description: `${decoded} ${selectedType.name} pleated HVAC air filter. ${selectedType.description}`,
         }),
       );
@@ -262,7 +262,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                 <div className="space-y-2">
                   {PACK_TIERS.map((tier) => {
                     if (!variant) return null;
-                    const price = unitPriceForQty(variant.price, tier.minQty);
+                    const price = unitPriceForQty(variant.price, tier.minQty, variant);
                     const pct = Math.round((1 - price / variant.price) * 100);
                     const active = qty === tier.minQty;
                     return (
