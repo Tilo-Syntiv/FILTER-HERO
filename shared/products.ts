@@ -1,4 +1,19 @@
 import FILTER_CATALOG from "./filter-catalog.json";
+import {
+  liveFromPrice,
+  liveListPrice,
+  liveUnitPrice,
+  type Priceable,
+} from "./pricing/engine";
+
+export {
+  liveFromPrice,
+  liveListPrice,
+  liveUnitPrice,
+  liveLadderCount,
+  UNDERCUT_RATIO,
+  type Priceable,
+} from "./pricing/engine";
 
 export type MervRating = 8 | 11 | 13;
 
@@ -19,7 +34,7 @@ export type Product = {
   size: string;
   merv: MervRating;
   isCarbon?: boolean;
-  /** Unit price at qty 1 before volume discounts */
+  /** Qty-1 unit price (live FilterKing × 0.90 when known) */
   price: number;
   inStock: boolean;
   name: string;
@@ -33,7 +48,7 @@ export type PackTier = {
   multiplier: number;
 };
 
-/** Volume ladder inspired by typical HVAC filter retail (steeper at higher packs). */
+/** Qty buttons. Multipliers are fallback only; live SKUs use FilterKing ladders. */
 export const PACK_TIERS: PackTier[] = [
   { minQty: 1, label: "1", multiplier: 1 },
   { minQty: 2, label: "2", multiplier: 0.54 },
@@ -42,7 +57,7 @@ export const PACK_TIERS: PackTier[] = [
   { minQty: 12, label: "12+", multiplier: 0.21 },
 ];
 
-export function unitPriceForQty(listPrice: number, qty: number): number {
+function fallbackUnitPrice(listPrice: number, qty: number): number {
   let tier = PACK_TIERS[0];
   for (const t of PACK_TIERS) {
     if (qty >= t.minQty) tier = t;
@@ -50,8 +65,28 @@ export function unitPriceForQty(listPrice: number, qty: number): number {
   return Math.round(listPrice * tier.multiplier * 100) / 100;
 }
 
-export function packTotal(listPrice: number, qty: number): number {
-  return Math.round(unitPriceForQty(listPrice, qty) * qty * 100) / 100;
+/**
+ * Pack unit price. When `product` has a live FilterKing ladder, uses that
+ * SKU's qty table × 0.90. Otherwise applies PACK_TIERS to listPrice.
+ */
+export function unitPriceForQty(
+  listPrice: number,
+  qty: number,
+  product?: Priceable,
+): number {
+  if (product) {
+    const live = liveUnitPrice(product, qty);
+    if (live !== undefined) return live;
+  }
+  return fallbackUnitPrice(listPrice, qty);
+}
+
+export function packTotal(
+  listPrice: number,
+  qty: number,
+  product?: Priceable,
+): number {
+  return Math.round(unitPriceForQty(listPrice, qty, product) * qty * 100) / 100;
 }
 
 function actualFromNominal(w: number, l: number, d: number) {
@@ -119,7 +154,7 @@ export const MERV_TYPES: MervTypeInfo[] = [
     name: "MERV 8",
     shortLabel: "Standard",
     description: "Everyday dust and pollen for typical homes",
-    fromPrice: 11.99,
+    fromPrice: liveFromPrice("8") ?? 11.99,
   },
   {
     key: "11",
@@ -128,7 +163,7 @@ export const MERV_TYPES: MervTypeInfo[] = [
     name: "MERV 11",
     shortLabel: "Advanced",
     description: "Enhanced protection for pets and mild allergies",
-    fromPrice: 15.99,
+    fromPrice: liveFromPrice("11") ?? 15.99,
   },
   {
     key: "13",
@@ -137,7 +172,7 @@ export const MERV_TYPES: MervTypeInfo[] = [
     name: "MERV 13",
     shortLabel: "Ultimate",
     description: "Superior filtration for asthma and sensitivities",
-    fromPrice: 16.99,
+    fromPrice: liveFromPrice("13") ?? 16.99,
   },
   {
     key: "carbon",
@@ -146,7 +181,7 @@ export const MERV_TYPES: MervTypeInfo[] = [
     name: "MERV 8 Carbon",
     shortLabel: "Odor",
     description: "Everyday filtration plus activated carbon for odors",
-    fromPrice: 19.99,
+    fromPrice: liveFromPrice("carbon") ?? 19.99,
   },
 ];
 
@@ -179,7 +214,9 @@ function makeProduct(sizeMeta: FilterSize, type: MervTypeInfo, sizeIndex: number
     size: sizeMeta.slug,
     merv: type.merv,
     isCarbon: type.isCarbon,
-    price: listPriceFor(sizeMeta.depth, type.merv, type.isCarbon),
+    price:
+      liveListPrice(sizeMeta.slug, type.merv, type.isCarbon) ??
+      listPriceFor(sizeMeta.depth, type.merv, type.isCarbon),
     inStock: true,
     name: productName(type),
     description: type.description,

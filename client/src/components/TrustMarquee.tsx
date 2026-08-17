@@ -1,4 +1,4 @@
-import { Truck, ShieldCheck, Crosshair, MessageCircle, Sparkles, Hammer } from "lucide-react";
+import { Truck, ShieldCheck, Crosshair, MessageCircle, Sparkles, Hammer, type LucideIcon } from "lucide-react";
 
 const FEATURED = {
   icon: Truck,
@@ -35,7 +35,7 @@ function TrustChip({
   icon: Icon,
   label,
 }: {
-  icon: typeof ShieldCheck;
+  icon: LucideIcon;
   label: string;
 }) {
   return (

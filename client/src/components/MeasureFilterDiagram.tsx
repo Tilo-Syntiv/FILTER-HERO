@@ -10,10 +10,39 @@ const DIMS: {
   inches: string;
   color: string;
   text: string;
+  hintColor: string;
+  mark: string;
 }[] = [
-  { key: "width", label: "Width", hint: "Side to side", inches: "20", color: "#8eb0d8", text: "#141e30" },
-  { key: "length", label: "Length", hint: "Top to bottom", inches: "25", color: "#203868", text: "#ffffff" },
-  { key: "depth", label: "Depth", hint: "Thickness", inches: "2", color: "#7f2328", text: "#ffffff" },
+  {
+    key: "width",
+    label: "Width",
+    hint: "Side to side",
+    inches: "20",
+    color: "#8eb0d8",
+    text: "#141e30",
+    hintColor: "#2c3d55",
+    mark: "#3a66a3",
+  },
+  {
+    key: "length",
+    label: "Length",
+    hint: "Top to bottom",
+    inches: "25",
+    color: "#203868",
+    text: "#ffffff",
+    hintColor: "#e8eef8",
+    mark: "#203868",
+  },
+  {
+    key: "depth",
+    label: "Depth",
+    hint: "Thickness",
+    inches: "2",
+    color: "#7f2328",
+    text: "#ffffff",
+    hintColor: "#f3d6d7",
+    mark: "#7f2328",
+  },
 ];
 
 const CYCLE_MS = 3800;
@@ -82,6 +111,7 @@ function TapeMeasure({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.28 }}
+      style={{ pointerEvents: "none" }}
     >
       <rect
         x={0}
@@ -139,8 +169,9 @@ function DimChip({
       />
       <text
         x={w / 2}
-        y={16}
+        y={15}
         textAnchor="middle"
+        dominantBaseline="central"
         fill={dim.text}
         fontSize="11"
         fontWeight="800"
@@ -151,10 +182,10 @@ function DimChip({
       </text>
       <text
         x={w / 2}
-        y={30}
+        y={28}
         textAnchor="middle"
-        fill={dim.text}
-        opacity={0.78}
+        dominantBaseline="central"
+        fill={dim.hintColor}
         fontSize="9"
         fontWeight="600"
         fontFamily="Manrope, sans-serif"
@@ -205,7 +236,7 @@ export default function MeasureFilterDiagram({
       if (Date.now() < pauseUntil.current) return;
       const current = activeRef.current;
       const i = DIMS.findIndex((d) => d.key === current);
-      const next = DIMS[(i + 1) % DIMS.length].key;
+      const next = DIMS[(i < 0 ? 0 : i + 1) % DIMS.length].key;
       fromAutoplay.current = true;
       setInternal(next);
       onActiveChange?.(next);
@@ -224,7 +255,7 @@ export default function MeasureFilterDiagram({
         <svg
           viewBox="0 0 640 520"
           className="w-full h-auto"
-          role="img"
+          role="group"
           aria-label={`Sample air filter. ${activeDim.label}: ${activeDim.hint}. Example size 20 by 25 by 2 inches.`}
         >
           <defs>
@@ -354,38 +385,6 @@ export default function MeasureFilterDiagram({
             />
           </g>
 
-          {/* Invisible hit targets on each edge */}
-          <line
-            x1={front.tl.x}
-            y1={front.tl.y}
-            x2={front.tr.x}
-            y2={front.tr.y}
-            stroke="transparent"
-            strokeWidth="28"
-            className="cursor-pointer"
-            onClick={() => setActive("width")}
-          />
-          <line
-            x1={front.tl.x}
-            y1={front.tl.y}
-            x2={front.bl.x}
-            y2={front.bl.y}
-            stroke="transparent"
-            strokeWidth="28"
-            className="cursor-pointer"
-            onClick={() => setActive("length")}
-          />
-          <line
-            x1={front.tr.x}
-            y1={front.tr.y}
-            x2={topBack.tr.x}
-            y2={topBack.tr.y}
-            stroke="transparent"
-            strokeWidth="28"
-            className="cursor-pointer"
-            onClick={() => setActive("depth")}
-          />
-
           <AnimatePresence>
             {widthOn && (
               <TapeMeasure
@@ -419,42 +418,13 @@ export default function MeasureFilterDiagram({
             )}
           </AnimatePresence>
 
-          <AnimatePresence mode="wait">
-            {widthOn && (
-              <motion.g
-                key="chip-w"
-                initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-              >
-                <DimChip dim={DIMS[0]} x={F.x + F.w / 2} y={118} />
-              </motion.g>
-            )}
-            {lengthOn && (
-              <motion.g
-                key="chip-l"
-                initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-              >
-                <DimChip dim={DIMS[1]} x={108} y={F.y + F.h / 2} anchor="middle" />
-              </motion.g>
-            )}
-            {depthOn && (
-              <motion.g
-                key="chip-d"
-                initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-              >
-                <DimChip
-                  dim={DIMS[2]}
-                  x={topBack.tr.x + 78}
-                  y={topBack.tr.y - 6}
-                />
-              </motion.g>
-            )}
-          </AnimatePresence>
+          {widthOn && <DimChip dim={DIMS[0]} x={F.x + F.w / 2} y={118} />}
+          {lengthOn && (
+            <DimChip dim={DIMS[1]} x={108} y={F.y + F.h / 2} anchor="middle" />
+          )}
+          {depthOn && (
+            <DimChip dim={DIMS[2]} x={topBack.tr.x + 78} y={topBack.tr.y - 6} />
+          )}
 
           {/* Printed size on the cardboard — this is what customers actually order */}
           <text
@@ -465,13 +435,46 @@ export default function MeasureFilterDiagram({
             fontSize="13"
             fontWeight="800"
             letterSpacing="0.04em"
+            style={{ pointerEvents: "none" }}
           >
-            <tspan fill={widthOn ? "#3a66a3" : "#203868"}>20</tspan>
+            <tspan fill={widthOn ? DIMS[0].mark : "#203868"}>20</tspan>
             <tspan fill="#8a96a8"> × </tspan>
-            <tspan fill={lengthOn ? "#203868" : "#5c6b80"}>25</tspan>
+            <tspan fill={lengthOn ? DIMS[1].mark : "#5c6b80"}>25</tspan>
             <tspan fill="#8a96a8"> × </tspan>
-            <tspan fill={depthOn ? "#7f2328" : "#5c6b80"}>2</tspan>
+            <tspan fill={depthOn ? DIMS[2].mark : "#5c6b80"}>2</tspan>
           </text>
+
+          {/* Hit targets last so the tape never swallows the click */}
+          <line
+            x1={front.tl.x}
+            y1={front.tl.y}
+            x2={front.tr.x}
+            y2={front.tr.y}
+            stroke="transparent"
+            strokeWidth="36"
+            className="cursor-pointer"
+            onClick={() => setActive("width")}
+          />
+          <line
+            x1={front.tl.x}
+            y1={front.tl.y}
+            x2={front.bl.x}
+            y2={front.bl.y}
+            stroke="transparent"
+            strokeWidth="36"
+            className="cursor-pointer"
+            onClick={() => setActive("length")}
+          />
+          <line
+            x1={front.tr.x}
+            y1={front.tr.y}
+            x2={topBack.tr.x}
+            y2={topBack.tr.y}
+            stroke="transparent"
+            strokeWidth="36"
+            className="cursor-pointer"
+            onClick={() => setActive("depth")}
+          />
         </svg>
       </div>
 
@@ -514,7 +517,7 @@ export default function MeasureFilterDiagram({
           <span key={dim.key}>
             <span
               className="transition-colors"
-              style={{ color: active === dim.key ? dim.color : undefined }}
+              style={{ color: active === dim.key ? dim.mark : undefined }}
             >
               {dim.inches}
             </span>

@@ -119,7 +119,7 @@ export default function HowToMeasureGuide() {
                   Printed on the frame
                 </p>
                 <p className="font-extrabold text-2xl md:text-3xl tracking-tight text-deep">
-                  <span className="text-ice">20</span>
+                  <span className="text-[#3a66a3]">20</span>
                   <span className="text-muted-foreground"> × </span>
                   <span className="text-navy">25</span>
                   <span className="text-muted-foreground"> × </span>
