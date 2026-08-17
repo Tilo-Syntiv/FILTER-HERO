@@ -93,18 +93,18 @@ export default function Home() {
       <main>
         <section
           id="finder"
-          className="py-16 md:py-24 scroll-mt-28 -mt-6 relative z-10"
+          className="pt-16 md:pt-24 pb-10 md:pb-12 scroll-mt-28 -mt-6 relative z-10"
         >
           <div className="container">
-            <FilterFinder />
+            <FilterFinder showPopular={false} />
           </div>
         </section>
+
+        <PopularSizesCarousel />
 
         <SizeDirectory />
 
         <ThicknessCarousel />
-
-        <PopularSizesCarousel />
 
         <section className="py-16 md:py-20">
           <div className="container">

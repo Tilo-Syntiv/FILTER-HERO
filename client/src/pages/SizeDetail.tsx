@@ -168,19 +168,21 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
         </nav>
 
         {!inCatalog ? (
-          <div className="max-w-xl rounded-xl border border-dashed border-primary/30 bg-white/80 p-5 sm:p-8">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-3 break-words">{decoded}</h1>
-            <p className="text-muted-foreground mb-6">
-              We don't list this exact size in the standard catalog yet. Request a
-              quote and we'll confirm pricing and lead time for your dimensions.
-            </p>
-            <Button size="lg" className="hero-shop-btn w-full text-white sm:w-auto" asChild>
-              <a href={`/?size=${encodeURIComponent(decoded)}#contact`}>Request a quote for {decoded}</a>
-            </Button>
+          <>
+            <div className="max-w-xl rounded-xl border border-dashed border-primary/30 bg-white/80 p-5 sm:p-8">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-3 break-words">{decoded}</h1>
+              <p className="text-muted-foreground mb-6">
+                We don't list this exact size in the standard catalog yet. Request a
+                quote and we'll confirm pricing and lead time for your dimensions.
+              </p>
+              <Button size="lg" className="hero-shop-btn w-full text-white sm:w-auto" asChild>
+                <a href={`/?size=${encodeURIComponent(decoded)}#contact`}>Request a quote for {decoded}</a>
+              </Button>
+            </div>
             <div className="mt-12">
               <FilterFinder showPopular compact />
             </div>
-          </div>
+          </>
         ) : (
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-14">
             {/* Visual */}

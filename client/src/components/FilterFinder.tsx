@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import HowToMeasureGuide from "@/components/HowToMeasureGuide";
 import FilterSizeDiagram from "@/components/FilterSizeDiagram";
+import PopularSizesCarousel from "@/components/PopularSizesCarousel";
 import {
   catalogLengths,
   catalogWidths,
   getFilterSize,
-  popularSizeSlugs,
   THICKNESSES,
 } from "@shared/products";
 
@@ -50,8 +50,6 @@ export default function FilterFinder({
   const handleFind = () => {
     goToSize(`${width}x${length}x${depth}`);
   };
-
-  const popular = popularSizeSlugs(8);
 
   return (
     <div className={compact ? "space-y-8" : "space-y-12"}>
@@ -178,35 +176,7 @@ export default function FilterFinder({
         </div>
       </motion.div>
 
-      {showPopular && (
-        <div>
-          <p className="text-sm font-semibold text-muted-foreground mb-4 text-center md:text-left">
-            Or jump to a popular size
-          </p>
-          <div className="flex flex-wrap justify-center md:justify-start gap-2">
-            {popular.map((slug) => {
-              const meta = getFilterSize(slug);
-              return (
-                <button
-                  key={slug}
-                  type="button"
-                  onClick={() => {
-                    if (meta) {
-                      setWidth(String(meta.width));
-                      setLength(String(meta.length));
-                      setDepth(String(meta.depth));
-                    }
-                    goToSize(slug);
-                  }}
-                  className="size-chip min-h-11 !px-4 !py-2.5 !text-xs md:!text-sm"
-                >
-                  {slug}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {showPopular && <PopularSizesCarousel embedded />}
     </div>
   );
 }

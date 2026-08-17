@@ -634,10 +634,110 @@ a.hero-shop-btn:hover {
   animation: marquee-scroll 32s linear infinite;
 }
 
+.trust-marquee {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(ellipse 50% 120% at 0% 50%, rgba(127, 35, 40, 0.28), transparent 55%),
+    radial-gradient(ellipse 40% 100% at 100% 50%, rgba(142, 176, 216, 0.18), transparent 50%),
+    linear-gradient(180deg, #1b3258 0%, #23406a 100%);
+  box-shadow:
+    0 1px 0 rgba(142, 176, 216, 0.28),
+    0 12px 28px rgba(16, 24, 40, 0.18);
+}
+
+.trust-marquee-track {
+  animation-duration: 28s;
+}
+
+.trust-marquee:hover .trust-marquee-track {
+  animation-play-state: paused;
+}
+
+.trust-ship-chip,
+.trust-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  white-space: nowrap;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.trust-ship-chip {
+  position: relative;
+  overflow: hidden;
+  padding: 0.42rem 0.9rem 0.42rem 0.42rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--hero) 88%, white) 0%, var(--hero) 100%);
+  color: #fff;
+  font-size: 0.82rem;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 8px 18px rgba(127, 35, 40, 0.38);
+}
+
+.trust-ship-chip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.28) 48%,
+    transparent 70%
+  );
+  animation: trust-shine 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.trust-chip {
+  padding: 0.42rem 0.85rem 0.42rem 0.38rem;
+  border-radius: 999px;
+  border: 1px solid rgba(142, 176, 216, 0.28);
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(247, 248, 251, 0.92);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+@keyframes trust-shine {
+  from {
+    transform: translateX(-130%);
+  }
+  to {
+    transform: translateX(130%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-orb,
   .marquee-track {
     animation: none;
+  }
+
+  .trust-ship-chip::after {
+    animation: none;
+  }
+
+  .trust-marquee-track {
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    transform: none;
+    padding: 0.35rem 1rem;
+  }
+
+  .trust-marquee-track > div:first-child {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-right: 0;
+  }
+
+  .trust-marquee .marquee-dup {
+    display: none;
   }
 }
 

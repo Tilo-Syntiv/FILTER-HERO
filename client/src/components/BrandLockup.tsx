@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { Link } from "wouter";
 import { BRAND_NAME } from "@/const";
 
 type LockupTone = "header" | "footer";
@@ -93,18 +94,38 @@ const sizes: Record<
   },
 };
 
+function goHome(event: ReactMouseEvent<HTMLAnchorElement>) {
+  const atHome = window.location.pathname === "/";
+  window.scrollTo({ top: 0, left: 0, behavior: atHome ? "smooth" : "auto" });
+  if (!atHome) return;
+  event.preventDefault();
+  if (window.location.hash || window.location.search) {
+    history.replaceState(null, "", "/");
+  }
+}
+
 export default function BrandLockup({
   tone,
   className = "",
+  onClick,
 }: {
   tone: LockupTone;
   className?: string;
+  onClick?: (event: ReactMouseEvent<HTMLAnchorElement>) => void;
 }) {
   const src = useKnockoutLogo(LOGO_SRC);
   const size = sizes[tone];
 
   return (
-    <span className={`inline-flex items-center ${size.gap} ${className}`}>
+    <Link
+      href="/"
+      aria-label={`${BRAND_NAME} home`}
+      className={`relative z-[2] inline-flex items-center ${size.gap} ${className} cursor-pointer rounded-md select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ice`}
+      onClick={(event) => {
+        onClick?.(event);
+        if (!event.defaultPrevented) goHome(event);
+      }}
+    >
       <span
         className={`brand-emblem relative shrink-0 overflow-hidden ${size.mark}`}
         aria-hidden
@@ -112,13 +133,13 @@ export default function BrandLockup({
         <img
           src={src}
           alt=""
+          draggable={false}
           className="relative z-[1] h-[168%] w-full max-w-none object-contain object-[center_8%]"
         />
       </span>
-      <span className={`min-w-0 ${size.type}`}>
+      <span className={`min-w-0 ${size.type}`} aria-hidden>
         <Wordmark tone={tone} />
       </span>
-      <span className="sr-only">{BRAND_NAME}</span>
-    </span>
+    </Link>
   );
 }

@@ -170,9 +170,7 @@ export default function SiteHeader() {
     <header ref={headerRef} className="site-header sticky top-0 z-50">
       <div className="site-header-bar">
       <div className="container flex items-center gap-3 py-2.5 md:py-3">
-        <Link href="/" className="flex items-center min-w-0 shrink-0" onClick={closeMenus}>
-          <BrandLockup tone="header" />
-        </Link>
+        <BrandLockup tone="header" className="min-w-0 shrink-0" onClick={closeMenus} />
 
         <nav className="hidden lg:flex items-center ml-2" aria-label="Primary">
           <button
