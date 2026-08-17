@@ -236,15 +236,21 @@ export function popularSizeSlugs(limit = 12): string[] {
     "20x20x1",
     "16x20x1",
     "14x25x1",
-    "16x25x4",
-    "20x25x4",
+    "16x25x2",
+    "20x25x2",
     "12x24x1",
     "18x24x1",
     "20x30x1",
     "16x20x2",
-    "20x25x2",
+    "16x25x4",
+    "20x25x4",
   ];
-  return preferred.filter((slug) => getFilterSize(slug)).slice(0, limit);
+  return preferred
+    .map((slug) => getFilterSize(slug))
+    .filter((size): size is FilterSize => Boolean(size))
+    .slice(0, limit)
+    .sort(compareFilterSizes)
+    .map((size) => size.slug);
 }
 
 /** Legacy alias used by MERV guide cards */

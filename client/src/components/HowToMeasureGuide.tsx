@@ -63,19 +63,19 @@ const STEPS: {
 const NOTES = [
   {
     label: "Nominal size",
-    value: "20 × 25 × 1",
+    value: "20 × 25 × 2",
     desc: "The rounded size printed on the filter — use this when ordering.",
     tone: "bg-deep",
   },
   {
     label: "Actual size",
-    value: "19½ × 24½ × ¾",
+    value: "19½ × 24½ × 1¾",
     desc: "The true dimensions when you put a tape to the filter itself.",
     tone: "bg-navy",
   },
   {
     label: "Depth note",
-    value: '1" ≈ ¾" actual',
+    value: '2" ≈ 1¾" actual',
     desc: "Actual depth can vary by brand even when the nominal depth matches.",
     tone: "bg-[linear-gradient(135deg,#203868_0%,#8eb0d8_140%)]",
   },
@@ -123,7 +123,7 @@ export default function HowToMeasureGuide() {
                   <span className="text-muted-foreground"> × </span>
                   <span className="text-navy">25</span>
                   <span className="text-muted-foreground"> × </span>
-                  <span className="text-hero">1</span>
+                  <span className="text-hero">2</span>
                 </p>
                 <div className="mt-1 grid grid-cols-3 text-[10px] font-bold tracking-[0.12em] uppercase text-muted-foreground">
                   <span>Width</span>

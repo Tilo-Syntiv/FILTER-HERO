@@ -7,8 +7,8 @@ export default function FilterSizeDiagram() {
   const y = 70;
   const w = 150;
   const h = 168;
-  const dx = 52;
-  const dy = -32;
+  const dx = 13;
+  const dy = -8;
 
   const tl = { x, y };
   const tr = { x: x + w, y };

@@ -12,20 +12,21 @@ const DIMS: {
 }[] = [
   { key: "width", label: "Width", hint: "Side to side", inches: "20", color: "#8eb0d8" },
   { key: "length", label: "Length", hint: "Top to bottom", inches: "25", color: "#203868" },
-  { key: "depth", label: "Depth", hint: "Thickness", inches: "1", color: "#7f2328" },
+  { key: "depth", label: "Depth", hint: "Thickness", inches: "2", color: "#7f2328" },
 ];
 
 const CYCLE_MS = 3800;
 const PAUSE_MS = 9000;
 
-/** Front-face rectangle + isometric extrusion. Length is the tall edge. */
+/** Front-face rectangle + isometric extrusion. Length is the tall edge.
+ *  Face width (214) is 20"; extrusion is 2" at the same isometric angle. */
 const F = {
   x: 198,
   y: 158,
   w: 214,
   h: 236,
-  dx: 74,
-  dy: -44,
+  dx: 18,
+  dy: -11,
 };
 
 const front = {
@@ -66,10 +67,12 @@ function TapeMeasure({
   const dy = y2 - y1;
   const len = Math.hypot(dx, dy);
   const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-  const h = 15;
+  const short = len < 48;
+  const h = short ? 9 : 15;
+  const cap = short ? 2.2 : 5;
   const ticks: number[] = [];
-  const step = 10;
-  for (let t = step; t < len - 4; t += step) ticks.push(t);
+  const step = short ? 5 : 10;
+  for (let t = step; t < len - cap; t += step) ticks.push(t);
 
   return (
     <motion.g
@@ -84,7 +87,7 @@ function TapeMeasure({
         y={-h / 2}
         width={len}
         height={h}
-        rx={2.2}
+        rx={short ? 1.4 : 2.2}
         fill="#F5C518"
         stroke="#1c1c1c"
         strokeWidth={0.7}
@@ -95,16 +98,16 @@ function TapeMeasure({
           <line
             key={t}
             x1={t}
-            y1={-h / 2 + 1.5}
+            y1={-h / 2 + 1.2}
             x2={t}
-            y2={major ? h / 2 - 1.5 : -1}
+            y2={major ? h / 2 - 1.2 : -0.8}
             stroke="#1c1c1c"
             strokeWidth={major ? 0.85 : 0.55}
           />
         );
       })}
-      <rect x={0} y={-h / 2} width={5} height={h} fill="#1c1c1c" />
-      <rect x={len - 5} y={-h / 2} width={5} height={h} fill="#1c1c1c" />
+      <rect x={0} y={-h / 2} width={cap} height={h} fill="#1c1c1c" />
+      <rect x={len - cap} y={-h / 2} width={cap} height={h} fill="#1c1c1c" />
     </motion.g>
   );
 }
@@ -221,7 +224,7 @@ export default function MeasureFilterDiagram({
           viewBox="0 0 640 520"
           className="w-full h-auto"
           role="img"
-          aria-label={`Sample air filter. ${activeDim.label}: ${activeDim.hint}. Example size 20 by 25 by 1 inches.`}
+          aria-label={`Sample air filter. ${activeDim.label}: ${activeDim.hint}. Example size 20 by 25 by 2 inches.`}
         >
           <defs>
             <linearGradient id="mfdFace" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -443,7 +446,11 @@ export default function MeasureFilterDiagram({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
               >
-                <DimChip dim={DIMS[2]} x={548} y={108} />
+                <DimChip
+                  dim={DIMS[2]}
+                  x={topBack.tr.x + 78}
+                  y={topBack.tr.y - 6}
+                />
               </motion.g>
             )}
           </AnimatePresence>
@@ -462,7 +469,7 @@ export default function MeasureFilterDiagram({
             <tspan fill="#8a96a8"> × </tspan>
             <tspan fill={lengthOn ? "#203868" : "#5c6b80"}>25</tspan>
             <tspan fill="#8a96a8"> × </tspan>
-            <tspan fill={depthOn ? "#7f2328" : "#5c6b80"}>1</tspan>
+            <tspan fill={depthOn ? "#7f2328" : "#5c6b80"}>2</tspan>
           </text>
         </svg>
       </div>
