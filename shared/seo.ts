@@ -160,7 +160,7 @@ export function thicknessSeo(siteUrl: string, depth: number) {
   const path = `/filters/${depth}-inch`;
   return {
     title: `${depth}" Air Filters — Shop by Size | ${BRAND_NAME}`,
-    description: `Shop ${depth}-inch thick HVAC and furnace air filters. Select your Width × Length, then choose MERV 8, 11, 13, or carbon with volume pricing.`,
+    description: `Shop ${depth}-inch depth HVAC and furnace air filters. Pick your width, then Width × Length. Available in MERV 8, 11, 13, or carbon with volume pricing.`,
     path,
     canonical: absoluteUrl(siteUrl, path),
     type: "website" as const,

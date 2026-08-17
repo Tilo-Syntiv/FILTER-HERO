@@ -52,9 +52,9 @@ export function AllSizesPage() {
         <span className="section-label">Size catalog</span>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Every Filter Hero size</h1>
         <p className="seo-answer text-muted-foreground mb-10 max-w-2xl">
-          Browse every {BRAND_NAME} HVAC size by thickness. Pick your
-          exact Width × Length × Depth, then choose MERV quality and pack quantity
-          on the next page. {allSizes.length} sizes in the catalog.
+          Browse every {BRAND_NAME} HVAC size by depth. Pick a whole-inch width,
+          then the exact size if you need 7.5" or similar. {allSizes.length} sizes
+          in the catalog.
         </p>
         <SizeDirectory compact />
       </main>
@@ -116,11 +116,12 @@ export function ThicknessHubPage({ depth }: { depth: number }) {
             </nav>
             <span className="section-label">Depth first</span>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
-              {depth}" air filters
+              {depth}" depth air filters
             </h1>
             <p className="seo-answer text-muted-foreground mb-10 max-w-2xl">
-              Shop {depth}-inch thick HVAC and furnace air filters. Select your
-              width × length. Every size is available in MERV 8, 11, 13, and Carbon.
+              Shop {depth}-inch depth HVAC and furnace air filters. Start with a
+              whole-inch width, then choose 7.5" or another exact size if you
+              need it. Every size is available in MERV 8, 11, 13, and Carbon.
             </p>
             <SizeDirectory
               depth={depth}

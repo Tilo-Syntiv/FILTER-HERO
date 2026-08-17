@@ -130,6 +130,12 @@ export function catalogWidths(): number[] {
   return Array.from(new Set(FILTER_SIZES.map((s) => s.width))).sort((a, b) => a - b);
 }
 
+export function catalogWidthsForDepth(depth: number): number[] {
+  return Array.from(
+    new Set(FILTER_SIZES.filter((s) => s.depth === depth).map((s) => s.width)),
+  ).sort((a, b) => a - b);
+}
+
 export function catalogLengths(): number[] {
   return Array.from(new Set(FILTER_SIZES.map((s) => s.length))).sort((a, b) => a - b);
 }

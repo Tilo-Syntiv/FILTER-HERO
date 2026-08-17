@@ -1,6 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
-import { THICKNESSES, getSizesByThickness } from "@shared/products";
+import {
+  THICKNESSES,
+  catalogWidthsForDepth,
+  getSizesByThickness,
+} from "@shared/products";
 
 const PREVIEW_COUNT = 36;
 const PAGE_SIZE = 100;
@@ -19,7 +23,28 @@ export default function SizeDirectory({
   const activeDepth = depth ?? 1;
   const [expanded, setExpanded] = useState(false);
   const [page, setPage] = useState(0);
-  const sizes = useMemo(() => getSizesByThickness(activeDepth), [activeDepth]);
+  const [widthBand, setWidthBand] = useState<number | null>(null);
+  const [width, setWidth] = useState<number | null>(null);
+  const widths = useMemo(() => catalogWidthsForDepth(activeDepth), [activeDepth]);
+  const widthBands = useMemo(
+    () => [...new Set(widths.map((w) => Math.floor(w)))].sort((a, b) => a - b),
+    [widths],
+  );
+  const bandWidths = useMemo(
+    () =>
+      widthBand == null
+        ? []
+        : widths.filter((w) => Math.floor(w) === widthBand),
+    [widths, widthBand],
+  );
+  const sizes = useMemo(() => {
+    const all = getSizesByThickness(activeDepth);
+    if (width != null) return all.filter((s) => s.width === width);
+    if (widthBand != null) {
+      return all.filter((s) => Math.floor(s.width) === widthBand);
+    }
+    return all;
+  }, [activeDepth, width, widthBand]);
   const totalPages = Math.max(1, Math.ceil(sizes.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
   const pageSizes = sizes.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
@@ -27,10 +52,50 @@ export default function SizeDirectory({
     expanded || safePage > 0 ? pageSizes : pageSizes.slice(0, PREVIEW_COUNT);
   const canToggle = safePage === 0 && pageSizes.length > PREVIEW_COUNT;
 
+  useEffect(() => {
+    setWidthBand(null);
+    setWidth(null);
+    setPage(0);
+    setExpanded(false);
+  }, [activeDepth]);
+
   const goPage = (next: number) => {
     setPage(Math.max(0, Math.min(totalPages - 1, next)));
     setExpanded(true);
   };
+
+  const resetList = () => {
+    setPage(0);
+    setExpanded(false);
+  };
+
+  const pickAllWidths = () => {
+    setWidthBand(null);
+    setWidth(null);
+    resetList();
+  };
+
+  const pickWidthBand = (band: number) => {
+    const matches = widths.filter((w) => Math.floor(w) === band);
+    setWidthBand(band);
+    setWidth(matches.length === 1 ? matches[0] : null);
+    resetList();
+  };
+
+  const pickExactWidth = (next: number) => {
+    setWidthBand(Math.floor(next));
+    setWidth(next);
+    resetList();
+  };
+
+  const formatInches = (value: number) => `${value}"`;
+
+  const chipClass = (active: boolean) =>
+    `inline-flex min-h-11 items-center px-3 py-2 rounded-lg text-sm font-semibold border transition-colors ${
+      active
+        ? "bg-primary text-primary-foreground border-primary"
+        : "bg-white/70 border-border hover:border-primary/40"
+    }`;
 
   return (
     <section
@@ -50,7 +115,8 @@ export default function SizeDirectory({
                 {heading}
               </h2>
               <p className="text-muted-foreground mt-2 max-w-2xl">
-                {sizes.length} {activeDepth}" sizes. Click any size to buy it.
+                {sizes.length} {activeDepth}" depth sizes. Pick a whole-inch
+                width, then the exact size if you need 7.5" or similar.
               </p>
             </div>
             <Link href="/sizes" className="section-link">
@@ -59,33 +125,86 @@ export default function SizeDirectory({
           </div>
         )}
 
-        <nav className="flex flex-wrap gap-2 mb-6" aria-label="Filter thickness">
-          {THICKNESSES.map((d) => {
-            const active = activeDepth === d;
-            return (
+        <div className="mb-6 space-y-4">
+          <div>
+            <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-muted-foreground mb-2">
+              Depth
+            </p>
+            <nav className="flex flex-wrap gap-2" aria-label="Filter depth">
+              {THICKNESSES.map((d) => {
+                const active = activeDepth === d;
+                return (
+                  <Link
+                    key={d}
+                    href={`/filters/${d}-inch`}
+                    className={`inline-flex min-h-11 items-center px-3 py-2 rounded-lg text-sm font-semibold border transition-colors ${
+                      active
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-white/70 border-border hover:border-primary/40"
+                    }`}
+                  >
+                    {formatInches(d)} depth
+                  </Link>
+                );
+              })}
               <Link
-                key={d}
-                href={`/filters/${d}-inch`}
-                className={`inline-flex min-h-11 items-center px-3 py-2 rounded-lg text-sm font-semibold border transition-colors ${
-                  active
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-white/70 border-border hover:border-primary/40"
-                }`}
+                href="/custom-air-filters"
+                className="inline-flex min-h-11 items-center px-3 py-2 rounded-lg text-sm font-semibold border border-border bg-white/70 hover:border-primary/40"
               >
-                {d}" filters
+                Custom Air Filters
               </Link>
-            );
-          })}
-          <Link
-            href="/custom-air-filters"
-            className="inline-flex min-h-11 items-center px-3 py-2 rounded-lg text-sm font-semibold border border-border bg-white/70 hover:border-primary/40"
-          >
-            Custom Air Filters
-          </Link>
-        </nav>
+            </nav>
+          </div>
+
+          <div>
+            <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-muted-foreground mb-2">
+              Width
+            </p>
+            <nav className="flex flex-wrap gap-2" aria-label="Filter width">
+              <button
+                type="button"
+                onClick={pickAllWidths}
+                className={chipClass(widthBand == null && width == null)}
+              >
+                All widths
+              </button>
+              {widthBands.map((band) => (
+                <button
+                  key={band}
+                  type="button"
+                  onClick={() => pickWidthBand(band)}
+                  className={chipClass(widthBand === band)}
+                >
+                  {formatInches(band)}
+                </button>
+              ))}
+            </nav>
+            {bandWidths.length > 1 && (
+              <nav
+                className="flex flex-wrap gap-2 mt-2"
+                aria-label={`${formatInches(widthBand ?? 0)} exact widths`}
+              >
+                {bandWidths.map((w) => (
+                  <button
+                    key={w}
+                    type="button"
+                    onClick={() => pickExactWidth(w)}
+                    className={chipClass(width === w)}
+                  >
+                    {formatInches(w)}
+                  </button>
+                ))}
+              </nav>
+            )}
+          </div>
+        </div>
 
         <p className="text-sm text-muted-foreground mb-3">
-          Page {safePage + 1} of {totalPages} · {sizes.length} sizes
+          {width != null
+            ? `${sizes.length} size${sizes.length === 1 ? "" : "s"} · ${formatInches(width)} width × ${formatInches(activeDepth)} depth`
+            : widthBand != null
+              ? `Page ${safePage + 1} of ${totalPages} · ${sizes.length} sizes near ${formatInches(widthBand)} width × ${formatInches(activeDepth)} depth`
+              : `Page ${safePage + 1} of ${totalPages} · ${sizes.length} sizes at ${formatInches(activeDepth)} depth`}
         </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
