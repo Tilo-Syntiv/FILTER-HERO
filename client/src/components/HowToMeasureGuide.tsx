@@ -140,7 +140,7 @@ export default function HowToMeasureGuide() {
             </div>
           </div>
 
-          <div className="relative rounded-2xl border border-border/80 bg-[linear-gradient(180deg,#fafbfc_0%,#eef1f6_100%)] p-4 md:p-6 overflow-hidden">
+          <div className="relative rounded-2xl border border-border/80 bg-[linear-gradient(180deg,#fafbfc_0%,#eef1f6_100%)] p-4 pt-6 md:p-6 md:pt-7">
             <span className="absolute top-0 left-3 -translate-y-1/2 rounded-full bg-hero text-white text-[10px] md:text-xs font-bold tracking-[0.12em] uppercase px-3 py-1.5">
               If you do measure
             </span>
