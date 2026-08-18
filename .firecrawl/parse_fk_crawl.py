@@ -44,8 +44,10 @@ def parse_markdown(md: str, url: str) -> dict | None:
 
 def iter_crawl_docs(payload: object):
     if isinstance(payload, dict):
-        if "markdown" in payload and "url" in payload:
+        url = payload.get("url") or (payload.get("metadata") or {}).get("sourceURL")
+        if payload.get("markdown") and url:
             yield payload
+            return
         data = payload.get("data")
         if isinstance(data, list):
             for item in data:
@@ -58,6 +60,21 @@ def iter_crawl_docs(payload: object):
     elif isinstance(payload, list):
         for item in payload:
             yield from iter_crawl_docs(item)
+
+
+def iter_batch_docs(path: Path):
+    if not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if row.get("ok") and row.get("markdown"):
+            yield row
 
 
 MERV_LIVE = {
@@ -107,10 +124,9 @@ def merge_live(existing: list[dict], incoming: list[dict]) -> list[dict]:
 
 def main() -> None:
     src = ROOT / "fk-full-catalog-crawl.json"
-    if not src.exists():
-        print("missing", src)
-        return
-    payload = json.loads(src.read_text(encoding="utf-8"))
+    payload = {"data": []}
+    if src.exists():
+        payload = json.loads(src.read_text(encoding="utf-8"))
     rows = []
     live_rows = []
     n_docs = 0
@@ -124,6 +140,20 @@ def main() -> None:
             live = to_live_row(parsed)
             if live:
                 live_rows.append(live)
+    for batch in ROOT.glob("fk-batch*.ndjson"):
+        for doc in iter_batch_docs(batch):
+            n_docs += 1
+            md = doc.get("markdown") or ""
+            url = doc.get("url") or (doc.get("metadata") or {}).get("sourceURL") or ""
+            parsed = parse_markdown(md, url)
+            if parsed:
+                rows.append(parsed)
+                live = to_live_row(parsed)
+                if live:
+                    live_rows.append(live)
+    if n_docs == 0:
+        print("no crawl or batch docs found")
+        return
     out = ROOT / "fk-full-prices.json"
     out.write_text(json.dumps({"count": len(rows), "products": rows}, indent=2), encoding="utf-8")
     existing: list[dict] = []

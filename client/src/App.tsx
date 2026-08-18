@@ -13,6 +13,7 @@ import { Route, Switch, useRoute } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { CartProvider } from "./contexts/CartContext";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 function ThicknessRoute() {
   const [, params] = useRoute("/filters/:thickness");
@@ -34,6 +35,7 @@ function BrandRoute() {
 }
 
 function Router() {
+  useScrollToTop();
   return (
     <Switch>
       <Route path="/" component={Home} />

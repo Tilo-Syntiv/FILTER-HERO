@@ -23,28 +23,17 @@ export default function SizeDirectory({
   const activeDepth = depth ?? 1;
   const [expanded, setExpanded] = useState(false);
   const [page, setPage] = useState(0);
-  const [widthBand, setWidthBand] = useState<number | null>(null);
   const [width, setWidth] = useState<number | null>(null);
   const widths = useMemo(() => catalogWidthsForDepth(activeDepth), [activeDepth]);
-  const widthBands = useMemo(
-    () => [...new Set(widths.map((w) => Math.floor(w)))].sort((a, b) => a - b),
+  const widthOptions = useMemo(
+    () => Array.from(new Set(widths.map((w) => Math.floor(w)))).sort((a, b) => a - b),
     [widths],
-  );
-  const bandWidths = useMemo(
-    () =>
-      widthBand == null
-        ? []
-        : widths.filter((w) => Math.floor(w) === widthBand),
-    [widths, widthBand],
   );
   const sizes = useMemo(() => {
     const all = getSizesByThickness(activeDepth);
     if (width != null) return all.filter((s) => s.width === width);
-    if (widthBand != null) {
-      return all.filter((s) => Math.floor(s.width) === widthBand);
-    }
     return all;
-  }, [activeDepth, width, widthBand]);
+  }, [activeDepth, width]);
   const totalPages = Math.max(1, Math.ceil(sizes.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
   const pageSizes = sizes.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
@@ -53,7 +42,6 @@ export default function SizeDirectory({
   const canToggle = safePage === 0 && pageSizes.length > PREVIEW_COUNT;
 
   useEffect(() => {
-    setWidthBand(null);
     setWidth(null);
     setPage(0);
     setExpanded(false);
@@ -70,20 +58,11 @@ export default function SizeDirectory({
   };
 
   const pickAllWidths = () => {
-    setWidthBand(null);
     setWidth(null);
     resetList();
   };
 
-  const pickWidthBand = (band: number) => {
-    const matches = widths.filter((w) => Math.floor(w) === band);
-    setWidthBand(band);
-    setWidth(matches.length === 1 ? matches[0] : null);
-    resetList();
-  };
-
-  const pickExactWidth = (next: number) => {
-    setWidthBand(Math.floor(next));
+  const pickWidth = (next: number) => {
     setWidth(next);
     resetList();
   };
@@ -115,8 +94,8 @@ export default function SizeDirectory({
                 {heading}
               </h2>
               <p className="text-muted-foreground mt-2 max-w-2xl">
-                {sizes.length} {activeDepth}" depth sizes. Pick a whole-inch
-                width, then the exact size if you need 7.5" or similar.
+                {sizes.length} {activeDepth}" depth sizes. Pick a whole-inch width
+                to narrow the list.
               </p>
             </div>
             <Link href="/sizes" className="section-link">
@@ -164,47 +143,28 @@ export default function SizeDirectory({
               <button
                 type="button"
                 onClick={pickAllWidths}
-                className={chipClass(widthBand == null && width == null)}
+                className={chipClass(width == null)}
               >
                 All widths
               </button>
-              {widthBands.map((band) => (
+              {widthOptions.map((option) => (
                 <button
-                  key={band}
+                  key={option}
                   type="button"
-                  onClick={() => pickWidthBand(band)}
-                  className={chipClass(widthBand === band)}
+                  onClick={() => pickWidth(option)}
+                  className={chipClass(width === option)}
                 >
-                  {formatInches(band)}
+                  {formatInches(option)}
                 </button>
               ))}
             </nav>
-            {bandWidths.length > 1 && (
-              <nav
-                className="flex flex-wrap gap-2 mt-2"
-                aria-label={`${formatInches(widthBand ?? 0)} exact widths`}
-              >
-                {bandWidths.map((w) => (
-                  <button
-                    key={w}
-                    type="button"
-                    onClick={() => pickExactWidth(w)}
-                    className={chipClass(width === w)}
-                  >
-                    {formatInches(w)}
-                  </button>
-                ))}
-              </nav>
-            )}
           </div>
         </div>
 
         <p className="text-sm text-muted-foreground mb-3">
           {width != null
             ? `${sizes.length} size${sizes.length === 1 ? "" : "s"} · ${formatInches(width)} width × ${formatInches(activeDepth)} depth`
-            : widthBand != null
-              ? `Page ${safePage + 1} of ${totalPages} · ${sizes.length} sizes near ${formatInches(widthBand)} width × ${formatInches(activeDepth)} depth`
-              : `Page ${safePage + 1} of ${totalPages} · ${sizes.length} sizes at ${formatInches(activeDepth)} depth`}
+            : `Page ${safePage + 1} of ${totalPages} · ${sizes.length} sizes at ${formatInches(activeDepth)} depth`}
         </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
