@@ -43,13 +43,6 @@ export default function PopularSizesCarousel({
           : "py-16 md:py-20",
       )}
     >
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 80% at 90% 50%, rgba(142,176,216,0.35), transparent)",
-        }}
-      />
       <div className={cn("relative", embedded ? "px-4 sm:px-6 md:px-8" : "container")}>
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
           <div>
@@ -81,10 +74,8 @@ export default function PopularSizesCarousel({
                 <Link
                   href={`/sizes/${encodeURIComponent(slug)}`}
                   className={cn(
-                    "group block rounded-2xl border bg-white/5 px-5 py-8 text-center transition-all duration-300 hover:bg-white/12 hover:border-ice/50 hover:-translate-y-0.5",
-                    i === selected
-                      ? "border-ice/55 bg-white/10"
-                      : "border-white/15",
+                    "group glass-tile block px-5 py-8 text-center",
+                    i === selected && "glass-tile-active",
                   )}
                 >
                   <p className="text-[10px] uppercase tracking-[0.2em] text-ice/80 mb-3 font-semibold">
@@ -100,8 +91,8 @@ export default function PopularSizesCarousel({
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden md:flex -left-3 border-white/20 bg-deep/80 text-white hover:bg-white hover:text-deep disabled:opacity-30" />
-          <CarouselNext className="hidden md:flex -right-3 border-white/20 bg-deep/80 text-white hover:bg-white hover:text-deep disabled:opacity-30" />
+          <CarouselPrevious className="band-arrow hidden md:flex -left-3 disabled:opacity-30" />
+          <CarouselNext className="band-arrow hidden md:flex -right-3 disabled:opacity-30" />
         </Carousel>
 
         <CarouselDots

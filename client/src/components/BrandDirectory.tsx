@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { featuredBrandFamilies, otherBrandFamilies, searchBrandCodes } from "@shared/hvac-brands";
 import { BRAND_NAME } from "@/const";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function BrandDirectory({ compact = false }: { compact?: boolean }) {
   const [query, setQuery] = useState("");
@@ -70,9 +71,10 @@ export default function BrandDirectory({ compact = false }: { compact?: boolean 
                 <Link
                   key={b.slug}
                   href={`/brands/${b.slug}`}
-                  className="size-chip !py-4 text-center"
+                  className="brand-chip"
                 >
-                  {b.name}
+                  <BrandLogo slug={b.slug} name={b.name} />
+                  <span>{b.name}</span>
                 </Link>
               ))}
             </div>
@@ -92,9 +94,10 @@ export default function BrandDirectory({ compact = false }: { compact?: boolean 
                 <Link
                   key={b.slug}
                   href={`/brands/${b.slug}`}
-                  className="size-chip !py-3 text-center text-sm"
+                  className="brand-chip"
                 >
-                  {b.name}
+                  <BrandLogo slug={b.slug} name={b.name} />
+                  <span>{b.name}</span>
                 </Link>
               ))}
             </div>

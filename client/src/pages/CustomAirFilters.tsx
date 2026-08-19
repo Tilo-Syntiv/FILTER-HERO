@@ -4,6 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
 import CustomQuoteForm from "@/components/CustomQuoteForm";
 import FaqSection from "@/components/FaqSection";
+import PageHero from "@/components/PageHero";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { useHashScroll } from "@/hooks/useHashScroll";
 import { takeQuoteHandoff } from "@/lib/quote-handoff";
@@ -54,20 +55,17 @@ export default function CustomAirFiltersPage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="container py-10 md:py-14">
-        <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground mb-4">
-          <Link href="/" className="hover:text-foreground">
-            Home
-          </Link>{" "}
-          / Custom air filters
-        </nav>
-        <span className="section-label">Odd size</span>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Custom Air Filters</h1>
-        <p className="seo-answer text-muted-foreground mb-10 max-w-2xl leading-relaxed">
-          If your slot is not a standard catalog size, enter Width × Length ×
-          Depth below. We cut custom HVAC filters to your measurements and send
-          back a quote.
-        </p>
+      <PageHero
+        label="Odd size"
+        title="Custom Air Filters"
+        crumbs={[{ href: "/", label: "Home" }]}
+      >
+        If your slot is not a standard catalog size, enter Width × Length ×
+        Depth below. We cut custom HVAC filters to your measurements and send
+        back a quote.
+      </PageHero>
+      <main className="sheet-section">
+        <div className="container py-10 md:py-14">
         <div
           id="custom-quote"
           className="max-w-xl mb-16 scroll-mt-28 surface-panel rounded-2xl p-4 sm:p-6 md:p-8"
@@ -83,6 +81,7 @@ export default function CustomAirFiltersPage() {
           title="Custom size questions"
           subtitle="How custom HVAC filter quotes work."
         />
+        </div>
       </main>
       <footer className="site-footer pt-8 mt-12">
         <div className="container flex flex-col sm:flex-row justify-between gap-4 text-sm">

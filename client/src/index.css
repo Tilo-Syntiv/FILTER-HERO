@@ -229,6 +229,36 @@
     box-shadow: 0 0 0 3px rgba(142, 176, 216, 0.18);
   }
 
+  .brand-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    min-height: 7.4rem;
+    padding: 1rem 0.7rem 0.8rem;
+    border-radius: 0.85rem;
+    border: 1px solid rgba(142, 176, 216, 0.38);
+    background: #ffffff;
+    text-align: center;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .brand-chip:hover {
+    transform: translateY(-2px);
+    border-color: rgba(58, 102, 163, 0.7);
+    box-shadow: 0 0 0 3px rgba(142, 176, 216, 0.18);
+  }
+
+  .brand-chip span {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--navy);
+    line-height: 1.2;
+  }
+
   .section-label {
     display: inline-block;
     font-family: "Plus Jakarta Sans", sans-serif;
@@ -434,7 +464,6 @@ a.hero-shop-btn:hover {
 }
 
 .site-header,
-.brand-band,
 .site-footer {
   background:
     radial-gradient(ellipse 70% 120% at 0% 50%, rgba(58, 102, 163, 0.42), transparent 55%),
@@ -453,6 +482,9 @@ a.hero-shop-btn:hover {
   position: relative;
   overflow: hidden;
   color: #fff;
+  background:
+    radial-gradient(ellipse 55% 90% at 92% 45%, rgba(142, 176, 216, 0.3), transparent 58%),
+    linear-gradient(90deg, #141e30 0%, #1a3058 42%, #2a4d82 100%);
 }
 
 .brand-band .section-label {
@@ -465,6 +497,43 @@ a.hero-shop-btn:hover {
 
 .brand-band .section-link:hover {
   color: #fff;
+}
+
+.sheet-section {
+  background: #ffffff;
+}
+
+.glass-tile {
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.glass-tile:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(142, 176, 216, 0.5);
+}
+
+.glass-tile-active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(142, 176, 216, 0.7);
+  box-shadow: 0 12px 32px rgba(8, 16, 32, 0.28);
+}
+
+.band-arrow {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  background: rgba(20, 30, 48, 0.8) !important;
+  color: #fff !important;
+}
+
+.band-arrow:hover {
+  background: #fff !important;
+  color: #141e30 !important;
 }
 
 .site-footer {

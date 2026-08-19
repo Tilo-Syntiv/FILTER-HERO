@@ -77,7 +77,7 @@ const NOTES = [
     label: "Depth note",
     value: '2" ≈ 1¾" actual',
     desc: "Actual depth can vary by brand even when the nominal depth matches.",
-    tone: "bg-[linear-gradient(135deg,#203868_0%,#8eb0d8_140%)]",
+    tone: "bg-mesh",
   },
 ];
 
@@ -208,7 +208,7 @@ export default function HowToMeasureGuide() {
             key={note.label}
             className={`relative overflow-hidden rounded-2xl ${note.tone} text-white p-5`}
           >
-            <div className="absolute -right-8 -bottom-8 h-28 w-28 rounded-full bg-white/10" />
+            <div className="absolute -right-8 -bottom-8 h-28 w-28 rounded-full bg-ice/20" />
             <p className="relative text-[10px] font-bold tracking-[0.18em] uppercase text-white/80 mb-2">
               {note.label}
             </p>

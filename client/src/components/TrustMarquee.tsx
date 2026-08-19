@@ -10,7 +10,7 @@ const ITEMS = [
   { icon: ShieldCheck, label: "30-day fit guarantee" },
   { icon: Crosshair, label: "All Sizes Available" },
   { icon: Hammer, label: "Built To Last" },
-  { icon: Sparkles, label: "MERV 8 · 11 · 13 · Carbon" },
+  { icon: Sparkles, label: "MERV 8 · MERV 8 Carbon · MERV 11 · MERV 13" },
   { icon: MessageCircle, label: "Real HVAC support" },
 ];
 

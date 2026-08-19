@@ -14,6 +14,7 @@ import {
   getFilterSize,
   THICKNESSES,
 } from "@shared/products";
+import { getPreferredMerv } from "@/lib/merv-pref";
 
 interface FilterFinderProps {
   onSizeSelect?: (size: string) => void;
@@ -41,9 +42,11 @@ export default function FilterFinder({
       onSizeSelect(size);
       return;
     }
+    const merv = getPreferredMerv();
+    const mervQuery = merv ? `?merv=${merv}` : "";
     setLocation(
       getFilterSize(size)
-        ? `/sizes/${encodeURIComponent(size)}`
+        ? `/sizes/${encodeURIComponent(size)}${mervQuery}`
         : customQuotePath(size),
     );
   };

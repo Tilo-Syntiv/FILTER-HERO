@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
 import { THICKNESSES } from "@shared/products";
 import { featuredBrandFamilies } from "@shared/hvac-brands";
+import BrandLogo from "@/components/BrandLogo";
 import {
   SITE_FAQS,
   buildBreadcrumbSchema,
@@ -20,7 +21,6 @@ import { Button } from "@/components/ui/button";
 import FilterFinder from "@/components/FilterFinder";
 import TrustSection from "@/components/TrustSection";
 import TrustMarquee from "@/components/TrustMarquee";
-import ThicknessCarousel from "@/components/ThicknessCarousel";
 import PopularSizesCarousel from "@/components/PopularSizesCarousel";
 import SizeDirectory from "@/components/SizeDirectory";
 import MervCarousel from "@/components/MervCarousel";
@@ -94,7 +94,7 @@ export default function Home() {
       <main>
         <section
           id="finder"
-          className="pt-16 md:pt-24 pb-10 md:pb-12 scroll-mt-28 -mt-6 relative z-10"
+          className="sheet-section pt-16 md:pt-24 pb-10 md:pb-12 scroll-mt-28 -mt-6 relative z-10"
         >
           <div className="container">
             <FilterFinder showPopular={false} />
@@ -103,11 +103,13 @@ export default function Home() {
 
         <PopularSizesCarousel />
 
-        <SizeDirectory />
+        <div className="sheet-section">
+          <SizeDirectory />
+        </div>
 
-        <ThicknessCarousel />
+        <MervCarousel />
 
-        <section className="py-16 md:py-20">
+        <section className="sheet-section py-16 md:py-20">
           <div className="container">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
               <div>
@@ -135,9 +137,10 @@ export default function Home() {
                       <Link
                         key={b.slug}
                         href={`/brands/${b.slug}`}
-                        className="size-chip !py-4 text-center"
+                        className="brand-chip"
                       >
-                        {b.name}
+                        <BrandLogo slug={b.slug} name={b.name} />
+                        <span>{b.name}</span>
                       </Link>
                     ))}
                   </div>
@@ -147,11 +150,11 @@ export default function Home() {
           </div>
         </section>
 
-        <MervCarousel />
+        <div className="sheet-section">
+          <TrustSection />
+        </div>
 
-        <TrustSection />
-
-        <section className="py-8 md:py-10">
+        <section className="sheet-section py-8 md:py-10">
           <div className="container">
             <div className="relative overflow-hidden rounded-3xl bg-[linear-gradient(125deg,#141e30_0%,#203868_60%,#3a66a3_130%)] px-6 py-10 text-white md:px-12 md:py-14">
               <div
@@ -184,7 +187,9 @@ export default function Home() {
           </div>
         </section>
 
-        <FaqSection faqs={SITE_FAQS} />
+        <div className="sheet-section">
+          <FaqSection faqs={SITE_FAQS} />
+        </div>
 
         <section className="brand-band py-20 md:py-28 relative overflow-hidden">
           <div className="container relative text-center">
@@ -214,7 +219,7 @@ export default function Home() {
         <section
           id="contact"
           ref={contactRef}
-          className="py-16 md:py-24 scroll-mt-28"
+          className="sheet-section py-16 md:py-24 scroll-mt-28"
         >
           <div className="container max-w-xl">
             <span className="section-label">Real support</span>

@@ -5,6 +5,7 @@ import {
   getHvacBrand,
   HVAC_BRAND_LIST,
 } from "@shared/hvac-brands";
+import BrandLogo from "@/components/BrandLogo";
 import {
   allBrandsSeo,
   brandSeo,
@@ -16,6 +17,7 @@ import SiteHeader from "@/components/SiteHeader";
 import BrandDirectory from "@/components/BrandDirectory";
 import CartDrawer from "@/components/CartDrawer";
 import FilterFinder from "@/components/FilterFinder";
+import PageHero from "@/components/PageHero";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { BRAND_NAME } from "@/const";
 
@@ -61,16 +63,16 @@ export function AllBrandsPage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="container py-10 md:py-14">
-        <span className="section-label">System match</span>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Shop by HVAC brand</h1>
-        <p className="seo-answer text-muted-foreground mb-10 max-w-2xl leading-relaxed">
-          {BRAND_NAME} sells exact-fit replacement filters for major HVAC brands.
-          These are {BRAND_NAME} pleated filters (MERV 8, 11, 13, and carbon)
-          made to the same Width × Length × Depth as the OEM media — not
-          third-party boxed retail brands.
-        </p>
-        <BrandDirectory compact />
+      <PageHero label="System match" title="Shop by HVAC brand">
+        {BRAND_NAME} sells exact-fit replacement filters for major HVAC brands.
+        These are {BRAND_NAME} pleated filters (MERV 8, 11, 13, and carbon)
+        made to the same Width × Length × Depth as the OEM media — not
+        third-party boxed retail brands.
+      </PageHero>
+      <main className="sheet-section">
+        <div className="container py-10 md:py-14">
+          <BrandDirectory compact />
+        </div>
       </main>
       <SiteFooter />
       <CartDrawer onRequestQuote={() => { window.location.href = "/#contact"; }} />
@@ -121,31 +123,36 @@ export function BrandDetailPage({ slug }: { slug: string }) {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="container py-10 md:py-14">
-        {!brand ? (
-          <>
+      {!brand ? (
+        <main className="sheet-section">
+          <div className="container py-10 md:py-14">
             <h1 className="text-3xl font-bold mb-4">Brand not found</h1>
             <Link href="/brands" className="text-primary font-semibold">
               Browse all brands
             </Link>
-          </>
-        ) : (
-          <>
-            <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground mb-2">
-              <Link href="/brands" className="hover:text-foreground">
-                Shop by brand
-              </Link>{" "}
-              / {brand.name}
-            </nav>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
-              {brand.name} air filters
-            </h1>
-            <p className="seo-answer text-muted-foreground mb-10 max-w-2xl leading-relaxed">
-              Shop {BRAND_NAME} replacement filters for {brand.name} systems.
-              Same slot size as the OEM media. Choose MERV 8, 11, 13, or carbon
-              on the size page.
-            </p>
-
+          </div>
+        </main>
+      ) : (
+        <>
+          <PageHero
+            label="System match"
+            title={`${brand.name} air filters`}
+            crumbs={[
+              { href: "/", label: "Home" },
+              { href: "/brands", label: "Shop by brand" },
+            ]}
+            mark={
+              <div className="flex h-16 w-28 shrink-0 items-center justify-center rounded-xl bg-white px-3">
+                <BrandLogo slug={brand.slug} name={brand.name} className="h-10 w-full" />
+              </div>
+            }
+          >
+            Shop {BRAND_NAME} replacement filters for {brand.name} systems.
+            Same slot size as the OEM media. Choose MERV 8, 11, 13, or carbon
+            on the size page.
+          </PageHero>
+          <main className="sheet-section">
+            <div className="container py-10 md:py-14">
             {brand.sizes.length > 0 ? (
               <>
                 <h2 className="text-xl font-bold mb-3 tracking-tight">Shop by size</h2>
@@ -210,9 +217,10 @@ export function BrandDetailPage({ slug }: { slug: string }) {
             <div className="mt-8">
               <FilterFinder showPopular compact />
             </div>
-          </>
-        )}
-      </main>
+            </div>
+          </main>
+        </>
+      )}
       <SiteFooter />
       <CartDrawer onRequestQuote={() => { window.location.href = "/#contact"; }} />
     </div>

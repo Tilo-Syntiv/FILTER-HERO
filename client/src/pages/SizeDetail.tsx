@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import { Check, ShoppingCart } from "lucide-react";
@@ -30,6 +30,11 @@ import { useCart } from "@/contexts/CartContext";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { BRAND_NAME } from "@/const";
 import { brandsForSize } from "@shared/hvac-brands";
+import {
+  getPreferredMerv,
+  isPreferredMerv,
+  type PreferredMerv,
+} from "@/lib/merv-pref";
 
 type SizeDetailPageProps = {
   sizeSlug: string;
@@ -40,8 +45,14 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
   const sizeMeta = getFilterSize(decoded);
   const { addItem } = useCart();
 
-  const [mervKey, setMervKey] = useState<"8" | "11" | "13" | "carbon">("8");
+  const [mervKey, setMervKey] = useState<PreferredMerv>("8");
   const [qty, setQty] = useState(6);
+
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get("merv");
+    const next = isPreferredMerv(fromUrl) ? fromUrl : getPreferredMerv();
+    if (next) setMervKey(next);
+  }, []);
 
   const selectedType = MERV_TYPES.find((t) => t.key === mervKey)!;
   const variant: Product | undefined = findProductVariant(
@@ -144,7 +155,8 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
     <div className="min-h-screen">
       <SiteHeader />
 
-      <main className="container py-8 md:py-12">
+      <main className="sheet-section">
+        <div className="container py-8 md:py-12">
         <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground mb-4 break-words">
           <Link href="/" className="hover:text-foreground">
             Home
@@ -418,6 +430,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
           title={`${decoded} filter FAQ`}
           subtitle="Fit, replacement timing, and MERV choices for this size."
         />
+        </div>
       </main>
 
       <footer className="site-footer pt-8 mt-12">

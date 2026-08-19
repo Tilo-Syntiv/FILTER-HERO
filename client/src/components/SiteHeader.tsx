@@ -5,7 +5,7 @@ import BrandLockup from "@/components/BrandLockup";
 import { useCart } from "@/contexts/CartContext";
 import { BRAND_EMAIL } from "@/const";
 import { scrollToHashTarget } from "@/hooks/useHashScroll";
-import { featuredBrandFamilies, featuredHvacBrands } from "@shared/hvac-brands";
+import { featuredBrandFamilies } from "@shared/hvac-brands";
 import {
   catalogLengths,
   catalogWidths,
@@ -18,9 +18,7 @@ import { customQuotePath } from "@/lib/filter-size";
 const WIDTHS = catalogWidths().map(String);
 const LENGTHS = catalogLengths().map(String);
 const DEPTHS = THICKNESSES.map(String);
-const FEATURED_BRANDS = featuredHvacBrands();
 const FEATURED_BRAND_FAMILIES = featuredBrandFamilies();
-const SHOP_BRANDS = FEATURED_BRANDS.slice(0, 8);
 const POPULAR = popularSizeSlugs(8);
 
 type DesktopMenu = "shop" | "brands" | "contact" | null;
@@ -285,7 +283,7 @@ export default function SiteHeader() {
         >
           {desktopMenu === "shop" && (
             <div className="container grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 py-5 md:py-7">
-              <div className="md:col-span-4">
+              <div className="md:col-span-6">
                 <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
                   Thickness
                 </p>
@@ -314,7 +312,7 @@ export default function SiteHeader() {
                 </div>
               </div>
 
-              <div className="md:col-span-4">
+              <div className="md:col-span-6">
                 <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
                   Popular sizes
                 </p>
@@ -336,33 +334,6 @@ export default function SiteHeader() {
                   onClick={closeMenus}
                 >
                   All sizes
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-
-              <div className="md:col-span-4">
-                <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-3">
-                  Shop by brand
-                </p>
-                <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                  {SHOP_BRANDS.map((brand) => (
-                    <li key={brand.slug}>
-                      <Link
-                        href={`/brands/${brand.slug}`}
-                        className="text-sm font-semibold text-white/85 hover:text-white transition-colors"
-                        onClick={closeMenus}
-                      >
-                        {brand.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/brands"
-                  className="inline-flex items-center gap-1.5 mt-4 text-sm font-bold text-ice hover:text-white transition-colors"
-                  onClick={closeMenus}
-                >
-                  Every brand
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>

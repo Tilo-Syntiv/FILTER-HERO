@@ -125,7 +125,7 @@ def merge_live(existing: list[dict], incoming: list[dict]) -> list[dict]:
 def main() -> None:
     src = ROOT / "fk-full-catalog-crawl.json"
     payload = {"data": []}
-    if src.exists():
+    if src.exists() and src.stat().st_size < 80 * 1024 * 1024:
         payload = json.loads(src.read_text(encoding="utf-8"))
     rows = []
     live_rows = []

@@ -8,6 +8,7 @@ import time
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -36,18 +37,38 @@ def norm(url: str) -> str:
     return url.strip().rstrip("/")
 
 
+def urls_from_huge_json(path: Path) -> set[str]:
+    """Pull FilterKing URLs out of a crawl dump without json.loads()."""
+    found: set[str] = set()
+    leftover = ""
+    pattern = re.compile(r"https?://filterking\.com/[^\"\\\s]{1,300}")
+    with path.open("r", encoding="utf-8", errors="ignore") as fh:
+        while True:
+            chunk = fh.read(4 * 1024 * 1024)
+            if not chunk:
+                break
+            text = leftover + chunk
+            leftover = text[-400:]
+            for match in pattern.findall(text):
+                found.add(norm(match))
+    return found
+
+
 def load_done() -> set[str]:
     done: set[str] = set()
     if CRAWL_FILE.exists():
         try:
-            payload = json.loads(CRAWL_FILE.read_text(encoding="utf-8"))
-            for doc in payload.get("data") or []:
-                if not isinstance(doc, dict):
-                    continue
-                url = doc.get("url") or (doc.get("metadata") or {}).get("sourceURL")
-                if url:
-                    done.add(norm(url))
-        except json.JSONDecodeError:
+            if CRAWL_FILE.stat().st_size > 80 * 1024 * 1024:
+                done |= urls_from_huge_json(CRAWL_FILE)
+            else:
+                payload = json.loads(CRAWL_FILE.read_text(encoding="utf-8"))
+                for doc in payload.get("data") or []:
+                    if not isinstance(doc, dict):
+                        continue
+                    url = doc.get("url") or (doc.get("metadata") or {}).get("sourceURL")
+                    if url:
+                        done.add(norm(url))
+        except (json.JSONDecodeError, OSError):
             pass
     for ndjson in ROOT.glob("fk-batch*.ndjson"):
         for line in ndjson.read_text(encoding="utf-8").splitlines():

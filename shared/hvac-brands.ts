@@ -23,6 +23,10 @@ export function getHvacBrand(slug: string): HvacBrand | undefined {
   return BY_SLUG.get(slug.toLowerCase());
 }
 
+export function brandLogoSrc(slug: string): string {
+  return `/brands/${slug}.svg`;
+}
+
 export function featuredHvacBrands(): HvacBrand[] {
   return HVAC_BRAND_LIST.filter((b) => b.featured);
 }

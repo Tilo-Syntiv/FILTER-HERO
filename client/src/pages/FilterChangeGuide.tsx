@@ -308,15 +308,8 @@ export default function FilterChangeGuidePage() {
     <div className="min-h-screen">
       <SiteHeader />
       <main>
-        <section className="relative overflow-hidden bg-[linear-gradient(125deg,#141e30_0%,#203868_55%,#3a66a3_120%)] text-white">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-40"
-            style={{
-              background:
-                "radial-gradient(560px 320px at 88% -8%, rgba(142,176,216,0.5), transparent 60%)",
-            }}
-          />
-          <div className="container relative py-12 md:py-16">
+        <section className="brand-band">
+          <div className="container py-12 md:py-16">
             <nav aria-label="Breadcrumb" className="mb-6 text-sm text-white/60">
               <Link href="/" className="hover:text-white">
                 Home
@@ -363,7 +356,7 @@ export default function FilterChangeGuidePage() {
           </div>
         </section>
 
-        <section id="cadence" className="scroll-mt-28 py-12 md:py-16">
+        <section id="cadence" className="sheet-section scroll-mt-28 py-12 md:py-16">
           <div className="container">
             <div className="mb-8 max-w-2xl">
               <span className="section-label">Tap your home</span>
@@ -380,7 +373,7 @@ export default function FilterChangeGuidePage() {
           </div>
         </section>
 
-        <section id="why" className="scroll-mt-28 py-16 md:py-24">
+        <section id="why" className="sheet-section scroll-mt-28 py-16 md:py-24">
           <div className="container">
             <span className="section-label">Three jobs, one rectangle</span>
             <h2 className="mb-3 max-w-2xl text-3xl font-bold tracking-tight md:text-4xl">
@@ -577,7 +570,7 @@ export default function FilterChangeGuidePage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-24">
+        <section className="sheet-section py-16 md:py-24">
           <div className="container">
             <span className="section-label">Stay on it</span>
             <h2 className="mb-10 text-3xl font-bold tracking-tight md:text-4xl">
@@ -613,11 +606,13 @@ export default function FilterChangeGuidePage() {
           </div>
         </section>
 
-        <FaqSection
-          faqs={CHANGE_GUIDE_FAQS}
-          title="Filter-change questions"
-          subtitle="Straight answers on timing, MERV, pets, and what happens if you wait."
-        />
+        <div className="sheet-section">
+          <FaqSection
+            faqs={CHANGE_GUIDE_FAQS}
+            title="Filter-change questions"
+            subtitle="Straight answers on timing, MERV, pets, and what happens if you wait."
+          />
+        </div>
 
         <section className="brand-band py-20 md:py-28 relative overflow-hidden">
           <div className="container relative text-center">
