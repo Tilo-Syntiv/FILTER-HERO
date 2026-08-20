@@ -29,11 +29,16 @@ export default function SizeDirectory({
     () => Array.from(new Set(widths.map((w) => Math.floor(w)))).sort((a, b) => a - b),
     [widths],
   );
+  const allForDepth = useMemo(
+    () => getSizesByThickness(activeDepth),
+    [activeDepth],
+  );
   const sizes = useMemo(() => {
-    const all = getSizesByThickness(activeDepth);
-    if (width != null) return all.filter((s) => s.width === width);
-    return all;
-  }, [activeDepth, width]);
+    if (width != null) {
+      return allForDepth.filter((s) => Math.floor(s.width) === width);
+    }
+    return allForDepth;
+  }, [allForDepth, width]);
   const totalPages = Math.max(1, Math.ceil(sizes.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
   const pageSizes = sizes.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
@@ -94,8 +99,8 @@ export default function SizeDirectory({
                 {heading}
               </h2>
               <p className="text-muted-foreground mt-2 max-w-2xl">
-                {sizes.length} {activeDepth}" depth sizes. Pick a whole-inch width
-                to narrow the list.
+                {allForDepth.length.toLocaleString()} sizes at {activeDepth}" thick.
+                Pick a width to narrow it down.
               </p>
             </div>
             <Link href="/sizes" className="section-link">
@@ -163,7 +168,7 @@ export default function SizeDirectory({
 
         <p className="text-sm text-muted-foreground mb-3">
           {width != null
-            ? `${sizes.length} size${sizes.length === 1 ? "" : "s"} · ${formatInches(width)} width × ${formatInches(activeDepth)} depth`
+            ? `${sizes.length} size${sizes.length === 1 ? "" : "s"} · ${formatInches(width)}-inch widths × ${formatInches(activeDepth)} depth`
             : `Page ${safePage + 1} of ${totalPages} · ${sizes.length} sizes at ${formatInches(activeDepth)} depth`}
         </p>
 
