@@ -1,12 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
-import { Check, ShoppingCart } from "lucide-react";
 import {
+  Check,
+  Crosshair,
+  Layers,
+  Ruler,
+  ShieldCheck,
+  ShoppingCart,
+  Truck,
+  Wind,
+} from "lucide-react";
+import {
+  FILTER_PRODUCT_GALLERY,
+  FILTER_PRODUCT_IMAGE,
   MERV_TYPES,
   PACK_TIERS,
   findProductVariant,
   getFilterSize,
+  mervTypesForDisplay,
   packTotal,
   unitPriceForQty,
   type MervRating,
@@ -24,24 +36,44 @@ import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
 import FilterFinder from "@/components/FilterFinder";
 import FaqSection from "@/components/FaqSection";
-import MervBadge from "@/components/MervBadge";
+import LifeImage from "@/components/LifeImage";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { BRAND_NAME } from "@/const";
 import { brandsForSize } from "@shared/hvac-brands";
+import { LIFE } from "@/data/life-photos";
+import { MERV_GUIDE } from "@/lib/merv-guide";
 import {
   getPreferredMerv,
   getPowerPackQty,
   isPreferredMerv,
+  setPreferredMerv,
   type PreferredMerv,
 } from "@/lib/merv-pref";
 
 type SizeDetailPageProps = {
   sizeSlug: string;
 };
+
+function CapturePips({ filled, accent }: { filled: number; accent: string }) {
+  return (
+    <div className="flex items-end gap-1" aria-hidden>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <span
+          key={i}
+          className="rounded-sm"
+          style={{
+            width: 6 + i * 2,
+            height: 8 + i * 2,
+            background: i < filled ? accent : "rgba(32, 56, 104, 0.14)",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
   const decoded = decodeURIComponent(sizeSlug);
@@ -50,6 +82,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
   const [mervKey, setMervKey] = useState<PreferredMerv>("8");
   const [qty, setQty] = useState(6);
+  const [shot, setShot] = useState(0);
 
   useEffect(() => {
     const fromUrl = new URLSearchParams(window.location.search).get("merv");
@@ -59,7 +92,13 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
     if (pack) setQty(pack);
   }, []);
 
+  const pickMerv = (key: PreferredMerv) => {
+    setMervKey(key);
+    setPreferredMerv(key);
+  };
+
   const selectedType = MERV_TYPES.find((t) => t.key === mervKey)!;
+  const guide = MERV_GUIDE[mervKey];
   const variant: Product | undefined = findProductVariant(
     decoded,
     selectedType.merv as MervRating,
@@ -68,9 +107,9 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
   const unitPrice = variant ? unitPriceForQty(variant.price, qty, variant) : 0;
   const total = variant ? packTotal(variant.price, qty, variant) : 0;
-  const savingsPct =
-    variant && variant.price > 0
-      ? Math.round((1 - unitPrice / variant.price) * 100)
+  const saveVsSingle =
+    variant && qty > 1
+      ? Math.max(0, Math.round((variant.price * qty - total) * 100) / 100)
       : 0;
 
   const handleAdd = () => {
@@ -80,6 +119,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
   };
 
   const inCatalog = Boolean(sizeMeta);
+  const matchingBrands = inCatalog ? brandsForSize(decoded) : [];
 
   const related = useMemo(() => {
     if (!sizeMeta) return [];
@@ -152,215 +192,339 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
   useSeo({
     ...seo,
+    image: FILTER_PRODUCT_IMAGE,
     noindex: !inCatalog,
     jsonLd,
   });
 
+  const specs = sizeMeta
+    ? [
+        {
+          icon: Ruler,
+          label: "Nominal size",
+          value: `${sizeMeta.width} × ${sizeMeta.length} × ${sizeMeta.depth} in`,
+        },
+        {
+          icon: Crosshair,
+          label: "Actual size",
+          value: `${sizeMeta.actualWidth} × ${sizeMeta.actualLength} × ${sizeMeta.actualDepth} in`,
+        },
+        { icon: ShieldCheck, label: "MERV", value: selectedType.name },
+        { icon: Layers, label: "Filter type", value: "Pleated" },
+        { icon: Wind, label: "Frame", value: "Rigid cardboard" },
+        { icon: Truck, label: "Best for", value: "HVAC / furnace" },
+      ]
+    : [];
+
   return (
-    <div className="min-h-screen">
+    <div className="product-page min-h-screen">
       <SiteHeader />
 
-      <main className="sheet-section">
+      <main>
         <div className="container py-8 md:py-12">
-        <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground mb-4 break-words">
-          <Link href="/" className="hover:text-foreground">
-            Home
-          </Link>{" "}
-          /{" "}
-          <Link href="/sizes" className="hover:text-foreground">
-            Sizes
-          </Link>{" "}
-          /{" "}
-          {sizeMeta ? (
-            <Link
-              href={`/filters/${sizeMeta.depth}-inch`}
-              className="hover:text-foreground"
-            >
-              {sizeMeta.depth}" filters
-            </Link>
-          ) : (
-            "Custom"
-          )}{" "}
-          / <span className="text-foreground">{decoded}</span>
-        </nav>
+          <nav aria-label="Breadcrumb" className="text-sm text-ice/80 mb-5 break-words">
+            <Link href="/" className="hover:text-white">
+              Home
+            </Link>{" "}
+            /{" "}
+            <Link href="/sizes" className="hover:text-white">
+              Sizes
+            </Link>{" "}
+            /{" "}
+            {sizeMeta ? (
+              <Link
+                href={`/filters/${sizeMeta.depth}-inch`}
+                className="hover:text-white"
+              >
+                {sizeMeta.depth}" filters
+              </Link>
+            ) : (
+              "Custom"
+            )}{" "}
+            / <span className="text-white">{decoded}</span>
+          </nav>
 
-        {!inCatalog ? (
-          <>
-            <div className="max-w-xl rounded-xl border border-dashed border-primary/30 bg-white/80 p-5 sm:p-8">
-              <h1 className="text-2xl sm:text-3xl font-bold mb-3 break-words">{decoded}</h1>
-              <p className="text-muted-foreground mb-6">
-                We don't list this exact size in the standard catalog yet. Request a
-                quote and we'll confirm pricing and lead time for your dimensions.
-              </p>
-              <Button size="lg" className="hero-shop-btn w-full text-white sm:w-auto" asChild>
-                <Link href={`/custom-air-filters?size=${encodeURIComponent(decoded)}`}>
-                  Request a quote for {decoded}
-                </Link>
-              </Button>
-            </div>
-            <div className="mt-12">
-              <FilterFinder showPopular compact />
-            </div>
-          </>
-        ) : (
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-14">
-            {/* Visual */}
-            <div>
-              <div className="relative rounded-3xl overflow-hidden bg-[linear-gradient(145deg,#141e30_0%,#203868_55%,#3a66a3_100%)] aspect-[4/3] flex flex-col items-center justify-center text-white p-5 sm:p-8">
-                <div
-                  className="absolute inset-0 opacity-40"
-                  style={{
-                    background:
-                      "radial-gradient(circle at 70% 30%, rgba(142,176,216,0.5), transparent 55%)",
-                  }}
+          {!inCatalog ? (
+            <>
+              <div className="product-deck product-deck-custom overflow-hidden">
+                <LifeImage
+                  photo={LIFE.installWall}
+                  className="h-44 sm:h-56"
+                  sizes="100vw"
+                  priority
                 />
-                <div className="relative text-center">
-                  <p className="text-xs uppercase tracking-[0.22em] text-ice/90 mb-4 font-semibold">
-                    Filter Hero
-                  </p>
-                  <p className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight break-all">
+                <div className="bg-white p-5 sm:p-8 text-foreground">
+                  <span className="section-label !text-mesh">Odd size</span>
+                  <h1 className="text-2xl sm:text-3xl font-bold mb-3 break-words">
                     {decoded}
+                  </h1>
+                  <p className="text-muted-foreground mb-6 max-w-xl">
+                    We don't list this exact size in the standard catalog yet.
+                    Request a quote and we'll confirm pricing and lead time for
+                    your dimensions.
                   </p>
-                  <div className="mx-auto mt-4 w-[min(100%,11rem)]">
-                    <MervBadge type={selectedType} />
-                  </div>
-                  {savingsPct > 0 && (
-                    <Badge className="mt-6 bg-hero text-white hover:bg-hero border-0 font-bold">
-                      Save {savingsPct}% per filter
-                    </Badge>
-                  )}
+                  <Button size="lg" className="hero-shop-btn w-full text-white sm:w-auto" asChild>
+                    <Link href={`/custom-air-filters?size=${encodeURIComponent(decoded)}`}>
+                      Request a quote for {decoded}
+                    </Link>
+                  </Button>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground mt-5 leading-relaxed">
-                Actual size: {sizeMeta!.actualWidth} × {sizeMeta!.actualLength} ×{" "}
-                {sizeMeta!.actualDepth} inches — designed to fit standard{" "}
-                {decoded} slots.
-              </p>
-            </div>
-
-            {/* Buy box */}
-            <div>
-              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3 tracking-tight break-words">
-                {decoded} Air Filters
-              </h1>
-              <p className="seo-answer text-muted-foreground mb-10 leading-relaxed">
-                Buy {decoded} HVAC and furnace air filters from {BRAND_NAME}.
-                Choose MERV 8, 11, 13, or carbon and replace every 30–90
-                days depending on use.{" "}
-                <Link
-                  href="/how-often-to-change-air-filter"
-                  className="font-semibold text-primary hover:underline"
-                >
-                  Get a change date for your home
-                </Link>
-                .
-              </p>
-
-              <div className="mb-8">
-                <h2 className="section-label">1 · Choose MERV</h2>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {MERV_TYPES.map((t) => {
-                    const active = t.key === mervKey;
-                    return (
-                      <button
-                        key={t.key}
-                        type="button"
-                        onClick={() => setMervKey(t.key)}
-                        className={cn(
-                          "flex flex-col items-center gap-2 rounded-xl border p-2.5 text-center transition-all duration-200 sm:p-3",
-                          active
-                            ? "border-primary bg-primary/[0.06] ring-1 ring-primary/25"
-                            : "border-border bg-white/60 hover:border-primary/35",
-                        )}
-                      >
-                        <MervBadge type={t} />
-                        <span className="text-xs font-medium leading-tight text-foreground">
-                          {t.shortLabel}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
-                  {selectedType.description}
-                </p>
+              <div className="mt-10 rounded-3xl bg-white p-4 sm:p-6 text-foreground">
+                <FilterFinder showPopular compact />
               </div>
+            </>
+          ) : (
+            <div
+              className="product-deck"
+              style={
+                {
+                  "--pdp-glow": selectedType.badgeColor,
+                  "--pdp-accent": guide.accent,
+                } as CSSProperties
+              }
+            >
+              <div className="product-theater">
+                <div className="product-theater-glow" aria-hidden />
+                <div className="product-theater-mesh" aria-hidden />
 
-              <div className="mb-8">
-                <h2 className="section-label">2 · Select quantity</h2>
-                <div className="space-y-2">
-                  {PACK_TIERS.map((tier) => {
-                    if (!variant) return null;
-                    const price = unitPriceForQty(variant.price, tier.minQty, variant);
-                    const pct = Math.round((1 - price / variant.price) * 100);
-                    const active = qty === tier.minQty;
-                    return (
-                      <button
-                        key={tier.minQty}
-                        type="button"
-                        onClick={() => setQty(tier.minQty)}
-                        className={`w-full flex flex-wrap items-center justify-between gap-2 px-3 sm:px-4 py-3.5 rounded-xl border text-sm transition-all duration-200 ${
-                          active
-                            ? "border-primary bg-primary/[0.06]"
-                            : "border-border bg-white/60 hover:border-primary/35"
-                        }`}
-                      >
-                        <span className="font-semibold">
-                          {tier.label} {tier.minQty === 1 ? "filter" : "filters"}
-                        </span>
-                        <span className="flex items-center gap-3">
-                          {pct > 0 && (
-                            <span className="text-xs font-bold text-primary">
-                              −{pct}%
-                            </span>
-                          )}
-                          <span className="font-bold">${price.toFixed(2)} ea</span>
-                        </span>
-                      </button>
-                    );
-                  })}
+                <div className="relative z-[1] flex flex-wrap items-center gap-2">
+                  <span className="product-size-plaque">{decoded}</span>
+                  <span
+                    className="product-merv-chip"
+                    style={{ backgroundColor: selectedType.badgeColor }}
+                  >
+                    {selectedType.name}
+                  </span>
                 </div>
-              </div>
 
-              <div className="surface-panel rounded-2xl p-6 mb-4">
-                <div className="flex justify-between items-end mb-5">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Pack total</p>
-                    <p className="text-3xl sm:text-4xl font-bold tracking-tight">${total.toFixed(2)}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      ${unitPrice.toFixed(2)} per filter
-                    </p>
-                  </div>
+                <div className="product-shot-wrap">
+                  <img
+                    src={FILTER_PRODUCT_GALLERY[shot].src}
+                    alt={`${decoded} ${selectedType.name} — ${FILTER_PRODUCT_GALLERY[shot].alt}`}
+                    className="product-shot"
+                  />
                 </div>
-                <Button
-                  size="lg"
-                  className="hero-shop-btn w-full text-white"
-                  disabled={!variant?.inStock}
-                  onClick={handleAdd}
-                >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  Add {qty} to cart
-                </Button>
-                <ul className="mt-5 space-y-2.5 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-primary" /> Guaranteed fit
+
+                <div className="product-thumbs" role="list">
+                  {FILTER_PRODUCT_GALLERY.map((item, i) => (
+                    <button
+                      key={item.src}
+                      type="button"
+                      role="listitem"
+                      className={cn("product-thumb", i === shot && "product-thumb-active")}
+                      aria-label={item.alt}
+                      aria-pressed={i === shot}
+                      onClick={() => setShot(i)}
+                    >
+                      <img src={item.src} alt="" />
+                    </button>
+                  ))}
+                </div>
+
+                <ul className="product-trust">
+                  <li>
+                    <Crosshair className="h-4 w-4" /> Guaranteed fit
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-primary" /> FREE SHIPPING
+                  <li>
+                    <Truck className="h-4 w-4" /> Free shipping
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-primary" /> 30-day guarantee
+                  <li>
+                    <ShieldCheck className="h-4 w-4" /> 30-day guarantee
                   </li>
                 </ul>
               </div>
 
-              {brandsForSize(decoded).length > 0 && (
-                <div className="mt-8">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+              <div className="product-buy">
+                <h1 className="text-2xl sm:text-3xl md:text-[2.65rem] font-bold tracking-tight break-words text-deep">
+                  {decoded} Air Filters
+                </h1>
+                <p className="seo-answer mt-3 mb-7 text-[0.95rem] leading-relaxed text-muted-foreground">
+                  Buy {decoded} HVAC and furnace air filters from {BRAND_NAME}.
+                  Choose MERV 8, 11, 13, or carbon and replace every 30–90 days
+                  depending on use.{" "}
+                  <Link
+                    href="/how-often-to-change-air-filter"
+                    className="font-semibold text-navy underline decoration-ice underline-offset-4 hover:text-hero"
+                  >
+                    Get a change date for your home
+                  </Link>
+                  .
+                </p>
+
+                <div className="mb-7">
+                  <h2 className="section-label !text-mesh">1 · Choose MERV</h2>
+                  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                    {mervTypesForDisplay().map((t) => {
+                      const active = t.key === mervKey;
+                      const g = MERV_GUIDE[t.key];
+                      const Icon = g.icon;
+                      return (
+                        <button
+                          key={t.key}
+                          type="button"
+                          onClick={() => pickMerv(t.key)}
+                          aria-pressed={active}
+                          className={cn("pdp-merv", active && "pdp-merv-active")}
+                          style={{ "--merv-wash": t.badgeColor } as CSSProperties}
+                        >
+                          <span
+                            className="pdp-merv-bar"
+                            style={{ backgroundColor: t.badgeColor }}
+                          >
+                            {t.key === "carbon" ? "Carbon" : t.name}
+                          </span>
+                          <span className="pdp-merv-body">
+                            <Icon className="h-4 w-4" style={{ color: t.badgeColor }} />
+                            <span className="text-[0.72rem] font-bold leading-tight text-deep">
+                              {t.shortLabel}
+                            </span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="pdp-merv-note">
+                    <CapturePips filled={guide.strength} accent={selectedType.badgeColor} />
+                    <p>
+                      <span className="font-semibold text-deep">{guide.bestFor}.</span>{" "}
+                      {selectedType.description}. Catches {guide.catches.join(", ").toLowerCase()}.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mb-7">
+                  <h2 className="section-label !text-mesh">2 · Select quantity</h2>
+                  <div className="space-y-2">
+                    {PACK_TIERS.map((tier) => {
+                      if (!variant) return null;
+                      const price = unitPriceForQty(variant.price, tier.minQty, variant);
+                      const pct = Math.round((1 - price / variant.price) * 100);
+                      const active = qty === tier.minQty;
+                      const popular = tier.minQty === 6;
+                      const best = tier.minQty === 12;
+                      return (
+                        <button
+                          key={tier.minQty}
+                          type="button"
+                          onClick={() => setQty(tier.minQty)}
+                          aria-pressed={active}
+                          className={cn("pdp-pack", active && "pdp-pack-active")}
+                        >
+                          <span className={cn("pdp-pack-dot", active && "pdp-pack-dot-on")}>
+                            {active ? <Check className="h-3 w-3" strokeWidth={3} /> : null}
+                          </span>
+                          <span className="min-w-0 flex-1 text-left">
+                            <span className="flex flex-wrap items-center gap-2">
+                              <span className="font-extrabold text-deep">
+                                {tier.label} {tier.minQty === 1 ? "filter" : "filters"}
+                              </span>
+                              {popular && <span className="pdp-pack-tag">Most popular</span>}
+                              {best && <span className="pdp-pack-tag pdp-pack-tag-hero">Best value</span>}
+                            </span>
+                            {pct > 0 && (
+                              <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-navy/10">
+                                <span
+                                  className="block h-full rounded-full bg-navy"
+                                  style={{ width: `${Math.min(100, pct)}%` }}
+                                />
+                              </span>
+                            )}
+                          </span>
+                          <span className="flex flex-col items-end gap-1">
+                            {pct > 0 && (
+                              <span className="pdp-save">−{pct}%</span>
+                            )}
+                            <span className="text-sm font-extrabold text-deep">
+                              ${price.toFixed(2)} <span className="text-xs font-bold text-muted-foreground">ea</span>
+                            </span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="pdp-checkout">
+                  <div className="mb-4 flex items-end justify-between gap-3">
+                    <div>
+                      <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-muted-foreground">
+                        Pack total
+                      </p>
+                      <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-deep">
+                        ${total.toFixed(2)}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        ${unitPrice.toFixed(2)} per filter
+                        {saveVsSingle > 0 ? ` · save $${saveVsSingle.toFixed(2)} vs singles` : ""}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    size="lg"
+                    className="hero-shop-btn hero-shop-btn-glow w-full text-white"
+                    disabled={!variant?.inStock}
+                    onClick={handleAdd}
+                  >
+                    <ShoppingCart className="h-4 w-4" />
+                    Add {qty} to cart
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {inCatalog && (
+            <>
+              <section className="mt-12 md:mt-16">
+                <span className="section-label">The facts</span>
+                <h2 className="mb-5 text-xl font-bold text-white md:text-2xl">
+                  Specifications
+                </h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {specs.map((spec) => {
+                    const Icon = spec.icon;
+                    return (
+                      <div key={spec.label} className="pdp-spec">
+                        <Icon className="h-4 w-4 text-ice" />
+                        <div>
+                          <p className="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-ice/70">
+                            {spec.label}
+                          </p>
+                          <p className="mt-0.5 font-bold tracking-tight text-white">
+                            {spec.value}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <div className="mt-10 grid gap-4 sm:grid-cols-3">
+                {[
+                  { photo: LIFE.installWall, caption: "Drops into the slot" },
+                  { photo: LIFE.filterCleanDirty, caption: "New vs. overdue" },
+                  { photo: LIFE.familyHug, caption: "Air the house can feel" },
+                ].map((tile) => (
+                  <figure key={tile.caption} className="pdp-mosaic">
+                    <LifeImage
+                      photo={tile.photo}
+                      className="h-40 sm:h-44"
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                    />
+                    <figcaption>{tile.caption}</figcaption>
+                  </figure>
+                ))}
+              </div>
+
+              {matchingBrands.length > 0 && (
+                <div className="mt-10">
+                  <p className="mb-3 text-xs font-bold uppercase tracking-wider text-ice/80">
                     Fits these HVAC brands
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {brandsForSize(decoded).map((b) => (
+                    {matchingBrands.map((b) => (
                       <Link
                         key={b.slug}
                         href={`/brands/${b.slug}`}
@@ -375,7 +539,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
               {related.length > 0 && (
                 <div className="mt-8">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+                  <p className="mb-3 text-xs font-bold uppercase tracking-wider text-ice/80">
                     Other thicknesses
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -391,64 +555,41 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        )}
 
-        {inCatalog && (
-          <section className="mt-16 pt-12 border-t border-border">
-            <span className="section-label">The facts</span>
-            <h2 className="text-xl font-bold mb-4">Specifications</h2>
-            <dl className="grid sm:grid-cols-2 gap-x-8 gap-y-3 text-sm max-w-2xl">
-              <div className="flex justify-between gap-3 border-b border-border py-2">
-                <dt className="text-muted-foreground shrink-0">Nominal size</dt>
-                <dd className="font-semibold text-right break-words">
-                  {sizeMeta!.width} × {sizeMeta!.length} × {sizeMeta!.depth} in
-                </dd>
+              <div className="mt-12 rounded-3xl bg-white p-4 sm:p-6 text-foreground">
+                <FilterFinder showPopular compact />
               </div>
-              <div className="flex justify-between gap-3 border-b border-border py-2">
-                <dt className="text-muted-foreground shrink-0">Actual size</dt>
-                <dd className="font-semibold text-right break-words">
-                  {sizeMeta!.actualWidth} × {sizeMeta!.actualLength} ×{" "}
-                  {sizeMeta!.actualDepth} in
-                </dd>
-              </div>
-              <div className="flex justify-between gap-3 border-b border-border py-2">
-                <dt className="text-muted-foreground shrink-0">MERV</dt>
-                <dd className="text-right">
-                  <span
-                    className="inline-flex items-center rounded-md px-2 py-1 text-xs font-extrabold italic text-white"
-                    style={{ backgroundColor: selectedType.badgeColor }}
-                  >
-                    {selectedType.name}
-                  </span>
-                </dd>
-              </div>
-              <div className="flex justify-between gap-3 border-b border-border py-2">
-                <dt className="text-muted-foreground shrink-0">Filter type</dt>
-                <dd className="font-semibold text-right">Pleated</dd>
-              </div>
-              <div className="flex justify-between gap-3 border-b border-border py-2">
-                <dt className="text-muted-foreground shrink-0">Frame</dt>
-                <dd className="font-semibold text-right">Rigid cardboard</dd>
-              </div>
-              <div className="flex justify-between gap-3 border-b border-border py-2">
-                <dt className="text-muted-foreground shrink-0">Best for</dt>
-                <dd className="font-semibold text-right">HVAC / furnace</dd>
-              </div>
-            </dl>
-          </section>
-        )}
+            </>
+          )}
 
-        <FaqSection
-          faqs={sizeFaqs}
-          title={`${decoded} filter FAQ`}
-          subtitle="Fit, replacement timing, and MERV choices for this size."
-        />
+          <FaqSection
+            faqs={sizeFaqs}
+            title={`${decoded} filter FAQ`}
+            subtitle="Fit, replacement timing, and MERV choices for this size."
+            tone="band"
+          />
         </div>
       </main>
 
-      <footer className="site-footer pt-8 mt-12">
+      {inCatalog && (
+        <div className="pdp-sticky lg:hidden">
+          <div>
+            <p className="text-[0.62rem] font-extrabold uppercase tracking-[0.12em] text-ice/80">
+              {qty} × {selectedType.name}
+            </p>
+            <p className="text-lg font-extrabold text-white">${total.toFixed(2)}</p>
+          </div>
+          <Button
+            className="hero-shop-btn text-white"
+            disabled={!variant?.inStock}
+            onClick={handleAdd}
+          >
+            Add to cart
+          </Button>
+        </div>
+      )}
+
+      <footer className="site-footer pt-8">
         <div className="container text-sm">
           &copy; {new Date().getFullYear()} {BRAND_NAME}
         </div>

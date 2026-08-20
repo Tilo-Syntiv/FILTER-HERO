@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Truck, ShieldCheck, Crosshair, MessageCircle } from "lucide-react";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
+import LifeImage from "@/components/LifeImage";
+import { LIFE } from "@/data/life-photos";
 
 export default function TrustSection() {
   const trustPoints = [
@@ -29,11 +31,37 @@ export default function TrustSection() {
   return (
     <section className="py-16 md:py-24">
       <div className="container">
-        <div className="text-center max-w-xl mx-auto mb-14">
-          <span className="section-label">Why Filter Hero</span>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Built for an exact-fit buy
-          </h2>
+        <div className="mb-14 grid items-center gap-6 md:grid-cols-12">
+          <div className="text-center md:col-span-7 md:text-left">
+            <span className="section-label">Why Filter Hero</span>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
+              Built for an exact-fit buy — and the people at home
+            </h2>
+            <p className="mt-3 max-w-xl text-muted-foreground leading-relaxed">
+              Free shipping, a 30-day fit guarantee, and real humans if the
+              label is unreadable. The point is cleaner air for kids, pets, and
+              anyone who sleeps in the house.
+            </p>
+          </div>
+          <div className="hidden gap-2 md:col-span-5 md:flex md:justify-end">
+            <LifeImage
+              photo={LIFE.familyHug}
+              className="h-32 w-44 rounded-2xl"
+              sizes="180px"
+            />
+            <div className="flex flex-col gap-2">
+              <LifeImage
+                photo={LIFE.petsWelcome}
+                className="h-[3.75rem] w-28 rounded-xl"
+                sizes="120px"
+              />
+              <LifeImage
+                photo={LIFE.kidsPlay}
+                className="h-[3.75rem] w-28 rounded-xl"
+                sizes="120px"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">

@@ -16,6 +16,7 @@ import {
   buildSpeakableSchema,
   customAirFiltersSeo,
 } from "@shared/seo";
+import { LIFE } from "@/data/life-photos";
 
 export default function CustomAirFiltersPage() {
   const siteUrl = getSiteUrl();
@@ -58,6 +59,7 @@ export default function CustomAirFiltersPage() {
       <PageHero
         label="Odd size"
         title="Custom Air Filters"
+        photo={LIFE.installCeiling}
         crumbs={[{ href: "/", label: "Home" }]}
       >
         If your slot is not a standard catalog size, enter Width × Length ×
@@ -68,7 +70,7 @@ export default function CustomAirFiltersPage() {
         <div className="container py-10 md:py-14">
         <div
           id="custom-quote"
-          className="max-w-xl mb-16 scroll-mt-28 surface-panel rounded-2xl p-4 sm:p-6 md:p-8"
+          className="max-w-xl mb-16 scroll-mt-28 overflow-hidden rounded-3xl border border-border bg-white p-4 sm:p-6 md:p-8 shadow-[0_24px_50px_rgba(20,30,48,0.08)]"
         >
           <h2 className="text-xl font-bold mb-1 tracking-tight">Request a custom quote</h2>
           <p className="text-sm text-muted-foreground mb-6 leading-relaxed">

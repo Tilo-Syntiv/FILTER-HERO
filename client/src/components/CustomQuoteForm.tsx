@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { MERV_TYPES } from "@shared/products";
+import { MERV_TYPES, mervTypesForDisplay } from "@shared/products";
 import { parseSizeSlug } from "@/lib/filter-size";
 
 const dimField = (label: string) =>
@@ -209,7 +209,7 @@ export default function CustomQuoteForm({
           <Label htmlFor="custom-merv">MERV (optional)</Label>
           <select id="custom-merv" className="select-modern" {...register("merv")}>
             <option value="unsure">Not sure</option>
-            {MERV_TYPES.map((t) => (
+            {mervTypesForDisplay().map((t) => (
               <option key={t.key} value={t.key}>
                 {t.name}
               </option>

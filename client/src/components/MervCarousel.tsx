@@ -6,11 +6,6 @@ import {
   Check,
   Circle,
   X,
-  Flame,
-  HeartPulse,
-  Home,
-  PawPrint,
-  type LucideIcon,
 } from "lucide-react";
 import {
   Carousel,
@@ -20,99 +15,34 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { MERV_TYPES, type MervTypeInfo } from "@shared/products";
+import { MERV_TYPES, mervTypesForDisplay, type MervTypeInfo } from "@shared/products";
 import { scrollToHashTarget } from "@/hooks/useHashScroll";
+import { MERV_GUIDE } from "@/lib/merv-guide";
 import {
   setPreferredMerv,
   type PreferredMerv,
 } from "@/lib/merv-pref";
 import { cn } from "@/lib/utils";
 import MervBadge from "@/components/MervBadge";
+import LifeImage from "@/components/LifeImage";
+import { LIFE } from "@/data/life-photos";
 
 type CaptureLevel = "yes" | "some" | "no";
 
-type MervGuide = {
-  accent: string;
-  icon: LucideIcon;
-  bestFor: string;
-  catches: string[];
-  efficiency: string;
-  strength: number;
-  note: string;
-};
-
-const GUIDE: Record<PreferredMerv, MervGuide> = {
-  "8": {
-    accent: "#8eb0d8",
-    icon: Home,
-    bestFor: "Typical homes",
-    catches: ["Household dust & lint", "Pollen", "Carpet fibers"],
-    efficiency: "70%+ of 3–10 μm particles",
-    strength: 2,
-    note: "The workhorse rating. Everyday dust without extra strain on most systems.",
-  },
-  "11": {
-    accent: "#e45a5f",
-    icon: PawPrint,
-    bestFor: "Pets & mild allergies",
-    catches: ["Pet dander", "Mold spores", "Auto emissions"],
-    efficiency: "85%+ of 3–10 μm · 65%+ of 1–3 μm",
-    strength: 3,
-    note: "The usual upgrade when fur, spring pollen, or city air is in the mix.",
-  },
-  "13": {
-    accent: "#ee9e10",
-    icon: HeartPulse,
-    bestFor: "Asthma & sensitivities",
-    catches: ["Smoke & smog", "Bacteria-sized particles", "Fine droplets"],
-    efficiency: "90%+ of 3–10 μm · 50%+ of 0.3–1 μm",
-    strength: 5,
-    note: "Hospital-adjacent capture for home HVAC — confirm the system can take the extra resistance.",
-  },
-  carbon: {
-    accent: "#d8d8d8",
-    icon: Flame,
-    bestFor: "Cooking, pets & odors",
-    catches: ["Cooking smells", "Pet odors", "VOCs & smoke smell"],
-    efficiency: "MERV 8 capture + odor adsorption",
-    strength: 2,
-    note: "Activated carbon grabs gases that a pleat alone will not. Particle rating stays MERV 8.",
-  },
-};
+const CARDS = mervTypesForDisplay();
+const GUIDE = MERV_GUIDE;
 
 const HOME_PICKS: {
   key: PreferredMerv;
   title: string;
   blurb: string;
+  photo: (typeof LIFE)[keyof typeof LIFE];
 }[] = [
-  { key: "8", title: "Everyday dust", blurb: "Pollen, lint, household dust" },
-  { key: "11", title: "Pets", blurb: "Fur, dander, extra dust" },
-  { key: "13", title: "Allergies", blurb: "Smoke, fine particles, asthma" },
-  { key: "carbon", title: "Cooking smells", blurb: "Odors and smoke smell" },
+  { key: "8", title: "Everyday dust", blurb: "Pollen, lint, household dust", photo: LIFE.pollenSneeze },
+  { key: "carbon", title: "Cooking smells", blurb: "Odors and smoke smell", photo: LIFE.womanPets },
+  { key: "11", title: "Pets", blurb: "Fur, dander, extra dust", photo: LIFE.petsSleep },
+  { key: "13", title: "Allergies", blurb: "Smoke, fine particles, asthma", photo: LIFE.sickNebulizer },
 ];
-
-function PickIcon({
-  pickKey,
-  accent,
-  selected,
-}: {
-  pickKey: PreferredMerv;
-  accent: string;
-  selected: boolean;
-}) {
-  const Icon = GUIDE[pickKey].icon;
-  return (
-    <span
-      className="flex h-11 w-11 items-center justify-center rounded-xl"
-      style={{
-        backgroundColor: selected ? `${accent}38` : `${accent}18`,
-        color: accent,
-      }}
-    >
-      <Icon className="h-5 w-5" strokeWidth={2.1} />
-    </span>
-  );
-}
 
 const COMPARE: { label: string; levels: Record<PreferredMerv, CaptureLevel> }[] =
   [
@@ -250,6 +180,11 @@ function MervCard({
         onClick={onSelect}
         className="flex flex-1 flex-col text-left"
       >
+        <LifeImage
+          photo={HOME_PICKS.find((p) => p.key === type.key)!.photo}
+          className="mb-5 h-28 rounded-xl"
+          sizes="(max-width: 1024px) 80vw, 240px"
+        />
         <div className="mb-5 flex items-start justify-between gap-3">
           <div
             className="flex h-10 w-10 items-center justify-center rounded-full"
@@ -325,7 +260,7 @@ export default function MervCarousel() {
   useEffect(() => {
     if (!api) return;
     const onSelect = () => {
-      const type = MERV_TYPES[api.selectedScrollSnap()];
+      const type = CARDS[api.selectedScrollSnap()];
       if (type) setSelected(type.key);
     };
     api.on("select", onSelect);
@@ -336,7 +271,7 @@ export default function MervCarousel() {
 
   useEffect(() => {
     if (!api) return;
-    const index = MERV_TYPES.findIndex((t) => t.key === selected);
+    const index = CARDS.findIndex((t) => t.key === selected);
     if (index >= 0 && api.selectedScrollSnap() !== index) api.scrollTo(index);
   }, [api, selected]);
 
@@ -347,78 +282,24 @@ export default function MervCarousel() {
       aria-labelledby="merv-heading"
     >
       <div className="container">
-        <div className="mb-8 flex flex-col gap-5 lg:mb-10">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <span className="section-label">What it catches</span>
-              <h2
-                id="merv-heading"
-                className="text-3xl font-bold tracking-tight text-white md:text-4xl"
-              >
-                What should your filter catch?
-              </h2>
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/65 md:text-base">
-                Think of the filter as a screen. A tighter screen catches smaller
-                stuff. Pick the one that matches your house — the MERV number on
-                the box is just the rating name.
-              </p>
-            </div>
-            <Link href="/how-often-to-change-air-filter" className="section-link">
-              When to change it <ArrowRight className="h-4 w-4" />
-            </Link>
+        <div className="mb-8 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <span className="section-label">What it catches</span>
+            <h2
+              id="merv-heading"
+              className="text-3xl font-bold tracking-tight text-white md:text-4xl"
+            >
+              What should your filter catch?
+            </h2>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/65 md:text-base">
+              Think of the filter as a screen. A tighter screen catches smaller
+              stuff. Pick the one that matches your house — the MERV number on
+              the box is just the rating name.
+            </p>
           </div>
-
-          <div
-            className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4"
-            role="tablist"
-            aria-label="What your filter should catch"
-          >
-            {HOME_PICKS.map((pick) => {
-              const on = pick.key === selected;
-              const type = MERV_TYPES.find((t) => t.key === pick.key)!;
-              const accent = GUIDE[pick.key].accent;
-              return (
-                <button
-                  key={pick.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={on}
-                  onClick={() => setSelected(pick.key)}
-                  className={cn(
-                    "rounded-2xl border px-3 py-3.5 text-left transition-colors sm:px-4 sm:py-4",
-                    on ? "text-white" : "bg-white/5 text-white/70 hover:text-white",
-                  )}
-                  style={{
-                    borderColor: on ? accent : "rgba(255,255,255,0.12)",
-                    backgroundColor: on ? `${accent}24` : undefined,
-                    boxShadow: on ? `0 0 0 1px ${accent}` : undefined,
-                  }}
-                >
-                  <PickIcon
-                    pickKey={pick.key}
-                    accent={accent}
-                    selected={on}
-                  />
-                  <p className="mt-3 text-sm font-bold leading-tight sm:text-base">
-                    {pick.title}
-                  </p>
-                  <p className="mt-1 text-[0.72rem] leading-snug text-white/55 sm:text-xs">
-                    {pick.blurb}
-                  </p>
-                  <p
-                    className="mt-2 text-[0.62rem] font-extrabold uppercase tracking-[0.12em]"
-                    style={{ color: on ? accent : "rgba(255,255,255,0.4)" }}
-                  >
-                    {type.name}
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-          <p className="text-xs leading-relaxed text-white/45 md:text-sm">
-            Older furnaces usually do better with Everyday dust or Pets — the
-            tightest screen can make it harder for air to move.
-          </p>
+          <Link href="/how-often-to-change-air-filter" className="section-link">
+            When to change it <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
 
         <div className="lg:hidden">
@@ -428,7 +309,7 @@ export default function MervCarousel() {
             className="w-full"
           >
             <CarouselContent className="-ml-4">
-              {MERV_TYPES.map((type) => (
+              {CARDS.map((type) => (
                 <CarouselItem
                   key={type.key}
                   className="pl-4 basis-[88%] sm:basis-[48%]"
@@ -447,7 +328,7 @@ export default function MervCarousel() {
         </div>
 
         <div className="hidden gap-4 lg:grid lg:grid-cols-4">
-          {MERV_TYPES.map((type, i) => (
+          {CARDS.map((type, i) => (
             <motion.div
               key={type.key}
               initial={{ opacity: 0, y: 14 }}
@@ -523,7 +404,7 @@ export default function MervCarousel() {
                   <th className="pb-3 pr-3 text-[0.62rem] font-extrabold uppercase tracking-[0.12em] text-white/40">
                     Particle
                   </th>
-                  {MERV_TYPES.map((type) => (
+                  {CARDS.map((type) => (
                     <th key={type.key} className="pb-3 text-center">
                       <span
                         className="inline-flex min-w-[3.4rem] items-center justify-center rounded px-1.5 py-1 text-[0.62rem] font-extrabold italic leading-none text-white"
@@ -541,7 +422,7 @@ export default function MervCarousel() {
                 {COMPARE.map((row) => (
                   <tr key={row.label} className="border-t border-white/10">
                     <td className="py-2.5 pr-3 text-white/75">{row.label}</td>
-                    {MERV_TYPES.map((type) => (
+                    {CARDS.map((type) => (
                       <td
                         key={type.key}
                         className="py-2.5 text-center"

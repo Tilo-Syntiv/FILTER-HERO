@@ -75,10 +75,10 @@ export default function SizeDirectory({
   const formatInches = (value: number) => `${value}"`;
 
   const chipClass = (active: boolean) =>
-    `inline-flex min-h-11 items-center px-3 py-2 rounded-lg text-sm font-semibold border transition-colors ${
+    `inline-flex min-h-11 items-center px-3.5 py-2 rounded-xl text-sm font-semibold border shadow-sm transition-all ${
       active
         ? "bg-primary text-primary-foreground border-primary"
-        : "bg-white/70 border-border hover:border-primary/40"
+        : "bg-white border-border hover:border-primary/40 hover:-translate-y-0.5"
     }`;
 
   return (
@@ -121,10 +121,10 @@ export default function SizeDirectory({
                   <Link
                     key={d}
                     href={`/filters/${d}-inch`}
-                    className={`inline-flex min-h-11 items-center px-3 py-2 rounded-lg text-sm font-semibold border transition-colors ${
+                    className={`inline-flex min-h-11 items-center px-3.5 py-2 rounded-xl text-sm font-semibold border shadow-sm transition-all ${
                       active
                         ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-white/70 border-border hover:border-primary/40"
+                        : "bg-white border-border hover:border-primary/40 hover:-translate-y-0.5"
                     }`}
                   >
                     {formatInches(d)} depth
@@ -133,7 +133,7 @@ export default function SizeDirectory({
               })}
               <Link
                 href="/custom-air-filters"
-                className="inline-flex min-h-11 items-center px-3 py-2 rounded-lg text-sm font-semibold border border-border bg-white/70 hover:border-primary/40"
+                className="inline-flex min-h-11 items-center px-3.5 py-2 rounded-xl text-sm font-semibold border border-border bg-white shadow-sm hover:border-primary/40 hover:-translate-y-0.5 transition-all"
               >
                 Custom Air Filters
               </Link>
@@ -172,7 +172,7 @@ export default function SizeDirectory({
             : `Page ${safePage + 1} of ${totalPages} · ${sizes.length} sizes at ${formatInches(activeDepth)} depth`}
         </p>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {visible.map((s) => (
             <Link
               key={s.slug}

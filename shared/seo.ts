@@ -1,5 +1,6 @@
 import { BRAND_EMAIL, BRAND_NAME, BRAND_TAGLINE } from "./const";
 import {
+  FILTER_PRODUCT_IMAGE,
   FILTER_SIZES,
   MERV_TYPES,
   THICKNESSES,
@@ -453,7 +454,7 @@ export function buildProductSchema(
     brand: { "@type": "Brand", name: BRAND_NAME },
     category: "HVAC Air Filters",
     url: absoluteUrl(siteUrl, `/sizes/${encodeURIComponent(size.slug)}`),
-    image: absoluteUrl(siteUrl, "/logo.png"),
+    image: absoluteUrl(siteUrl, FILTER_PRODUCT_IMAGE),
     material: "Pleated filter media",
     additionalProperty: [
       {

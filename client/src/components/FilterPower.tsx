@@ -15,7 +15,7 @@ import {
   type Thickness,
 } from "@/lib/filter-cadence";
 import { CHANGE_GUIDE_PATH } from "@shared/seo";
-import { MERV_TYPES, THICKNESSES } from "@shared/products";
+import { THICKNESSES, mervTypesForDisplay } from "@shared/products";
 import { setPowerPackQty, setPreferredMerv } from "@/lib/merv-pref";
 import { scrollToHashTarget } from "@/hooks/useHashScroll";
 import { Input } from "@/components/ui/input";
@@ -108,7 +108,7 @@ export default function FilterPower() {
   };
 
   return (
-    <div className="overflow-hidden rounded-[1.85rem] border border-white/10 bg-[#1c1f26] shadow-[0_24px_60px_rgba(8,12,20,0.4)]">
+    <div className="overflow-hidden rounded-[1.85rem] border border-ice/30 bg-[#1e3a66] shadow-[0_24px_60px_rgba(16,32,56,0.32)]">
       <div className="grid lg:grid-cols-12 lg:items-stretch">
         <div className="h-full lg:col-span-5">
           <ClockDeck result={result} input={input} dates={swapDates} />
@@ -137,7 +137,7 @@ export default function FilterPower() {
               MERV
             </legend>
             <div className="flex flex-wrap gap-2">
-              {MERV_TYPES.map((m) => (
+              {mervTypesForDisplay().map((m) => (
                 <Chip
                   key={m.key}
                   selected={input.merv === m.key}

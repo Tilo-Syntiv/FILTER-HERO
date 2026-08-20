@@ -20,6 +20,7 @@ import FilterFinder from "@/components/FilterFinder";
 import PageHero from "@/components/PageHero";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { BRAND_NAME } from "@/const";
+import { LIFE } from "@/data/life-photos";
 
 function SiteFooter() {
   return (
@@ -63,7 +64,11 @@ export function AllBrandsPage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <PageHero label="System match" title="Shop by HVAC brand">
+      <PageHero
+        label="System match"
+        title="Shop by HVAC brand"
+        photo={LIFE.familyKitchen}
+      >
         {BRAND_NAME} sells exact-fit replacement filters for major HVAC brands.
         These are {BRAND_NAME} pleated filters (MERV 8, 11, 13, and carbon)
         made to the same Width × Length × Depth as the OEM media — not
@@ -137,6 +142,7 @@ export function BrandDetailPage({ slug }: { slug: string }) {
           <PageHero
             label="System match"
             title={`${brand.name} air filters`}
+            photo={LIFE.installCeilingMan}
             crumbs={[
               { href: "/", label: "Home" },
               { href: "/brands", label: "Shop by brand" },
@@ -156,7 +162,7 @@ export function BrandDetailPage({ slug }: { slug: string }) {
             {brand.sizes.length > 0 ? (
               <>
                 <h2 className="text-xl font-bold mb-3 tracking-tight">Shop by size</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 mb-10">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-10">
                   {brand.sizes.map((s) => {
                     const inCatalog = Boolean(catalogSizeForSlug(s));
                     return (
@@ -186,7 +192,7 @@ export function BrandDetailPage({ slug }: { slug: string }) {
                     <Link
                       key={m.code}
                       href={`/sizes/${encodeURIComponent(m.size)}`}
-                      className="flex min-h-11 items-center rounded-lg border border-border bg-white/80 px-3 py-2.5 text-sm hover:border-primary/40"
+                        className="catalog-row"
                     >
                       <span className="font-semibold">{m.code}</span>
                       <span className="text-muted-foreground"> → {m.size}</span>
@@ -204,7 +210,7 @@ export function BrandDetailPage({ slug }: { slug: string }) {
                     <Link
                       key={p.code}
                       href={`/sizes/${encodeURIComponent(p.size)}`}
-                      className="flex min-h-11 items-center rounded-lg border border-border bg-white/80 px-3 py-2.5 text-sm hover:border-primary/40"
+                        className="catalog-row"
                     >
                       <span className="font-semibold">{p.code}</span>
                       <span className="text-muted-foreground"> → {p.size}</span>

@@ -13,6 +13,7 @@ import CartDrawer from "@/components/CartDrawer";
 import PageHero from "@/components/PageHero";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { BRAND_NAME } from "@/const";
+import { LIFE } from "@/data/life-photos";
 
 function SiteFooter() {
   return (
@@ -49,7 +50,11 @@ export function AllSizesPage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <PageHero label="Size catalog" title="Every Filter Hero size">
+      <PageHero
+        label="Size catalog"
+        title="Every Filter Hero size"
+        photo={LIFE.installWall}
+      >
         Browse every {BRAND_NAME} HVAC size by depth. Pick a whole-inch width
         to narrow the list, or browse all sizes. {allSizes.length} sizes in
         the catalog.
@@ -113,6 +118,7 @@ export function ThicknessHubPage({ depth }: { depth: number }) {
           <PageHero
             label="Depth first"
             title={`${depth}" depth air filters`}
+            photo={LIFE.filterSwap}
             crumbs={[
               { href: "/", label: "Home" },
               { href: "/sizes", label: "All sizes" },

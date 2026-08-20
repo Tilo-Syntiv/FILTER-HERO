@@ -17,6 +17,28 @@ export {
 
 export type MervRating = 8 | 11 | 13;
 
+/** Pack shot used on every size page and cart line. */
+export const FILTER_PRODUCT_IMAGE = "/products/merv-8-thin-rectangle-6pack.png";
+
+export const FILTER_PRODUCT_GALLERY = [
+  {
+    src: FILTER_PRODUCT_IMAGE,
+    alt: "6-pack of pleated HVAC air filters",
+  },
+  {
+    src: "/products/merv-8-thin-rectangle-no-labels.png",
+    alt: "Single pleated air filter, three-quarter view",
+  },
+  {
+    src: "/products/merv-8-macro.png",
+    alt: "Close-up of pleated media, mesh, and support lattice",
+  },
+  {
+    src: "/products/merv-8-layers.png",
+    alt: "Exploded view of frame, filter media, and metal mesh",
+  },
+] as const;
+
 export type FilterSize = {
   /** Nominal size slug used in URLs, e.g. 20x25x1 */
   slug: string;
@@ -164,7 +186,7 @@ export const MERV_TYPES: MervTypeInfo[] = [
     shortLabel: "Standard",
     description: "Everyday dust and pollen for typical homes",
     fromPrice: liveFromPrice("8") ?? 11.99,
-    badgeColor: "#203868",
+    badgeColor: "#3a66a3",
   },
   {
     key: "11",
@@ -201,6 +223,15 @@ export const MERV_TYPES: MervTypeInfo[] = [
 export function mervTypeFor(merv: MervRating, isCarbon?: boolean): MervTypeInfo {
   const key: MervTypeKey = isCarbon ? "carbon" : (String(merv) as MervTypeKey);
   return MERV_TYPES.find((t) => t.key === key) ?? MERV_TYPES[0];
+}
+
+/** Visual order: MERV 8 sits beside MERV 8 Carbon. Product IDs still follow MERV_TYPES. */
+export const MERV_DISPLAY_ORDER: MervTypeKey[] = ["8", "carbon", "11", "13"];
+
+export function mervTypesForDisplay(): MervTypeInfo[] {
+  return MERV_DISPLAY_ORDER.map(
+    (key) => MERV_TYPES.find((t) => t.key === key) ?? MERV_TYPES[0],
+  );
 }
 
 function listPriceFor(depth: number, merv: MervRating, isCarbon: boolean): number {

@@ -28,6 +28,8 @@ import {
   buildSpeakableSchema,
   filterChangeGuideSeo,
 } from "@shared/seo";
+import LifeImage from "@/components/LifeImage";
+import { LIFE, type LifePhoto } from "@/data/life-photos";
 
 const TOC = [
   { href: "#cadence", label: "Your clock" },
@@ -73,24 +75,33 @@ const THICKNESS_LIFE = [
   },
 ];
 
-const PILLARS = [
+const PILLARS: {
+  k: string;
+  title: string;
+  body: string;
+  source: string;
+  photo: LifePhoto;
+}[] = [
   {
     k: "01",
     title: "The air you actually breathe",
     body: "Americans spend about 90% of their time indoors. A loaded filter stops capturing dust, dander, pollen, and smoke — and starts letting that mix recirculate.",
     source: "EPA indoor air guidance",
+    photo: LIFE.sickCough,
   },
   {
     k: "02",
     title: "The system that moves it",
     body: "A clogged filter starves the blower. The motor, coils, and heat exchanger work harder, run hotter, and fail sooner. A $18 filter is cheaper than a service call.",
     source: "HVAC maintenance reality",
+    photo: LIFE.filterFurnace,
   },
   {
     k: "03",
     title: "The bill on the fridge",
     body: "The U.S. Department of Energy notes a dirty filter can lift cooling costs 5–15%. The system runs longer to hit the same setpoint. You pay for air that never arrives.",
     source: "energy.gov",
+    photo: LIFE.filterClogged,
   },
 ];
 
@@ -308,14 +319,17 @@ export default function FilterChangeGuidePage() {
     <div className="min-h-screen">
       <SiteHeader />
       <main>
-        <section className="brand-band">
-          <div className="container py-12 md:py-16">
+        <section className="brand-band page-hero">
+          <div className="page-hero-glow" aria-hidden />
+          <div className="container relative py-12 md:py-16">
             <nav aria-label="Breadcrumb" className="mb-6 text-sm text-white/60">
               <Link href="/" className="hover:text-white">
                 Home
               </Link>{" "}
               / When to change
             </nav>
+            <div className="mb-2 grid items-start gap-8 lg:grid-cols-12">
+              <div className="lg:col-span-7">
             <span className="section-label !text-ice">Filter Clock</span>
             <h1 className="mb-4 max-w-3xl text-3xl font-bold tracking-tight sm:text-5xl md:text-6xl">
               Every filter runs on a charge.
@@ -339,6 +353,25 @@ export default function FilterChangeGuidePage() {
                 Shop your size
               </Link>
             </div>
+              </div>
+              <div className="hidden gap-2 lg:col-span-5 lg:grid grid-cols-2">
+                <LifeImage
+                  photo={LIFE.sickCough}
+                  className="col-span-2 h-40 rounded-2xl"
+                  sizes="400px"
+                />
+                <LifeImage
+                  photo={LIFE.petsSleep}
+                  className="h-28 rounded-2xl"
+                  sizes="200px"
+                />
+                <LifeImage
+                  photo={LIFE.filterCleanDirty}
+                  className="h-28 rounded-2xl"
+                  sizes="200px"
+                />
+              </div>
+            </div>
             <nav
               aria-label="On this page"
               className="mt-10 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -358,16 +391,30 @@ export default function FilterChangeGuidePage() {
 
         <section id="cadence" className="sheet-section scroll-mt-28 py-12 md:py-16">
           <div className="container">
-            <div className="mb-8 max-w-2xl">
-              <span className="section-label">Tell us about your home</span>
-              <h2 className="mb-3 text-3xl font-bold tracking-tight md:text-4xl">
-                When's your next filter change?
-              </h2>
-              <p className="text-muted-foreground leading-relaxed">
-                Thickness sets the baseline. Pets, people, allergies, dust, and a
-                fan that never shuts off pull the date closer. Flip the drums to
-                see every change date this year — not a brochure average.
-              </p>
+            <div className="mb-8 grid items-end gap-6 lg:grid-cols-12">
+              <div className="lg:col-span-7">
+                <span className="section-label">Tell us about your home</span>
+                <h2 className="mb-3 text-3xl font-bold tracking-tight md:text-4xl">
+                  When's your next filter change?
+                </h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  Thickness sets the baseline. Pets, people, allergies, dust, and a
+                  fan that never shuts off pull the date closer. Flip the drums to
+                  see every change date this year — not a brochure average.
+                </p>
+              </div>
+              <div className="hidden gap-2 sm:flex lg:col-span-5 lg:justify-end">
+                <LifeImage
+                  photo={LIFE.womanDog}
+                  className="h-24 w-36 rounded-2xl"
+                  sizes="150px"
+                />
+                <LifeImage
+                  photo={LIFE.asthmaInhaler}
+                  className="h-24 w-36 rounded-2xl"
+                  sizes="150px"
+                />
+              </div>
             </div>
             <FilterPower />
           </div>
@@ -387,18 +434,31 @@ export default function FilterChangeGuidePage() {
               {PILLARS.map((p) => (
                 <article
                   key={p.k}
-                  className="relative overflow-hidden rounded-2xl bg-deep p-6 text-white"
+                  className="relative min-h-[17rem] overflow-hidden rounded-2xl bg-navy p-6 text-white"
                 >
-                  <span className="absolute right-4 top-3 text-4xl font-extrabold text-white/10">
+                  <img
+                    src={p.photo.src}
+                    alt=""
+                    width={p.photo.width}
+                    height={p.photo.height}
+                    className="pillar-photo"
+                    style={
+                      p.photo.position
+                        ? { objectPosition: p.photo.position }
+                        : undefined
+                    }
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy/95 via-navy/65 to-navy/25" />
+                  <span className="absolute right-4 top-3 z-[1] text-4xl font-extrabold text-white/10">
                     {p.k}
                   </span>
-                  <h3 className="relative mb-3 text-xl font-bold tracking-tight">
+                  <h3 className="relative z-[1] mb-3 text-xl font-bold tracking-tight">
                     {p.title}
                   </h3>
-                  <p className="relative text-sm leading-relaxed text-white/80">
+                  <p className="relative z-[1] text-sm leading-relaxed text-white/80">
                     {p.body}
                   </p>
-                  <p className="relative mt-4 text-[10px] font-bold uppercase tracking-[0.14em] text-ice">
+                  <p className="relative z-[1] mt-4 text-[10px] font-bold uppercase tracking-[0.14em] text-ice">
                     {p.source}
                   </p>
                 </article>
@@ -481,6 +541,21 @@ export default function FilterChangeGuidePage() {
               Ignore the calendar if the house is already complaining. Any one of
               these is enough to pull the filter today.
             </p>
+            <div className="mb-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {[
+                LIFE.filterGlove,
+                LIFE.filterHold,
+                LIFE.filterWrecked,
+                LIFE.filterMonths,
+              ].map((photo) => (
+                <LifeImage
+                  key={photo.src}
+                  photo={photo}
+                  className="h-28 rounded-2xl sm:h-32"
+                  sizes="(max-width: 640px) 50vw, 25vw"
+                />
+              ))}
+            </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
               {SIGNS.map((sign, i) => (
                 <article
@@ -516,6 +591,23 @@ export default function FilterChangeGuidePage() {
               Changing a filter is the cheapest HVAC skill you can learn. Do it
               once the right way and you’ll never install one backwards again.
             </p>
+            <div className="mb-8 grid gap-2 sm:grid-cols-3">
+              <LifeImage
+                photo={LIFE.installWall}
+                className="h-36 rounded-2xl"
+                sizes="(max-width: 640px) 100vw, 33vw"
+              />
+              <LifeImage
+                photo={LIFE.filterSwap}
+                className="h-36 rounded-2xl"
+                sizes="(max-width: 640px) 100vw, 33vw"
+              />
+              <LifeImage
+                photo={LIFE.installCeiling}
+                className="h-36 rounded-2xl"
+                sizes="(max-width: 640px) 100vw, 33vw"
+              />
+            </div>
             <div className="grid gap-3 md:grid-cols-5">
               {STEPS.map((step) => (
                 <article
@@ -547,6 +639,12 @@ export default function FilterChangeGuidePage() {
               it’s a technician. Repair ranges below are typical residential
               ballparks — your house may be kinder, or meaner.
             </p>
+            <LifeImage
+              photo={LIFE.filterMonths}
+              className="mb-8 h-36 rounded-2xl sm:h-44"
+              imgClassName="object-contain bg-white"
+              sizes="(max-width: 1200px) 100vw, 1120px"
+            />
             <div className="grid gap-3 md:grid-cols-4">
               {WAIT_STAGES.map((stage, i) => (
                 <article

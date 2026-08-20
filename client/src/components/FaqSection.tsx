@@ -10,6 +10,7 @@ type FaqSectionProps = {
   faqs: FaqItem[];
   title?: string;
   subtitle?: string;
+  tone?: "sheet" | "band";
 };
 
 /**
@@ -19,7 +20,9 @@ export default function FaqSection({
   faqs,
   title = "Filter questions, answered",
   subtitle = "Straight answers about filter size, MERV, and replacement timing.",
+  tone = "sheet",
 }: FaqSectionProps) {
+  const onBand = tone === "band";
   return (
     <section
       id="faq"
@@ -34,18 +37,30 @@ export default function FaqSection({
         >
           {title}
         </h2>
-        <p className="text-muted-foreground mb-10 leading-relaxed max-w-2xl">
+        <p
+          className={`mb-10 max-w-2xl leading-relaxed ${
+            onBand ? "text-ice/80" : "text-muted-foreground"
+          }`}
+        >
           {subtitle}
         </p>
 
         <Accordion type="single" collapsible className="w-full">
           {faqs.map((faq, i) => (
-            <AccordionItem key={faq.question} value={`faq-${i}`}>
+            <AccordionItem
+              key={faq.question}
+              value={`faq-${i}`}
+              className={onBand ? "border-white/20" : undefined}
+            >
               <AccordionTrigger className="text-left text-base md:text-lg font-semibold hover:no-underline">
                 <span className="seo-speakable-q">{faq.question}</span>
               </AccordionTrigger>
               <AccordionContent>
-                <p className="text-muted-foreground leading-relaxed seo-speakable-a">
+                <p
+                  className={`leading-relaxed seo-speakable-a ${
+                    onBand ? "text-ice/80" : "text-muted-foreground"
+                  }`}
+                >
                   {faq.answer}
                 </p>
               </AccordionContent>

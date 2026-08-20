@@ -11,6 +11,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { FILTER_PRODUCT_IMAGE } from "@shared/products";
 import { useCart } from "@/contexts/CartContext";
 import { stashQuoteHandoff } from "@/lib/quote-handoff";
 
@@ -72,6 +73,11 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
                 key={item.productId}
                 className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4"
               >
+                <img
+                  src={FILTER_PRODUCT_IMAGE}
+                  alt=""
+                  className="h-16 w-16 shrink-0 rounded-lg border border-border bg-white object-contain"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-foreground break-words">
                     {item.size}

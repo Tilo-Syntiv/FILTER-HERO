@@ -23,6 +23,7 @@ import TrustMarquee from "@/components/TrustMarquee";
 import PopularSizesCarousel from "@/components/PopularSizesCarousel";
 import SizeDirectory from "@/components/SizeDirectory";
 import MervCarousel from "@/components/MervCarousel";
+import DeliverySection from "@/components/DeliverySection";
 import ContactForm from "@/components/ContactForm";
 import CartDrawer from "@/components/CartDrawer";
 import SiteHeader from "@/components/SiteHeader";
@@ -30,6 +31,8 @@ import BrandLockup from "@/components/BrandLockup";
 import Hero from "@/components/Hero";
 import FaqSection from "@/components/FaqSection";
 import FilterPower from "@/components/FilterPower";
+import FamilyAirSection from "@/components/FamilyAirSection";
+import { LIFE } from "@/data/life-photos";
 import { useCart } from "@/contexts/CartContext";
 import { takeQuoteHandoff } from "@/lib/quote-handoff";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
@@ -101,6 +104,8 @@ export default function Home() {
           </div>
         </section>
 
+        <FamilyAirSection />
+
         <section
           id="clock"
           className="sheet-section scroll-mt-28 py-12 md:py-16"
@@ -112,7 +117,8 @@ export default function Home() {
                 When's your next filter change?
               </h2>
               <p className="text-muted-foreground leading-relaxed md:text-lg">
-                Tell us about the house. We'll give you the date.
+                Pets, kids, allergies, and a fan that never shuts off pull the
+                date closer. Tell us about the house. We'll give you the date.
               </p>
             </div>
             <FilterPower />
@@ -126,6 +132,8 @@ export default function Home() {
         </div>
 
         <MervCarousel />
+
+        <DeliverySection />
 
         <section className="sheet-section py-16 md:py-20">
           <div className="container">
@@ -176,7 +184,16 @@ export default function Home() {
           <FaqSection faqs={SITE_FAQS} />
         </div>
 
-        <section className="brand-band py-20 md:py-28 relative overflow-hidden">
+        <section className="brand-band cta-photo-band py-20 md:py-28 relative overflow-hidden">
+          <img
+            src={LIFE.familyHug.src}
+            alt=""
+            width={LIFE.familyHug.width}
+            height={LIFE.familyHug.height}
+            decoding="async"
+            className="cta-photo-img"
+            style={{ objectPosition: LIFE.familyHug.position }}
+          />
           <div className="container relative text-center">
             <span className="section-label">Need a match</span>
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">
@@ -230,8 +247,8 @@ export default function Home() {
             <div className="col-span-2 md:col-span-5">
               <BrandLockup tone="footer" className="mb-5" />
               <p className="text-sm leading-relaxed max-w-xs">
-                Precise HVAC filters. Find your exact size and order with
-                confidence.
+                Precise HVAC filters for the people and pets under your roof.
+                Find your exact size and order with confidence.
               </p>
               <p className="text-sm mt-4 text-ice/90">{BRAND_EMAIL}</p>
             </div>
@@ -292,6 +309,11 @@ export default function Home() {
                   >
                     When to change your filter
                   </Link>
+                </li>
+                <li>
+                  <a href="#delivery" className="hover:text-ice transition-colors">
+                    Shipping
+                  </a>
                 </li>
                 <li>
                   <a href="#faq" className="hover:text-ice transition-colors">
