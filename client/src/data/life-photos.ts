@@ -7,13 +7,6 @@ export type LifePhoto = {
 };
 
 export const LIFE = {
-  familyHug: {
-    src: "/life/family-hug.jpg",
-    alt: "Parents hugging their two kids and laughing together at home",
-    width: 1024,
-    height: 763,
-    position: "40% 35%",
-  },
   familyKitchen: {
     src: "/life/family-kitchen.jpg",
     alt: "A family sitting on the kitchen floor, laughing together",
@@ -30,12 +23,6 @@ export const LIFE = {
     src: "/life/girl-dog.jpg",
     alt: "A young girl coloring on the living-room floor next to a golden retriever",
     width: 395,
-    height: 240,
-  },
-  kidsPlay: {
-    src: "/life/kids-play.jpg",
-    alt: "Children at a table playing with colorful modeling clay",
-    width: 347,
     height: 240,
   },
   pollenSneeze: {
@@ -62,16 +49,16 @@ export const LIFE = {
     width: 429,
     height: 240,
   },
-  petsWelcome: {
-    src: "/life/pets-welcome.jpg",
-    alt: "Two small dogs sitting side by side in a home entryway",
-    width: 430,
-    height: 240,
-  },
   petsLineup: {
     src: "/life/pets-lineup.jpg",
     alt: "A parrot, cat, dogs, hamster, rabbit, and other household pets in a row",
     width: 610,
+    height: 240,
+  },
+  moldSpores: {
+    src: "/life/mold-spores.jpg",
+    alt: "Macro photo of dark navy mold colonies growing on a beige surface",
+    width: 480,
     height: 240,
   },
   sickCough: {

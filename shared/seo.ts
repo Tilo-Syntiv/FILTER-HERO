@@ -27,9 +27,18 @@ export const SITE_DEFAULTS = {
   twitterHandle: "",
 } as const;
 
+export type FaqAction = {
+  href: string;
+  label: string;
+};
+
 export type FaqItem = {
   question: string;
   answer: string;
+  /** Topic chip used to group and filter the visible FAQ list. */
+  category?: string;
+  /** Optional next-step link under the answer. */
+  action?: FaqAction;
 };
 
 export const CHANGE_GUIDE_PATH = "/how-often-to-change-air-filter";
@@ -38,36 +47,48 @@ export const CHANGE_GUIDE_PATH = "/how-often-to-change-air-filter";
 export const SITE_FAQS: FaqItem[] = [
   {
     question: "What size air filter do I need?",
+    category: "Sizing",
     answer:
       "You need the exact Width × Length × Depth printed on your current filter or measured from the filter slot. Enter those three numbers in our size finder to shop the matching HVAC filter.",
+    action: { href: "/#finder", label: "Open the size finder" },
   },
   {
     question: "How do I measure an air filter?",
+    category: "Sizing",
     answer:
       "Measure Width (side to side), Length (top to bottom), and Depth (thickness) in inches. Use the nominal size on the frame label when present; otherwise measure the filter itself and round to the nearest standard size.",
-  },
-  {
-    question: "How often should I change my HVAC filter?",
-    answer:
-      "Most homes should change filters every 30 to 90 days. Pets, allergies, dust, and a fan that runs constantly pull you toward 30. Use Filter Clock: tell us about the house and we'll give you the date — then buy the pack that matches a year of air.",
-  },
-  {
-    question: "What MERV rating should I buy?",
-    answer:
-      "MERV 8 is standard everyday filtration. MERV 11 is better for pets and mild allergies. MERV 13 offers higher filtration for asthma and sensitivities. MERV 8 Carbon adds odor reduction. Confirm your HVAC system supports higher MERV before upgrading.",
+    action: { href: "/#finder", label: "See how to measure" },
   },
   {
     question: "What is the difference between nominal and actual filter size?",
+    category: "Sizing",
     answer:
       `Nominal size is the labeled size (for example 20×25×1). Actual size is slightly smaller so the filter slides into the slot. ${BRAND_NAME} lists both on each size page so you can verify fit.`,
   },
   {
+    question: "How often should I change my HVAC filter?",
+    category: "Replacement",
+    answer:
+      "Most homes should change filters every 30 to 90 days. Pets, allergies, dust, and a fan that runs constantly pull you toward 30. Use Filter Clock: tell us about the house and we'll give you the date — then buy the pack that matches a year of air.",
+    action: { href: CHANGE_GUIDE_PATH, label: "Get your change date" },
+  },
+  {
+    question: "What MERV rating should I buy?",
+    category: "MERV",
+    answer:
+      "MERV 8 is standard everyday filtration. MERV 11 is better for pets and mild allergies. MERV 13 offers higher filtration for asthma and sensitivities. MERV 8 Carbon adds odor reduction. Confirm your HVAC system supports higher MERV before upgrading.",
+    action: { href: "/#merv", label: "Compare MERV ratings" },
+  },
+  {
     question: "Do you sell filters for Carrier, Trane, Honeywell, and other HVAC brands?",
+    category: "Ordering",
     answer:
       `Yes. ${BRAND_NAME} replacement filters are made to the same Width × Length × Depth as OEM media for major HVAC brands. Shop by brand, model number, or OEM part number, then choose MERV 8, 11, 13, or carbon.`,
+    action: { href: "/brands", label: "Shop by HVAC brand" },
   },
   {
     question: "Do you offer free shipping?",
+    category: "Ordering",
     answer:
       `Yes. ${BRAND_NAME} offers free shipping on orders over $50 within the contiguous United States, with a 30-day fit guarantee on standard catalog sizes.`,
   },
@@ -76,41 +97,52 @@ export const SITE_FAQS: FaqItem[] = [
 export const CHANGE_GUIDE_FAQS: FaqItem[] = [
   {
     question: "How often should I change my HVAC filter?",
+    category: "Timing",
     answer:
       "Most homes should change a 1-inch filter every 30 to 90 days. Pets, allergies, dust, wildfire smoke, or a fan that runs constantly pull you toward 30. 2-inch filters often last 90–120 days; 4-inch and 5-inch media can last 6–12 months. Use Filter Clock to get a change date for your home. Inspect monthly either way.",
+    action: { href: "#cadence", label: "Run Filter Clock" },
   },
   {
     question: "Do thicker air filters last longer?",
+    category: "Timing",
     answer:
       "Yes. Extra depth means more pleat area, so particles have more places to land before airflow drops. A 1-inch filter is typically a 30–90 day part. A 4-inch or 5-inch media cabinet filter can run for months — still check it every month.",
   },
   {
     question: "Do pets mean I should change my filter more often?",
+    category: "Your home",
     answer:
       "Yes. One pet often cuts filter life by about a quarter. Multiple pets or heavy shedders can cut it nearly in half. MERV 11 or MERV 13 is a better match than MERV 8 in a pet home.",
+    action: { href: "#cadence", label: "Get a date for a pet home" },
   },
   {
     question: "What MERV rating should I use if I have allergies?",
+    category: "Your home",
     answer:
       "MERV 13 is the usual upgrade for asthma and allergy-sensitive homes, if your HVAC system can handle the extra resistance. Change it on the early side of the 30–90 day window so capture stays high. Confirm with your equipment manual before jumping from MERV 8 to 13 on a 1-inch slot.",
+    action: { href: "/#merv", label: "Compare MERV ratings" },
+  },
+  {
+    question: "Should I run the HVAC fan on ON all the time?",
+    category: "Your home",
+    answer:
+      "Fan ON moves more air through the filter, which can help mix temperatures — and it loads the filter faster. Plan on changing sooner than the auto-fan schedule. If the house is dusty, Auto plus a higher MERV is often the calmer setup.",
   },
   {
     question: "How do I know my air filter is done?",
+    category: "Warning signs",
     answer:
       "Pull it and hold it to a light. If you cannot see glow through the pleats, replace it. Other tells: gray or black media, weak vents, uneven rooms, whistling at the slot, extra dust on furniture, and a sudden jump in the energy bill.",
   },
   {
     question: "What happens if I don't change my air filter?",
+    category: "Warning signs",
     answer:
       "Indoor air quality drops, the blower works harder, and energy use can rise 5–15% according to the U.S. Department of Energy. Leave it long enough and you risk iced coils, motor strain, and repair bills that dwarf the cost of a filter.",
   },
   {
-    question: "Should I run the HVAC fan on ON all the time?",
-    answer:
-      "Fan ON moves more air through the filter, which can help mix temperatures — and it loads the filter faster. Plan on changing sooner than the auto-fan schedule. If the house is dusty, Auto plus a higher MERV is often the calmer setup.",
-  },
-  {
     question: "Can I wash a pleated HVAC filter?",
+    category: "Care",
     answer:
       "No. Disposable pleated filters are not washable. Water collapses the media and ruins capture. When it’s loaded, replace it. Keep a spare on the shelf so you are never stuck with a clogged filter overnight.",
   },
@@ -119,13 +151,17 @@ export const CHANGE_GUIDE_FAQS: FaqItem[] = [
 export const CUSTOM_FAQS: FaqItem[] = [
   {
     question: "Can I order a custom air filter size?",
+    category: "Quotes",
     answer:
       `Yes. If your Width × Length × Depth is not in the ${BRAND_NAME} catalog, send the measurements (or a photo of the filter label) and we will quote a custom HVAC filter.`,
+    action: { href: "#custom-quote", label: "Request a quote" },
   },
   {
     question: "What information do you need for a custom filter quote?",
+    category: "Quotes",
     answer:
       "Provide Width, Length, and Depth in inches, preferred MERV (8, 11, 13, or carbon), and quantity. A photo of the existing filter label helps confirm nominal vs actual size.",
+    action: { href: "#custom-quote", label: "Jump to the quote form" },
   },
 ];
 

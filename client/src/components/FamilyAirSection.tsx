@@ -5,19 +5,6 @@ import LifeImage from "@/components/LifeImage";
 import { scrollToHashTarget } from "@/hooks/useHashScroll";
 import { setPreferredMerv, type PreferredMerv } from "@/lib/merv-pref";
 
-const MOSAIC: { photo: LifePhoto; className: string }[] = [
-  { photo: LIFE.familyHug, className: "col-span-2 row-span-2" },
-  { photo: LIFE.petsSleep, className: "col-span-2" },
-  { photo: LIFE.girlDog, className: "col-span-2" },
-  { photo: LIFE.kidsPlay, className: "col-span-2 sm:col-span-1" },
-  { photo: LIFE.womanPets, className: "col-span-2 sm:col-span-2" },
-  { photo: LIFE.petsWelcome, className: "col-span-2 sm:col-span-1" },
-  { photo: LIFE.familyKitchen, className: "col-span-2" },
-  { photo: LIFE.womanDog, className: "col-span-2 sm:col-span-1" },
-  { photo: LIFE.familyBoats, className: "col-span-2 sm:col-span-1" },
-  { photo: LIFE.sickNebulizer, className: "col-span-2" },
-];
-
 const STORIES: {
   merv: PreferredMerv;
   photo: LifePhoto;
@@ -39,7 +26,7 @@ const STORIES: {
   {
     merv: "11",
     photo: LIFE.petsSleep,
-    inset: LIFE.petsWelcome,
+    inset: LIFE.womanPets,
     label: "Pets",
     title: "Fur, dander, and a pack on the couch",
     body: "Dogs and cats load a filter faster than a quiet house. MERV 11 is the upgrade when there's fur on the vents and someone in the family is sniffly.",
@@ -47,7 +34,7 @@ const STORIES: {
   },
   {
     merv: "8",
-    photo: LIFE.kidsPlay,
+    photo: LIFE.girlDog,
     inset: LIFE.familyKitchen,
     label: "Everyday home",
     title: "Dust, lint, and a house that stays busy",
@@ -88,25 +75,6 @@ export default function FamilyAirSection() {
             Pick the house you actually have. Then we'll match MERV and a change
             date.
           </p>
-        </div>
-
-        <div className="life-mosaic mb-10">
-          {MOSAIC.map((tile, i) => (
-            <motion.div
-              key={tile.photo.src}
-              className={tile.className}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.04, duration: 0.35 }}
-            >
-              <LifeImage
-                photo={tile.photo}
-                className="h-full min-h-[7.25rem] rounded-2xl"
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 280px"
-              />
-            </motion.div>
-          ))}
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">

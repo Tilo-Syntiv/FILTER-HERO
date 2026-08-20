@@ -2,13 +2,15 @@
 export const MAP_VIEW = { width: 975, height: 610 } as const;
 
 export const MAP_COLORS = {
-  day1: "#262861",
-  day2: "#a1a7e3",
-  day3: "#d0d3f2",
-  border: "#ffffff",
+  day1: "#203868",
+  day2: "#3a66a3",
+  day3: "#7ea8d4",
+  border: "#f4f7fb",
   label: "#ffffff",
-  pin: "#ff4536",
-  bg: "#f5f5f5",
+  pin: "#7f2328",
+  callout: "#203868",
+  leader: "#8eb0d8",
+  bg: "#d4e0ee",
 } as const;
 
 export type DeliveryHub = {

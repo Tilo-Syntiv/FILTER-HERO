@@ -59,7 +59,10 @@ function DeliveryMap() {
   return (
     <div
       className="relative overflow-hidden rounded-2xl"
-      style={{ background: MAP_COLORS.bg }}
+      style={{
+        background: MAP_COLORS.bg,
+        boxShadow: "inset 0 0 0 1px rgba(32, 56, 104, 0.12)",
+      }}
     >
       <svg
         viewBox={`0 0 ${MAP_VIEW.width} ${MAP_VIEW.height}`}
@@ -84,7 +87,7 @@ function DeliveryMap() {
             d={s.path}
             fill={s.days === 2 ? MAP_COLORS.day2 : MAP_COLORS.day3}
             stroke={MAP_COLORS.border}
-            strokeWidth={0.9}
+            strokeWidth={1.2}
             strokeLinejoin="round"
           />
         ))}
@@ -102,7 +105,7 @@ function DeliveryMap() {
             d={s.path}
             fill="none"
             stroke={MAP_COLORS.border}
-            strokeWidth={0.9}
+            strokeWidth={1.2}
             strokeLinejoin="round"
           />
         ))}
@@ -115,7 +118,7 @@ function DeliveryMap() {
             textAnchor="middle"
             dominantBaseline="middle"
             fill={MAP_COLORS.label}
-            stroke="rgba(38,40,97,0.28)"
+            stroke="rgba(20,30,48,0.32)"
             strokeWidth={2.4}
             paintOrder="stroke"
             fontSize={s.abbr === "AK" || s.abbr === "HI" ? 9 : 11}
@@ -134,7 +137,7 @@ function DeliveryMap() {
               y1={c.y}
               x2={c.tx - 14}
               y2={c.ty}
-              stroke="#9aa0b8"
+              stroke={MAP_COLORS.leader}
               strokeWidth={0.8}
             />
             <text
@@ -142,7 +145,7 @@ function DeliveryMap() {
               y={c.ty}
               textAnchor="start"
               dominantBaseline="middle"
-              fill="#262861"
+              fill={MAP_COLORS.callout}
               fontSize={11}
               fontWeight="700"
               fontFamily="Manrope, Plus Jakarta Sans, sans-serif"
@@ -165,7 +168,7 @@ function DeliveryMap() {
               style={{ background: item.color }}
               aria-hidden
             />
-            <span className="text-[13px] font-semibold leading-none text-[#1a1a1a]">
+            <span className="text-[13px] font-semibold leading-none text-navy">
               {item.label}
             </span>
           </li>

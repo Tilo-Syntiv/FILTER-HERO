@@ -29,6 +29,7 @@ import {
   buildFaqSchema,
   buildProductSchema,
   buildSpeakableSchema,
+  CHANGE_GUIDE_PATH,
   sizeSeo,
   type FaqItem,
 } from "@shared/seo";
@@ -136,20 +137,26 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
     () => [
       {
         question: `Will a ${decoded} filter fit my HVAC system?`,
+        category: "Fit",
         answer: sizeMeta
           ? `A ${decoded} filter is the nominal size. The actual dimensions are ${sizeMeta.actualWidth}×${sizeMeta.actualLength}×${sizeMeta.actualDepth} inches so it slides into a standard ${decoded} slot. Match the label on your current filter or measure the slot.`
           : `If ${decoded} matches the label on your current filter, request a quote and we will confirm fit and lead time for that custom size.`,
+        action: { href: "/#finder", label: "Measure and confirm size" },
       },
       {
         question: `How often should I replace a ${decoded} air filter?`,
+        category: "Replacement",
         answer:
           "Replace every 30–90 days depending on pets, allergies, dust, and how often your system runs. Higher MERV filters may load faster in dusty homes.",
+        action: { href: CHANGE_GUIDE_PATH, label: "Get a change date" },
       },
       {
         question: `What MERV options are available for ${decoded}?`,
+        category: "MERV",
         answer: inCatalog
           ? `${decoded} is available in MERV 8, MERV 11, MERV 13, and MERV 8 Carbon. Choose based on everyday dust, pets/allergies, high filtration needs, or odor control.`
           : "Once we confirm your custom size, we can quote MERV 8, 11, 13, or carbon options when available.",
+        action: { href: "/#merv", label: "Compare MERV ratings" },
       },
     ],
     [decoded, sizeMeta, inCatalog],
@@ -505,7 +512,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                 {[
                   { photo: LIFE.installWall, caption: "Drops into the slot" },
                   { photo: LIFE.filterCleanDirty, caption: "New vs. overdue" },
-                  { photo: LIFE.familyHug, caption: "Air the house can feel" },
+                  { photo: LIFE.girlDog, caption: "Air the house can feel" },
                 ].map((tile) => (
                   <figure key={tile.caption} className="pdp-mosaic">
                     <LifeImage

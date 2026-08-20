@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useHashScroll } from "@/hooks/useHashScroll";
 import { Link } from "wouter";
+import { ArrowRight } from "lucide-react";
 import { THICKNESSES } from "@shared/products";
-import { featuredBrandFamilies } from "@shared/hvac-brands";
-import BrandLogo from "@/components/BrandLogo";
+import { HVAC_BRAND_LIST, featuredBrandFamilies } from "@shared/hvac-brands";
 import {
   SITE_FAQS,
   buildBreadcrumbSchema,
@@ -32,6 +32,7 @@ import Hero from "@/components/Hero";
 import FaqSection from "@/components/FaqSection";
 import FilterPower from "@/components/FilterPower";
 import FamilyAirSection from "@/components/FamilyAirSection";
+import { BrandFamilyGrid } from "@/components/BrandDirectory";
 import { LIFE } from "@/data/life-photos";
 import { useCart } from "@/contexts/CartContext";
 import { takeQuoteHandoff } from "@/lib/quote-handoff";
@@ -135,44 +136,32 @@ export default function Home() {
 
         <DeliverySection />
 
-        <section className="sheet-section py-16 md:py-20">
-          <div className="container">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-              <div>
+        <section
+          id="brands"
+          className="brand-band py-16 md:py-24 scroll-mt-28"
+          aria-labelledby="brands-heading"
+        >
+          <div className="container relative">
+            <div className="mb-10 flex flex-col gap-5 md:mb-12 md:flex-row md:items-end md:justify-between">
+              <div className="max-w-xl">
                 <span className="section-label">System match</span>
-                <h2 className="text-3xl md:text-4xl font-bold mb-2 tracking-tight">
+                <h2
+                  id="brands-heading"
+                  className="mb-3 text-3xl font-bold tracking-tight text-white md:text-4xl"
+                >
                   Shop by HVAC brand
                 </h2>
-                <p className="text-muted-foreground max-w-xl">
-                  Filter Hero filters fit Carrier, Trane, Honeywell, Lennox, and
-                  other OEM slots. Same size as the original media.
+                <p className="text-base leading-relaxed text-white/75 md:text-lg">
+                  Exact-fit replacements for {HVAC_BRAND_LIST.length} HVAC brands.
+                  Same Width × Length × Depth as the original media.
                 </p>
               </div>
               <Link href="/brands" className="section-link">
                 See all brands
+                <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-            <div className="grid gap-6">
-              {featuredBrandFamilies().map((family) => (
-                <div key={family.id}>
-                  <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-muted-foreground mb-2">
-                    {family.label}
-                  </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
-                    {family.brands.map((b) => (
-                      <Link
-                        key={b.slug}
-                        href={`/brands/${b.slug}`}
-                        className="brand-chip"
-                      >
-                        <BrandLogo slug={b.slug} name={b.name} />
-                        <span>{b.name}</span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <BrandFamilyGrid families={featuredBrandFamilies()} />
           </div>
         </section>
 
@@ -186,13 +175,12 @@ export default function Home() {
 
         <section className="brand-band cta-photo-band py-20 md:py-28 relative overflow-hidden">
           <img
-            src={LIFE.familyHug.src}
+            src={LIFE.filterHold.src}
             alt=""
-            width={LIFE.familyHug.width}
-            height={LIFE.familyHug.height}
+            width={LIFE.filterHold.width}
+            height={LIFE.filterHold.height}
             decoding="async"
             className="cta-photo-img"
-            style={{ objectPosition: LIFE.familyHug.position }}
           />
           <div className="container relative text-center">
             <span className="section-label">Need a match</span>
