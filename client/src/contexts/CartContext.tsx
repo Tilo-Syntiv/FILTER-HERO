@@ -43,7 +43,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 function lineLabel(product: Product) {
   return product.isCarbon
-    ? `${product.name} (Carbon)`
+    ? `${product.name} · MERV 8 Carbon`
     : `${product.name} · MERV ${product.merv}`;
 }
 
@@ -133,7 +133,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const cartSummaryText = useCallback(() => {
     if (items.length === 0) return "";
     return items
-      .map((i) => `${i.qty}× ${i.size} MERV ${i.merv} ($${i.price.toFixed(2)})`)
+      .map((i) => `${i.qty}× ${i.size} ${i.name} ($${i.price.toFixed(2)})`)
       .join("; ");
   }, [items]);
 

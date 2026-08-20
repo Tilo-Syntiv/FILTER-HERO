@@ -329,12 +329,6 @@ export function formatDepth(depth: number): string {
   return depth === 0.5 ? '½"' : `${depth}"`;
 }
 
-export function urgencyTone(days: number): "hot" | "mid" | "calm" {
-  if (days <= 45) return "hot";
-  if (days <= 90) return "mid";
-  return "calm";
-}
-
 export function startOfLocalDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
@@ -349,16 +343,6 @@ export function addLocalDays(date: Date, days: number): Date {
 export function calendarDaysUntil(target: Date, from = new Date()): number {
   const ms = startOfLocalDay(target).getTime() - startOfLocalDay(from).getTime();
   return Math.round(ms / 86_400_000);
-}
-
-export function powerShareText(result: CadenceResult, siteUrl: string): string {
-  return [
-    `Filter Hero — Filter Clock`,
-    `${result.house.name} · ${result.days} days · ${result.label}`,
-    `Next change ${result.nextDate}`,
-    result.packHeadline,
-    `${siteUrl}/#clock`,
-  ].join("\n");
 }
 
 function icsEscape(value: string): string {
@@ -387,13 +371,6 @@ function isoDash(date: Date): string {
 
 function endOfEvent(date: Date): Date {
   return addLocalDays(date, 1);
-}
-
-export function powerIcs(result: CadenceResult, siteUrl: string): string {
-  const y = Number(result.nextIso.slice(0, 4));
-  const m = Number(result.nextIso.slice(4, 6)) - 1;
-  const d = Number(result.nextIso.slice(6, 8));
-  return eventIcs(calendarEventFromResult(result, new Date(y, m, d), siteUrl));
 }
 
 /** Next N swap dates, evenly spaced `result.days` apart, for the calendar view. */
@@ -484,40 +461,3 @@ export function eventIcs(event: CalendarEvent): string {
   ].join("\r\n");
 }
 
-export function googleCalendarUrl(title: string, date: Date): string {
-  return calendarDestinations({
-    title,
-    details: "",
-    date,
-    siteUrl: "https://filterhero.net",
-  }).google;
-}
-
-/** A full year of change reminders as one .ics file — every future date, not just the next one. */
-export function powerIcsSeries(result: CadenceResult, dates: Date[], siteUrl: string): string {
-  const stamp = icsStamp();
-  const events = dates.map((date, i) => {
-    const iso = isoDate(date);
-    const end = isoDate(endOfEvent(date));
-    return [
-      "BEGIN:VEVENT",
-      `UID:filter-clock-${iso}-${i}@filterhero.net`,
-      `DTSTAMP:${stamp}`,
-      `DTSTART;VALUE=DATE:${iso}`,
-      `DTEND;VALUE=DATE:${end}`,
-      `SUMMARY:${icsEscape(`Change HVAC filter — ${result.house.name}`)}`,
-      `DESCRIPTION:${icsEscape(`Change ${i + 1} of ${dates.length}. ${result.house.line}`)}`,
-      `URL:${siteUrl}/#clock`,
-      "END:VEVENT",
-    ].join("\r\n");
-  });
-  return [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "CALSCALE:GREGORIAN",
-    "METHOD:PUBLISH",
-    "PRODID:-//Filter Hero//Filter Clock//EN",
-    ...events,
-    "END:VCALENDAR",
-  ].join("\r\n");
-}

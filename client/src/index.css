@@ -1447,121 +1447,6 @@ a.hero-shop-btn:hover {
   }
 }
 
-.clock-second-hand {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: clock-tick-hand 60s linear infinite;
-}
-
-.clock-dust {
-  animation: clock-dust 3.2s ease-in-out infinite;
-}
-
-.clock-hot-ring {
-  animation: clock-hot-pulse 1.8s ease-in-out infinite;
-}
-
-.clock-hot-hub {
-  animation: clock-hot-pulse 1.2s ease-in-out infinite;
-}
-
-.clock-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-height: 2.25rem;
-  padding: 0.4rem 0.85rem;
-  border-radius: 999px;
-  border: 1px solid rgba(142, 176, 216, 0.35);
-  background: rgba(255, 255, 255, 0.06);
-  color: #d7eef8;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.clock-action:hover {
-  border-color: #8eb0d8;
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-}
-
-.power-fill {
-  transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.power-shimmer {
-  background: linear-gradient(
-    105deg,
-    transparent 25%,
-    rgba(255, 255, 255, 0.55) 48%,
-    transparent 70%
-  );
-  animation: trust-shine 2.6s ease-in-out infinite;
-}
-
-.power-drain-bar {
-  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.power-pulse {
-  animation: power-pulse 1.7s ease-in-out infinite;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-@keyframes power-pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.55;
-    transform: scale(1.18);
-  }
-}
-
-.orbit-sweep {
-  animation: orbit-spin 16s linear infinite;
-  transform-box: fill-box;
-}
-
-@keyframes orbit-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes clock-tick-hand {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes clock-dust {
-  0%,
-  100% {
-    transform: translate(0, 0);
-    opacity: 0.35;
-  }
-  50% {
-    transform: translate(1.5px, -2.5px);
-    opacity: 0.8;
-  }
-}
-
-@keyframes clock-hot-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.55;
-  }
-}
-
 .light-test-pleats {
   background-image: repeating-linear-gradient(
     90deg,
@@ -1611,21 +1496,7 @@ a.hero-shop-btn:hover {
     animation: none;
   }
 
-  .cadence-ring,
-  .clock-second-hand,
-  .clock-dust,
-  .clock-hot-ring,
-  .clock-hot-hub,
   .cal-drum-wheel {
-    animation: none;
-    transition: none;
-  }
-
-  .power-fill,
-  .power-shimmer,
-  .power-drain-bar,
-  .power-pulse,
-  .orbit-sweep {
     animation: none;
     transition: none;
   }

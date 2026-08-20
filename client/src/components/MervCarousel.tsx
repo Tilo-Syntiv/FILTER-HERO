@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
   Check,
+  Circle,
+  X,
   Flame,
   HeartPulse,
   Home,
-  Minus,
   PawPrint,
   type LucideIcon,
 } from "lucide-react";
@@ -26,6 +27,7 @@ import {
   type PreferredMerv,
 } from "@/lib/merv-pref";
 import { cn } from "@/lib/utils";
+import MervBadge from "@/components/MervBadge";
 
 type CaptureLevel = "yes" | "some" | "no";
 
@@ -50,7 +52,7 @@ const GUIDE: Record<PreferredMerv, MervGuide> = {
     note: "The workhorse rating. Everyday dust without extra strain on most systems.",
   },
   "11": {
-    accent: "#6aa0e0",
+    accent: "#e45a5f",
     icon: PawPrint,
     bestFor: "Pets & mild allergies",
     catches: ["Pet dander", "Mold spores", "Auto emissions"],
@@ -59,7 +61,7 @@ const GUIDE: Record<PreferredMerv, MervGuide> = {
     note: "The usual upgrade when fur, spring pollen, or city air is in the mix.",
   },
   "13": {
-    accent: "#c45c62",
+    accent: "#ee9e10",
     icon: HeartPulse,
     bestFor: "Asthma & sensitivities",
     catches: ["Smoke & smog", "Bacteria-sized particles", "Fine droplets"],
@@ -68,7 +70,7 @@ const GUIDE: Record<PreferredMerv, MervGuide> = {
     note: "Hospital-adjacent capture for home HVAC — confirm the system can take the extra resistance.",
   },
   carbon: {
-    accent: "#c9a36a",
+    accent: "#d8d8d8",
     icon: Flame,
     bestFor: "Cooking, pets & odors",
     catches: ["Cooking smells", "Pet odors", "VOCs & smoke smell"],
@@ -78,12 +80,39 @@ const GUIDE: Record<PreferredMerv, MervGuide> = {
   },
 };
 
-const MATCHES: { key: PreferredMerv; label: string; hint: string }[] = [
-  { key: "8", label: "Typical home", hint: "Dust & pollen" },
-  { key: "11", label: "Pets", hint: "Dander & fur" },
-  { key: "13", label: "Allergies", hint: "Asthma & smoke" },
-  { key: "carbon", label: "Odors", hint: "Kitchen & VOCs" },
+const HOME_PICKS: {
+  key: PreferredMerv;
+  title: string;
+  blurb: string;
+}[] = [
+  { key: "8", title: "Everyday dust", blurb: "Pollen, lint, household dust" },
+  { key: "11", title: "Pets", blurb: "Fur, dander, extra dust" },
+  { key: "13", title: "Allergies", blurb: "Smoke, fine particles, asthma" },
+  { key: "carbon", title: "Cooking smells", blurb: "Odors and smoke smell" },
 ];
+
+function PickIcon({
+  pickKey,
+  accent,
+  selected,
+}: {
+  pickKey: PreferredMerv;
+  accent: string;
+  selected: boolean;
+}) {
+  const Icon = GUIDE[pickKey].icon;
+  return (
+    <span
+      className="flex h-11 w-11 items-center justify-center rounded-xl"
+      style={{
+        backgroundColor: selected ? `${accent}38` : `${accent}18`,
+        color: accent,
+      }}
+    >
+      <Icon className="h-5 w-5" strokeWidth={2.1} />
+    </span>
+  );
+}
 
 const COMPARE: { label: string; levels: Record<PreferredMerv, CaptureLevel> }[] =
   [
@@ -149,31 +178,50 @@ function CaptureDots({ filled, accent }: { filled: number; accent: string }) {
   );
 }
 
-function LevelMark({ level }: { level: CaptureLevel }) {
-  if (level === "yes") {
-    return (
+function LevelMark({
+  level,
+  color,
+  legend,
+}: {
+  level: CaptureLevel;
+  color: string;
+  legend?: boolean;
+}) {
+  const mark =
+    level === "yes" ? (
       <Check
-        className="mx-auto h-4 w-4 text-ice"
+        className={legend ? "h-3.5 w-3.5" : "h-4 w-4"}
+        style={{ color }}
         strokeWidth={2.75}
-        aria-label="Captures well"
+      />
+    ) : level === "some" ? (
+      <Circle
+        className="h-2.5 w-2.5"
+        color={color}
+        fill={color}
+        strokeWidth={0}
+      />
+    ) : (
+      <X
+        className="h-3.5 w-3.5"
+        style={{ color, opacity: legend ? 0.7 : 0.5 }}
+        strokeWidth={2.5}
       />
     );
-  }
-  if (level === "some") {
-    return (
-      <span
-        className="mx-auto block h-2 w-2 rounded-full bg-white/45"
-        title="Partial capture"
-        aria-label="Partial capture"
-      />
-    );
-  }
+
   return (
-    <Minus
-      className="mx-auto h-3.5 w-3.5 text-white/25"
-      strokeWidth={2}
-      aria-label="Not the target"
-    />
+    <span
+      className={legend ? "inline-flex items-center" : "mx-auto inline-flex"}
+      aria-label={
+        level === "yes"
+          ? "Stops it well"
+          : level === "some"
+            ? "Catches some"
+            : "Doesn't stop this"
+      }
+    >
+      {mark}
+    </span>
   );
 }
 
@@ -192,9 +240,10 @@ function MervCard({
   return (
     <article
       className={cn(
-        "glass-tile flex h-full flex-col p-5 md:p-6",
-        selected && "glass-tile-active ring-1 ring-ice/40",
+        "merv-tile flex h-full flex-col p-5 md:p-6",
+        selected && "merv-tile-active",
       )}
+      style={{ "--merv-wash": type.badgeColor } as CSSProperties}
     >
       <button
         type="button"
@@ -218,10 +267,7 @@ function MervCard({
           </div>
         </div>
 
-        <div
-          className="mb-4 h-1 w-12 rounded-full"
-          style={{ background: guide.accent }}
-        />
+        <MervBadge type={type} className="mb-4 max-w-[11rem]" />
 
         <h3 className="text-2xl font-bold tracking-tight text-white">
           {type.name}
@@ -301,56 +347,78 @@ export default function MervCarousel() {
       aria-labelledby="merv-heading"
     >
       <div className="container">
-        <div className="mb-8 flex flex-col gap-6 lg:mb-10 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <span className="section-label">Defense level</span>
-            <h2
-              id="merv-heading"
-              className="text-3xl font-bold tracking-tight text-white md:text-4xl"
-            >
-              Choose your MERV
-            </h2>
-            <p className="mt-3 max-w-xl text-base leading-relaxed text-white/65">
-              MERV is a 1–16 score for how small a particle a filter can catch.
-              Higher is finer — not automatically better if your system is older.
-              Match the rating to the home, then pick your size.
-            </p>
-          </div>
-          <Link href="/how-often-to-change-air-filter" className="section-link">
-            When to change it <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-
-        <div
-          className="mb-8 flex flex-wrap gap-2"
-          role="tablist"
-          aria-label="Match MERV to your home"
-        >
-          {MATCHES.map((match) => {
-            const on = match.key === selected;
-            return (
-              <button
-                key={match.key}
-                type="button"
-                role="tab"
-                aria-selected={on}
-                onClick={() => setSelected(match.key)}
-                className={cn(
-                  "rounded-full border px-4 py-2 text-left transition-colors",
-                  on
-                    ? "border-ice/70 bg-white/15 text-white"
-                    : "border-white/15 bg-white/5 text-white/70 hover:border-white/30 hover:text-white",
-                )}
+        <div className="mb-8 flex flex-col gap-5 lg:mb-10">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <span className="section-label">What it catches</span>
+              <h2
+                id="merv-heading"
+                className="text-3xl font-bold tracking-tight text-white md:text-4xl"
               >
-                <span className="block text-sm font-bold leading-none">
-                  {match.label}
-                </span>
-                <span className="mt-1 block text-[0.68rem] text-white/50">
-                  {match.hint}
-                </span>
-              </button>
-            );
-          })}
+                What should your filter catch?
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/65 md:text-base">
+                Think of the filter as a screen. A tighter screen catches smaller
+                stuff. Pick the one that matches your house — the MERV number on
+                the box is just the rating name.
+              </p>
+            </div>
+            <Link href="/how-often-to-change-air-filter" className="section-link">
+              When to change it <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div
+            className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4"
+            role="tablist"
+            aria-label="What your filter should catch"
+          >
+            {HOME_PICKS.map((pick) => {
+              const on = pick.key === selected;
+              const type = MERV_TYPES.find((t) => t.key === pick.key)!;
+              const accent = GUIDE[pick.key].accent;
+              return (
+                <button
+                  key={pick.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={on}
+                  onClick={() => setSelected(pick.key)}
+                  className={cn(
+                    "rounded-2xl border px-3 py-3.5 text-left transition-colors sm:px-4 sm:py-4",
+                    on ? "text-white" : "bg-white/5 text-white/70 hover:text-white",
+                  )}
+                  style={{
+                    borderColor: on ? accent : "rgba(255,255,255,0.12)",
+                    backgroundColor: on ? `${accent}24` : undefined,
+                    boxShadow: on ? `0 0 0 1px ${accent}` : undefined,
+                  }}
+                >
+                  <PickIcon
+                    pickKey={pick.key}
+                    accent={accent}
+                    selected={on}
+                  />
+                  <p className="mt-3 text-sm font-bold leading-tight sm:text-base">
+                    {pick.title}
+                  </p>
+                  <p className="mt-1 text-[0.72rem] leading-snug text-white/55 sm:text-xs">
+                    {pick.blurb}
+                  </p>
+                  <p
+                    className="mt-2 text-[0.62rem] font-extrabold uppercase tracking-[0.12em]"
+                    style={{ color: on ? accent : "rgba(255,255,255,0.4)" }}
+                  >
+                    {type.name}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-xs leading-relaxed text-white/45 md:text-sm">
+            Older furnaces usually do better with Everyday dust or Pets — the
+            tightest screen can make it harder for air to move.
+          </p>
         </div>
 
         <div className="lg:hidden">
@@ -397,8 +465,15 @@ export default function MervCarousel() {
         </div>
 
         <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)] lg:items-stretch">
-          <div className="glass-tile p-6 md:p-7">
-            <p className="text-[0.65rem] font-extrabold uppercase tracking-[0.16em] text-ice">
+          <div
+            className="merv-tile p-6 md:p-7"
+            style={{ "--merv-wash": selectedType.badgeColor } as CSSProperties}
+          >
+            <MervBadge type={selectedType} className="mb-4 max-w-[10rem]" />
+            <p
+              className="text-[0.65rem] font-extrabold uppercase tracking-[0.16em]"
+              style={{ color: selectedGuide.accent }}
+            >
               Why {selectedType.name}
             </p>
             <p className="mt-3 text-lg font-bold tracking-tight text-white">
@@ -410,7 +485,8 @@ export default function MervCarousel() {
             <button
               type="button"
               onClick={() => shopThisRating(selected)}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#141e30] transition-colors hover:bg-ice"
+              className="mt-6 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
+              style={{ backgroundColor: selectedType.badgeColor }}
             >
               Find your size
               <ArrowRight className="h-4 w-4" />
@@ -420,23 +496,43 @@ export default function MervCarousel() {
             </p>
           </div>
 
-          <div className="glass-tile overflow-x-auto p-5 md:p-6">
-            <p className="mb-4 text-[0.65rem] font-extrabold uppercase tracking-[0.16em] text-white/45">
+          <div
+            className="merv-tile overflow-x-auto p-5 md:p-6"
+            style={{ "--merv-wash": selectedType.badgeColor } as CSSProperties}
+          >
+            <p className="mb-3 text-[0.65rem] font-extrabold uppercase tracking-[0.16em] text-white/45">
               What it stops
+            </p>
+            <p className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[0.72rem] text-white/55">
+              <span className="inline-flex items-center gap-1.5">
+                <LevelMark level="yes" color="#8eb0d8" legend />
+                Stops it well
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <LevelMark level="some" color="#8eb0d8" legend />
+                Catches some
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <LevelMark level="no" color="#8eb0d8" legend />
+                Doesn't stop this
+              </span>
             </p>
             <table className="w-full min-w-[28rem] border-collapse text-left text-sm">
               <thead>
-                <tr className="text-[0.62rem] font-extrabold uppercase tracking-[0.12em] text-white/40">
-                  <th className="pb-3 pr-3 font-extrabold">Particle</th>
+                <tr>
+                  <th className="pb-3 pr-3 text-[0.62rem] font-extrabold uppercase tracking-[0.12em] text-white/40">
+                    Particle
+                  </th>
                   {MERV_TYPES.map((type) => (
-                    <th
-                      key={type.key}
-                      className={cn(
-                        "pb-3 text-center font-extrabold",
-                        type.key === selected && "text-ice",
-                      )}
-                    >
-                      {type.key === "carbon" ? "Carbon" : type.name.replace("MERV ", "")}
+                    <th key={type.key} className="pb-3 text-center">
+                      <span
+                        className="inline-flex min-w-[3.4rem] items-center justify-center rounded px-1.5 py-1 text-[0.62rem] font-extrabold italic leading-none text-white"
+                        style={{ backgroundColor: type.badgeColor }}
+                      >
+                        {type.key === "carbon"
+                          ? "8 Carbon"
+                          : type.name.replace("MERV ", "")}
+                      </span>
                     </th>
                   ))}
                 </tr>
@@ -448,12 +544,17 @@ export default function MervCarousel() {
                     {MERV_TYPES.map((type) => (
                       <td
                         key={type.key}
-                        className={cn(
-                          "py-2.5 text-center",
-                          type.key === selected && "bg-white/[0.04]",
-                        )}
+                        className="py-2.5 text-center"
+                        style={
+                          type.key === selected
+                            ? { backgroundColor: `${GUIDE[type.key].accent}22` }
+                            : undefined
+                        }
                       >
-                        <LevelMark level={row.levels[type.key]} />
+                        <LevelMark
+                          level={row.levels[type.key]}
+                          color={GUIDE[type.key].accent}
+                        />
                       </td>
                     ))}
                   </tr>
@@ -461,9 +562,8 @@ export default function MervCarousel() {
               </tbody>
             </table>
             <p className="mt-4 text-xs leading-relaxed text-white/40">
-              Capture bands follow ASHRAE 52.2. MERV 13 adds resistance — if the
-              system is older or the slot is 1 inch, start at 8 or 11 unless the
-              manual allows the upgrade.
+              If the furnace is older, start with Everyday dust or Pets unless
+              the manual says a tighter filter is OK.
             </p>
           </div>
         </div>
