@@ -525,6 +525,36 @@ a.hero-shop-btn:hover {
   box-shadow: 0 12px 32px rgba(8, 16, 32, 0.28);
 }
 
+.merv-tile {
+  --merv-wash: var(--ice);
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--merv-wash) 32%, transparent);
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--merv-wash) 26%, #24365a) 0%,
+      #1a2d4c 62%,
+      #17263e 100%
+    );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.merv-tile:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--merv-wash) 55%, white);
+}
+
+.merv-tile-active {
+  border-color: color-mix(in srgb, var(--merv-wash) 70%, white);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 12px 32px rgba(8, 16, 32, 0.28);
+}
+
 .band-arrow {
   border-color: rgba(255, 255, 255, 0.2) !important;
   background: rgba(20, 30, 48, 0.8) !important;
@@ -1004,8 +1034,532 @@ a.hero-shop-btn:hover {
   }
 }
 
-.cadence-ring {
-  transition: stroke-dashoffset 0.65s cubic-bezier(0.22, 1, 0.36, 1), stroke 0.4s ease;
+.cal-chassis {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 36rem;
+  padding: 1.35rem 1.1rem 1.25rem;
+  color: #fff;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 18%, rgba(142, 176, 216, 0.22), transparent 58%),
+    radial-gradient(ellipse 50% 80% at 0% 100%, rgba(32, 56, 104, 0.55), transparent 50%),
+    linear-gradient(180deg, #1b3258 0%, #141e30 100%);
+  border-bottom: 1px solid rgba(142, 176, 216, 0.18);
+}
+
+.cal-chassis::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(142, 176, 216, 0.22);
+  border-radius: 1.15rem;
+  pointer-events: none;
+}
+
+.cal-top {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+  padding: 0 0.35rem;
+}
+
+.cal-kicker {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8eb0d8;
+}
+
+.cal-house {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.cal-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin: 0.35rem 0 0.15rem;
+}
+
+.cal-windows {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.cal-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.cal-col-label {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(142, 176, 216, 0.75);
+}
+
+.cal-drum {
+  --cal-h: 6.1rem;
+  --cal-radius: 10rem;
+  position: relative;
+  width: 7.8rem;
+  height: var(--cal-h);
+  overflow: hidden;
+  border-radius: 0.55rem;
+  background: #0c121c;
+  border: 1px solid rgba(142, 176, 216, 0.55);
+  perspective: 1400px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 28px rgba(142, 176, 216, 0.18),
+    0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
+.cal-drum.is-day {
+  width: 6.5rem;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 36px rgba(142, 176, 216, 0.32),
+    0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
+.cal-drum.is-year {
+  width: 6.4rem;
+}
+
+.cal-drum::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    transparent 38%,
+    rgba(0, 0, 0, 0.35) 49%,
+    rgba(0, 0, 0, 0.12) 52%,
+    transparent 64%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  box-shadow: inset 0 0 0 1px rgba(142, 176, 216, 0.12);
+}
+
+.cal-drum-wheel {
+  position: relative;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cal-drum-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  backface-visibility: hidden;
+  background: linear-gradient(180deg, #23406a 0%, #141e30 46%, #0f1728 54%, #1b3258 100%);
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #f4f7fb;
+}
+
+.cal-drum.is-day .cal-drum-face {
+  color: #8eb0d8;
+  font-size: 2.35rem;
+  letter-spacing: -0.02em;
+}
+
+.cal-knob {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(142, 176, 216, 0.45);
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.2), transparent 40%),
+    linear-gradient(180deg, #203868 0%, #141e30 100%);
+  color: #8eb0d8;
+}
+
+.cal-knob:hover:not(:disabled) {
+  color: #fff;
+  border-color: #8eb0d8;
+}
+
+.cal-knob:disabled {
+  opacity: 0.28;
+}
+
+.cal-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.35rem;
+  text-align: center;
+}
+
+.cal-hero-days {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: clamp(3.6rem, 8vw, 5.6rem);
+  font-weight: 800;
+  line-height: 0.82;
+  letter-spacing: -0.06em;
+  color: #fff;
+  text-shadow: 0 0 42px rgba(142, 176, 216, 0.45);
+}
+
+.cal-hero-unit {
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #8eb0d8;
+}
+
+.cal-readout {
+  margin-top: 0.45rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.cal-sub {
+  margin-top: 0.15rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(142, 176, 216, 0.85);
+}
+
+.cal-year {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 9rem;
+  margin-top: 0.85rem;
+}
+
+.cal-year-label {
+  margin-bottom: 0.4rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(142, 176, 216, 0.8);
+}
+
+.cal-year-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.cal-slot {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 2.6rem;
+  padding: 0 0.85rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.72);
+  text-align: left;
+}
+
+.cal-slot:hover {
+  border-color: rgba(142, 176, 216, 0.35);
+  color: #fff;
+}
+
+.cal-slot.is-active {
+  border-color: rgba(142, 176, 216, 0.55);
+  background: rgba(142, 176, 216, 0.14);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(142, 176, 216, 0.12);
+}
+
+.cal-slot-mark {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.cal-slot.is-active .cal-slot-mark {
+  background: #8eb0d8;
+  box-shadow: 0 0 10px rgba(142, 176, 216, 0.8);
+}
+
+.cal-slot-date {
+  flex: 1;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.cal-slot-meta {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8eb0d8;
+}
+
+.cal-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+
+.cal-actions-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(142, 176, 216, 0.9);
+}
+
+.cal-cal-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.cal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.15rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: #7f2328;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cal-btn.is-ghost {
+  background: transparent;
+  border-color: rgba(142, 176, 216, 0.4);
+  color: #d7eef8;
+}
+
+.cal-btn.is-ghost:hover {
+  border-color: #8eb0d8;
+  color: #fff;
+}
+
+@media (max-width: 1023px) {
+  .cal-chassis {
+    min-height: 0;
+  }
+
+  .cal-year {
+    min-height: 0;
+    flex: none;
+  }
+
+  .cal-slot {
+    flex: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .cal-drum {
+    --cal-h: 4.4rem;
+    width: 5.4rem;
+  }
+
+  .cal-drum.is-day,
+  .cal-drum.is-year {
+    width: 4.6rem;
+  }
+
+  .cal-drum-face {
+    font-size: 1.2rem;
+  }
+
+  .cal-drum.is-day .cal-drum-face {
+    font-size: 1.45rem;
+  }
+
+  .cal-knob {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .cal-windows {
+    gap: 0.35rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .cal-stage {
+    gap: 0.2rem;
+  }
+
+  .cal-drum {
+    --cal-h: 3.7rem;
+    width: 4.2rem;
+  }
+
+  .cal-drum.is-day,
+  .cal-drum.is-year {
+    width: 3.7rem;
+  }
+
+  .cal-knob {
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+}
+
+.clock-second-hand {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: clock-tick-hand 60s linear infinite;
+}
+
+.clock-dust {
+  animation: clock-dust 3.2s ease-in-out infinite;
+}
+
+.clock-hot-ring {
+  animation: clock-hot-pulse 1.8s ease-in-out infinite;
+}
+
+.clock-hot-hub {
+  animation: clock-hot-pulse 1.2s ease-in-out infinite;
+}
+
+.clock-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(142, 176, 216, 0.35);
+  background: rgba(255, 255, 255, 0.06);
+  color: #d7eef8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.clock-action:hover {
+  border-color: #8eb0d8;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.power-fill {
+  transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.power-shimmer {
+  background: linear-gradient(
+    105deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.55) 48%,
+    transparent 70%
+  );
+  animation: trust-shine 2.6s ease-in-out infinite;
+}
+
+.power-drain-bar {
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.power-pulse {
+  animation: power-pulse 1.7s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes power-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.18);
+  }
+}
+
+.orbit-sweep {
+  animation: orbit-spin 16s linear infinite;
+  transform-box: fill-box;
+}
+
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes clock-tick-hand {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes clock-dust {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate(1.5px, -2.5px);
+    opacity: 0.8;
+  }
+}
+
+@keyframes clock-hot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
 }
 
 .light-test-pleats {
@@ -1057,7 +1611,22 @@ a.hero-shop-btn:hover {
     animation: none;
   }
 
-  .cadence-ring {
+  .cadence-ring,
+  .clock-second-hand,
+  .clock-dust,
+  .clock-hot-ring,
+  .clock-hot-hub,
+  .cal-drum-wheel {
+    animation: none;
+    transition: none;
+  }
+
+  .power-fill,
+  .power-shimmer,
+  .power-drain-bar,
+  .power-pulse,
+  .orbit-sweep {
+    animation: none;
     transition: none;
   }
 

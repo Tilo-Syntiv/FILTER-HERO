@@ -224,7 +224,6 @@ export default function SiteHeader() {
           {([
             ["shop", "Shop"],
             ["brands", "Brands"],
-            ["contact", "Contact"],
           ] as const).map(([id, label]) => (
             <button
               key={id}
@@ -242,6 +241,32 @@ export default function SiteHeader() {
               />
             </button>
           ))}
+          <Link
+            href="/#clock"
+            className="header-nav-link"
+            onPointerEnter={() => {
+              clearCloseMenuTimer();
+              setDesktopMenu(null);
+            }}
+            onFocus={() => setDesktopMenu(null)}
+            onClick={goHomeSection("clock")}
+          >
+            Clock
+          </Link>
+          <button
+            type="button"
+            className="header-nav-link"
+            aria-expanded={desktopMenu === "contact"}
+            aria-controls="contact-mega"
+            onPointerEnter={() => openDesktopMenu("contact")}
+            onFocus={() => openDesktopMenu("contact")}
+            onClick={() => openDesktopMenu("contact")}
+          >
+            Contact
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform ${desktopMenu === "contact" ? "rotate-180" : ""}`}
+            />
+          </button>
         </nav>
 
         <div className="order-last w-full min-w-0 lg:order-none lg:flex-1 lg:max-w-2xl lg:mx-2 xl:mx-4">
@@ -398,12 +423,20 @@ export default function SiteHeader() {
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Link
+                    href="/#clock"
+                    className="header-mega-tile"
+                    onClick={goHomeSection("clock")}
+                  >
+                    <span className="text-sm font-extrabold tracking-tight">Filter Clock</span>
+                    <span className="text-xs text-ice/80 font-medium">Tell us about the house. We'll give you the date.</span>
+                  </Link>
+                  <Link
                     href="/how-often-to-change-air-filter"
                     className="header-mega-tile"
                     onClick={closeMenus}
                   >
                     <span className="text-sm font-extrabold tracking-tight">When to change</span>
-                    <span className="text-xs text-ice/80 font-medium">Your Filter Clock</span>
+                    <span className="text-xs text-ice/80 font-medium">The full change guide</span>
                   </Link>
                   <Link
                     href="/#contact"

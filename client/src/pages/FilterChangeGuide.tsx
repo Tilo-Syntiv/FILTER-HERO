@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
-import CadenceCalculator from "@/components/CadenceCalculator";
+import FilterPower from "@/components/FilterPower";
 import FaqSection from "@/components/FaqSection";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { useHashScroll } from "@/hooks/useHashScroll";
@@ -318,7 +318,7 @@ export default function FilterChangeGuidePage() {
             </nav>
             <span className="section-label !text-ice">Filter Clock</span>
             <h1 className="mb-4 max-w-3xl text-3xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-              Your filter has a clock.
+              Every filter runs on a charge.
             </h1>
             <p className="seo-answer mb-8 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg">
               Most homes should change a 1-inch HVAC filter every 30 to 90 days.
@@ -359,17 +359,17 @@ export default function FilterChangeGuidePage() {
         <section id="cadence" className="sheet-section scroll-mt-28 py-12 md:py-16">
           <div className="container">
             <div className="mb-8 max-w-2xl">
-              <span className="section-label">Tap your home</span>
+              <span className="section-label">Tell us about your home</span>
               <h2 className="mb-3 text-3xl font-bold tracking-tight md:text-4xl">
-                Stop guessing 90 days.
+                When's your next filter change?
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                Thickness sets the baseline. Pets, people, pollen, and how hard
-                the fan runs move the hand. The clock on the left updates as you
-                tap — that’s your change date, not a brochure average.
+                Thickness sets the baseline. Pets, people, allergies, dust, and a
+                fan that never shuts off pull the date closer. Flip the drums to
+                see every change date this year — not a brochure average.
               </p>
             </div>
-            <CadenceCalculator />
+            <FilterPower />
           </div>
         </section>
 
@@ -475,7 +475,7 @@ export default function FilterChangeGuidePage() {
           <div className="container">
             <span className="section-label">The house will tell you</span>
             <h2 className="mb-3 text-3xl font-bold tracking-tight md:text-4xl">
-              Ten signs the clock already ran out.
+              Ten signs the power already ran out.
             </h2>
             <p className="mb-10 max-w-2xl text-muted-foreground leading-relaxed">
               Ignore the calendar if the house is already complaining. Any one of
@@ -618,7 +618,7 @@ export default function FilterChangeGuidePage() {
           <div className="container relative text-center">
             <span className="section-label">Know the date. Know the size.</span>
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-              Find the filter that fits the clock.
+              Find the filter that keeps the power on.
             </h2>
             <p className="text-base md:text-lg text-white/70 mb-8 max-w-xl mx-auto leading-relaxed">
               Exact Width × Length × Depth. MERV 8, 11, 13, or carbon. A spare in

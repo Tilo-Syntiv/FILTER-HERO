@@ -15,7 +15,7 @@ export const contactSchema = z.object({
   phone: z.string().trim().max(40).optional().or(z.literal("")),
   filterSize: z.string().trim().max(40).optional().or(z.literal("")),
   message: z.string().trim().min(1).max(4000),
-  intent: z.enum(["quote", "support"]).default("quote"),
+  intent: z.enum(["quote", "support", "reminder"]).default("quote"),
   cartSummary: z.string().trim().max(4000).optional().or(z.literal("")),
 });
 
@@ -46,7 +46,9 @@ async function sendLeadEmail(lead: ContactPayload & { id: string }) {
   }
 
   const resend = new Resend(apiKey);
-  const subject = `[${BRAND_NAME}] ${lead.intent === "quote" ? "Quote" : "Support"} — ${lead.name}`;
+  const intentLabel =
+    lead.intent === "quote" ? "Quote" : lead.intent === "reminder" ? "Filter Reminder" : "Support";
+  const subject = `[${BRAND_NAME}] ${intentLabel} — ${lead.name}`;
   const text = [
     `Lead ID: ${lead.id}`,
     `Intent: ${lead.intent}`,

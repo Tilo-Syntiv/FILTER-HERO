@@ -24,6 +24,8 @@ import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
 import FilterFinder from "@/components/FilterFinder";
 import FaqSection from "@/components/FaqSection";
+import MervBadge from "@/components/MervBadge";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
@@ -32,6 +34,7 @@ import { BRAND_NAME } from "@/const";
 import { brandsForSize } from "@shared/hvac-brands";
 import {
   getPreferredMerv,
+  getPowerPackQty,
   isPreferredMerv,
   type PreferredMerv,
 } from "@/lib/merv-pref";
@@ -52,6 +55,8 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
     const fromUrl = new URLSearchParams(window.location.search).get("merv");
     const next = isPreferredMerv(fromUrl) ? fromUrl : getPreferredMerv();
     if (next) setMervKey(next);
+    const pack = getPowerPackQty();
+    if (pack) setQty(pack);
   }, []);
 
   const selectedType = MERV_TYPES.find((t) => t.key === mervKey)!;
@@ -216,7 +221,9 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                   <p className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight break-all">
                     {decoded}
                   </p>
-                  <p className="mt-3 text-white/75 font-medium">{selectedType.name}</p>
+                  <div className="mx-auto mt-4 w-[min(100%,11rem)]">
+                    <MervBadge type={selectedType} />
+                  </div>
                   {savingsPct > 0 && (
                     <Badge className="mt-6 bg-hero text-white hover:bg-hero border-0 font-bold">
                       Save {savingsPct}% per filter
@@ -251,7 +258,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
               <div className="mb-8">
                 <h2 className="section-label">1 · Choose MERV</h2>
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {MERV_TYPES.map((t) => {
                     const active = t.key === mervKey;
                     return (
@@ -259,16 +266,17 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                         key={t.key}
                         type="button"
                         onClick={() => setMervKey(t.key)}
-                        className={`text-left p-4 rounded-xl border transition-all duration-200 ${
+                        className={cn(
+                          "flex flex-col items-center gap-2 rounded-xl border p-2.5 text-center transition-all duration-200 sm:p-3",
                           active
                             ? "border-primary bg-primary/[0.06] ring-1 ring-primary/25"
-                            : "border-border bg-white/60 hover:border-primary/35"
-                        }`}
+                            : "border-border bg-white/60 hover:border-primary/35",
+                        )}
                       >
-                        <p className="font-bold text-sm tracking-tight">{t.name}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <MervBadge type={t} />
+                        <span className="text-xs font-medium leading-tight text-foreground">
                           {t.shortLabel}
-                        </p>
+                        </span>
                       </button>
                     );
                   })}
@@ -407,7 +415,14 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
               </div>
               <div className="flex justify-between gap-3 border-b border-border py-2">
                 <dt className="text-muted-foreground shrink-0">MERV</dt>
-                <dd className="font-semibold text-right break-words">{selectedType.name}</dd>
+                <dd className="text-right">
+                  <span
+                    className="inline-flex items-center rounded-md px-2 py-1 text-xs font-extrabold italic text-white"
+                    style={{ backgroundColor: selectedType.badgeColor }}
+                  >
+                    {selectedType.name}
+                  </span>
+                </dd>
               </div>
               <div className="flex justify-between gap-3 border-b border-border py-2">
                 <dt className="text-muted-foreground shrink-0">Filter type</dt>

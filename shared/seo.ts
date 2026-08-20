@@ -48,7 +48,7 @@ export const SITE_FAQS: FaqItem[] = [
   {
     question: "How often should I change my HVAC filter?",
     answer:
-      "Most homes should change filters every 30 to 90 days. Change closer to 30 days with pets, allergies, high dust, or continuous HVAC use; every 90 days may work for light use in a clean home.",
+      "Most homes should change filters every 30 to 90 days. Pets, allergies, dust, and a fan that runs constantly pull you toward 30. Use Filter Clock: tell us about the house and we'll give you the date — then buy the pack that matches a year of air.",
   },
   {
     question: "What MERV rating should I buy?",
@@ -76,7 +76,7 @@ export const CHANGE_GUIDE_FAQS: FaqItem[] = [
   {
     question: "How often should I change my HVAC filter?",
     answer:
-      "Most homes should change a 1-inch filter every 30 to 90 days. Change closer to 30 days with pets, allergies, high dust, wildfire smoke, or a fan that runs constantly. 2-inch filters often last 90–120 days. 4-inch and 5-inch media can last 6–12 months. Inspect monthly regardless of the schedule.",
+      "Most homes should change a 1-inch filter every 30 to 90 days. Pets, allergies, dust, wildfire smoke, or a fan that runs constantly pull you toward 30. 2-inch filters often last 90–120 days; 4-inch and 5-inch media can last 6–12 months. Use Filter Clock to get a change date for your home. Inspect monthly either way.",
   },
   {
     question: "Do thicker air filters last longer?",
@@ -209,7 +209,7 @@ export function filterChangeGuideSeo(siteUrl: string) {
   const path = CHANGE_GUIDE_PATH;
   return {
     title: `How Often to Change Your Air Filter | ${BRAND_NAME}`,
-    description: `Most 1-inch HVAC filters last 30–90 days. Pets, dust, and thickness change that number. Use the ${BRAND_NAME} Filter Clock to get a change date for your home.`,
+    description: `Most 1-inch HVAC filters last 30–90 days. Pets, dust, and thickness change that number. Use ${BRAND_NAME} Filter Clock to get a change date for your home.`,
     path,
     canonical: absoluteUrl(siteUrl, path),
     type: "article" as const,

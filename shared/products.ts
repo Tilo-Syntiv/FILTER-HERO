@@ -142,14 +142,17 @@ export function catalogLengths(): number[] {
 
 export const THICKNESSES = [0.5, 1, 2, 4, 5] as const;
 
+export type MervTypeKey = "8" | "11" | "13" | "carbon";
+
 export type MervTypeInfo = {
-  key: "8" | "11" | "13" | "carbon";
+  key: MervTypeKey;
   merv: MervRating;
   isCarbon: boolean;
   name: string;
   shortLabel: string;
   description: string;
   fromPrice: number;
+  badgeColor: string;
 };
 
 export const MERV_TYPES: MervTypeInfo[] = [
@@ -161,6 +164,7 @@ export const MERV_TYPES: MervTypeInfo[] = [
     shortLabel: "Standard",
     description: "Everyday dust and pollen for typical homes",
     fromPrice: liveFromPrice("8") ?? 11.99,
+    badgeColor: "#203868",
   },
   {
     key: "11",
@@ -170,6 +174,7 @@ export const MERV_TYPES: MervTypeInfo[] = [
     shortLabel: "Advanced",
     description: "Enhanced protection for pets and mild allergies",
     fromPrice: liveFromPrice("11") ?? 15.99,
+    badgeColor: "#d21b22",
   },
   {
     key: "13",
@@ -179,17 +184,24 @@ export const MERV_TYPES: MervTypeInfo[] = [
     shortLabel: "Ultimate",
     description: "Superior filtration for asthma and sensitivities",
     fromPrice: liveFromPrice("13") ?? 16.99,
+    badgeColor: "#ee9e10",
   },
   {
     key: "carbon",
     merv: 8,
     isCarbon: true,
     name: "MERV 8 Carbon",
-    shortLabel: "Odor",
+    shortLabel: "Odor Eliminator",
     description: "Everyday filtration plus activated carbon for odors",
     fromPrice: liveFromPrice("carbon") ?? 19.99,
+    badgeColor: "#111111",
   },
 ];
+
+export function mervTypeFor(merv: MervRating, isCarbon?: boolean): MervTypeInfo {
+  const key: MervTypeKey = isCarbon ? "carbon" : (String(merv) as MervTypeKey);
+  return MERV_TYPES.find((t) => t.key === key) ?? MERV_TYPES[0];
+}
 
 function listPriceFor(depth: number, merv: MervRating, isCarbon: boolean): number {
   const depthBase: Record<number, number> = {

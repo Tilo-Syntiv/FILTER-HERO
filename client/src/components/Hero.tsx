@@ -10,6 +10,10 @@ const scrollToFinder = () => {
   document.getElementById("finder")?.scrollIntoView({ behavior: "smooth" });
 };
 
+const scrollToClock = () => {
+  document.getElementById("clock")?.scrollIntoView({ behavior: "smooth" });
+};
+
 export default function Hero() {
   return (
     <section className="hero-stage relative">
@@ -51,9 +55,9 @@ export default function Hero() {
                 size="lg"
                 variant="outline"
                 className="w-full border-navy/20 bg-white/80 text-navy hover:bg-white hover:text-navy sm:w-auto"
-                asChild
+                onClick={scrollToClock}
               >
-                <Link href="/sizes">Shop now</Link>
+                Start your clock
               </Button>
             </div>
           </motion.div>

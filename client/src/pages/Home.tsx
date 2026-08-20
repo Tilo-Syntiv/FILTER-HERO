@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useHashScroll } from "@/hooks/useHashScroll";
 import { Link } from "wouter";
-import { ArrowRight } from "lucide-react";
 import { THICKNESSES } from "@shared/products";
 import { featuredBrandFamilies } from "@shared/hvac-brands";
 import BrandLogo from "@/components/BrandLogo";
@@ -30,6 +29,7 @@ import SiteHeader from "@/components/SiteHeader";
 import BrandLockup from "@/components/BrandLockup";
 import Hero from "@/components/Hero";
 import FaqSection from "@/components/FaqSection";
+import FilterPower from "@/components/FilterPower";
 import { useCart } from "@/contexts/CartContext";
 import { takeQuoteHandoff } from "@/lib/quote-handoff";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
@@ -101,6 +101,24 @@ export default function Home() {
           </div>
         </section>
 
+        <section
+          id="clock"
+          className="sheet-section scroll-mt-28 py-12 md:py-16"
+        >
+          <div className="container">
+            <div className="mb-8 max-w-2xl">
+              <span className="section-label">Filter Clock</span>
+              <h2 className="mb-3 text-3xl font-bold tracking-tight md:text-4xl">
+                When's your next filter change?
+              </h2>
+              <p className="text-muted-foreground leading-relaxed md:text-lg">
+                Tell us about the house. We'll give you the date.
+              </p>
+            </div>
+            <FilterPower />
+          </div>
+        </section>
+
         <PopularSizesCarousel />
 
         <div className="sheet-section">
@@ -153,39 +171,6 @@ export default function Home() {
         <div className="sheet-section">
           <TrustSection />
         </div>
-
-        <section className="sheet-section py-8 md:py-10">
-          <div className="container">
-            <div className="relative overflow-hidden rounded-3xl bg-[linear-gradient(125deg,#141e30_0%,#203868_60%,#3a66a3_130%)] px-6 py-10 text-white md:px-12 md:py-14">
-              <div
-                className="pointer-events-none absolute inset-0 opacity-40"
-                style={{
-                  background:
-                    "radial-gradient(420px 240px at 92% -10%, rgba(142,176,216,0.5), transparent 60%)",
-                }}
-              />
-              <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                <div className="max-w-xl">
-                  <span className="section-label !text-ice">Filter Clock</span>
-                  <h2 className="mb-3 text-3xl font-bold tracking-tight md:text-4xl">
-                    How often should you really change it?
-                  </h2>
-                  <p className="text-sm leading-relaxed text-white/75 md:text-base">
-                    30 to 90 days is a rumor until you factor pets, pollen, and
-                    thickness. Tap your home. Get a date.
-                  </p>
-                </div>
-                <Link
-                  href="/how-often-to-change-air-filter"
-                  className="hero-shop-btn inline-flex h-12 shrink-0 items-center justify-center px-7 text-white"
-                >
-                  Open the guide
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
 
         <div className="sheet-section">
           <FaqSection faqs={SITE_FAQS} />
@@ -295,6 +280,11 @@ export default function Home() {
                 Support
               </h4>
               <ul className="space-y-2.5 text-sm">
+                <li>
+                  <a href="#clock" className="hover:text-ice transition-colors">
+                    Filter Clock
+                  </a>
+                </li>
                 <li>
                   <Link
                     href="/how-often-to-change-air-filter"
