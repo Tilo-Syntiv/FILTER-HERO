@@ -7,7 +7,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Product } from "@shared/products";
+import {
+  getProductById,
+  unitPriceForQty,
+  type Product,
+} from "@shared/products";
 
 export type CartItem = {
   productId: number;
@@ -26,7 +30,7 @@ type CartContextValue = {
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
-  addItem: (product: Product, qty?: number, unitPrice?: number) => void;
+  addItem: (product: Product, qty?: number) => void;
   setQty: (productId: number, qty: number) => void;
   removeItem: (productId: number) => void;
   clearCart: () => void;
@@ -37,13 +41,46 @@ const STORAGE_KEY = "fpf-cart-v1";
 
 const CartContext = createContext<CartContextValue | null>(null);
 
+function lineLabel(product: Product) {
+  return product.isCarbon
+    ? `${product.name} · MERV 8 Carbon`
+    : `${product.name} · MERV ${product.merv}`;
+}
+
+function lineFromProduct(product: Product, qty: number): CartItem {
+  const safeQty = Math.min(50, Math.max(0, qty));
+  return {
+    productId: product.id,
+    size: product.size,
+    merv: product.merv,
+    price: unitPriceForQty(product.price, safeQty, product),
+    name: lineLabel(product),
+    qty: safeQty,
+  };
+}
+
+function normalizeCart(items: CartItem[]): CartItem[] {
+  const byId = new Map<number, number>();
+  for (const item of items) {
+    if (!item || typeof item.productId !== "number" || item.qty <= 0) continue;
+    byId.set(item.productId, Math.min(50, (byId.get(item.productId) ?? 0) + item.qty));
+  }
+  const next: CartItem[] = [];
+  byId.forEach((qty, productId) => {
+    const product = getProductById(productId);
+    if (!product) return;
+    next.push(lineFromProduct(product, qty));
+  });
+  return next;
+}
+
 function loadCart(): CartItem[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as CartItem[];
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((i) => i && typeof i.productId === "number" && i.qty > 0);
+    return normalizeCart(parsed);
   } catch {
     return [];
   }
@@ -64,31 +101,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
-  const addItem = useCallback((product: Product, qty = 1, unitPrice?: number) => {
-    const price = unitPrice ?? product.price;
-    const label = product.isCarbon
-      ? `${product.name} (Carbon)`
-      : `${product.name} · MERV ${product.merv}`;
+  const addItem = useCallback((product: Product, qty = 1) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.productId === product.id && i.price === price);
+      const existing = prev.find((i) => i.productId === product.id);
+      const nextQty = Math.min(50, (existing?.qty ?? 0) + qty);
+      const line = lineFromProduct(product, nextQty);
       if (existing) {
-        return prev.map((i) =>
-          i.productId === product.id && i.price === price
-            ? { ...i, qty: Math.min(50, i.qty + qty) }
-            : i,
-        );
+        return prev.map((i) => (i.productId === product.id ? line : i));
       }
-      return [
-        ...prev,
-        {
-          productId: product.id,
-          size: product.size,
-          merv: product.merv,
-          price,
-          name: label,
-          qty,
-        },
-      ];
+      return [...prev, line];
     });
     setIsOpen(true);
   }, []);
@@ -96,9 +117,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const setQty = useCallback((productId: number, qty: number) => {
     setItems((prev) => {
       if (qty <= 0) return prev.filter((i) => i.productId !== productId);
-      return prev.map((i) =>
-        i.productId === productId ? { ...i, qty: Math.min(50, qty) } : i,
-      );
+      const product = getProductById(productId);
+      if (!product) return prev.filter((i) => i.productId !== productId);
+      const line = lineFromProduct(product, qty);
+      return prev.map((i) => (i.productId === productId ? line : i));
     });
   }, []);
 
@@ -111,7 +133,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const cartSummaryText = useCallback(() => {
     if (items.length === 0) return "";
     return items
-      .map((i) => `${i.qty}× ${i.size} MERV ${i.merv} ($${i.price.toFixed(2)})`)
+      .map((i) => `${i.qty}× ${i.size} ${i.name} ($${i.price.toFixed(2)})`)
       .join("; ");
   }, [items]);
 

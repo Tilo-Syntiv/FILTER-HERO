@@ -1,10 +1,13 @@
-import { Link } from "wouter";
+import { useEffect, useState } from "react";
+import { Link, useSearch } from "wouter";
 import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
-import FilterFinder from "@/components/FilterFinder";
-import ContactForm from "@/components/ContactForm";
+import CustomQuoteForm from "@/components/CustomQuoteForm";
 import FaqSection from "@/components/FaqSection";
+import PageHero from "@/components/PageHero";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
+import { useHashScroll } from "@/hooks/useHashScroll";
+import { takeQuoteHandoff } from "@/lib/quote-handoff";
 import { BRAND_NAME } from "@/const";
 import {
   CUSTOM_FAQS,
@@ -13,10 +16,16 @@ import {
   buildSpeakableSchema,
   customAirFiltersSeo,
 } from "@shared/seo";
+import { LIFE } from "@/data/life-photos";
 
 export default function CustomAirFiltersPage() {
   const siteUrl = getSiteUrl();
   const seo = customAirFiltersSeo(siteUrl);
+  const [quoteCart, setQuoteCart] = useState("");
+  const [quoteSize, setQuoteSize] = useState("");
+  const search = useSearch();
+  useHashScroll();
+
   useSeo({
     ...seo,
     jsonLd: [
@@ -33,35 +42,67 @@ export default function CustomAirFiltersPage() {
     ],
   });
 
+  useEffect(() => {
+    const handed = takeQuoteHandoff();
+    if (handed.cart) setQuoteCart(handed.cart);
+    if (handed.size) setQuoteSize(handed.size);
+  }, []);
+
+  useEffect(() => {
+    const size = new URLSearchParams(search).get("size");
+    if (size) setQuoteSize(size);
+  }, [search]);
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="container py-10 md:py-14">
-        <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground mb-4">
-          <Link href="/" className="hover:text-foreground">
-            Home
-          </Link>{" "}
-          / Custom air filters
-        </nav>
-        <h1 className="text-3xl md:text-4xl font-bold mb-3">Custom Air Filters</h1>
-        <p className="seo-answer text-muted-foreground mb-10 max-w-2xl leading-relaxed">
-          If your slot is not on the standard size list, send Width × Length ×
-          Depth (or a photo of the label) and we will quote a custom HVAC filter.
-        </p>
-        <div className="mb-16">
-          <FilterFinder showPopular compact />
+      <PageHero
+        label="Odd size"
+        title="Custom Air Filters"
+        photo={LIFE.installCeiling}
+        crumbs={[{ href: "/", label: "Home" }]}
+      >
+        If your slot is not a standard catalog size, enter Width × Length ×
+        Depth below. We cut custom HVAC filters to your measurements and send
+        back a quote.
+      </PageHero>
+      <main className="sheet-section">
+        <div className="container py-10 md:py-14">
+        <div
+          id="custom-quote"
+          className="max-w-xl mb-16 scroll-mt-28 overflow-hidden rounded-3xl border border-border bg-white p-4 sm:p-6 md:p-8 shadow-[0_24px_50px_rgba(20,30,48,0.08)]"
+        >
+          <h2 className="text-xl font-bold mb-1 tracking-tight">Request a custom quote</h2>
+          <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+            Fill in your size. We’ll confirm fit, MERV options, and lead time.
+          </p>
+          <CustomQuoteForm cartSummary={quoteCart} defaultSize={quoteSize} />
         </div>
         <FaqSection
           faqs={CUSTOM_FAQS}
           title="Custom size questions"
           subtitle="How custom HVAC filter quotes work."
         />
-        <div className="max-w-xl">
-          <h2 className="text-xl font-bold mb-4">Request a custom quote</h2>
-          <ContactForm intent="support" />
         </div>
       </main>
-      <CartDrawer onRequestQuote={() => { window.location.href = "/custom-air-filters"; }} />
+      <footer className="site-footer pt-8 mt-12">
+        <div className="container flex flex-col sm:flex-row justify-between gap-4 text-sm">
+          <p>&copy; {new Date().getFullYear()} {BRAND_NAME}</p>
+          <Link href="/" className="section-link !text-ice hover:!text-white">
+            Home
+          </Link>
+        </div>
+      </footer>
+      <CartDrawer
+        onRequestQuote={() => {
+          const handed = takeQuoteHandoff();
+          if (handed.cart) setQuoteCart(handed.cart);
+          document.getElementById("custom-quote")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }}
+      />
     </div>
   );
 }

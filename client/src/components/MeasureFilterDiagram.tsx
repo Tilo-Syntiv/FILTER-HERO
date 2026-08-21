@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 type DimKey = "width" | "length" | "depth";
@@ -7,188 +7,192 @@ const DIMS: {
   key: DimKey;
   label: string;
   hint: string;
+  inches: string;
+  color: string;
+  text: string;
+  hintColor: string;
+  mark: string;
 }[] = [
-  { key: "width", label: "Width", hint: "Side to side" },
-  { key: "length", label: "Length", hint: "Top to bottom" },
-  { key: "depth", label: "Depth", hint: "Front to back" },
+  {
+    key: "width",
+    label: "Width",
+    hint: "Side to side",
+    inches: "20",
+    color: "#8eb0d8",
+    text: "#141e30",
+    hintColor: "#2c3d55",
+    mark: "#3a66a3",
+  },
+  {
+    key: "length",
+    label: "Length",
+    hint: "Top to bottom",
+    inches: "25",
+    color: "#203868",
+    text: "#ffffff",
+    hintColor: "#e8eef8",
+    mark: "#203868",
+  },
+  {
+    key: "depth",
+    label: "Depth",
+    hint: "Thickness",
+    inches: "2",
+    color: "#7f2328",
+    text: "#ffffff",
+    hintColor: "#f3d6d7",
+    mark: "#7f2328",
+  },
 ];
 
-const CYCLE_MS = 3200;
+const CYCLE_MS = 3800;
+const PAUSE_MS = 9000;
 
-function DimensionLine({
-  active,
+/** Front-face rectangle + isometric extrusion. Length is the tall edge.
+ *  Face width (214) is 20"; extrusion is 2" at the same isometric angle. */
+const F = {
+  x: 198,
+  y: 158,
+  w: 214,
+  h: 236,
+  dx: 18,
+  dy: -11,
+};
+
+const front = {
+  tl: { x: F.x, y: F.y },
+  tr: { x: F.x + F.w, y: F.y },
+  br: { x: F.x + F.w, y: F.y + F.h },
+  bl: { x: F.x, y: F.y + F.h },
+};
+
+const topBack = {
+  tl: { x: F.x + F.dx, y: F.y + F.dy },
+  tr: { x: F.x + F.w + F.dx, y: F.y + F.dy },
+};
+
+const rightBackBottom = {
+  x: F.x + F.w + F.dx,
+  y: F.y + F.h + F.dy,
+};
+
+function poly(points: { x: number; y: number }[]) {
+  return points.map((p) => `${p.x},${p.y}`).join(" ");
+}
+
+function TapeMeasure({
+  x1,
+  y1,
+  x2,
+  y2,
   reduceMotion,
 }: {
-  active: DimKey;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
   reduceMotion: boolean | null;
 }) {
-  const ease = [0.22, 1, 0.36, 1] as const;
-  const draw = reduceMotion
-    ? { pathLength: 1, opacity: 1 }
-    : { pathLength: [0, 1], opacity: [0.2, 1] };
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.hypot(dx, dy);
+  const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+  const short = len < 48;
+  const h = short ? 9 : 15;
+  const cap = short ? 2.2 : 5;
+  const ticks: number[] = [];
+  const step = short ? 5 : 10;
+  for (let t = step; t < len - cap; t += step) ticks.push(t);
 
   return (
-    <svg
-      viewBox="0 0 100 100"
-      className="absolute inset-0 h-full w-full overflow-visible"
-      aria-hidden
+    <motion.g
+      transform={`translate(${x1} ${y1}) rotate(${angle})`}
+      initial={reduceMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.28 }}
+      style={{ pointerEvents: "none" }}
     >
-      <defs>
-        <linearGradient id="iceStroke" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#8eb0d8" stopOpacity="0.2" />
-          <stop offset="50%" stopColor="#8eb0d8" stopOpacity="1" />
-          <stop offset="100%" stopColor="#8eb0d8" stopOpacity="0.2" />
-        </linearGradient>
-        <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="1.2" result="b" />
-          <feMerge>
-            <feMergeNode in="b" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-
-      <g opacity={active === "width" ? 1 : 0.22} style={{ transition: "opacity 0.4s ease" }}>
-        <line x1="18" y1="14" x2="18" y2="22" stroke="#8eb0d8" strokeWidth="0.35" strokeDasharray="0.8 1.1" />
-        <line x1="82" y1="14" x2="82" y2="20" stroke="#8eb0d8" strokeWidth="0.35" strokeDasharray="0.8 1.1" />
-        <motion.line
-          key={`w-${active === "width"}`}
-          x1="18"
-          y1="14"
-          x2="82"
-          y2="14"
-          stroke="url(#iceStroke)"
-          strokeWidth="0.7"
-          strokeLinecap="round"
-          filter="url(#softGlow)"
-          initial={reduceMotion ? false : { pathLength: 0, opacity: 0.2 }}
-          animate={active === "width" ? draw : { pathLength: 1, opacity: 0.35 }}
-          transition={{ duration: reduceMotion ? 0 : 1.1, ease }}
-        />
-        {!reduceMotion && active === "width" && (
-          <motion.circle
-            r="1.1"
-            fill="#8eb0d8"
-            initial={{ cx: 18, cy: 14, opacity: 0 }}
-            animate={{ cx: [18, 82], cy: 14, opacity: [0, 1, 1, 0] }}
-            transition={{ duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 1.2 }}
+      <rect
+        x={0}
+        y={-h / 2}
+        width={len}
+        height={h}
+        rx={short ? 1.4 : 2.2}
+        fill="#F5C518"
+        stroke="#1c1c1c"
+        strokeWidth={0.7}
+      />
+      {ticks.map((t, i) => {
+        const major = i % 5 === 4;
+        return (
+          <line
+            key={t}
+            x1={t}
+            y1={-h / 2 + 1.2}
+            x2={t}
+            y2={major ? h / 2 - 1.2 : -0.8}
+            stroke="#1c1c1c"
+            strokeWidth={major ? 0.85 : 0.55}
           />
-        )}
-      </g>
-
-      <g opacity={active === "length" ? 1 : 0.22} style={{ transition: "opacity 0.4s ease" }}>
-        <line x1="82" y1="20" x2="90" y2="20" stroke="#8eb0d8" strokeWidth="0.35" strokeDasharray="0.8 1.1" />
-        <line x1="78" y1="88" x2="90" y2="88" stroke="#8eb0d8" strokeWidth="0.35" strokeDasharray="0.8 1.1" />
-        <motion.line
-          key={`l-${active === "length"}`}
-          x1="90"
-          y1="20"
-          x2="90"
-          y2="88"
-          stroke="url(#iceStroke)"
-          strokeWidth="0.7"
-          strokeLinecap="round"
-          filter="url(#softGlow)"
-          initial={reduceMotion ? false : { pathLength: 0, opacity: 0.2 }}
-          animate={active === "length" ? draw : { pathLength: 1, opacity: 0.35 }}
-          transition={{ duration: reduceMotion ? 0 : 1.1, ease }}
-        />
-        {!reduceMotion && active === "length" && (
-          <motion.circle
-            r="1.1"
-            fill="#8eb0d8"
-            initial={{ cx: 90, cy: 20, opacity: 0 }}
-            animate={{ cx: 90, cy: [20, 88], opacity: [0, 1, 1, 0] }}
-            transition={{ duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 1.2 }}
-          />
-        )}
-      </g>
-
-      <g opacity={active === "depth" ? 1 : 0.22} style={{ transition: "opacity 0.4s ease" }}>
-        <motion.line
-          key={`d-${active === "depth"}`}
-          x1="12"
-          y1="42"
-          x2="17.5"
-          y2="58"
-          stroke="#8eb0d8"
-          strokeWidth="0.75"
-          strokeLinecap="round"
-          filter="url(#softGlow)"
-          initial={reduceMotion ? false : { pathLength: 0, opacity: 0.2 }}
-          animate={active === "depth" ? draw : { pathLength: 1, opacity: 0.35 }}
-          transition={{ duration: reduceMotion ? 0 : 0.9, ease }}
-        />
-        <line
-          x1="14.5"
-          y1="49.5"
-          x2="6"
-          y2="49.5"
-          stroke="#8eb0d8"
-          strokeWidth="0.45"
-          opacity={active === "depth" ? 0.9 : 0.35}
-        />
-        {!reduceMotion && active === "depth" && (
-          <motion.circle
-            cx="14.5"
-            cy="49.5"
-            r="1.3"
-            fill="#8eb0d8"
-            animate={{ opacity: [0.35, 1, 0.35], scale: [1, 1.35, 1] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-          />
-        )}
-      </g>
-    </svg>
+        );
+      })}
+      <rect x={0} y={-h / 2} width={cap} height={h} fill="#1c1c1c" />
+      <rect x={len - cap} y={-h / 2} width={cap} height={h} fill="#1c1c1c" />
+    </motion.g>
   );
 }
 
-function DimLabel({
+function DimChip({
   dim,
-  active,
-  style,
+  x,
+  y,
+  anchor = "middle",
 }: {
   dim: (typeof DIMS)[number];
-  active: boolean;
-  style: CSSProperties;
+  x: number;
+  y: number;
+  anchor?: "middle" | "start" | "end";
 }) {
+  const w = 118;
+  const h = 38;
+  const ox = anchor === "middle" ? -w / 2 : anchor === "end" ? -w : 0;
   return (
-    <motion.div
-      className="absolute z-10 pointer-events-none"
-      style={style}
-      animate={{
-        opacity: active ? 1 : 0.35,
-        scale: active ? 1 : 0.94,
-        y: active ? 0 : 4,
-      }}
-      transition={{ type: "spring", stiffness: 320, damping: 24 }}
-    >
-      <div
-        className={[
-          "rounded-full border px-3 py-1.5 shadow-lg backdrop-blur-md",
-          active
-            ? "border-ice/60 bg-deep/90 text-white shadow-ice/20"
-            : "border-white/40 bg-white/70 text-deep/70",
-        ].join(" ")}
+    <g transform={`translate(${x + ox} ${y - h / 2})`}>
+      <rect
+        width={w}
+        height={h}
+        rx={19}
+        fill={dim.color}
+        stroke="#ffffff"
+        strokeWidth={1.5}
+      />
+      <text
+        x={w / 2}
+        y={15}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fill={dim.text}
+        fontSize="11"
+        fontWeight="800"
+        letterSpacing="0.16em"
+        fontFamily="Plus Jakarta Sans, Manrope, sans-serif"
       >
-        <p className="text-[10px] md:text-xs font-bold tracking-[0.18em] uppercase leading-none">
-          {dim.label}
-        </p>
-        <AnimatePresence mode="wait">
-          {active && (
-            <motion.p
-              key={dim.key}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="text-[10px] text-ice/90 mt-1 font-medium tracking-wide"
-            >
-              {dim.hint}
-            </motion.p>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
+        {dim.label.toUpperCase()}
+      </text>
+      <text
+        x={w / 2}
+        y={28}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fill={dim.hintColor}
+        fontSize="9"
+        fontWeight="600"
+        fontFamily="Manrope, sans-serif"
+      >
+        {dim.hint}
+      </text>
+    </g>
   );
 }
 
@@ -206,85 +210,275 @@ export default function MeasureFilterDiagram({
   const reduceMotion = useReducedMotion();
   const [internal, setInternal] = useState<DimKey>("width");
   const active = controlled ?? internal;
+  const pauseUntil = useRef(0);
+  const fromAutoplay = useRef(false);
+  const activeRef = useRef(active);
+  activeRef.current = active;
 
-  const setActive = (key: DimKey) => {
+  const setActive = (key: DimKey, user = true) => {
+    if (user) pauseUntil.current = Date.now() + PAUSE_MS;
     setInternal(key);
     onActiveChange?.(key);
   };
 
   useEffect(() => {
+    if (!controlled) return;
+    if (fromAutoplay.current) {
+      fromAutoplay.current = false;
+      return;
+    }
+    pauseUntil.current = Date.now() + PAUSE_MS;
+  }, [controlled]);
+
+  useEffect(() => {
     if (!autoplay || reduceMotion) return;
     const id = window.setInterval(() => {
-      setInternal((prev) => {
-        const current = controlled ?? prev;
-        const i = DIMS.findIndex((d) => d.key === current);
-        const next = DIMS[(i + 1) % DIMS.length].key;
-        onActiveChange?.(next);
-        return next;
-      });
+      if (Date.now() < pauseUntil.current) return;
+      const current = activeRef.current;
+      const i = DIMS.findIndex((d) => d.key === current);
+      const next = DIMS[(i < 0 ? 0 : i + 1) % DIMS.length].key;
+      fromAutoplay.current = true;
+      setInternal(next);
+      onActiveChange?.(next);
     }, CYCLE_MS);
     return () => window.clearInterval(id);
-  }, [autoplay, reduceMotion, controlled, onActiveChange]);
+  }, [autoplay, reduceMotion, onActiveChange]);
+
+  const widthOn = active === "width";
+  const lengthOn = active === "length";
+  const depthOn = active === "depth";
+  const activeDim = DIMS.find((d) => d.key === active) ?? DIMS[0];
 
   return (
-    <div className="relative w-full max-w-xl mx-auto">
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-[radial-gradient(ellipse_at_center,#ffffff_0%,#e8edf4_70%,#d0d8e4_100%)]">
-        <div
-          className="pointer-events-none absolute bottom-[8%] left-1/2 h-6 w-[55%] -translate-x-1/2 rounded-[100%] bg-deep/10 blur-md"
-          aria-hidden
-        />
+    <div className="relative w-full max-w-2xl mx-auto">
+      <div className="relative overflow-hidden rounded-2xl bg-[#eef2f6]">
+        <svg
+          viewBox="0 0 640 520"
+          className="w-full h-auto"
+          role="group"
+          aria-label={`Sample air filter. ${activeDim.label}: ${activeDim.hint}. Example size 20 by 25 by 2 inches.`}
+        >
+          <defs>
+            <linearGradient id="mfdFace" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#f4f7fb" />
+              <stop offset="100%" stopColor="#d9e4f0" />
+            </linearGradient>
+            <linearGradient id="mfdPleat" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#c5d6e8" />
+              <stop offset="50%" stopColor="#8eb0d8" />
+              <stop offset="100%" stopColor="#6d93bb" />
+            </linearGradient>
+            <linearGradient id="mfdTop" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#dce5ef" />
+              <stop offset="100%" stopColor="#f7f9fc" />
+            </linearGradient>
+            <linearGradient id="mfdSide" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#203868" />
+              <stop offset="100%" stopColor="#141e30" />
+            </linearGradient>
+            <clipPath id="mfdFrontClip">
+              <rect x={F.x + 14} y={F.y + 14} width={F.w - 28} height={F.h - 28} rx="2" />
+            </clipPath>
+            <pattern id="mfdGrid" width="22" height="22" patternUnits="userSpaceOnUse">
+              <path
+                d="M11 0 L22 11 L11 22 L0 11 Z"
+                fill="none"
+                stroke="#203868"
+                strokeWidth="0.7"
+                opacity="0.28"
+              />
+            </pattern>
+          </defs>
 
-        <motion.img
-          src="/filter-measure.png"
-          alt="Sample HVAC air filter showing Width, Length, and Depth"
-          className="absolute inset-[6%] h-[88%] w-[88%] object-contain"
-          initial={reduceMotion ? false : { opacity: 0, y: 12, scale: 0.97 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        />
+          <ellipse cx="330" cy="478" rx="150" ry="14" fill="#203868" opacity="0.08" />
 
-        <AnimatePresence mode="wait">
-          {!reduceMotion && (
-            <motion.div
-              key={active}
-              className="pointer-events-none absolute inset-0"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.35 }}
-              style={{
-                background:
-                  active === "width"
-                    ? "linear-gradient(180deg, rgba(142,176,216,0.18) 0%, transparent 28%)"
-                    : active === "length"
-                      ? "linear-gradient(270deg, rgba(142,176,216,0.16) 0%, transparent 32%)"
-                      : "linear-gradient(90deg, rgba(142,176,216,0.16) 0%, transparent 30%)",
-              }}
+          {/* Top (depth) face */}
+          <polygon
+            points={poly([front.tl, front.tr, topBack.tr, topBack.tl])}
+            fill="url(#mfdTop)"
+            stroke="#203868"
+            strokeWidth={widthOn || depthOn ? 1.2 : 1}
+          />
+
+          {/* Right (depth) face */}
+          <polygon
+            points={poly([front.tr, topBack.tr, rightBackBottom, front.br])}
+            fill="url(#mfdSide)"
+          />
+
+          {/* Front cardboard frame */}
+          <rect
+            x={F.x}
+            y={F.y}
+            width={F.w}
+            height={F.h}
+            fill="url(#mfdFace)"
+            stroke="#c5ced8"
+            strokeWidth="1"
+          />
+          <rect
+            x={F.x + 10}
+            y={F.y + 10}
+            width={F.w - 20}
+            height={F.h - 20}
+            fill="none"
+            stroke="#b7c3d0"
+            strokeWidth="6"
+          />
+
+          {/* Pleated media */}
+          <g clipPath="url(#mfdFrontClip)">
+            {Array.from({ length: 14 }, (_, i) => {
+              const x = F.x + 16 + i * ((F.w - 32) / 13);
+              return (
+                <rect
+                  key={i}
+                  x={x}
+                  y={F.y + 14}
+                  width={8}
+                  height={F.h - 28}
+                  fill="url(#mfdPleat)"
+                  opacity={0.55 + (i % 2) * 0.25}
+                />
+              );
+            })}
+            <rect
+              x={F.x + 14}
+              y={F.y + 14}
+              width={F.w - 28}
+              height={F.h - 28}
+              fill="url(#mfdGrid)"
             />
+          </g>
+
+          {/* Active edge glow — locked to the real cardboard edges */}
+          <g fill="none" strokeLinecap="square">
+            <motion.line
+              x1={front.tl.x}
+              y1={front.tl.y}
+              x2={front.tr.x}
+              y2={front.tr.y}
+              stroke="#8eb0d8"
+              strokeWidth={widthOn ? 7 : 2}
+              animate={{ opacity: widthOn ? 1 : 0.18 }}
+              transition={{ duration: 0.3 }}
+            />
+            <motion.line
+              x1={front.tl.x}
+              y1={front.tl.y}
+              x2={front.bl.x}
+              y2={front.bl.y}
+              stroke="#203868"
+              strokeWidth={lengthOn ? 7 : 2}
+              animate={{ opacity: lengthOn ? 1 : 0.18 }}
+              transition={{ duration: 0.3 }}
+            />
+            <motion.line
+              x1={front.tr.x}
+              y1={front.tr.y}
+              x2={topBack.tr.x}
+              y2={topBack.tr.y}
+              stroke="#7f2328"
+              strokeWidth={depthOn ? 7 : 2}
+              animate={{ opacity: depthOn ? 1 : 0.22 }}
+              transition={{ duration: 0.3 }}
+            />
+          </g>
+
+          <AnimatePresence>
+            {widthOn && (
+              <TapeMeasure
+                key="tape-w"
+                x1={front.tl.x}
+                y1={front.tl.y}
+                x2={front.tr.x}
+                y2={front.tr.y}
+                reduceMotion={reduceMotion}
+              />
+            )}
+            {lengthOn && (
+              <TapeMeasure
+                key="tape-l"
+                x1={front.tl.x}
+                y1={front.tl.y}
+                x2={front.bl.x}
+                y2={front.bl.y}
+                reduceMotion={reduceMotion}
+              />
+            )}
+            {depthOn && (
+              <TapeMeasure
+                key="tape-d"
+                x1={front.tr.x}
+                y1={front.tr.y}
+                x2={topBack.tr.x}
+                y2={topBack.tr.y}
+                reduceMotion={reduceMotion}
+              />
+            )}
+          </AnimatePresence>
+
+          {widthOn && <DimChip dim={DIMS[0]} x={F.x + F.w / 2} y={118} />}
+          {lengthOn && (
+            <DimChip dim={DIMS[1]} x={108} y={F.y + F.h / 2} anchor="middle" />
           )}
-        </AnimatePresence>
+          {depthOn && (
+            <DimChip dim={DIMS[2]} x={topBack.tr.x + 78} y={topBack.tr.y - 6} />
+          )}
 
-        <DimensionLine active={active} reduceMotion={reduceMotion} />
+          {/* Printed size on the cardboard — this is what customers actually order */}
+          <text
+            x={F.x + F.w / 2}
+            y={F.y + F.h - 8}
+            textAnchor="middle"
+            fontFamily="Plus Jakarta Sans, Manrope, sans-serif"
+            fontSize="13"
+            fontWeight="800"
+            letterSpacing="0.04em"
+            style={{ pointerEvents: "none" }}
+          >
+            <tspan fill={widthOn ? DIMS[0].mark : "#203868"}>20</tspan>
+            <tspan fill="#8a96a8"> × </tspan>
+            <tspan fill={lengthOn ? DIMS[1].mark : "#5c6b80"}>25</tspan>
+            <tspan fill="#8a96a8"> × </tspan>
+            <tspan fill={depthOn ? DIMS[2].mark : "#5c6b80"}>2</tspan>
+          </text>
 
-        <DimLabel
-          dim={DIMS[0]}
-          active={active === "width"}
-          style={{ top: "3%", left: "50%", transform: "translateX(-50%)" }}
-        />
-        <DimLabel
-          dim={DIMS[1]}
-          active={active === "length"}
-          style={{ right: "1%", top: "48%", transform: "translateY(-50%)" }}
-        />
-        <DimLabel
-          dim={DIMS[2]}
-          active={active === "depth"}
-          style={{ left: "1%", top: "48%", transform: "translateY(-50%)" }}
-        />
+          {/* Hit targets last so the tape never swallows the click */}
+          <line
+            x1={front.tl.x}
+            y1={front.tl.y}
+            x2={front.tr.x}
+            y2={front.tr.y}
+            stroke="transparent"
+            strokeWidth="36"
+            className="cursor-pointer"
+            onClick={() => setActive("width")}
+          />
+          <line
+            x1={front.tl.x}
+            y1={front.tl.y}
+            x2={front.bl.x}
+            y2={front.bl.y}
+            stroke="transparent"
+            strokeWidth="36"
+            className="cursor-pointer"
+            onClick={() => setActive("length")}
+          />
+          <line
+            x1={front.tr.x}
+            y1={front.tr.y}
+            x2={topBack.tr.x}
+            y2={topBack.tr.y}
+            stroke="transparent"
+            strokeWidth="36"
+            className="cursor-pointer"
+            onClick={() => setActive("depth")}
+          />
+        </svg>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+      <div className="mt-4 flex flex-wrap items-end justify-center gap-2 md:gap-3">
         {DIMS.map((dim) => {
           const isOn = active === dim.key;
           return (
@@ -293,18 +487,45 @@ export default function MeasureFilterDiagram({
               type="button"
               onClick={() => setActive(dim.key)}
               className={[
-                "rounded-full px-3.5 py-1.5 text-xs font-bold tracking-wide transition-all",
+                "min-w-[5.5rem] rounded-2xl border px-3 py-2.5 text-center transition-all",
                 isOn
-                  ? "bg-deep text-ice shadow-md"
-                  : "bg-white/80 text-muted-foreground border border-border hover:border-ice/60 hover:text-foreground",
+                  ? "border-transparent shadow-md"
+                  : "border-border bg-white/90 text-muted-foreground hover:border-ice/60 hover:text-foreground",
               ].join(" ")}
+              style={isOn ? { background: dim.color, color: dim.text } : undefined}
               aria-pressed={isOn}
             >
-              {dim.label}
+              <span className="block text-[10px] font-bold tracking-[0.16em] uppercase">
+                {dim.label}
+              </span>
+              <span
+                className={[
+                  "block text-lg font-extrabold leading-tight",
+                  isOn ? "" : "text-foreground",
+                ].join(" ")}
+              >
+                {dim.inches}"
+              </span>
             </button>
           );
         })}
       </div>
+
+      <p className="mt-3 text-center text-sm font-semibold text-foreground">
+        Order as{" "}
+        {DIMS.map((dim, i) => (
+          <span key={dim.key}>
+            <span
+              className="transition-colors"
+              style={{ color: active === dim.key ? dim.mark : undefined }}
+            >
+              {dim.inches}
+            </span>
+            {i < DIMS.length - 1 ? <span className="text-muted-foreground"> × </span> : null}
+          </span>
+        ))}
+        <span className="text-muted-foreground"> — Width × Length × Depth</span>
+      </p>
     </div>
   );
 }

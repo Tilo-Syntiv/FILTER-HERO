@@ -6,8 +6,8 @@ export default function TrustSection() {
   const trustPoints = [
     {
       icon: Truck,
-      title: "Fast shipping",
-      description: "Reliable delivery so clean air never has to wait",
+      title: "FREE SHIPPING",
+      description: "Contiguous US orders — clean air shouldn't wait",
     },
     {
       icon: ShieldCheck,
@@ -29,11 +29,16 @@ export default function TrustSection() {
   return (
     <section className="py-16 md:py-24">
       <div className="container">
-        <div className="text-center max-w-xl mx-auto mb-14">
-          <span className="section-label">Why us</span>
+        <div className="mb-14 max-w-2xl text-center md:text-left">
+          <span className="section-label">Why Filter Hero</span>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Built for a better filter buy
+            Built for an exact-fit buy — and the people at home
           </h2>
+          <p className="mt-3 max-w-xl text-muted-foreground leading-relaxed">
+            Free shipping, a 30-day fit guarantee, and real humans if the
+            label is unreadable. The point is cleaner air for kids, pets, and
+            anyone who sleeps in the house.
+          </p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">

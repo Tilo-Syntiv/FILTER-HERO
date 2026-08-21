@@ -1,7 +1,43 @@
 import FILTER_CATALOG from "./filter-catalog.json";
-import FEATURED_SIZES from "./featured-sizes.json";
+import {
+  liveFromPrice,
+  liveListPrice,
+  liveUnitPrice,
+  type Priceable,
+} from "./pricing/engine";
+
+export {
+  liveFromPrice,
+  liveListPrice,
+  liveUnitPrice,
+  liveLadderCount,
+  UNDERCUT_RATIO,
+  type Priceable,
+} from "./pricing/engine";
 
 export type MervRating = 8 | 11 | 13;
+
+/** Pack shot used on every size page and cart line. */
+export const FILTER_PRODUCT_IMAGE = "/products/merv-8-thin-rectangle-6pack.png";
+
+export const FILTER_PRODUCT_GALLERY = [
+  {
+    src: FILTER_PRODUCT_IMAGE,
+    alt: "6-pack of pleated HVAC air filters",
+  },
+  {
+    src: "/products/merv-8-thin-rectangle-no-labels.png",
+    alt: "Single pleated air filter, three-quarter view",
+  },
+  {
+    src: "/products/merv-8-macro.png",
+    alt: "Close-up of pleated media, mesh, and support lattice",
+  },
+  {
+    src: "/products/merv-8-layers.png",
+    alt: "Exploded view of frame, filter media, and metal mesh",
+  },
+] as const;
 
 export type FilterSize = {
   /** Nominal size slug used in URLs, e.g. 20x25x1 */
@@ -20,7 +56,7 @@ export type Product = {
   size: string;
   merv: MervRating;
   isCarbon?: boolean;
-  /** Unit price at qty 1 before volume discounts */
+  /** Qty-1 unit price (live FilterKing × 0.90 when known) */
   price: number;
   inStock: boolean;
   name: string;
@@ -34,7 +70,7 @@ export type PackTier = {
   multiplier: number;
 };
 
-/** Volume ladder inspired by typical HVAC filter retail (steeper at higher packs). */
+/** Qty buttons. Multipliers are fallback only; live SKUs use FilterKing ladders. */
 export const PACK_TIERS: PackTier[] = [
   { minQty: 1, label: "1", multiplier: 1 },
   { minQty: 2, label: "2", multiplier: 0.54 },
@@ -43,7 +79,7 @@ export const PACK_TIERS: PackTier[] = [
   { minQty: 12, label: "12+", multiplier: 0.21 },
 ];
 
-export function unitPriceForQty(listPrice: number, qty: number): number {
+function fallbackUnitPrice(listPrice: number, qty: number): number {
   let tier = PACK_TIERS[0];
   for (const t of PACK_TIERS) {
     if (qty >= t.minQty) tier = t;
@@ -51,8 +87,28 @@ export function unitPriceForQty(listPrice: number, qty: number): number {
   return Math.round(listPrice * tier.multiplier * 100) / 100;
 }
 
-export function packTotal(listPrice: number, qty: number): number {
-  return Math.round(unitPriceForQty(listPrice, qty) * qty * 100) / 100;
+/**
+ * Pack unit price. When `product` has a live FilterKing ladder, uses that
+ * SKU's qty table × 0.90. Otherwise applies PACK_TIERS to listPrice.
+ */
+export function unitPriceForQty(
+  listPrice: number,
+  qty: number,
+  product?: Priceable,
+): number {
+  if (product) {
+    const live = liveUnitPrice(product, qty);
+    if (live !== undefined) return live;
+  }
+  return fallbackUnitPrice(listPrice, qty);
+}
+
+export function packTotal(
+  listPrice: number,
+  qty: number,
+  product?: Priceable,
+): number {
+  return Math.round(unitPriceForQty(listPrice, qty, product) * qty * 100) / 100;
 }
 
 function actualFromNominal(w: number, l: number, d: number) {
@@ -96,20 +152,29 @@ export function catalogWidths(): number[] {
   return Array.from(new Set(FILTER_SIZES.map((s) => s.width))).sort((a, b) => a - b);
 }
 
+export function catalogWidthsForDepth(depth: number): number[] {
+  return Array.from(
+    new Set(FILTER_SIZES.filter((s) => s.depth === depth).map((s) => s.width)),
+  ).sort((a, b) => a - b);
+}
+
 export function catalogLengths(): number[] {
   return Array.from(new Set(FILTER_SIZES.map((s) => s.length))).sort((a, b) => a - b);
 }
 
 export const THICKNESSES = [0.5, 1, 2, 4, 5] as const;
 
+export type MervTypeKey = "8" | "11" | "13" | "carbon";
+
 export type MervTypeInfo = {
-  key: "8" | "11" | "13" | "carbon";
+  key: MervTypeKey;
   merv: MervRating;
   isCarbon: boolean;
   name: string;
   shortLabel: string;
   description: string;
   fromPrice: number;
+  badgeColor: string;
 };
 
 export const MERV_TYPES: MervTypeInfo[] = [
@@ -120,7 +185,8 @@ export const MERV_TYPES: MervTypeInfo[] = [
     name: "MERV 8",
     shortLabel: "Standard",
     description: "Everyday dust and pollen for typical homes",
-    fromPrice: 11.99,
+    fromPrice: liveFromPrice("8") ?? 11.99,
+    badgeColor: "#3a66a3",
   },
   {
     key: "11",
@@ -129,7 +195,8 @@ export const MERV_TYPES: MervTypeInfo[] = [
     name: "MERV 11",
     shortLabel: "Advanced",
     description: "Enhanced protection for pets and mild allergies",
-    fromPrice: 15.99,
+    fromPrice: liveFromPrice("11") ?? 15.99,
+    badgeColor: "#d21b22",
   },
   {
     key: "13",
@@ -138,18 +205,34 @@ export const MERV_TYPES: MervTypeInfo[] = [
     name: "MERV 13",
     shortLabel: "Ultimate",
     description: "Superior filtration for asthma and sensitivities",
-    fromPrice: 16.99,
+    fromPrice: liveFromPrice("13") ?? 16.99,
+    badgeColor: "#ee9e10",
   },
   {
     key: "carbon",
     merv: 8,
     isCarbon: true,
     name: "MERV 8 Carbon",
-    shortLabel: "Odor",
+    shortLabel: "Odor Eliminator",
     description: "Everyday filtration plus activated carbon for odors",
-    fromPrice: 19.99,
+    fromPrice: liveFromPrice("carbon") ?? 19.99,
+    badgeColor: "#111111",
   },
 ];
+
+export function mervTypeFor(merv: MervRating, isCarbon?: boolean): MervTypeInfo {
+  const key: MervTypeKey = isCarbon ? "carbon" : (String(merv) as MervTypeKey);
+  return MERV_TYPES.find((t) => t.key === key) ?? MERV_TYPES[0];
+}
+
+/** Visual order: MERV 8 sits beside MERV 8 Carbon. Product IDs still follow MERV_TYPES. */
+export const MERV_DISPLAY_ORDER: MervTypeKey[] = ["8", "carbon", "11", "13"];
+
+export function mervTypesForDisplay(): MervTypeInfo[] {
+  return MERV_DISPLAY_ORDER.map(
+    (key) => MERV_TYPES.find((t) => t.key === key) ?? MERV_TYPES[0],
+  );
+}
 
 function listPriceFor(depth: number, merv: MervRating, isCarbon: boolean): number {
   const depthBase: Record<number, number> = {
@@ -180,7 +263,9 @@ function makeProduct(sizeMeta: FilterSize, type: MervTypeInfo, sizeIndex: number
     size: sizeMeta.slug,
     merv: type.merv,
     isCarbon: type.isCarbon,
-    price: listPriceFor(sizeMeta.depth, type.merv, type.isCarbon),
+    price:
+      liveListPrice(sizeMeta.slug, type.merv, type.isCarbon) ??
+      listPriceFor(sizeMeta.depth, type.merv, type.isCarbon),
     inStock: true,
     name: productName(type),
     description: type.description,
@@ -193,24 +278,12 @@ export function getFilterSize(slug: string): FilterSize | undefined {
   return idx === undefined ? undefined : FILTER_SIZES[idx];
 }
 
+export function compareFilterSizes(a: FilterSize, b: FilterSize): number {
+  return a.width - b.width || a.length - b.length || a.depth - b.depth;
+}
+
 export function getSizesByThickness(depth: number): FilterSize[] {
-  const all = FILTER_SIZES.filter((s) => s.depth === depth);
-  const featuredKey = String(depth) as keyof typeof FEATURED_SIZES;
-  const featuredSlugs = FEATURED_SIZES[featuredKey] ?? [];
-  const bySlug = new Map(all.map((s) => [s.slug, s]));
-  const ordered: FilterSize[] = [];
-  const used = new Set<string>();
-  for (const slug of featuredSlugs) {
-    const hit = bySlug.get(slug);
-    if (hit) {
-      ordered.push(hit);
-      used.add(slug);
-    }
-  }
-  for (const s of all) {
-    if (!used.has(s.slug)) ordered.push(s);
-  }
-  return ordered;
+  return FILTER_SIZES.filter((s) => s.depth === depth).sort(compareFilterSizes);
 }
 
 export function getProductById(id: number): Product | undefined {
@@ -249,15 +322,21 @@ export function popularSizeSlugs(limit = 12): string[] {
     "20x20x1",
     "16x20x1",
     "14x25x1",
-    "16x25x4",
-    "20x25x4",
+    "16x25x2",
+    "20x25x2",
     "12x24x1",
     "18x24x1",
     "20x30x1",
     "16x20x2",
-    "20x25x2",
+    "16x25x4",
+    "20x25x4",
   ];
-  return preferred.filter((slug) => getFilterSize(slug)).slice(0, limit);
+  return preferred
+    .map((slug) => getFilterSize(slug))
+    .filter((size): size is FilterSize => Boolean(size))
+    .slice(0, limit)
+    .sort(compareFilterSizes)
+    .map((size) => size.slug);
 }
 
 /** Legacy alias used by MERV guide cards */

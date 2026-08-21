@@ -26,12 +26,13 @@ export default function CheckoutCancel() {
           No charge was made. Your cart is still saved — you can try again anytime.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button size="lg" onClick={() => setLocation("/")}>
+          <Button size="lg" className="w-full sm:w-auto" onClick={() => setLocation("/")}>
             Return to store
           </Button>
           <Button
             size="lg"
             variant="outline"
+            className="w-full sm:w-auto"
             onClick={() => {
               setLocation("/");
               window.setTimeout(() => {

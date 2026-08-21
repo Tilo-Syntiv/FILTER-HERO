@@ -35,17 +35,23 @@ export default function CarouselDots({
             aria-label={`Go to slide ${i + 1}`}
             onClick={() => onSelect(i)}
             className={cn(
-              "h-1.5 rounded-full transition-all duration-300",
-              active ? "w-7" : "w-1.5 opacity-50 hover:opacity-80",
-              tone === "light"
-                ? active
-                  ? "bg-ice"
-                  : "bg-white"
-                : active
-                  ? "bg-hero"
-                  : "bg-navy/40",
+              "flex h-11 min-w-11 items-center justify-center",
             )}
-          />
+          >
+            <span
+              className={cn(
+                "h-1.5 rounded-full transition-all duration-300",
+                active ? "w-7" : "w-1.5 opacity-50 hover:opacity-80",
+                tone === "light"
+                  ? active
+                    ? "bg-ice"
+                    : "bg-white"
+                  : active
+                    ? "bg-hero"
+                    : "bg-navy/40",
+              )}
+            />
+          </button>
         );
       })}
     </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import HowToMeasureGuide from "@/components/HowToMeasureGuide";
 import FilterSizeDiagram from "@/components/FilterSizeDiagram";
+import PopularSizesCarousel from "@/components/PopularSizesCarousel";
+import { customQuotePath } from "@/lib/filter-size";
 import {
   catalogLengths,
   catalogWidths,
   getFilterSize,
-  popularSizeSlugs,
   THICKNESSES,
 } from "@shared/products";
+import { getPreferredMerv } from "@/lib/merv-pref";
 
 interface FilterFinderProps {
   onSizeSelect?: (size: string) => void;
@@ -33,20 +35,25 @@ export default function FilterFinder({
   const [width, setWidth] = useState("20");
   const [length, setLength] = useState("25");
   const [depth, setDepth] = useState("1");
+  const formId = useId();
 
   const goToSize = (size: string) => {
     if (onSizeSelect) {
       onSizeSelect(size);
       return;
     }
-    setLocation(`/sizes/${encodeURIComponent(size)}`);
+    const merv = getPreferredMerv();
+    const mervQuery = merv ? `?merv=${merv}` : "";
+    setLocation(
+      getFilterSize(size)
+        ? `/sizes/${encodeURIComponent(size)}${mervQuery}`
+        : customQuotePath(size),
+    );
   };
 
   const handleFind = () => {
     goToSize(`${width}x${length}x${depth}`);
   };
-
-  const popular = popularSizeSlugs(8);
 
   return (
     <div className={compact ? "space-y-8" : "space-y-12"}>
@@ -57,9 +64,9 @@ export default function FilterFinder({
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         className="text-center max-w-2xl mx-auto"
       >
-        <span className="section-label">Step one</span>
-        <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">
-          Find your filter size
+        <span className="section-label">Exact fit</span>
+        <h2 className="text-2xl md:text-5xl font-bold mb-4 tracking-tight">
+          Find your Filter Hero size
         </h2>
         <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
           Measure{" "}
@@ -88,27 +95,25 @@ export default function FilterFinder({
         transition={{ duration: 0.5, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
         className={
           compact
-            ? "grid lg:grid-cols-2 gap-10 lg:gap-16 items-center surface-panel rounded-3xl p-6 md:p-10"
-            : "surface-panel rounded-3xl p-6 md:p-10 max-w-3xl mx-auto"
+            ? "grid lg:grid-cols-2 gap-8 lg:gap-16 items-center surface-panel rounded-3xl p-4 sm:p-6 md:p-10"
+            : "surface-panel rounded-3xl p-4 sm:p-6 md:p-10 max-w-3xl mx-auto"
         }
       >
         {compact && <FilterSizeDiagram />}
 
         <div>
-          <p className="text-sm font-bold text-primary tracking-wide uppercase mb-6">
-            Enter your dimensions
-          </p>
+          <p className="section-label mb-6">Width × Length × Depth</p>
 
-          <div className="grid grid-cols-3 gap-3 md:gap-4 mb-8">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 mb-8">
             <div className="space-y-2">
               <Label
-                htmlFor="width"
+                htmlFor={`${formId}-width`}
                 className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
               >
                 Width
               </Label>
               <select
-                id="width"
+                id={`${formId}-width`}
                 value={width}
                 onChange={(e) => setWidth(e.target.value)}
                 className="select-modern"
@@ -123,13 +128,13 @@ export default function FilterFinder({
 
             <div className="space-y-2">
               <Label
-                htmlFor="length"
+                htmlFor={`${formId}-length`}
                 className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
               >
                 Length
               </Label>
               <select
-                id="length"
+                id={`${formId}-length`}
                 value={length}
                 onChange={(e) => setLength(e.target.value)}
                 className="select-modern"
@@ -144,13 +149,13 @@ export default function FilterFinder({
 
             <div className="space-y-2">
               <Label
-                htmlFor="depth"
+                htmlFor={`${formId}-depth`}
                 className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
               >
                 Depth
               </Label>
               <select
-                id="depth"
+                id={`${formId}-depth`}
                 value={depth}
                 onChange={(e) => setDepth(e.target.value)}
                 className="select-modern"
@@ -164,8 +169,8 @@ export default function FilterFinder({
             </div>
           </div>
 
-          <Button onClick={handleFind} size="lg" className="w-full font-semibold">
-            Find filter
+          <Button onClick={handleFind} size="lg" className="hero-shop-btn w-full text-white">
+            Find my size
             <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
 
@@ -175,35 +180,7 @@ export default function FilterFinder({
         </div>
       </motion.div>
 
-      {showPopular && (
-        <div>
-          <p className="text-sm font-semibold text-muted-foreground mb-4 text-center md:text-left">
-            Or jump to a popular size
-          </p>
-          <div className="flex flex-wrap justify-center md:justify-start gap-2">
-            {popular.map((slug) => {
-              const meta = getFilterSize(slug);
-              return (
-                <button
-                  key={slug}
-                  type="button"
-                  onClick={() => {
-                    if (meta) {
-                      setWidth(String(meta.width));
-                      setLength(String(meta.length));
-                      setDepth(String(meta.depth));
-                    }
-                    goToSize(slug);
-                  }}
-                  className="size-chip !px-4 !py-2.5 !text-xs md:!text-sm"
-                >
-                  {slug}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {showPopular && <PopularSizesCarousel embedded />}
     </div>
   );
 }

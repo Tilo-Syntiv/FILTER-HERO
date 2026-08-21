@@ -6,11 +6,14 @@ import CheckoutCancel from "@/pages/CheckoutCancel";
 import Home from "@/pages/Home";
 import SizeDetailPage from "@/pages/SizeDetail";
 import { AllSizesPage, ThicknessHubPage } from "@/pages/SizeBrowse";
+import { AllBrandsPage, BrandDetailPage } from "@/pages/BrandBrowse";
 import CustomAirFiltersPage from "@/pages/CustomAirFilters";
+import FilterChangeGuidePage from "@/pages/FilterChangeGuide";
 import { Route, Switch, useRoute } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { CartProvider } from "./contexts/CartContext";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 function ThicknessRoute() {
   const [, params] = useRoute("/filters/:thickness");
@@ -25,14 +28,24 @@ function SizeRoute() {
   return <SizeDetailPage sizeSlug={size} />;
 }
 
+function BrandRoute() {
+  const [, params] = useRoute("/brands/:slug");
+  const slug = params?.slug ?? "";
+  return <BrandDetailPage slug={slug} />;
+}
+
 function Router() {
+  useScrollToTop();
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/sizes" component={AllSizesPage} />
       <Route path="/sizes/:size" component={SizeRoute} />
       <Route path="/filters/:thickness" component={ThicknessRoute} />
+      <Route path="/brands" component={AllBrandsPage} />
+      <Route path="/brands/:slug" component={BrandRoute} />
       <Route path="/custom-air-filters" component={CustomAirFiltersPage} />
+      <Route path="/how-often-to-change-air-filter" component={FilterChangeGuidePage} />
       <Route path="/checkout/success" component={CheckoutSuccess} />
       <Route path="/checkout/cancel" component={CheckoutCancel} />
       <Route path="/404" component={NotFound} />

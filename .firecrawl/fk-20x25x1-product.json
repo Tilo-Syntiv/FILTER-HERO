@@ -1,0 +1,302 @@
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "@id": "https://filterking.com/air-filter-sizes/20x25x1#product",
+  "name": "20x25x1 Air Filter | MERV 8, 11, 13",
+  "url": "https://filterking.com/air-filter-sizes/20x25x1",
+  "image": "https://filterking.com/img/filters/merv-8/20x25x1-air-filter-merv-8.jpg",
+  "description": "Item Model Number: FF20x25x1-M8, Brand: Filter King, Filter size: 20x25x1, Actual Size: 19.5 x 24.5 x .75, 1-Inch Filter, MERV 8 Filter Rating, Protection From: Pollen, Dust, Mold, Dust Mites, Bacteria, Pet Dander, Smoke, Viruses, Residential / Commercial Use",
+  "sku": "FF20x25x1-M8",
+  "brand": {
+    "@type": "Brand",
+    "@id": "https://filterking.com#brand",
+    "name": "Filter King"
+  },
+  "category": "Air Filters",
+  "additionalProperty": [
+    {
+      "@type": "PropertyValue",
+      "name": "Actual Size",
+      "value": "19.5 x 24.5 x .75"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "Thickness",
+      "value": "1-Inch Filter"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "Frame Material",
+      "value": "Paperboard"
+    }
+  ],
+  "offers": [
+    {
+      "@type": "Offer",
+      "url": "https://filterking.com/air-filter-sizes/20x25x1?type_slug=merv-8&q=4",
+      "price": "44.94",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "itemCondition": "https://schema.org/NewCondition",
+      "sku": "FB20X25",
+      "seller": {
+        "@type": "Organization",
+        "name": "Filter King"
+      },
+      "shippingDetails": [
+        {
+          "@type": "OfferShippingDetails",
+          "shippingRate": {
+            "@type": "MonetaryAmount",
+            "value": "0.00",
+            "currency": "USD"
+          },
+          "shippingDestination": {
+            "@type": "DefinedRegion",
+            "addressCountry": "US"
+          },
+          "deliveryTime": {
+            "@type": "ShippingDeliveryTime",
+            "transitTime": {
+              "@type": "QuantitativeValue",
+              "minValue": 1,
+              "maxValue": 3,
+              "unitCode": "DAY"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Offer",
+      "url": "https://filterking.com/air-filter-sizes/20x25x1?type_slug=merv-8&q=4",
+      "price": "44.94",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "itemCondition": "https://schema.org/NewCondition",
+      "sku": "FF20x25x1-M8",
+      "seller": {
+        "@type": "Organization",
+        "name": "Filter King"
+      },
+      "shippingDetails": [
+        {
+          "@type": "OfferShippingDetails",
+          "shippingRate": {
+            "@type": "MonetaryAmount",
+            "value": "0.00",
+            "currency": "USD"
+          },
+          "shippingDestination": {
+            "@type": "DefinedRegion",
+            "addressCountry": "US"
+          },
+          "deliveryTime": {
+            "@type": "ShippingDeliveryTime",
+            "transitTime": {
+              "@type": "QuantitativeValue",
+              "minValue": 1,
+              "maxValue": 3,
+              "unitCode": "DAY"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Offer",
+      "url": "https://filterking.com/air-filter-sizes/20x25x1?type_slug=merv-11&q=4",
+      "price": "56.82",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "itemCondition": "https://schema.org/NewCondition",
+      "sku": "FA20X25",
+      "seller": {
+        "@type": "Organization",
+        "name": "Filter King"
+      },
+      "shippingDetails": [
+        {
+          "@type": "OfferShippingDetails",
+          "shippingRate": {
+            "@type": "MonetaryAmount",
+            "value": "0.00",
+            "currency": "USD"
+          },
+          "shippingDestination": {
+            "@type": "DefinedRegion",
+            "addressCountry": "US"
+          },
+          "deliveryTime": {
+            "@type": "ShippingDeliveryTime",
+            "transitTime": {
+              "@type": "QuantitativeValue",
+              "minValue": 1,
+              "maxValue": 3,
+              "unitCode": "DAY"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Offer",
+      "url": "https://filterking.com/air-filter-sizes/20x25x1?type_slug=merv-13&q=4",
+      "price": "66.06",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "itemCondition": "https://schema.org/NewCondition",
+      "sku": "FD20X25",
+      "seller": {
+        "@type": "Organization",
+        "name": "Filter King"
+      },
+      "shippingDetails": [
+        {
+          "@type": "OfferShippingDetails",
+          "shippingRate": {
+            "@type": "MonetaryAmount",
+            "value": "0.00",
+            "currency": "USD"
+          },
+          "shippingDestination": {
+            "@type": "DefinedRegion",
+            "addressCountry": "US"
+          },
+          "deliveryTime": {
+            "@type": "ShippingDeliveryTime",
+            "transitTime": {
+              "@type": "QuantitativeValue",
+              "minValue": 1,
+              "maxValue": 3,
+              "unitCode": "DAY"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Offer",
+      "url": "https://filterking.com/air-filter-sizes/20x25x1?type_slug=merv-8-carbon&q=4",
+      "price": "68.94",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "itemCondition": "https://schema.org/NewCondition",
+      "sku": "FK20x25x1-CO",
+      "seller": {
+        "@type": "Organization",
+        "name": "Filter King"
+      },
+      "shippingDetails": [
+        {
+          "@type": "OfferShippingDetails",
+          "shippingRate": {
+            "@type": "MonetaryAmount",
+            "value": "0.00",
+            "currency": "USD"
+          },
+          "shippingDestination": {
+            "@type": "DefinedRegion",
+            "addressCountry": "US"
+          },
+          "deliveryTime": {
+            "@type": "ShippingDeliveryTime",
+            "transitTime": {
+              "@type": "QuantitativeValue",
+              "minValue": 1,
+              "maxValue": 3,
+              "unitCode": "DAY"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "hasMerchantReturnPolicy": {
+    "@type": "MerchantReturnPolicy",
+    "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+    "merchantReturnDays": 30
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8229165",
+    "reviewCount": "192"
+  },
+  "review": [
+    {
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "Charely L."
+      },
+      "datePublished": "2026-06-19",
+      "reviewBody": "A big thank you to Filter King for their quick response and excellent customer service. They made exchanging the filter size I purchased easy and hassle-free. Friendly, professional, and highly appreciated!",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": 5,
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    },
+    {
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "Deborah P."
+      },
+      "datePublished": "2024-02-11",
+      "reviewBody": "I did not pay attention when ordering the size is a quarter inch smaller than what you think was just enough to suck it into the ductwork I remedied with two pieces of string running them parallel behind the filter, other than that works great",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": 3,
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    },
+    {
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "Michael M."
+      },
+      "datePublished": "2026-08-08",
+      "reviewBody": "Work Great",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": 5,
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    },
+    {
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "earnett a."
+      },
+      "datePublished": "2026-08-07",
+      "reviewBody": "Very good fitters",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": 5,
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    },
+    {
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "Steven S."
+      },
+      "datePublished": "2026-08-03",
+      "reviewBody": "First box arrived damaged by thr delivery service. Customer service replaced the order immediately!",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": 5,
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }
+  ]
+}

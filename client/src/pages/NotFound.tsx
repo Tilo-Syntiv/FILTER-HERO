@@ -32,7 +32,7 @@ export default function NotFound() {
         <p className="text-muted-foreground mb-8">
           That page doesn't exist. Head back to the storefront to find your filter.
         </p>
-        <Button onClick={() => setLocation("/")} size="lg">
+        <Button className="w-full sm:w-auto" onClick={() => setLocation("/")} size="lg">
           <Home className="w-4 h-4 mr-2" />
           Go home
         </Button>

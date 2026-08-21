@@ -1,41 +1,91 @@
-import { Truck, ShieldCheck, Crosshair, MessageCircle, Sparkles } from "lucide-react";
+import { Truck, ShieldCheck, Crosshair, MessageCircle, Sparkles, Hammer, type LucideIcon } from "lucide-react";
+
+const FEATURED = {
+  icon: Truck,
+  label: "FREE SHIPPING",
+  hint: "Contiguous US",
+};
 
 const ITEMS = [
-  { icon: Truck, label: "Fast shipping nationwide" },
   { icon: ShieldCheck, label: "30-day fit guarantee" },
-  { icon: Crosshair, label: "Exact Width × Length × Depth" },
-  { icon: Sparkles, label: "MERV 8 · 11 · 13 · Carbon" },
+  { icon: Crosshair, label: "All Sizes Available" },
+  { icon: Hammer, label: "Built To Last" },
+  { icon: Sparkles, label: "MERV 8 · MERV 8 Carbon · MERV 11 · MERV 13" },
   { icon: MessageCircle, label: "Real HVAC support" },
 ];
 
-export default function TrustMarquee() {
-  const loop = [...ITEMS, ...ITEMS];
-
+function ShipChip() {
+  const Icon = FEATURED.icon;
   return (
-    <div
-      className="relative border-y border-border/70 bg-white/50 backdrop-blur-sm overflow-hidden"
-      aria-label="Trust highlights"
-    >
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-16 md:w-28 z-10 bg-gradient-to-r from-background to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-16 md:w-28 z-10 bg-gradient-to-l from-background to-transparent" />
-      <div className="marquee-track flex w-max items-center gap-10 md:gap-14 py-3.5">
-        {loop.map((item, i) => {
-          const Icon = item.icon;
-          return (
-            <div
-              key={`${item.label}-${i}`}
-              className="flex items-center gap-2.5 text-sm font-semibold text-foreground/80 whitespace-nowrap"
-            >
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Icon className="h-3.5 w-3.5" strokeWidth={2} />
-              </span>
-              {item.label}
-              <span className="text-hero/40 ml-6 md:ml-10 select-none" aria-hidden>
-                ●
-              </span>
-            </div>
-          );
-        })}
+    <span className="trust-ship-chip">
+      <span className="trust-chip-icon trust-chip-icon-hero">
+        <Icon className="h-4 w-4" strokeWidth={2.5} />
+      </span>
+      <span className="flex flex-col leading-none">
+        <span>{FEATURED.label}</span>
+        <span className="mt-0.5 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-white/80">
+          {FEATURED.hint}
+        </span>
+      </span>
+    </span>
+  );
+}
+
+function TrustChip({
+  icon: Icon,
+  label,
+}: {
+  icon: LucideIcon;
+  label: string;
+}) {
+  return (
+    <span className="trust-chip">
+      <span className="trust-chip-icon trust-chip-icon-ice">
+        <Icon className="h-4 w-4" strokeWidth={2.4} />
+      </span>
+      {label}
+    </span>
+  );
+}
+
+function MarqueeSequence() {
+  return (
+    <>
+      <ShipChip />
+      {ITEMS.slice(0, 2).map((item) => (
+        <TrustChip key={item.label} {...item} />
+      ))}
+      <ShipChip />
+      {ITEMS.slice(2).map((item) => (
+        <TrustChip key={item.label} {...item} />
+      ))}
+    </>
+  );
+}
+
+export default function TrustMarquee() {
+  return (
+    <div className="trust-marquee" aria-label="Trust highlights">
+      <p className="sr-only">
+        {FEATURED.label} in the {FEATURED.hint}. {ITEMS.map((item) => item.label).join(". ")}.
+      </p>
+
+      <div
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[#173056] to-transparent md:w-16"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-[#23406a] to-transparent md:w-16"
+        aria-hidden
+      />
+
+      <div className="marquee-track trust-marquee-track flex w-max items-center py-4 md:py-[1.15rem]">
+        <div className="flex items-center gap-3.5 pr-3.5 md:gap-5 md:pr-5" aria-hidden>
+          <MarqueeSequence />
+        </div>
+        <div className="marquee-dup flex items-center gap-3.5 pr-3.5 md:gap-5 md:pr-5" aria-hidden>
+          <MarqueeSequence />
+        </div>
       </div>
     </div>
   );

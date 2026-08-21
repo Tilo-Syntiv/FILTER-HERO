@@ -11,14 +11,16 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { FILTER_PRODUCT_IMAGE } from "@shared/products";
 import { useCart } from "@/contexts/CartContext";
+import { stashQuoteHandoff } from "@/lib/quote-handoff";
 
 type CartDrawerProps = {
   onRequestQuote: () => void;
 };
 
 export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
-  const { items, isOpen, closeCart, setQty, removeItem, subtotal, itemCount } =
+  const { items, isOpen, closeCart, setQty, removeItem, subtotal, itemCount, cartSummaryText } =
     useCart();
   const [checkingOut, setCheckingOut] = useState(false);
 
@@ -49,7 +51,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-      <DrawerContent className="max-h-[92vh]">
+      <DrawerContent className="max-h-[min(92dvh,40rem)]">
         <DrawerHeader className="text-left">
           <DrawerTitle className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5 text-primary" />
@@ -69,14 +71,19 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
             items.map((item) => (
               <div
                 key={item.productId}
-                className="flex items-start justify-between gap-3 border-b border-border pb-4"
+                className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4"
               >
-                <div className="min-w-0">
-                  <p className="font-semibold text-foreground truncate">
+                <img
+                  src={FILTER_PRODUCT_IMAGE}
+                  alt=""
+                  className="h-16 w-16 shrink-0 rounded-lg border border-border bg-white object-contain"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-foreground break-words">
                     {item.size}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {item.name} · MERV {item.merv}
+                    {item.name}
                   </p>
                   <p className="text-sm font-medium mt-1">
                     ${item.price.toFixed(2)}
@@ -86,7 +93,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-11 w-11"
                     onClick={() => setQty(item.productId, item.qty - 1)}
                     aria-label="Decrease quantity"
                   >
@@ -98,7 +105,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-11 w-11"
                     onClick={() => setQty(item.productId, item.qty + 1)}
                     aria-label="Increase quantity"
                   >
@@ -107,7 +114,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-destructive"
+                    className="h-11 w-11 text-destructive"
                     onClick={() => removeItem(item.productId)}
                     aria-label="Remove item"
                   >
@@ -119,14 +126,14 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
           )}
         </div>
 
-        <DrawerFooter className="border-t border-border">
+        <DrawerFooter className="border-t border-border pb-[max(1rem,env(safe-area-inset-bottom))]">
           <div className="flex justify-between text-sm mb-2">
             <span className="text-muted-foreground">Subtotal</span>
             <span className="font-bold text-lg">${subtotal.toFixed(2)}</span>
           </div>
           <Button
             size="lg"
-            className="w-full"
+            className="hero-shop-btn w-full text-white"
             disabled={items.length === 0 || checkingOut}
             onClick={handleCheckout}
           >
@@ -138,6 +145,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
             className="w-full"
             disabled={items.length === 0}
             onClick={() => {
+              stashQuoteHandoff({ cart: cartSummaryText() });
               closeCart();
               onRequestQuote();
             }}

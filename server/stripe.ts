@@ -38,7 +38,7 @@ export async function createCheckoutSession(items: CheckoutItem[], clientUrl: st
       throw new Error(`Invalid quantity for product ${item.productId}`);
     }
 
-    const unit = unitPriceForQty(product.price, item.quantity);
+    const unit = unitPriceForQty(product.price, item.quantity, product);
     const label = product.isCarbon
       ? `${product.name} (Carbon) — ${product.size}`
       : `${product.name} — ${product.size} MERV ${product.merv}`;

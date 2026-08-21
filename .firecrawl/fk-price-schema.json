@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "properties": {
+    "nominal_size": { "type": "string" },
+    "actual_size": { "type": "string" },
+    "sku": { "type": "string" },
+    "merv": { "type": "string" },
+    "product_name": { "type": "string" },
+    "is_carbon": { "type": "boolean" },
+    "is_freedom": { "type": "boolean" },
+    "unit_price_qty_1": { "type": "number" },
+    "unit_price_qty_2": { "type": "number" },
+    "unit_price_qty_4": { "type": "number" },
+    "unit_price_qty_6": { "type": "number" },
+    "unit_price_qty_12": { "type": "number" },
+    "pct_off_qty_2": { "type": "number" },
+    "pct_off_qty_4": { "type": "number" },
+    "pct_off_qty_6": { "type": "number" },
+    "pct_off_qty_12": { "type": "number" },
+    "subscription_extra_pct": { "type": "number" },
+    "pack_qty_default": { "type": "number" },
+    "default_pack_total": { "type": "number" },
+    "available_merv_options": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

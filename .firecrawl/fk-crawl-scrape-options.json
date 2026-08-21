@@ -1,0 +1,5 @@
+{
+  "formats": ["markdown"],
+  "onlyMainContent": true,
+  "waitFor": 1500
+}

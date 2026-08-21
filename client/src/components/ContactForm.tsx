@@ -143,7 +143,7 @@ export default function ContactForm({
           value={watch("intent")}
           onValueChange={(v) => setValue("intent", v as "quote" | "support")}
         >
-          <SelectTrigger>
+          <SelectTrigger className="h-11 w-full text-base">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -172,7 +172,7 @@ export default function ContactForm({
         </p>
       ) : null}
 
-      <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto">
+      <Button type="submit" size="lg" disabled={isSubmitting} className="hero-shop-btn text-white w-full sm:w-auto">
         {isSubmitting ? "Sending…" : "Send message"}
       </Button>
     </form>

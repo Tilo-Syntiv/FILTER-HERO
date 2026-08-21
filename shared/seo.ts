@@ -1,5 +1,6 @@
 import { BRAND_EMAIL, BRAND_NAME, BRAND_TAGLINE } from "./const";
 import {
+  FILTER_PRODUCT_IMAGE,
   FILTER_SIZES,
   MERV_TYPES,
   THICKNESSES,
@@ -10,6 +11,7 @@ import {
   unitPriceForQty,
   type FilterSize,
 } from "./products";
+import { HVAC_BRAND_LIST, getHvacBrand } from "./hvac-brands";
 
 /** Canonical production origin — override with VITE_SITE_URL / CLIENT_URL. */
 export const DEFAULT_SITE_URL = "https://filterhero.net";
@@ -25,55 +27,141 @@ export const SITE_DEFAULTS = {
   twitterHandle: "",
 } as const;
 
+export type FaqAction = {
+  href: string;
+  label: string;
+};
+
 export type FaqItem = {
   question: string;
   answer: string;
+  /** Topic chip used to group and filter the visible FAQ list. */
+  category?: string;
+  /** Optional next-step link under the answer. */
+  action?: FaqAction;
 };
+
+export const CHANGE_GUIDE_PATH = "/how-often-to-change-air-filter";
 
 /** Answer-first FAQs for AEO / VEO / AIO citation. */
 export const SITE_FAQS: FaqItem[] = [
   {
     question: "What size air filter do I need?",
+    category: "Sizing",
     answer:
       "You need the exact Width × Length × Depth printed on your current filter or measured from the filter slot. Enter those three numbers in our size finder to shop the matching HVAC filter.",
+    action: { href: "/#finder", label: "Open the size finder" },
   },
   {
     question: "How do I measure an air filter?",
+    category: "Sizing",
     answer:
       "Measure Width (side to side), Length (top to bottom), and Depth (thickness) in inches. Use the nominal size on the frame label when present; otherwise measure the filter itself and round to the nearest standard size.",
-  },
-  {
-    question: "How often should I change my HVAC filter?",
-    answer:
-      "Most homes should change filters every 30 to 90 days. Change closer to 30 days with pets, allergies, high dust, or continuous HVAC use; every 90 days may work for light use in a clean home.",
-  },
-  {
-    question: "What MERV rating should I buy?",
-    answer:
-      "MERV 8 is standard everyday filtration. MERV 11 is better for pets and mild allergies. MERV 13 offers higher filtration for asthma and sensitivities. MERV 8 Carbon adds odor reduction. Confirm your HVAC system supports higher MERV before upgrading.",
+    action: { href: "/#finder", label: "See how to measure" },
   },
   {
     question: "What is the difference between nominal and actual filter size?",
+    category: "Sizing",
     answer:
       `Nominal size is the labeled size (for example 20×25×1). Actual size is slightly smaller so the filter slides into the slot. ${BRAND_NAME} lists both on each size page so you can verify fit.`,
   },
   {
+    question: "How often should I change my HVAC filter?",
+    category: "Replacement",
+    answer:
+      "Most homes should change filters every 30 to 90 days. Pets, allergies, dust, and a fan that runs constantly pull you toward 30. Use Filter Clock: tell us about the house and we'll give you the date — then buy the pack that matches a year of air.",
+    action: { href: CHANGE_GUIDE_PATH, label: "Get your change date" },
+  },
+  {
+    question: "What MERV rating should I buy?",
+    category: "MERV",
+    answer:
+      "MERV 8 is standard everyday filtration. MERV 11 is better for pets and mild allergies. MERV 13 offers higher filtration for asthma and sensitivities. MERV 8 Carbon adds odor reduction. Confirm your HVAC system supports higher MERV before upgrading.",
+    action: { href: "/#merv", label: "Compare MERV ratings" },
+  },
+  {
+    question: "Do you sell filters for Carrier, Trane, Honeywell, and other HVAC brands?",
+    category: "Ordering",
+    answer:
+      `Yes. ${BRAND_NAME} replacement filters are made to the same Width × Length × Depth as OEM media for major HVAC brands. Shop by brand, model number, or OEM part number, then choose MERV 8, 11, 13, or carbon.`,
+    action: { href: "/brands", label: "Shop by HVAC brand" },
+  },
+  {
     question: "Do you offer free shipping?",
+    category: "Ordering",
     answer:
       `Yes. ${BRAND_NAME} offers free shipping on orders over $50 within the contiguous United States, with a 30-day fit guarantee on standard catalog sizes.`,
+  },
+];
+
+export const CHANGE_GUIDE_FAQS: FaqItem[] = [
+  {
+    question: "How often should I change my HVAC filter?",
+    category: "Timing",
+    answer:
+      "Most homes should change a 1-inch filter every 30 to 90 days. Pets, allergies, dust, wildfire smoke, or a fan that runs constantly pull you toward 30. 2-inch filters often last 90–120 days; 4-inch and 5-inch media can last 6–12 months. Use Filter Clock to get a change date for your home. Inspect monthly either way.",
+    action: { href: "#cadence", label: "Run Filter Clock" },
+  },
+  {
+    question: "Do thicker air filters last longer?",
+    category: "Timing",
+    answer:
+      "Yes. Extra depth means more pleat area, so particles have more places to land before airflow drops. A 1-inch filter is typically a 30–90 day part. A 4-inch or 5-inch media cabinet filter can run for months — still check it every month.",
+  },
+  {
+    question: "Do pets mean I should change my filter more often?",
+    category: "Your home",
+    answer:
+      "Yes. One pet often cuts filter life by about a quarter. Multiple pets or heavy shedders can cut it nearly in half. MERV 11 or MERV 13 is a better match than MERV 8 in a pet home.",
+    action: { href: "#cadence", label: "Get a date for a pet home" },
+  },
+  {
+    question: "What MERV rating should I use if I have allergies?",
+    category: "Your home",
+    answer:
+      "MERV 13 is the usual upgrade for asthma and allergy-sensitive homes, if your HVAC system can handle the extra resistance. Change it on the early side of the 30–90 day window so capture stays high. Confirm with your equipment manual before jumping from MERV 8 to 13 on a 1-inch slot.",
+    action: { href: "/#merv", label: "Compare MERV ratings" },
+  },
+  {
+    question: "Should I run the HVAC fan on ON all the time?",
+    category: "Your home",
+    answer:
+      "Fan ON moves more air through the filter, which can help mix temperatures — and it loads the filter faster. Plan on changing sooner than the auto-fan schedule. If the house is dusty, Auto plus a higher MERV is often the calmer setup.",
+  },
+  {
+    question: "How do I know my air filter is done?",
+    category: "Warning signs",
+    answer:
+      "Pull it and hold it to a light. If you cannot see glow through the pleats, replace it. Other tells: gray or black media, weak vents, uneven rooms, whistling at the slot, extra dust on furniture, and a sudden jump in the energy bill.",
+  },
+  {
+    question: "What happens if I don't change my air filter?",
+    category: "Warning signs",
+    answer:
+      "Indoor air quality drops, the blower works harder, and energy use can rise 5–15% according to the U.S. Department of Energy. Leave it long enough and you risk iced coils, motor strain, and repair bills that dwarf the cost of a filter.",
+  },
+  {
+    question: "Can I wash a pleated HVAC filter?",
+    category: "Care",
+    answer:
+      "No. Disposable pleated filters are not washable. Water collapses the media and ruins capture. When it’s loaded, replace it. Keep a spare on the shelf so you are never stuck with a clogged filter overnight.",
   },
 ];
 
 export const CUSTOM_FAQS: FaqItem[] = [
   {
     question: "Can I order a custom air filter size?",
+    category: "Quotes",
     answer:
       `Yes. If your Width × Length × Depth is not in the ${BRAND_NAME} catalog, send the measurements (or a photo of the filter label) and we will quote a custom HVAC filter.`,
+    action: { href: "#custom-quote", label: "Request a quote" },
   },
   {
     question: "What information do you need for a custom filter quote?",
+    category: "Quotes",
     answer:
       "Provide Width, Length, and Depth in inches, preferred MERV (8, 11, 13, or carbon), and quantity. A photo of the existing filter label helps confirm nominal vs actual size.",
+    action: { href: "#custom-quote", label: "Jump to the quote form" },
   },
 ];
 
@@ -109,7 +197,7 @@ export function thicknessSeo(siteUrl: string, depth: number) {
   const path = `/filters/${depth}-inch`;
   return {
     title: `${depth}" Air Filters — Shop by Size | ${BRAND_NAME}`,
-    description: `Shop ${depth}-inch thick HVAC and furnace air filters. Select your Width × Length, then choose MERV 8, 11, 13, or carbon with volume pricing.`,
+    description: `Shop ${depth}-inch depth HVAC and furnace air filters. Pick your width, then Width × Length. Available in MERV 8, 11, 13, or carbon with volume pricing.`,
     path,
     canonical: absoluteUrl(siteUrl, path),
     type: "website" as const,
@@ -129,6 +217,39 @@ export function sizeSeo(siteUrl: string, size: FilterSize | string) {
     path,
     canonical: absoluteUrl(siteUrl, path),
     type: "product" as const,
+  };
+}
+
+export function allBrandsSeo(siteUrl: string) {
+  const path = "/brands";
+  return {
+    title: `Shop HVAC Filters by Brand | ${BRAND_NAME}`,
+    description: `Shop ${BRAND_NAME} replacement air filters by HVAC brand — Carrier, Trane, Honeywell, Lennox, Goodman, and more. Match size, model number, or OEM part number.`,
+    path,
+    canonical: absoluteUrl(siteUrl, path),
+    type: "website" as const,
+  };
+}
+
+export function brandSeo(siteUrl: string, name: string, slug: string) {
+  const path = `/brands/${slug}`;
+  return {
+    title: `${name} Air Filters | Replacement HVAC Filters | ${BRAND_NAME}`,
+    description: `Buy ${BRAND_NAME} replacement filters for ${name} systems. Same Width × Length × Depth as OEM media. Shop by size, HVAC model, or OEM part number.`,
+    path,
+    canonical: absoluteUrl(siteUrl, path),
+    type: "website" as const,
+  };
+}
+
+export function filterChangeGuideSeo(siteUrl: string) {
+  const path = CHANGE_GUIDE_PATH;
+  return {
+    title: `How Often to Change Your Air Filter | ${BRAND_NAME}`,
+    description: `Most 1-inch HVAC filters last 30–90 days. Pets, dust, and thickness change that number. Use ${BRAND_NAME} Filter Clock to get a change date for your home.`,
+    path,
+    canonical: absoluteUrl(siteUrl, path),
+    type: "article" as const,
   };
 }
 
@@ -158,6 +279,7 @@ export function buildOrganizationSchema(siteUrl: string) {
       "Furnace filters",
       "MERV ratings",
       "Custom air filter sizes",
+      "OEM replacement HVAC filters",
     ],
     contactPoint: {
       "@type": "ContactPoint",
@@ -261,6 +383,69 @@ export function buildHowToMeasureSchema(siteUrl: string) {
   };
 }
 
+export function buildHowToChangeFilterSchema(siteUrl: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: "How to change an HVAC air filter",
+    description:
+      "Turn the system off, pull the old filter, light-test it, and seat a new filter with the airflow arrow pointing toward the equipment.",
+    totalTime: "PT5M",
+    url: absoluteUrl(siteUrl, CHANGE_GUIDE_PATH),
+    step: [
+      {
+        "@type": "HowToStep",
+        position: 1,
+        name: "Turn the HVAC system off",
+        text: "Set the thermostat to off before opening the filter slot.",
+      },
+      {
+        "@type": "HowToStep",
+        position: 2,
+        name: "Find every filter",
+        text: "Check wall or ceiling return grilles and the furnace or air handler rack. Large homes often have more than one filter.",
+      },
+      {
+        "@type": "HowToStep",
+        position: 3,
+        name: "Read the size and airflow arrow",
+        text: "Note Width × Length × Depth printed on the frame and the arrow direction toward the equipment.",
+      },
+      {
+        "@type": "HowToStep",
+        position: 4,
+        name: "Light-test the old filter",
+        text: "Hold the filter to a lamp. Replace it if little or no light passes through the pleats, or if the media is gray, torn, or wet.",
+      },
+      {
+        "@type": "HowToStep",
+        position: 5,
+        name: "Install the new filter",
+        text: "Slide the new filter in with the arrow pointing toward the furnace or air handler, restore power, and confirm airflow at a vent.",
+      },
+    ],
+  };
+}
+
+export function buildArticleSchema(
+  siteUrl: string,
+  seo: { title: string; description: string; path: string; canonical: string },
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: seo.title,
+    description: seo.description,
+    url: seo.canonical,
+    mainEntityOfPage: seo.canonical,
+    datePublished: "2026-08-17",
+    dateModified: "2026-08-17",
+    author: { "@type": "Organization", name: BRAND_NAME, url: absoluteUrl(siteUrl, "/") },
+    publisher: { "@type": "Organization", name: BRAND_NAME, url: absoluteUrl(siteUrl, "/") },
+    about: ["HVAC air filters", "Furnace filter replacement", "Indoor air quality"],
+  };
+}
+
 /** Speakable content for voice assistants (VEO). */
 export function buildSpeakableSchema(siteUrl: string, cssSelectors: string[]) {
   return {
@@ -305,7 +490,7 @@ export function buildProductSchema(
     brand: { "@type": "Brand", name: BRAND_NAME },
     category: "HVAC Air Filters",
     url: absoluteUrl(siteUrl, `/sizes/${encodeURIComponent(size.slug)}`),
-    image: absoluteUrl(siteUrl, "/logo.png"),
+    image: absoluteUrl(siteUrl, FILTER_PRODUCT_IMAGE),
     material: "Pleated filter media",
     additionalProperty: [
       {
@@ -361,8 +546,17 @@ export function sitemapPaths(): { path: string; changefreq: string; priority: st
   const paths: { path: string; changefreq: string; priority: string }[] = [
     { path: "/", changefreq: "daily", priority: "1.0" },
     { path: "/sizes", changefreq: "weekly", priority: "0.9" },
+    { path: CHANGE_GUIDE_PATH, changefreq: "monthly", priority: "0.8" },
     { path: "/custom-air-filters", changefreq: "monthly", priority: "0.7" },
+    { path: "/brands", changefreq: "weekly", priority: "0.85" },
   ];
+  for (const b of HVAC_BRAND_LIST) {
+    paths.push({
+      path: `/brands/${b.slug}`,
+      changefreq: "weekly",
+      priority: b.featured ? "0.8" : "0.6",
+    });
+  }
   for (const d of THICKNESSES) {
     paths.push({
       path: `/filters/${d}-inch`,
@@ -404,6 +598,8 @@ export function buildLlmsTxt(siteUrl: string): string {
 ## Key pages
 - Home / size finder: ${absoluteUrl(siteUrl, "/")}
 - All sizes: ${absoluteUrl(siteUrl, "/sizes")}
+- When to change a filter: ${absoluteUrl(siteUrl, CHANGE_GUIDE_PATH)}
+- Shop by HVAC brand: ${absoluteUrl(siteUrl, "/brands")}
 ${THICKNESSES.map((d) => `- ${d}" hub: ${absoluteUrl(siteUrl, `/filters/${d}-inch`)}`).join("\n")}
 
 ## Catalog
@@ -445,7 +641,7 @@ ${byDepth}
 
 ## Voice / answer snippets
 - Direct answer: You need the Width × Length × Depth printed on your current filter or measured from the slot.
-- Replacement: Most homes change HVAC filters every 30 to 90 days.
+- Replacement: Most homes change HVAC filters every 30 to 90 days. Pets, dust, and thickness change the interval — see ${absoluteUrl(siteUrl, CHANGE_GUIDE_PATH)}.
 - MERV: MERV 8 everyday, MERV 11 pets/allergies, MERV 13 higher filtration, carbon for odors.
 
 ## Video
@@ -478,7 +674,7 @@ export type DocumentSeo = {
   description: string;
   path: string;
   canonical: string;
-  type: "website" | "product";
+  type: "website" | "product" | "article";
   noindex?: boolean;
   jsonLd: unknown[];
 };
@@ -575,12 +771,44 @@ export function resolveDocumentSeo(pathname: string, siteUrl: string): DocumentS
       jsonLd.push(
         buildProductSchema(siteUrl, sizeMeta, {
           mervName: merv8.name,
-          price: unitPriceForQty(variant.price, 1),
+          price: unitPriceForQty(variant.price, 1, variant),
           description: `${decoded} ${merv8.name} pleated HVAC air filter. ${merv8.description}`,
         }),
       );
     }
     return { ...seo, jsonLd };
+  }
+
+  if (path === "/brands") {
+    const seo = allBrandsSeo(siteUrl);
+    return {
+      ...seo,
+      jsonLd: [
+        buildBreadcrumbSchema(siteUrl, [
+          { name: "Home", path: "/" },
+          { name: "Shop by brand", path: "/brands" },
+        ]),
+      ],
+    };
+  }
+
+  const brandMatch = path.match(/^\/brands\/([a-z0-9-]+)$/);
+  if (brandMatch) {
+    const brand = getHvacBrand(brandMatch[1]);
+    const seo = brandSeo(siteUrl, brand?.name ?? brandMatch[1], brandMatch[1]);
+    if (!brand) {
+      return { ...seo, title: `Brand not found | ${BRAND_NAME}`, noindex: true, jsonLd: [] };
+    }
+    return {
+      ...seo,
+      jsonLd: [
+        buildBreadcrumbSchema(siteUrl, [
+          { name: "Home", path: "/" },
+          { name: "Shop by brand", path: "/brands" },
+          { name: brand.name, path: `/brands/${brand.slug}` },
+        ]),
+      ],
+    };
   }
 
   if (path === "/custom-air-filters") {
@@ -593,6 +821,23 @@ export function resolveDocumentSeo(pathname: string, siteUrl: string): DocumentS
           { name: "Custom air filters", path: "/custom-air-filters" },
         ]),
         buildFaqSchema(CUSTOM_FAQS),
+        buildSpeakableSchema(siteUrl, [".seo-answer", ".seo-speakable-q", ".seo-speakable-a"]),
+      ],
+    };
+  }
+
+  if (path === CHANGE_GUIDE_PATH) {
+    const seo = filterChangeGuideSeo(siteUrl);
+    return {
+      ...seo,
+      jsonLd: [
+        buildBreadcrumbSchema(siteUrl, [
+          { name: "Home", path: "/" },
+          { name: "When to change your filter", path: CHANGE_GUIDE_PATH },
+        ]),
+        buildArticleSchema(siteUrl, seo),
+        buildHowToChangeFilterSchema(siteUrl),
+        buildFaqSchema(CHANGE_GUIDE_FAQS),
         buildSpeakableSchema(siteUrl, [".seo-answer", ".seo-speakable-q", ".seo-speakable-a"]),
       ],
     };
@@ -657,7 +902,7 @@ export function injectSeoIntoHtml(html: string, seo: DocumentSeo): string {
   out = replaceMeta(out, "property", "og:title", seo.title);
   out = replaceMeta(out, "property", "og:description", seo.description);
   out = replaceMeta(out, "property", "og:url", seo.canonical);
-  out = replaceMeta(out, "property", "og:type", seo.type === "product" ? "product" : "website");
+  out = replaceMeta(out, "property", "og:type", seo.type === "product" ? "product" : seo.type === "article" ? "article" : "website");
   out = replaceMeta(out, "name", "twitter:title", seo.title);
   out = replaceMeta(out, "name", "twitter:description", seo.description);
 
