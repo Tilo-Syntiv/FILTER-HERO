@@ -9,23 +9,31 @@ import {
 import { BRAND_NAME } from "@/const";
 import BrandLogo from "@/components/BrandLogo";
 
-export function BrandFamilyGrid({ families }: { families: BrandFamily[] }) {
+export function BrandFamilyGrid({
+  families,
+  onBrandClick,
+}: {
+  families: BrandFamily[];
+  onBrandClick?: () => void;
+}) {
   return (
     <div className="grid gap-4 md:gap-5">
       {families.map((family) => (
         <div key={family.id} className="brand-family">
           <p className="brand-family-label">{family.label}</p>
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9">
             {family.brands.map((b) => (
               <Link
                 key={b.slug}
                 href={`/brands/${b.slug}`}
                 className="brand-chip"
+                title={b.name}
+                onClick={onBrandClick}
               >
                 <BrandLogo
                   slug={b.slug}
                   name={b.name}
-                  className="h-11 w-full max-w-[9rem]"
+                  className="h-5 w-full max-w-[4rem]"
                 />
                 <span>{b.name}</span>
               </Link>

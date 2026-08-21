@@ -5,7 +5,8 @@ import BrandLockup from "@/components/BrandLockup";
 import { useCart } from "@/contexts/CartContext";
 import { BRAND_EMAIL } from "@/const";
 import { scrollToHashTarget } from "@/hooks/useHashScroll";
-import { featuredBrandFamilies } from "@shared/hvac-brands";
+import { allBrandFamilies } from "@shared/hvac-brands";
+import { BrandFamilyGrid } from "@/components/BrandDirectory";
 import {
   catalogLengths,
   catalogWidths,
@@ -18,7 +19,7 @@ import { customQuotePath } from "@/lib/filter-size";
 const WIDTHS = catalogWidths().map(String);
 const LENGTHS = catalogLengths().map(String);
 const DEPTHS = THICKNESSES.map(String);
-const FEATURED_BRAND_FAMILIES = featuredBrandFamilies();
+const ALL_BRAND_FAMILIES = allBrandFamilies();
 const POPULAR = popularSizeSlugs(8);
 
 type DesktopMenu = "shop" | "brands" | "contact" | null;
@@ -366,32 +367,14 @@ export default function SiteHeader() {
           )}
 
           {desktopMenu === "brands" && (
-            <div className="container py-7">
+            <div className="container py-5 md:py-6">
               <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-ice/80 mb-4">
-                Featured HVAC brands
+                HVAC brands
               </p>
-              <div className="grid gap-5">
-                {FEATURED_BRAND_FAMILIES.map((family) => (
-                  <div key={family.id}>
-                    <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-white/55 mb-2">
-                      {family.label}
-                    </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-                      {family.brands.map((brand) => (
-                        <Link
-                          key={brand.slug}
-                          href={`/brands/${brand.slug}`}
-                          className="header-mega-tile"
-                          onClick={closeMenus}
-                        >
-                          <span className="text-sm font-extrabold tracking-tight">{brand.name}</span>
-                          <span className="text-xs text-ice/80 font-medium">Exact-fit replacements</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <BrandFamilyGrid
+                families={ALL_BRAND_FAMILIES}
+                onBrandClick={closeMenus}
+              />
               <Link
                 href="/brands"
                 className="inline-flex items-center gap-1.5 mt-4 text-sm font-bold text-ice hover:text-white transition-colors"
