@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, ChevronDown, Mail, MessageSquare, ShoppingCart } from "lucide-react";
+import { ArrowRight, ChevronDown, Mail, MessageSquare, Ruler, ShoppingCart } from "lucide-react";
 import BrandLockup from "@/components/BrandLockup";
 import { useCart } from "@/contexts/CartContext";
 import { BRAND_EMAIL } from "@/const";
@@ -167,7 +167,7 @@ export default function SiteHeader() {
   const goHomeSection = (id: string) => (event: ReactMouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     closeMenus();
-    if (window.location.pathname === "/") {
+    if (window.location.pathname === "/" || window.location.pathname === "") {
       scrollToHashTarget(id);
       if (window.location.hash !== `#${id}`) {
         history.replaceState(null, "", `/#${id}`);
@@ -215,11 +215,11 @@ export default function SiteHeader() {
       onPointerLeave={scheduleCloseDesktopMenu}
     >
       <div className="site-header-bar">
-      <div className="container flex flex-wrap items-center gap-x-2 gap-y-2 py-2.5 lg:flex-nowrap md:py-3">
+      <div className="container flex flex-wrap items-center gap-x-2 gap-y-2 py-2.5 xl:flex-nowrap md:py-3">
         <BrandLockup tone="header" className="min-w-0 shrink-0" onClick={closeMenus} />
 
         <nav
-          className="order-last flex w-full items-center justify-center md:order-none md:w-auto md:justify-start lg:ml-2"
+          className="order-last flex w-full flex-wrap items-center justify-center gap-x-0.5 gap-y-1 md:order-none xl:w-auto xl:flex-nowrap xl:justify-start xl:ml-1"
           aria-label="Primary"
         >
           {([
@@ -252,7 +252,7 @@ export default function SiteHeader() {
             onFocus={() => setDesktopMenu(null)}
             onClick={goHomeSection("clock")}
           >
-            Clock
+            Filter Clock
           </Link>
           <button
             type="button"
@@ -268,19 +268,33 @@ export default function SiteHeader() {
               className={`h-3.5 w-3.5 transition-transform ${desktopMenu === "contact" ? "rotate-180" : ""}`}
             />
           </button>
+          <Link
+            href="/#how-to-measure"
+            className="header-measure-chip"
+            aria-label="How to measure your filter"
+            onPointerEnter={() => {
+              clearCloseMenuTimer();
+              setDesktopMenu(null);
+            }}
+            onFocus={() => setDesktopMenu(null)}
+            onClick={goHomeSection("how-to-measure")}
+          >
+            <Ruler className="h-3 w-3" aria-hidden />
+            How to measure
+          </Link>
         </nav>
 
-        <div className="order-last w-full min-w-0 lg:order-none lg:flex-1 lg:max-w-2xl lg:mx-2 xl:mx-4">
+        <div className="order-last w-full min-w-0 xl:order-none xl:flex-1 xl:max-w-2xl xl:mx-2">
           <HeaderFinder onFound={closeMenus} />
         </div>
 
         <div className="ml-auto flex items-center gap-1.5 shrink-0">
           <Link
             href="/custom-air-filters#custom-quote"
-            className="header-find-btn inline-flex shrink-0"
+            className="header-find-btn header-custom-btn inline-flex shrink-0"
             onClick={goCustomQuote}
           >
-            Custom size
+            Need a custom size
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
           <button

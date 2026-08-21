@@ -44,6 +44,7 @@ import { useCart } from "@/contexts/CartContext";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { BRAND_NAME } from "@/const";
 import { brandsForSize } from "@shared/hvac-brands";
+import BrandLogo from "@/components/BrandLogo";
 import { LIFE } from "@/data/life-photos";
 import { MERV_GUIDE } from "@/lib/merv-guide";
 import {
@@ -530,14 +531,19 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                   <p className="mb-3 text-xs font-bold uppercase tracking-wider text-ice/80">
                     Fits these HVAC brands
                   </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9">
                     {matchingBrands.map((b) => (
                       <Link
                         key={b.slug}
                         href={`/brands/${b.slug}`}
-                        className="size-chip !py-2 !px-3 !text-xs"
+                        className="brand-chip"
                       >
-                        {b.name}
+                        <BrandLogo
+                          slug={b.slug}
+                          name={b.name}
+                          className="h-5 w-full max-w-[4rem]"
+                        />
+                        <span>{b.name}</span>
                       </Link>
                     ))}
                   </div>

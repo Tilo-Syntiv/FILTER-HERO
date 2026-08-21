@@ -1,21 +1,36 @@
 import { useEffect } from "react";
 
 export function scrollToHashTarget(id: string) {
-  if (!id) return;
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (!id) return false;
+  const el = document.getElementById(id);
+  if (!el) return false;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+  return true;
 }
 
 /** Scroll to a section after arriving with a hash like /#finder or #custom-quote. */
 export function useHashScroll() {
   useEffect(() => {
-    const id = window.location.hash.replace(/^#/, "");
+    const id = decodeURIComponent(window.location.hash.replace(/^#/, ""));
     if (!id) return;
-    const run = () => scrollToHashTarget(id);
-    const raf = window.requestAnimationFrame(run);
-    const timer = window.setTimeout(run, 120);
+
+    let done = false;
+    let cancelled = false;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    const run = () => {
+      if (cancelled || done) return;
+      if (scrollToHashTarget(id)) done = true;
+    };
+
+    run();
+    for (const ms of [80, 200, 450]) {
+      timers.push(setTimeout(run, ms));
+    }
+
     return () => {
-      window.cancelAnimationFrame(raf);
-      window.clearTimeout(timer);
+      cancelled = true;
+      timers.forEach((timer) => clearTimeout(timer));
     };
   }, []);
 }

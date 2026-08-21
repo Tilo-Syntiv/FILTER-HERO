@@ -237,14 +237,15 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.65rem;
-    min-height: 8.1rem;
-    padding: 1.15rem 0.75rem 0.95rem;
-    border-radius: 1rem;
+    gap: 0.18rem;
+    min-width: 0;
+    min-height: 3.85rem;
+    padding: 0.32rem 0.28rem 0.28rem;
+    border-radius: 0.55rem;
     border: 1px solid rgba(32, 56, 104, 0.1);
     background: #ffffff;
     text-align: center;
-    box-shadow: 0 6px 16px rgba(32, 56, 104, 0.05);
+    box-shadow: 0 3px 8px rgba(32, 56, 104, 0.05);
     transition:
       transform 0.22s ease,
       border-color 0.22s ease,
@@ -253,21 +254,27 @@
   }
 
   .brand-chip:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
     border-color: #396cbb;
     background: #ffffff;
     box-shadow:
-      0 0 0 3px rgba(57, 108, 187, 0.16),
-      0 16px 28px rgba(32, 56, 104, 0.1);
+      0 0 0 2px rgba(57, 108, 187, 0.16),
+      0 10px 18px rgba(32, 56, 104, 0.1);
   }
 
   .brand-chip span {
     font-family: "Plus Jakarta Sans", sans-serif;
-    font-size: 0.78rem;
+    font-size: 0.58rem;
     font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--navy);
-    line-height: 1.2;
+    line-height: 1.1;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .brand-shop {
@@ -278,8 +285,8 @@
   }
 
   .brand-family {
-    padding: 1rem 1rem 1.15rem;
-    border-radius: 1.25rem;
+    padding: 0.7rem 0.7rem 0.8rem;
+    border-radius: 1rem;
     background: rgba(255, 255, 255, 0.78);
     border: 1px solid rgba(32, 56, 104, 0.08);
   }
@@ -287,7 +294,7 @@
   .brand-family-label {
     display: inline-flex;
     align-items: center;
-    margin-bottom: 0.85rem;
+    margin-bottom: 0.55rem;
     padding: 0.22rem 0.7rem;
     border-radius: 999px;
     background: #203868;
@@ -1302,26 +1309,36 @@ a.hero-shop-btn:hover {
   color: #fff;
 }
 
-.brand-band .brand-family {
+.brand-band .brand-family,
+.header-mega .brand-family {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.16);
 }
 
-.brand-band .brand-family-label {
+.brand-band .brand-family-label,
+.header-mega .brand-family-label {
   background: var(--ice);
   color: var(--navy);
 }
 
-.brand-band .brand-chip {
+.brand-band .brand-chip,
+.header-mega .brand-chip,
+.product-page .brand-chip {
   border-color: rgba(255, 255, 255, 0.22);
-  box-shadow: 0 8px 18px rgba(8, 16, 32, 0.18);
+  box-shadow: 0 5px 12px rgba(8, 16, 32, 0.18);
 }
 
-.brand-band .brand-chip:hover {
+.brand-band .brand-chip:hover,
+.header-mega .brand-chip:hover,
+.product-page .brand-chip:hover {
   border-color: var(--ice);
   box-shadow:
-    0 0 0 3px rgba(142, 176, 216, 0.28),
-    0 16px 28px rgba(8, 16, 32, 0.22);
+    0 0 0 2px rgba(142, 176, 216, 0.28),
+    0 10px 18px rgba(8, 16, 32, 0.22);
+}
+
+.header-mega .brand-family {
+  padding: 0.55rem 0.55rem 0.65rem;
 }
 
 .sheet-section {
