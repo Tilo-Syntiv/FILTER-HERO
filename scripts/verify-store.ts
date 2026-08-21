@@ -1,12 +1,14 @@
 import { BRAND_EMAIL } from "../shared/const.ts";
 import {
   FILTER_SIZES,
+  MERV_DISPLAY_ORDER,
   MERV_TYPES,
   THICKNESSES,
   findProductVariant,
   getFilterSize,
   getSizesByThickness,
   packTotal,
+  popularSizeSlugs,
   unitPriceForQty,
 } from "../shared/products.ts";
 import {
@@ -29,6 +31,16 @@ assert(
   MERV_TYPES.every((t) => /^#[0-9a-f]{6}$/i.test(t.badgeColor)),
   "every MERV type needs a badge color",
 );
+assert(
+  MERV_DISPLAY_ORDER.join(",") === "8,carbon,11,13",
+  `MERV display order must be 8, Carbon, 11, 13, got ${MERV_DISPLAY_ORDER.join(",")}`,
+);
+assert(
+  MERV_TYPES.find((t) => t.key === "carbon")?.badgeColor === "#111111",
+  "MERV 8 Carbon badge must stay black",
+);
+const popularSlugs = popularSizeSlugs(8);
+assert(popularSlugs.includes("16x25x2") && popularSlugs.includes("20x25x2"), "popular chips must include 16x25x2 and 20x25x2");
 
 const popular = getFilterSize("20x25x1");
 assert(popular, "20x25x1 must exist");
