@@ -1556,13 +1556,13 @@ a.hero-shop-btn:hover {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.5rem 0.85rem;
+  padding: 0.45rem 0.62rem;
   border-radius: 999px;
   color: rgba(247, 248, 251, 0.78);
   font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   transition: color 0.2s ease, background 0.2s ease;
 }
@@ -1599,6 +1599,35 @@ a.hero-shop-btn:hover {
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: -0.02em;
+}
+
+.header-measure-chip {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.28rem;
+  margin-left: 0.1rem;
+  border-radius: 999px;
+  background: var(--hero);
+  color: #fff;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  padding: 0.42rem 0.7rem 0.42rem 0.55rem;
+  transition: background 0.2s ease;
+}
+
+.header-measure-chip:hover {
+  background: color-mix(in srgb, var(--hero) 88%, black);
+}
+
+.header-measure-chip:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 .header-finder-dims {
@@ -1715,6 +1744,27 @@ a.hero-shop-btn:hover {
 
 .header-find-btn:hover {
   background: color-mix(in srgb, var(--hero) 88%, black);
+}
+
+.header-custom-btn {
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 639px) {
+  .header-custom-btn {
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+    height: 2.35rem;
+    padding: 0 0.7rem 0 0.8rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .header-nav-link {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+  }
 }
 
 .header-cart {
