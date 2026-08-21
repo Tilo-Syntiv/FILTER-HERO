@@ -17,7 +17,7 @@ import FaqSection from "@/components/FaqSection";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { useHashScroll } from "@/hooks/useHashScroll";
 import { takeQuoteHandoff } from "@/lib/quote-handoff";
-import { formatDepth } from "@/lib/filter-cadence";
+import { BASE_DAYS, cadenceLabel, formatDepth } from "@/lib/filter-cadence";
 import { BRAND_NAME } from "@/const";
 import {
   CHANGE_GUIDE_FAQS,
@@ -45,32 +45,32 @@ const TOC = [
 const THICKNESS_LIFE = [
   {
     depth: 0.5,
-    range: "Every month",
-    days: 30,
-    note: "Shallow slot. Almost no extra media. Treat it like a monthly chore.",
+    range: cadenceLabel(BASE_DAYS[0.5]),
+    days: BASE_DAYS[0.5],
+    note: "Shallow slot. Almost no extra media. Treat it like a 30-day chore.",
   },
   {
     depth: 1,
-    range: "30–90 days",
-    days: 90,
-    note: "The standard American filter. Pets and pollen pull you toward 30.",
+    range: cadenceLabel(BASE_DAYS[1]),
+    days: BASE_DAYS[1],
+    note: "The standard American filter. Pets and pollen pull you toward 30 days.",
   },
   {
     depth: 2,
-    range: "90–120 days",
-    days: 120,
+    range: cadenceLabel(BASE_DAYS[2]),
+    days: BASE_DAYS[2],
     note: "More pleats, more breathing room. A sweet spot for busy homes.",
   },
   {
     depth: 4,
-    range: "6–9 months",
-    days: 240,
+    range: cadenceLabel(BASE_DAYS[4]),
+    days: BASE_DAYS[4],
     note: "Media-cabinet territory. Still inspect monthly — don’t trust the calendar alone.",
   },
   {
     depth: 5,
-    range: "9–12 months",
-    days: 330,
+    range: cadenceLabel(BASE_DAYS[5]),
+    days: BASE_DAYS[5],
     note: "High-capacity racks. One filter can cover a heating season and a cooling season.",
   },
 ];
@@ -337,9 +337,10 @@ export default function FilterChangeGuidePage() {
             <p className="seo-answer mb-8 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg">
               Most homes should change a 1-inch HVAC filter every 30 to 90 days.
               Pets, allergies, dust, and a system that runs hard pull you toward
-              30. A 2-inch filter often lasts 90–120 days; 4-inch and 5-inch
-              media can go 6–12 months. Inspect monthly either way — the calendar
-              is a guess, the filter is the evidence.
+              30. A 2-inch filter often lasts 120 days; 4-inch media lasts 270
+              days and 5-inch media lasts 330 days in a quiet house. Inspect
+              monthly either way — the calendar is a guess, the filter is the
+              evidence.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <a href="#cadence" className="hero-shop-btn inline-flex h-12 items-center justify-center px-7 text-white">

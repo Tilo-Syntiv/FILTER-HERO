@@ -1,28 +1,48 @@
 import { motion } from "framer-motion";
-import { Truck, ShieldCheck, Crosshair, MessageCircle } from "lucide-react";
+import {
+  Truck,
+  ShieldCheck,
+  Crosshair,
+  MessageCircle,
+  type LucideIcon,
+} from "lucide-react";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
+import LifeImage from "@/components/LifeImage";
+import { LIFE, type LifePhoto } from "@/data/life-photos";
+import { cn } from "@/lib/utils";
 
 export default function TrustSection() {
-  const trustPoints = [
+  const trustPoints: {
+    icon: LucideIcon;
+    title: string;
+    description: string;
+    photo: LifePhoto;
+    graphic?: boolean;
+  }[] = [
     {
       icon: Truck,
       title: "FREE SHIPPING",
       description: "Contiguous US orders — clean air shouldn't wait",
+      photo: LIFE.freeShipping,
+      graphic: true,
     },
     {
       icon: ShieldCheck,
       title: "30-day guarantee",
       description: "Wrong fit? Full refund within 30 days",
+      photo: LIFE.installCeilingMan,
     },
     {
       icon: Crosshair,
       title: "Precision matching",
       description: "Size finder built for exact HVAC dimensions",
+      photo: LIFE.installCeiling,
     },
     {
       icon: MessageCircle,
       title: "Real support",
       description: "People who know filters — ask anytime",
+      photo: LIFE.filterTech,
     },
   ];
 
@@ -52,8 +72,23 @@ export default function TrustSection() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06, duration: 0.35 }}
               >
-                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" strokeWidth={1.75} />
+                <div className="relative mb-4">
+                  <LifeImage
+                    photo={point.photo}
+                    className={cn(
+                      "aspect-[5/4] rounded-xl",
+                      point.graphic && "!bg-white",
+                    )}
+                    imgClassName={
+                      point.graphic ? "object-contain p-5" : undefined
+                    }
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  />
+                  {!point.graphic && (
+                    <div className="absolute bottom-3 left-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/95 text-primary shadow-sm">
+                      <Icon className="h-5 w-5" strokeWidth={1.75} />
+                    </div>
+                  )}
                 </div>
                 <h3 className="font-bold text-base mb-2 tracking-tight">
                   {point.title}

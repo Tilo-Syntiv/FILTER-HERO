@@ -1,6 +1,12 @@
 import FK_LIVE from "./fk-live-prices.json";
 
+/** Undercut scraped FilterKing sale units by 10%. */
 export const UNDERCUT_RATIO = 0.9;
+/**
+ * Extra cushion on estimated (modeled) ladders so we stay under FilterKing
+ * even when the model is a bit high.
+ */
+export const ESTIMATED_UNDERCUT_RATIO = 0.88;
 
 export type MervPriceKey = "8" | "11" | "13" | "carbon";
 
@@ -16,6 +22,7 @@ export type FkLadder = Partial<Record<QtyKey, number>> & {
   size: string;
   merv: string;
   sku?: string;
+  estimated?: boolean;
 };
 
 const QTY_STEPS: Array<{ minQty: number; key: QtyKey }> = [
@@ -31,7 +38,7 @@ function money(n: number): number {
 }
 
 function normalizeSize(size: string): string {
-  return size.toLowerCase().replace(/\s/g, "");
+  return size.toLowerCase().replace(/\s/g, "").replace(/a$/i, "");
 }
 
 export function mervPriceKey(merv: 8 | 11 | 13, isCarbon?: boolean): MervPriceKey {
@@ -64,6 +71,12 @@ function buildLadderMap(products: FkLadder[]): Map<string, FkLadder> {
     const prevFilled = prev
       ? QTY_STEPS.filter((s) => typeof prev[s.key] === "number").length
       : 0;
+    // Prefer scraped over estimated; then richer ladders.
+    if (prev && !prev.estimated && row.estimated) continue;
+    if (prev && prev.estimated && !row.estimated) {
+      map.set(key, { ...row, size: normalizeSize(row.size), merv });
+      continue;
+    }
     if (!prev || filled >= prevFilled) {
       map.set(key, { ...row, size: normalizeSize(row.size), merv });
     }
@@ -81,9 +94,10 @@ export function fkLadderFor(
   return LADDERS.get(ladderKey(size, mervPriceKey(merv, isCarbon)));
 }
 
-/** FilterKing live unit × 0.90, rounded to cents. */
-export function heroFromFk(fkUnit: number): number {
-  return money(fkUnit * UNDERCUT_RATIO);
+/** FilterKing unit × undercut ratio (deeper when estimated). */
+export function heroFromFk(fkUnit: number, estimated = false): number {
+  const ratio = estimated ? ESTIMATED_UNDERCUT_RATIO : UNDERCUT_RATIO;
+  return money(fkUnit * ratio);
 }
 
 function fkUnitForQty(ladder: FkLadder, qty: number): number | undefined {
@@ -95,25 +109,26 @@ function fkUnitForQty(ladder: FkLadder, qty: number): number | undefined {
   return unit;
 }
 
-/** Qty-1 Filter Hero list when a live FilterKing ladder exists. */
+/** Qty-1 Filter Hero list when a FilterKing ladder exists (scraped or modeled). */
 export function liveListPrice(
   size: string,
   merv: 8 | 11 | 13,
   isCarbon?: boolean,
 ): number | undefined {
-  const q1 = fkLadderFor(size, merv, isCarbon)?.q1;
-  return typeof q1 === "number" ? heroFromFk(q1) : undefined;
+  const ladder = fkLadderFor(size, merv, isCarbon);
+  const q1 = ladder?.q1;
+  return typeof q1 === "number" ? heroFromFk(q1, Boolean(ladder?.estimated)) : undefined;
 }
 
-/** Pack unit when a live ladder exists; otherwise undefined (use depth formula). */
+/** Pack unit from ladder; undefined only if no ladder at all. */
 export function liveUnitPrice(product: Priceable, qty: number): number | undefined {
   const ladder = fkLadderFor(product.size, product.merv, product.isCarbon);
   if (!ladder) return undefined;
   const fk = fkUnitForQty(ladder, qty);
-  return typeof fk === "number" ? heroFromFk(fk) : undefined;
+  return typeof fk === "number" ? heroFromFk(fk, Boolean(ladder.estimated)) : undefined;
 }
 
-/** Cheapest live undercut for merchandising "from $X"; undefined if no rows. */
+/** Cheapest undercut for merchandising "from $X". */
 export function liveFromPrice(key: MervPriceKey): number | undefined {
   let min: number | undefined;
   for (const row of Array.from(LADDERS.values())) {
@@ -121,7 +136,7 @@ export function liveFromPrice(key: MervPriceKey): number | undefined {
     for (const step of QTY_STEPS) {
       const fk = row[step.key];
       if (typeof fk !== "number") continue;
-      const hero = heroFromFk(fk);
+      const hero = heroFromFk(fk, Boolean(row.estimated));
       if (min === undefined || hero < min) min = hero;
     }
   }
@@ -130,4 +145,12 @@ export function liveFromPrice(key: MervPriceKey): number | undefined {
 
 export function liveLadderCount(): number {
   return LADDERS.size;
+}
+
+export function liveScrapedCount(): number {
+  let n = 0;
+  for (const row of Array.from(LADDERS.values())) {
+    if (!row.estimated) n += 1;
+  }
+  return n;
 }

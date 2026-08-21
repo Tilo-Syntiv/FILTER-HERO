@@ -171,4 +171,10 @@ export const LIFE = {
     width: 360,
     height: 240,
   },
+  freeShipping: {
+    src: "/life/free-shipping-truck.png",
+    alt: "Red delivery truck with FREE DELIVERY on the side",
+    width: 602,
+    height: 240,
+  },
 } as const satisfies Record<string, LifePhoto>;

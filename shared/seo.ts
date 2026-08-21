@@ -99,14 +99,14 @@ export const CHANGE_GUIDE_FAQS: FaqItem[] = [
     question: "How often should I change my HVAC filter?",
     category: "Timing",
     answer:
-      "Most homes should change a 1-inch filter every 30 to 90 days. Pets, allergies, dust, wildfire smoke, or a fan that runs constantly pull you toward 30. 2-inch filters often last 90–120 days; 4-inch and 5-inch media can last 6–12 months. Use Filter Clock to get a change date for your home. Inspect monthly either way.",
+      "Most homes should change a 1-inch filter every 30 to 90 days. Pets, allergies, dust, wildfire smoke, or a fan that runs constantly pull you toward 30. A 2-inch filter lasts 120 days in a quiet house; 4-inch media lasts 270 days and 5-inch media lasts 330 days. Use Filter Clock to get a change date for your home. Inspect monthly either way.",
     action: { href: "#cadence", label: "Run Filter Clock" },
   },
   {
     question: "Do thicker air filters last longer?",
     category: "Timing",
     answer:
-      "Yes. Extra depth means more pleat area, so particles have more places to land before airflow drops. A 1-inch filter is typically a 30–90 day part. A 4-inch or 5-inch media cabinet filter can run for months — still check it every month.",
+      "Yes. Extra depth means more pleat area, so particles have more places to land before airflow drops. A 1-inch filter is typically a 30–90 day part. A 4-inch media cabinet filter lasts 270 days in a quiet house; a 5-inch lasts 330 days — still check it every 30 days.",
   },
   {
     question: "Do pets mean I should change my filter more often?",

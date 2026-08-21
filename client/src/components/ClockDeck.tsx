@@ -3,11 +3,11 @@ import { CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
-  calendarDaysUntil,
   calendarDestinations,
   calendarEventFromResult,
   eventIcs,
   formatDepth,
+  swapWaitDays,
   type CadenceInput,
   type CadenceResult,
 } from "@/lib/filter-cadence";
@@ -97,7 +97,7 @@ export default function ClockDeck({
   const list = dates.slice(0, 8);
   const safeFocus = Math.min(focus, Math.max(0, list.length - 1));
   const date = list[safeFocus] ?? new Date();
-  const remain = Math.max(0, calendarDaysUntil(date));
+  const remain = swapWaitDays(result.days, safeFocus);
   const years = yearValues(list.length ? list : [date]);
   const mervName = MERV_TYPES.find((m) => m.key === input.merv)?.name ?? "MERV 8";
   const event = calendarEventFromResult(result, date, getSiteUrl());
@@ -170,10 +170,10 @@ export default function ClockDeck({
       </p>
 
       <div className="cal-year">
-        <p className="cal-year-label">Upcoming changes</p>
+        <p className="cal-year-label">Upcoming changes · every {result.days} days</p>
         <div className="cal-year-list" role="listbox" aria-label="Upcoming change dates">
           {list.map((d, i) => {
-            const wait = Math.max(0, calendarDaysUntil(d));
+            const wait = swapWaitDays(result.days, i);
             return (
               <button
                 key={`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`}
@@ -191,7 +191,7 @@ export default function ClockDeck({
                     year: "numeric",
                   })}
                 </span>
-                <span className="cal-slot-meta">{i === safeFocus ? "Now showing" : `${wait} days`}</span>
+                <span className="cal-slot-meta">{wait} days</span>
               </button>
             );
           })}

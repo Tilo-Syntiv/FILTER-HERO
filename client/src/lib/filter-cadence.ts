@@ -54,7 +54,8 @@ export type CadenceResult = {
 
 export const YEAR_PACKS = [1, 2, 4, 6, 12] as const;
 
-const BASE_DAYS: Record<Thickness, number> = {
+/** Quiet-house full-charge days for each thickness. Clock and copy both use this. */
+export const BASE_DAYS: Record<Thickness, number> = {
   0.5: 30,
   1: 90,
   2: 120,
@@ -94,19 +95,21 @@ function roundCadence(days: number, depth: Thickness): number {
   const min = depth === 0.5 ? 21 : 30;
   const max = BASE_DAYS[depth];
   const clamped = Math.min(max, Math.max(min, days));
+  // An undrained filter keeps the thickness baseline (½" stays 30, not 28).
+  if (clamped >= max - 0.001) return max;
   const step = clamped < 50 ? 7 : 15;
-  return Math.round(clamped / step) * step;
+  const rounded = Math.round(clamped / step) * step;
+  return Math.min(max, Math.max(min, rounded));
 }
 
+/** Always the engine number — never a month bucket that disagrees with the calendar. */
 export function cadenceLabel(days: number): string {
-  if (days <= 30) return "Every 30 days";
-  if (days <= 45) return "Every 6 weeks";
-  if (days <= 60) return "Every 2 months";
-  if (days <= 90) return "Every 3 months";
-  if (days <= 120) return "Every 4 months";
-  if (days <= 180) return "Every 6 months";
-  if (days <= 270) return "Every 9 months";
-  return "Once a year";
+  return `Every ${days} days`;
+}
+
+/** Days until upcoming change `index` (0 = next swap). Matches the calendar list. */
+export function swapWaitDays(cadenceDays: number, index: number): number {
+  return cadenceDays * (index + 1);
 }
 
 export function recommendMerv(input: CadenceInput): MervKey {
@@ -314,13 +317,13 @@ export function computeCadence(input: CadenceInput, from = new Date()): CadenceR
     house,
     yearCount,
     packQty,
-    packHeadline: `Change ${yearCount}× a year.`,
+    packHeadline: `Every ${days} days.`,
     packDetail:
       yearCount === 1
-        ? "One filter can cover a full year. Still inspect monthly."
+        ? `That's ${days} days per filter — about one a year. Still inspect monthly.`
         : packQty === yearCount
-          ? `That's a year of air — shop a ${packQty}-pack.`
-          : `That's ${yearCount} changes a year. A ${packQty}-pack covers you with a spare.`,
+          ? `${yearCount} changes a year at ${days} days each. Shop a ${packQty}-pack.`
+          : `${yearCount} changes a year at ${days} days each. A ${packQty}-pack covers you with a spare.`,
     capacityPct,
   };
 }

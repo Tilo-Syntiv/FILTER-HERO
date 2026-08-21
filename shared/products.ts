@@ -11,7 +11,9 @@ export {
   liveListPrice,
   liveUnitPrice,
   liveLadderCount,
+  liveScrapedCount,
   UNDERCUT_RATIO,
+  ESTIMATED_UNDERCUT_RATIO,
   type Priceable,
 } from "./pricing/engine";
 
