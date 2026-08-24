@@ -202,7 +202,7 @@ function MervCard({
           </div>
         </div>
 
-        <MervBadge type={type} className="mb-4 max-w-[11rem]" />
+        <MervBadge type={type} className="mb-4" />
 
         <h3 className="text-2xl font-bold tracking-tight text-white">
           {type.name}
@@ -350,7 +350,7 @@ export default function MervCarousel() {
             className="merv-tile p-6 md:p-7"
             style={{ "--merv-wash": selectedType.badgeColor } as CSSProperties}
           >
-            <MervBadge type={selectedType} className="mb-4 max-w-[10rem]" />
+            <MervBadge type={selectedType} className="mb-4" />
             <p
               className="text-[0.65rem] font-extrabold uppercase tracking-[0.16em]"
               style={{ color: selectedGuide.accent }}
@@ -407,7 +407,7 @@ export default function MervCarousel() {
                   {CARDS.map((type) => (
                     <th key={type.key} className="pb-3 text-center">
                       <span
-                        className="inline-flex min-w-[3.4rem] items-center justify-center rounded px-1.5 py-1 text-[0.62rem] font-extrabold italic leading-none text-white"
+                        className="inline-flex w-full items-center justify-center rounded px-1.5 py-1 text-[0.62rem] font-extrabold italic leading-none text-white"
                         style={{ backgroundColor: type.badgeColor }}
                       >
                         {type.key === "carbon"

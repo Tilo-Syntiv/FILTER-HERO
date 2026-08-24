@@ -14,7 +14,79 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-037**
+Next id: **FH-043**
+
+---
+
+### FH-042 — tsconfig `baseUrl` flagged as an error
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** Cursor/TypeScript 6 marked `tsconfig.json` as an error: `baseUrl` is deprecated and stops working in TypeScript 7.
+- **Do NOT:** Put `baseUrl` back, or silence it with `ignoreDeprecations` on TypeScript 5.6 (that option is unknown there).
+- **Do:** Path aliases stand on `paths` only (`@/*` → `./client/src/*`, `@shared/*` → `./shared/*`). `pnpm check` includes `scripts/**/*.ts`.
+- **Files:** `tsconfig.json`, `tsconfig.node.json`
+- **Verify:** `pnpm check` and open `tsconfig.json` — no deprecation error.
+- **Added:** 2026-08-24
+
+---
+
+### FH-041 — Carbon Capture dots read as black on white
+- **Status:** mitigated
+- **Area:** catalog
+- **Symptom:** MERV 8 Carbon used the navy-card silver accent (`#d8d8d8`), so Capture dots looked gray on the white size-page note.
+- **Do NOT:** Paint carbon dots with the light silver accent on a white panel.
+- **Do:** Carbon dots use the black badge (`#111111`). Other ratings keep `MERV_GUIDE.accent`.
+- **Files:** `client/src/pages/SizeDetail.tsx`
+- **Verify:** Choose MERV 8 Carbon — filled and outline dots are black.
+- **Added:** 2026-08-21
+
+---
+
+### FH-040 — Size-page MERV note uses catch-page Capture
+- **Status:** mitigated
+- **Area:** catalog
+- **Symptom:** Choose MERV used gray capsule bars and a one-line blurb. It did not match Capture (growing dots + efficiency) from the catch page.
+- **Do NOT:** Use vertical pips. Do not paint this strip navy.
+- **Do:** White/light container. Capture label, five growing dots from `MERV_GUIDE.strength` / `accent`, `efficiency`, then that rating’s best-for, note, and catches.
+- **Files:** `client/src/pages/SizeDetail.tsx`, `client/src/index.css`
+- **Verify:** Switch MERV 8 / Carbon / 11 / 13 on a size page — dots, µm line, and copy all change.
+- **Added:** 2026-08-21
+
+---
+
+### FH-039 — MERV chips span their column
+- **Status:** mitigated
+- **Area:** catalog
+- **Symptom:** MERV badges were only as wide as the label, so they sat short of the heading below.
+- **Do NOT:** Size chips to the text (`inline-flex`, `max-w-[11rem]`).
+- **Do:** Every MERV chip is `width: 100%` of its tile or column.
+- **Files:** `client/src/index.css`, `client/src/components/MervCarousel.tsx`, `client/src/pages/SizeDetail.tsx`
+- **Verify:** Size-page Choose MERV and catch-section cards — chips reach the right edge of the column.
+- **Added:** 2026-08-21
+
+---
+
+### FH-038 — Size-page MERV picker matches catch-section columns
+- **Status:** mitigated
+- **Area:** catalog
+- **Symptom:** Choose MERV used two-tone icon cards. Shopper wanted the catch-section column language on the white buy panel.
+- **Do NOT:** Bring back the colored-bar + icon + short-label cards on the size page.
+- **Do:** White panel stays. Four columns: color badge, bold MERV name, muted “best for” line, faint dividers. Selected column washes with that rating’s color.
+- **Files:** `client/src/pages/SizeDetail.tsx`, `client/src/index.css`
+- **Verify:** Any `/sizes/{slug}` page — Choose MERV looks like the catch-section columns on white.
+- **Added:** 2026-08-21
+
+---
+
+### FH-037 — FAQ heading collage
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** FAQ opened with a wall-install + new/1-month/3-month + clean-vs-dirty mosaic.
+- **Do NOT:** Put that collage back beside the FAQ heading.
+- **Do:** FAQ is heading and answers only. Install and dirty-filter photos stay on how-to / size pages.
+- **Files:** `client/src/components/FaqSection.tsx`
+- **Verify:** Home FAQ has no photo mosaic next to the title.
+- **Added:** 2026-08-21
 
 ---
 

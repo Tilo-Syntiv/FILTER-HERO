@@ -20,8 +20,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import LifeImage from "@/components/LifeImage";
-import { LIFE } from "@/data/life-photos";
 import { cn } from "@/lib/utils";
 import { CHANGE_GUIDE_PATH, type FaqItem } from "@shared/seo";
 
@@ -201,45 +199,22 @@ export default function FaqSection({
       aria-labelledby="faq-heading"
     >
       <div className="container max-w-4xl">
-        <div className="mb-10 grid items-end gap-6 md:grid-cols-12">
-          <div className="md:col-span-8">
-            <span className="section-label">Answers</span>
-            <h2
-              id="faq-heading"
-              className="text-3xl md:text-4xl font-bold mb-3 tracking-tight"
-            >
-              {title}
-            </h2>
-            <p
-              className={cn(
-                "max-w-2xl leading-relaxed",
-                onBand ? "text-ice/80" : "text-muted-foreground",
-              )}
-            >
-              {subtitle}
-            </p>
-          </div>
-          {!onBand && faqs.length >= 5 && (
-            <div className="hidden gap-2 md:col-span-4 md:flex md:justify-end">
-              <LifeImage
-                photo={LIFE.installWall}
-                className="h-28 w-40 rounded-2xl"
-                sizes="160px"
-              />
-              <div className="flex flex-col gap-2">
-                <LifeImage
-                  photo={LIFE.filterMonths}
-                  className="h-[3.25rem] w-24 rounded-xl"
-                  sizes="96px"
-                />
-                <LifeImage
-                  photo={LIFE.filterCleanDirty}
-                  className="h-[3.25rem] w-24 rounded-xl"
-                  sizes="96px"
-                />
-              </div>
-            </div>
-          )}
+        <div className="mb-10">
+          <span className="section-label">Answers</span>
+          <h2
+            id="faq-heading"
+            className="text-3xl md:text-4xl font-bold mb-3 tracking-tight"
+          >
+            {title}
+          </h2>
+          <p
+            className={cn(
+              "max-w-2xl leading-relaxed",
+              onBand ? "text-ice/80" : "text-muted-foreground",
+            )}
+          >
+            {subtitle}
+          </p>
         </div>
 
         {showSearch && (

@@ -59,20 +59,26 @@ type SizeDetailPageProps = {
   sizeSlug: string;
 };
 
-function CapturePips({ filled, accent }: { filled: number; accent: string }) {
+function CaptureDots({ filled, accent }: { filled: number; accent: string }) {
   return (
-    <div className="flex items-end gap-1" aria-hidden>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <span
-          key={i}
-          className="rounded-sm"
-          style={{
-            width: 6 + i * 2,
-            height: 8 + i * 2,
-            background: i < filled ? accent : "rgba(32, 56, 104, 0.14)",
-          }}
-        />
-      ))}
+    <div className="flex items-end gap-1.5" aria-hidden>
+      {Array.from({ length: 5 }).map((_, i) => {
+        const on = i < filled;
+        const size = 7 + i * 3;
+        return (
+          <span
+            key={i}
+            className="rounded-full"
+            style={{
+              width: size,
+              height: size,
+              background: on ? accent : "transparent",
+              border: `1.5px solid ${accent}`,
+              opacity: on ? 1 : 0.28,
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -362,11 +368,10 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
                 <div className="mb-7">
                   <h2 className="section-label !text-mesh">1 · Choose MERV</h2>
-                  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                  <div className="pdp-merv-row">
                     {mervTypesForDisplay().map((t) => {
                       const active = t.key === mervKey;
                       const g = MERV_GUIDE[t.key];
-                      const Icon = g.icon;
                       return (
                         <button
                           key={t.key}
@@ -377,26 +382,34 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                           style={{ "--merv-wash": t.badgeColor } as CSSProperties}
                         >
                           <span
-                            className="pdp-merv-bar"
+                            className="pdp-merv-badge"
                             style={{ backgroundColor: t.badgeColor }}
                           >
-                            {t.key === "carbon" ? "Carbon" : t.name}
+                            {t.key === "carbon" ? (
+                              <span className="flex flex-col items-center leading-[1.05]">
+                                <span>MERV 8</span>
+                                <span>Carbon</span>
+                              </span>
+                            ) : (
+                              t.name
+                            )}
                           </span>
-                          <span className="pdp-merv-body">
-                            <Icon className="h-4 w-4" style={{ color: t.badgeColor }} />
-                            <span className="text-[0.72rem] font-bold leading-tight text-deep">
-                              {t.shortLabel}
-                            </span>
-                          </span>
+                          <span className="pdp-merv-name">{t.name}</span>
+                          <span className="pdp-merv-for">{g.bestFor}</span>
                         </button>
                       );
                     })}
                   </div>
                   <div className="pdp-merv-note">
-                    <CapturePips filled={guide.strength} accent={selectedType.badgeColor} />
-                    <p>
-                      <span className="font-semibold text-deep">{guide.bestFor}.</span>{" "}
-                      {selectedType.description}. Catches {guide.catches.join(", ").toLowerCase()}.
+                    <p className="pdp-merv-capture-label">Capture</p>
+                    <CaptureDots
+                      filled={guide.strength}
+                      accent={mervKey === "carbon" ? selectedType.badgeColor : guide.accent}
+                    />
+                    <p className="pdp-merv-efficiency">{guide.efficiency}</p>
+                    <p className="pdp-merv-copy">
+                      <span>{guide.bestFor}.</span> {guide.note} Catches{" "}
+                      {guide.catches.join(", ").toLowerCase()}.
                     </p>
                   </div>
                 </div>
