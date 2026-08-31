@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -8,7 +9,7 @@ import { HVAC_BRAND_LIST } from "@shared/hvac-brands";
 import { MERV_TYPES } from "@shared/products";
 import type { PreferredMerv } from "@/lib/merv-pref";
 
-const ASSET = "?v=fh093";
+const ASSET = "?v=fh097";
 
 const COMPAT = [
   { slug: "trane", name: "Trane" },
@@ -69,17 +70,64 @@ const SHOWCASE: {
 ];
 
 function HeroCharacter() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [live, setLive] = useState(true);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setLive(!mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (!live) return;
+    const node = videoRef.current;
+    if (!node) return;
+    node.muted = true;
+    const play = () => {
+      void node.play().catch(() => undefined);
+    };
+    play();
+    node.addEventListener("canplay", play);
+    return () => node.removeEventListener("canplay", play);
+  }, [live]);
+
+  const shared = {
+    className: "hero-character",
+    width: 900,
+    height: 906,
+  } as const;
+
+  if (!live) {
+    return (
+      <img
+        {...shared}
+        src={`/hero/character.png${ASSET}`}
+        alt=""
+        aria-hidden
+        fetchPriority="high"
+        decoding="async"
+      />
+    );
+  }
+
   return (
-    <img
-      className="hero-character"
-      width={900}
-      height={1200}
-      src={`/hero/character.png${ASSET}`}
-      alt=""
+    <video
+      {...shared}
+      ref={videoRef}
+      autoPlay
+      muted
+      defaultMuted
+      loop
+      playsInline
+      disablePictureInPicture
+      poster={`/hero/character.png${ASSET}`}
       aria-hidden
-      fetchPriority="high"
-      decoding="async"
-    />
+    >
+      <source src={`/hero/character-idle.webm${ASSET}`} type="video/webm" />
+    </video>
   );
 }
 
@@ -195,15 +243,12 @@ export default function Hero() {
                 <p className="hero-build-tag">
                   <span className="hero-build-tag-visual">
                     <img
-                      src={`/hero/filter-build.png${ASSET}`}
-                      alt=""
-                      width={640}
-                      height={360}
+                      src={`/hero/fh-sells-fk.png${ASSET}`}
+                      alt="Filter King now at Filter Hero"
+                      width={1096}
+                      height={236}
                       decoding="async"
                     />
-                  </span>
-                  <span className="hero-build-tag-copy">
-                    <span className="hero-build-tag-statement">This is the filter.</span>
                   </span>
                 </p>
                 <p className="hero-filter-claim-sub">

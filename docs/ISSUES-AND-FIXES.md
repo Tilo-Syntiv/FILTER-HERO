@@ -14,7 +14,79 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-094**
+Next id: **FH-100**
+
+---
+
+### FH-099 — Dual-logo claim lost its fade
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After the lighter wash, the lockup sat in a hard clipped box with a border. The old claim faded out into the hero.
+- **Do NOT:** Put the clipped plate, border, or solid non-fading fill back. Do not restore the darker `rgba(10,16,30)` strip.
+- **Do:** Same lighter navy/mesh color, same fade as the original claim — strong at the top, transparent at the bottom. No clip, no border.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — lockup panel is lighter blue and dissolves into the stage. No hard box edge.
+- **Added:** 2026-08-31
+
+---
+
+### FH-098 — Dual-logo claim sat in a darker navy strip
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The Filter King now-at Filter Hero plate read as the same deep navy as the hero stage, so the lockup disappeared into the background.
+- **Do NOT:** Recolor the whole hero stage. Do not put a white plate behind the marks.
+- **Do:** Only `.hero-filter-claim` gets a lighter navy/mesh wash (`rgba(45,78,138)` into `#203868`). Marks stay transparent. Rest of the hero wash stays.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — lockup panel is a step lighter blue than the stage. Packs and left copy unchanged.
+- **Added:** 2026-08-31
+
+---
+
+### FH-097 — Hero character was a frozen still again
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The background mascot used `character.png` and did not move; the cape-blowing idle loop was off.
+- **Do NOT:** Leave a static PNG in `.hero-character-slot`. Do not put the video in front of the headline. Do not swap the pose.
+- **Do:** Loop `character-idle.webm` in the same receded slot (behind copy, faded). Poster is `character.png`. `prefers-reduced-motion` keeps the still.
+- **Files:** `client/src/components/Hero.tsx`, `client/public/hero/character-idle.webm`
+- **Verify:** `/` — character stays planted behind FILTER HERO type; cape loops. Reduced motion shows the PNG.
+- **Added:** 2026-08-31
+
+---
+
+### FH-096 — Dual-logo tag said FROM, which implied Filter Hero makes Filter King
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** “Filter King FROM Filter Hero” read as origin/manufacture. Filter Hero only sells Filter King.
+- **Do NOT:** Use FROM, BY, or SELLS / sold by in the lockup. Do not imply Filter Hero manufactures Filter King.
+- **Do:** Connector is “NOW AT” — Filter King now at Filter Hero. Transparent marks still sit on the hero wash.
+- **Files:** `client/src/components/Hero.tsx`, `client/public/hero/fh-sells-fk.png`, `scripts/compose-brand-lockup.py`
+- **Verify:** `/` desktop — reads Filter King now at Filter Hero. No FROM.
+- **Added:** 2026-08-31
+
+---
+
+### FH-095 — Dual-logo tag sat on a white plate
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The Filter Hero / Filter King lockup used a white card and the word “SELLS,” so it floated off the navy hero and read like a checkout line.
+- **Do NOT:** Put the white plate or `background: #f7f8fb` back on the tag image. Do not use “SELLS.”
+- **Do:** Transparent lockup that sits on the hero wash. Ice-tinted official marks. Connector is “FROM” — Filter King from Filter Hero.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`, `client/public/hero/fh-sells-fk.png`, `scripts/compose-brand-lockup.py`
+- **Verify:** `/` desktop — no white box behind the marks. Reads Filter King from Filter Hero.
+- **Added:** 2026-08-30
+
+---
+
+### FH-094 — Hero tag now uses both brand marks
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The claim still read as copy. Shoppers needed a visual that Filter Hero sells Filter King, using both official logos.
+- **Do NOT:** Put the maroon text pill back. Do not drop either logo. Do not replace the lockup with a filter-only photo.
+- **Do:** The tag is the official Filter Hero mark, a slanted SELLS ticket, and the official Filter King lion mark on one plate. Fit line stays under it.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`, `client/public/hero/fh-sells-fk.png`, `scripts/compose-brand-lockup.py`
+- **Verify:** `/` desktop — both logos readable, SELLS between them, no “Our Filter King filters.”
+- **Added:** 2026-08-30
 
 ---
 
@@ -22,8 +94,8 @@ Next id: **FH-094**
 - **Status:** mitigated
 - **Area:** photos
 - **Symptom:** The right-side lockup was a red pill that only said “Filter King — by Filter Hero,” then a second line “Our Filter King filters.” It read as a label, not a claim, and hid the actual filter.
-- **Do NOT:** Put the maroon pill or the “Our Filter King filters.” headline back. Do not replace the build plate with text-only attribution.
-- **Do:** The claim is one slanted statement plate: cinematic shot of the bare Filter King build (frame, diamond grid, pleats) plus “This is the filter.” Keep the fit line under it. Packs stay below.
+- **Do NOT:** Put the maroon pill or the “Our Filter King filters.” headline back. Do not drop Filter King / Filter Hero from the statement. Do not replace the build plate with text-only attribution.
+- **Do:** The claim is one slanted statement plate: cinematic shot of the bare filter build plus “This is Filter King. Built by Filter Hero.” Keep the fit line under it. Packs stay below.
 - **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`, `client/public/hero/filter-build.png`
 - **Verify:** `/` desktop — no “Our Filter King filters.” No red pill. Statement plate with the filter visual sits above the four packs.
 - **Added:** 2026-08-30
