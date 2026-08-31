@@ -14,7 +14,163 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-100**
+Next id: **FH-113**
+
+---
+
+### FH-112 — Hero CTAs mixed a pill with the site slant
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** “Find your filter size” used the crimson parallelogram, but “Start your clock” sat next to it as a rounded ghost pill — leftover outline styling that does not match header FIND, finder, or other shop buttons.
+- **Do NOT:** Pair `.hero-shop-btn` with a rounded/pill outline, `variant="outline"`, or sentence-case type. Do not restyle the clock CTA as a navy pill.
+- **Do:** Keep both hero actions on the Filter Hero CTA geometry — same slant, italic uppercase, and height. Primary stays crimson (`.hero-shop-btn`). Secondary is the ice ghost (`.hero-ghost-btn`). Reuse that pair on other navy bands (Filter Clock page).
+- **Files:** `client/src/index.css`, `client/src/components/Hero.tsx`, `client/src/pages/FilterChangeGuide.tsx`
+- **Verify:** `/` — both hero buttons share the slant and type; primary crimson, secondary ice. `/how-often-to-change-air-filter` — Get your number / Shop your size use the same pair.
+- **Added:** 2026-08-31
+
+---
+
+### FH-111 — Trust marquee chips sat too small after the hero lift
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** After FH-108–FH-110 moved the packs and brand row up, the Free Shipping / fit / MERV chips still read as a thin strip.
+- **Do NOT:** Shrink `.trust-chip` / `.trust-ship-chip` back to `0.86rem` / `0.9rem` or restore `py-2.5 md:py-3` on the track.
+- **Do:** Keep the first-screen marquee larger — taller bar, bigger pills and icons — while it still sits in the first viewport under the hero.
+- **Files:** `client/src/components/TrustMarquee.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — marquee chips are clearly larger; still visible without scrolling; brand row stays above it.
+- **Added:** 2026-08-31
+
+---
+
+### FH-110 — Hero brand row sat low and only showed three marks
+- **Status:** mitigated
+- **Area:** brands
+- **Symptom:** The “Filter King also fits 30+ major brands” strip sat too close to the marquee and only showed Trane, Carrier, and Rheem.
+- **Do NOT:** Park `.hero-brands` at `bottom: 2.5%`. Do not drop Goodman or Lennox from the hero marks.
+- **Do:** Keep the strip a tad higher (`bottom: 6%`) with Trane, Carrier, Rheem, Goodman, and Lennox in the same white pills. Packs stay above; marquee stays below.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — brand row sits closer to the packs and shows five logos, including Goodman and Lennox.
+- **Added:** 2026-08-31
+
+---
+
+### FH-109 — Hero Filter King packs still sat a little low
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After FH-108 the four packs still sat a tad low under the Filter King claim.
+- **Do NOT:** Drop `.hero-pack-row` back to `top: 14%` / `bottom: 22%` (or `top: 19%` on short desktop). Do not cover the claim or the 30+ brand line.
+- **Do:** Keep the lineup a little higher still (`top: 11%` / `bottom: 25%`, `top: 16%` on short desktop). Claim stays above, brands stay below.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — four packs sit closer to the Filter King claim, with clear space above the brand row.
+- **Added:** 2026-08-31
+
+---
+
+### FH-108 — Hero Filter King packs sat too low
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After FH-107 the four packs sat low in the right column, with extra empty air under the Filter King claim.
+- **Do NOT:** Drop `.hero-pack-row` back to `top: 17%` / `bottom: 18%` (or `top: 22%` on short desktop). Do not cover the claim or the 30+ brand line.
+- **Do:** Keep the lineup a little higher (`top: 14%` / `bottom: 22%`, `top: 19%` on short desktop). Claim stays above, brands stay below.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — four packs sit closer to the Filter King claim, with clear space above the brand row.
+- **Added:** 2026-08-31
+
+---
+
+### FH-107 — Hero Filter King packs sat too close together
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** MERV 8 / Carbon / MERV 11 / MERV 13 in the home hero lineup had only a 0.2rem gap, so the four pack frames almost touched.
+- **Do NOT:** Collapse `.hero-pack-row` back to `gap: 0.2rem` / `0.25rem`. Do not restack them into an overlapping fan.
+- **Do:** Keep a little air between each isolated pack (`gap: 0.9rem`, `1rem` on short desktop). Claim stays above, brands stay below.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — four Filter King packs side by side with a visible gap between frames.
+- **Added:** 2026-08-31
+
+---
+
+### FH-106 — Hero character needed a flight loop in his exact form
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** Shoppers wanted the mascot flying around the background without changing his crossed-arms illustrated form. Higgsfield image-to-video was unavailable (expired session).
+- **Do NOT:** Replace him with a new pose, a generated look-alike, or the outlined HERO wordmark. Do not freeze him as a still.
+- **Do:** Loop `character-fly.webm` in the middle lane — same character, cape blowing, figure-eight flight on transparent. Poster is `character.png`. Reduced motion keeps the still.
+- **Files:** `client/public/hero/character-fly.webm`, `scripts/_cape_fly.py`, `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` — character flies in the gap between FILTER HERO and the packs. `prefers-reduced-motion` shows the PNG.
+- **Added:** 2026-08-31
+
+---
+
+### FH-105 — Hero character sat behind the packs instead of the middle lane
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After FH-104 the mascot filled the old HERO-outline zone under the Filter King packs, not the gap beside FILTER HERO.
+- **Do NOT:** Park him at `left: 40%` / `width: 58%` behind the packs. Do not put the outlined HERO back. Do not slide the copy or packs with him.
+- **Do:** Receded idle character sits in the middle lane (`left: 26%`, `width: 40%`) between the FILTER HERO type and the packs. Copy and packs stay put.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — figure visible between the lockup and the four packs; cape may tuck under the packs.
+- **Added:** 2026-08-31
+
+---
+
+### FH-104 — Giant outlined HERO sat where the mascot belongs
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** A faded outlined HERO wordmark filled the right background; the character was on the left instead of occupying that slot.
+- **Do NOT:** Put `.hero-wordmark` back. Do not keep the mascot in the left letter lane.
+- **Do:** Remove the outlined HERO. The idle character is the background in that right-center zone, receded behind the packs (`z-index: 2`, opacity ~0.4). Copy and packs stay in front.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — no giant HERO outline; cape-loop character fills that background behind the Filter King packs.
+- **Added:** 2026-08-31
+
+---
+
+### FH-103 — Hero foreground sat too far right of the mascot
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** Copy, packs, claim, and brand marks sat a bit too far right of the receded character.
+- **Do NOT:** Move `.hero-character-slot`. Do not shift the mascot with the foreground.
+- **Do:** Nudge only the live foreground left — copy `padding-left` 14/20vw → 11/17vw; packs, claim, and brands `left` 56% → 53%.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — FILTER HERO type and Filter King packs sit slightly left; character stays put.
+- **Added:** 2026-08-31
+
+---
+
+### FH-102 — Hero character sat too far right of the lockup
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After FH-101 the receded mascot sat under the Filter King packs on the right, away from FILTER HERO / the H1.
+- **Do NOT:** Park him in the right-center pack lane. Do not put him front and center at full opacity.
+- **Do:** Keep him receded (`z-index: 2`, opacity ~0.46). Desktop stands on the left, immediately beside the main letters. Copy starts after the torso (`padding-left` ~20vw). Packs stay on the right.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — figure on the left next to FILTER HERO; packs unchanged on the right.
+- **Added:** 2026-08-31
+
+---
+
+### FH-101 — Hero character sat too far forward
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After FH-100 the mascot filled the middle of the stage at full opacity, so he read as the main subject instead of background atmosphere.
+- **Do NOT:** Scale him over the full stage at opacity 1 in front of the packs. Do not park him under the headline.
+- **Do:** Keep him behind copy and packs (`z-index: 2`, opacity ~0.4, dimmed). Desktop sits in the right-center lane under the Filter King packs. Cape loop still plays.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — character visible as a receded figure behind the packs; lockup and H1 stay readable on the left.
+- **Added:** 2026-08-31
+
+---
+
+### FH-100 — Hero character sat under the headline
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The faded mascot sat behind FILTER HERO / the H1, so the type was hard to read and the figure was hard to see.
+- **Do NOT:** Park him under the lockup at ~0.5 opacity with a right-edge fade. Do not dim him with saturate/brightness filters.
+- **Do:** Desktop — copy stays on the left over a navy wash. Character stands in the middle lane at full opacity and larger scale; packs stay on the right over the cape. Mobile — figure sits in the upper stage, copy stays on the bottom gradient.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — torso visible between headline and packs; lockup readable. `/` mobile — character above the copy block.
+- **Added:** 2026-08-31
 
 ---
 

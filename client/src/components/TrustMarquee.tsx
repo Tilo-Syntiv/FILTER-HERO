@@ -19,11 +19,11 @@ function ShipChip() {
   return (
     <span className="trust-ship-chip">
       <span className="trust-chip-icon trust-chip-icon-hero">
-        <Icon className="h-4 w-4" strokeWidth={2.5} />
+        <Icon className="h-5 w-5" strokeWidth={2.5} />
       </span>
       <span className="flex flex-col leading-none">
         <span>{FEATURED.label}</span>
-        <span className="mt-0.5 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-white/80">
+        <span className="mt-0.5 text-[0.72rem] font-bold uppercase tracking-[0.16em] text-white/80">
           {FEATURED.hint}
         </span>
       </span>
@@ -41,7 +41,7 @@ function TrustChip({
   return (
     <span className="trust-chip">
       <span className="trust-chip-icon trust-chip-icon-ice">
-        <Icon className="h-4 w-4" strokeWidth={2.4} />
+        <Icon className="h-5 w-5" strokeWidth={2.4} />
       </span>
       {label}
     </span>
@@ -79,11 +79,11 @@ export default function TrustMarquee() {
         aria-hidden
       />
 
-      <div className="marquee-track trust-marquee-track flex w-max items-center py-2.5 md:py-3">
-        <div className="flex items-center gap-3.5 pr-3.5 md:gap-5 md:pr-5" aria-hidden>
+      <div className="marquee-track trust-marquee-track flex w-max items-center py-3.5 md:py-5">
+        <div className="flex items-center gap-4 pr-4 md:gap-6 md:pr-6" aria-hidden>
           <MarqueeSequence />
         </div>
-        <div className="marquee-dup flex items-center gap-3.5 pr-3.5 md:gap-5 md:pr-5" aria-hidden>
+        <div className="marquee-dup flex items-center gap-4 pr-4 md:gap-6 md:pr-6" aria-hidden>
           <MarqueeSequence />
         </div>
       </div>

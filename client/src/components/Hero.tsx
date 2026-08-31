@@ -9,12 +9,14 @@ import { HVAC_BRAND_LIST } from "@shared/hvac-brands";
 import { MERV_TYPES } from "@shared/products";
 import type { PreferredMerv } from "@/lib/merv-pref";
 
-const ASSET = "?v=fh097";
+const ASSET = "?v=fh106";
 
 const COMPAT = [
   { slug: "trane", name: "Trane" },
   { slug: "carrier", name: "Carrier" },
   { slug: "rheem", name: "Rheem" },
+  { slug: "goodman", name: "Goodman" },
+  { slug: "lennox", name: "Lennox" },
 ] as const;
 
 const SHOWCASE: {
@@ -96,8 +98,8 @@ function HeroCharacter() {
 
   const shared = {
     className: "hero-character",
-    width: 900,
-    height: 906,
+    width: 1180,
+    height: 980,
   } as const;
 
   if (!live) {
@@ -126,7 +128,7 @@ function HeroCharacter() {
       poster={`/hero/character.png${ASSET}`}
       aria-hidden
     >
-      <source src={`/hero/character-idle.webm${ASSET}`} type="video/webm" />
+      <source src={`/hero/character-fly.webm${ASSET}`} type="video/webm" />
     </video>
   );
 }
@@ -159,7 +161,6 @@ export default function Hero() {
   return (
     <section className="hero-stage hero-cast-stage">
       <div className="hero-atmosphere" aria-hidden>
-        <p className="hero-wordmark">HERO</p>
         <div className="hero-orb hero-orb-ice" />
         <div className="hero-orb hero-orb-red" />
       </div>
@@ -202,7 +203,7 @@ export default function Hero() {
               </Button>
               <Button
                 size="lg"
-                variant="outline"
+                variant="ghost"
                 className="hero-ghost-btn w-full sm:w-auto"
                 onClick={() => setLocation("/how-often-to-change-air-filter")}
               >
@@ -302,7 +303,7 @@ export default function Hero() {
                       <BrandLogo
                         slug={brand.slug}
                         name={brand.name}
-                        className="h-11 w-auto max-w-[8.5rem]"
+                        className="h-9 w-auto max-w-[6.75rem]"
                       />
                     </Link>
                   ))}
