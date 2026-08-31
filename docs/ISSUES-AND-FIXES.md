@@ -14,7 +14,19 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-113**
+Next id: **FH-114**
+
+---
+
+### FH-113 — Hero character used a warped still instead of a real flight clip
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** `character-fly.webm` was a procedural orbit of the standing PNG. Shoppers asked for a real flight of the official sheet character, cape-as-filter catching dust, not Higgsfield.
+- **Do NOT:** Put the sliding-still loop back as the hero source. Do not swap in a look-alike. Do not restore the outlined HERO wordmark.
+- **Do:** Loop Gemini Veo `character-fly-natural.webm` / `.mp4` from the official sheet still. Poster and reduced-motion still are `character-fly-still.png`. Keep him receded in the middle lane.
+- **Files:** `client/public/hero/character-fly-natural.webm`, `client/public/hero/character-fly-natural.mp4`, `client/public/hero/character-fly-still.png`, `scripts/_veo_filter_hero_fly.py`, `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` — mascot flies naturally between FILTER HERO and the packs; cape mesh catches dust; reduced motion shows the flying still.
+- **Added:** 2026-08-31
 
 ---
 

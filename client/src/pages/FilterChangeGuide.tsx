@@ -342,15 +342,12 @@ export default function FilterChangeGuidePage() {
               monthly either way — the calendar is a guess, the filter is the
               evidence.
             </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <a href="#cadence" className="hero-shop-btn inline-flex h-12 items-center justify-center px-7 text-white">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <a href="#cadence" className="hero-shop-btn text-white">
                 Get your number
                 <ArrowRight className="h-4 w-4" />
               </a>
-              <Link
-                href="/#finder"
-                className="inline-flex h-12 items-center justify-center rounded-none border border-white/25 px-6 text-sm font-extrabold uppercase italic tracking-[0.04em] text-white hover:bg-white/10"
-              >
+              <Link href="/#finder" className="hero-ghost-btn">
                 Shop your size
               </Link>
             </div>

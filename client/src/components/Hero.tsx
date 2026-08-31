@@ -9,7 +9,7 @@ import { HVAC_BRAND_LIST } from "@shared/hvac-brands";
 import { MERV_TYPES } from "@shared/products";
 import type { PreferredMerv } from "@/lib/merv-pref";
 
-const ASSET = "?v=fh106";
+const ASSET = "?v=fh113";
 
 const COMPAT = [
   { slug: "trane", name: "Trane" },
@@ -98,15 +98,16 @@ function HeroCharacter() {
 
   const shared = {
     className: "hero-character",
-    width: 1180,
-    height: 980,
+    width: 1280,
+    height: 720,
   } as const;
 
   if (!live) {
     return (
       <img
         {...shared}
-        src={`/hero/character.png${ASSET}`}
+        className="hero-character hero-character-still"
+        src={`/hero/character-fly-still.png${ASSET}`}
         alt=""
         aria-hidden
         fetchPriority="high"
@@ -118,6 +119,7 @@ function HeroCharacter() {
   return (
     <video
       {...shared}
+      className="hero-character hero-character-video"
       ref={videoRef}
       autoPlay
       muted
@@ -125,10 +127,11 @@ function HeroCharacter() {
       loop
       playsInline
       disablePictureInPicture
-      poster={`/hero/character.png${ASSET}`}
+      poster={`/hero/character-fly-still.png${ASSET}`}
       aria-hidden
     >
-      <source src={`/hero/character-fly.webm${ASSET}`} type="video/webm" />
+      <source src={`/hero/character-fly-natural.webm${ASSET}`} type="video/webm" />
+      <source src={`/hero/character-fly-natural.mp4${ASSET}`} type="video/mp4" />
     </video>
   );
 }

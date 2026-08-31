@@ -678,6 +678,18 @@ h1.hero-title em,
     drop-shadow(0 18px 28px rgba(8, 16, 32, 0.4));
 }
 
+.hero-character-video,
+.hero-character-still {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter:
+    saturate(0.94)
+    brightness(0.96)
+    drop-shadow(0 18px 28px rgba(8, 16, 32, 0.4));
+}
+
 @media (min-width: 640px) {
   .hero-copy {
     padding: 1.5rem max(1.75rem, env(safe-area-inset-left)) 1.5rem;
@@ -775,9 +787,9 @@ h1.hero-title em,
     bottom: -4%;
     height: 102%;
     justify-content: center;
-    opacity: 0.46;
-    -webkit-mask-image: none;
-    mask-image: none;
+    opacity: 0.62;
+    -webkit-mask-image: radial-gradient(ellipse 72% 82% at 50% 48%, #000 38%, transparent 78%);
+    mask-image: radial-gradient(ellipse 72% 82% at 50% 48%, #000 38%, transparent 78%);
   }
 
   .hero-character {
@@ -1090,7 +1102,7 @@ h1.hero-title em,
   .hero-character-slot {
     height: 104%;
     bottom: -4%;
-    opacity: 0.38;
+    opacity: 0.58;
   }
 }
 
@@ -1125,9 +1137,9 @@ h1.hero-title em,
 }
 
 .hero-ghost-btn {
-  background: rgba(142, 176, 216, 0.16);
+  background: color-mix(in srgb, var(--ice) 38%, rgba(12, 22, 42, 0.72));
   color: #f4f7fb;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 @media (min-width: 640px) {
@@ -1146,7 +1158,7 @@ a.hero-shop-btn:hover {
 
 button.hero-ghost-btn:hover,
 a.hero-ghost-btn:hover {
-  background: rgba(142, 176, 216, 0.32);
+  background: color-mix(in srgb, var(--ice) 55%, rgba(12, 22, 42, 0.45));
   color: #fff;
 }
 
