@@ -841,7 +841,7 @@ h1.hero-title em,
     top: 2%;
     z-index: 9;
     margin: 0;
-    padding: 0.15rem 0.2rem 0.55rem;
+    padding: 0.15rem 0.2rem 0.2rem;
     background: linear-gradient(
       180deg,
       rgba(45, 78, 138, 0.55) 0%,
@@ -853,7 +853,7 @@ h1.hero-title em,
 
   .hero-build-tag {
     display: inline-flex;
-    margin: 0 0 0.4rem;
+    margin: 0;
     padding: 0;
     max-width: 100%;
   }
@@ -873,15 +873,6 @@ h1.hero-title em,
     object-position: center;
     background: transparent;
     filter: drop-shadow(0 10px 18px rgba(8, 16, 32, 0.35));
-  }
-
-  .hero-filter-claim-sub {
-    margin: 0.28rem 0 0;
-    font-size: clamp(0.88rem, 1.35vw, 1.12rem);
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #c4dcf5;
   }
 
   .hero-product-merv8,
@@ -927,10 +918,12 @@ h1.hero-title em,
   .hero-brands-label {
     position: static;
     margin: 0;
+    max-width: 100%;
     font-family: "FilterHero", "Plus Jakarta Sans", sans-serif;
     font-style: italic;
     font-weight: 800;
-    font-size: clamp(0.95rem, 1.5vw, 1.25rem);
+    font-size: clamp(0.78rem, 1.22vw, 1.05rem);
+    line-height: 1.2;
     letter-spacing: -0.02em;
     text-transform: uppercase;
     color: #f4f7fb;

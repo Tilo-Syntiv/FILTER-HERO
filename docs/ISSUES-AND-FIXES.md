@@ -14,7 +14,31 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-114**
+Next id: **FH-116**
+
+---
+
+### FH-115 — Hero brand strip did not mention custom sizes
+- **Status:** mitigated
+- **Area:** brands
+- **Symptom:** The navy brand-row line read “Filter King also fits 30+ major brands” and said nothing about custom filters.
+- **Do NOT:** Restore “Filter King also fits 30+ major brands” as the strip copy.
+- **Do:** Keep “Guaranteed to fit 30+ major brands and we can customize them” (uppercase via CSS) above the brand marks. Size the line so the longer sentence still fits the right-hand strip.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — brand strip shows the new line above the logos.
+- **Added:** 2026-08-31
+
+---
+
+### FH-114 — Hero claim line named Trane, Carrier, Rheem + 30 more
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** Under the Filter King lockup, desktop showed “GUARANTEED TO FIT TRANE, CARRIER, RHEEM + 30 MORE.”
+- **Do NOT:** Restore `.hero-filter-claim-sub` or that brand list under the Filter King mark.
+- **Do:** Keep only the Filter King lockup in `.hero-filter-claim`. Brand fit still lives in the lede and the brand row.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — no “Guaranteed to fit Trane, Carrier, Rheem + 30 more” under the lockup.
+- **Added:** 2026-08-31
 
 ---
 

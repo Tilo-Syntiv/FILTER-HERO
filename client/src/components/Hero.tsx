@@ -255,9 +255,6 @@ export default function Hero() {
                     />
                   </span>
                 </p>
-                <p className="hero-filter-claim-sub">
-                  Guaranteed to fit Trane, Carrier, Rheem + 30 more.
-                </p>
               </div>
               <div className="hero-pack-row">
                 {SHOWCASE.map((item) => {
@@ -293,7 +290,8 @@ export default function Hero() {
               </div>
               <div className="hero-brands">
                 <p className="hero-brands-label">
-                  Filter King also fits <strong>30+ major brands</strong>
+                  Guaranteed to fit <strong>30+ major brands</strong> and we
+                  can customize them
                 </p>
                 <div className="hero-brands-row">
                   {COMPAT.map((brand) => (
