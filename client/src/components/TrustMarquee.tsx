@@ -79,7 +79,7 @@ export default function TrustMarquee() {
         aria-hidden
       />
 
-      <div className="marquee-track trust-marquee-track flex w-max items-center py-4 md:py-[1.15rem]">
+      <div className="marquee-track trust-marquee-track flex w-max items-center py-2.5 md:py-3">
         <div className="flex items-center gap-3.5 pr-3.5 md:gap-5 md:pr-5" aria-hidden>
           <MarqueeSequence />
         </div>

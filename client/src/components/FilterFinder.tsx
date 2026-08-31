@@ -9,8 +9,8 @@ import FilterSizeDiagram from "@/components/FilterSizeDiagram";
 import PopularSizesCarousel from "@/components/PopularSizesCarousel";
 import { customQuotePath } from "@/lib/filter-size";
 import {
-  catalogLengths,
-  catalogWidths,
+  finderLengths,
+  finderWidths,
   getFilterSize,
   THICKNESSES,
 } from "@shared/products";
@@ -22,8 +22,8 @@ interface FilterFinderProps {
   compact?: boolean;
 }
 
-const WIDTHS = catalogWidths().map(String);
-const LENGTHS = catalogLengths().map(String);
+const WIDTHS = finderWidths().map(String);
+const LENGTHS = finderLengths().map(String);
 const DEPTHS = THICKNESSES.map(String);
 
 export default function FilterFinder({

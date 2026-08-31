@@ -15,17 +15,11 @@ import {
   THICKNESSES,
 } from "@shared/products";
 import { customQuotePath } from "@/lib/filter-size";
+import { getPreferredMerv } from "@/lib/merv-pref";
 
 const WIDTHS = finderWidths().map(String);
 const LENGTHS = finderLengths().map(String);
 
-const HOME_SECTION_ROUTES: Record<string, string> = {
-  clock: "/how-often-to-change-air-filter",
-  faq: "/how-often-to-change-air-filter",
-  contact: "/custom-air-filters#custom-quote",
-  finder: "/sizes",
-  "how-to-measure": "/sizes",
-};
 const DEPTHS = THICKNESSES.map(String);
 const ALL_BRAND_FAMILIES = allBrandFamilies();
 const POPULAR = popularSizeSlugs(8);
@@ -74,10 +68,12 @@ function HeaderFinder({ onFound }: { onFound?: () => void }) {
 
   const go = () => {
     const slug = `${width}x${length}x${depth}`;
+    const merv = getPreferredMerv();
+    const mervQuery = merv ? `?merv=${merv}` : "";
     onFound?.();
     setLocation(
       getFilterSize(slug)
-        ? `/sizes/${encodeURIComponent(slug)}`
+        ? `/sizes/${encodeURIComponent(slug)}${mervQuery}`
         : customQuotePath(slug),
     );
   };
@@ -195,11 +191,6 @@ export default function SiteHeader() {
   const goHomeSection = (id: string) => (event: ReactMouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     closeMenus();
-    const dest = HOME_SECTION_ROUTES[id];
-    if (dest) {
-      setLocation(dest);
-      return;
-    }
     if (window.location.pathname === "/" || window.location.pathname === "") {
       scrollToHashTarget(id);
       if (window.location.hash !== `#${id}`) {
@@ -249,7 +240,7 @@ export default function SiteHeader() {
     >
       <div className="site-header-bar">
       <div className="container flex flex-wrap items-center gap-x-2 gap-y-2 py-2.5 xl:flex-nowrap md:py-3">
-        <BrandLockup tone="header" className="min-w-0 shrink-0" onClick={closeMenus} />
+        <BrandLockup tone="header" className="shrink-0" onClick={closeMenus} />
 
         <nav
           className="order-last flex w-full flex-wrap items-center justify-center gap-x-0.5 gap-y-1 md:order-none xl:w-auto xl:flex-nowrap xl:justify-start xl:ml-1"

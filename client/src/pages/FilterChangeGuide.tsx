@@ -720,7 +720,7 @@ export default function FilterChangeGuidePage() {
               Find the filter that keeps the power on.
             </h2>
             <p className="text-base md:text-lg text-white/70 mb-8 max-w-xl mx-auto leading-relaxed">
-              Exact Width × Length × Depth. MERV 8, 11, 13, or carbon. A spare in
+              Exact Width × Length × Depth. MERV 8, 11, or 13. A spare in
               the closet beats a clogged filter on a 95° day.
             </p>
             <Link

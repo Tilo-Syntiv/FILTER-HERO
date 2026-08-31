@@ -5,7 +5,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { z } from "zod";
-import { FILTER_SIZES, MERV_TYPES, THICKNESSES } from "../shared/products";
+import { ALL_FILTER_SIZES, FILTER_SIZES, MERV_TYPES, SELLABLE_ONLY, THICKNESSES } from "../shared/products";
 import {
   DEFAULT_SITE_URL,
   absoluteUrl,
@@ -162,6 +162,8 @@ Sitemap: ${absoluteUrl(siteUrl, "/sitemap.xml")}
   app.get("/api/products", (_req, res) => {
     res.json({
       sizeCount: FILTER_SIZES.length,
+      archivedSizeCount: ALL_FILTER_SIZES.length,
+      sellableOnly: SELLABLE_ONLY,
       thicknesses: THICKNESSES,
       merv: MERV_TYPES.map((t) => t.key),
     });

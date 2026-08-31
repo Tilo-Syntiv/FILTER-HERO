@@ -70,9 +70,9 @@ export function AllBrandsPage() {
         photo={LIFE.familyKitchen}
       >
         {BRAND_NAME} sells exact-fit replacement filters for major HVAC brands.
-        These are {BRAND_NAME} pleated filters (MERV 8, 11, 13, and carbon)
+        These are {BRAND_NAME} pleated filters (MERV 8, 11, and 13)
         made to the same Width × Length × Depth as the OEM media — not
-        third-party boxed retail brands.
+        third-party boxed retail brands. Carbon and other sizes can be quoted.
       </PageHero>
       <main className="sheet-section">
         <div className="container py-10 md:py-14">
@@ -93,7 +93,7 @@ export function BrandDetailPage({ slug }: { slug: string }) {
     () => [
       {
         question: `Do you sell genuine ${brand?.name ?? slug} filters?`,
-        answer: `We sell ${BRAND_NAME} replacement filters sized for ${brand?.name ?? "this"} HVAC systems. They are built to the OEM slot dimensions so they drop in like the original media, in MERV 8, 11, 13, and carbon.`,
+        answer: `We sell ${BRAND_NAME} replacement filters sized for ${brand?.name ?? "this"} HVAC systems. They are built to the OEM slot dimensions so they drop in like the original media, in MERV 8, 11, and 13 where we have wholesale cost. Carbon and other sizes can be quoted.`,
       },
       {
         question: `How do I find the right ${brand?.name ?? ""} filter?`,
@@ -154,8 +154,8 @@ export function BrandDetailPage({ slug }: { slug: string }) {
             }
           >
             Shop {BRAND_NAME} replacement filters for {brand.name} systems.
-            Same slot size as the OEM media. Choose MERV 8, 11, 13, or carbon
-            on the size page.
+            Same slot size as the OEM media. Choose MERV 8, 11, or 13
+            on the size page when that rating is in stock.
           </PageHero>
           <main className="sheet-section">
             <div className="container py-10 md:py-14">
@@ -191,7 +191,11 @@ export function BrandDetailPage({ slug }: { slug: string }) {
                   {brand.models.map((m) => (
                     <Link
                       key={m.code}
-                      href={`/sizes/${encodeURIComponent(m.size)}`}
+                      href={
+                        catalogSizeForSlug(m.size)
+                          ? `/sizes/${encodeURIComponent(m.size)}`
+                          : `/custom-air-filters?size=${encodeURIComponent(m.size)}`
+                      }
                         className="catalog-row"
                     >
                       <span className="font-semibold">{m.code}</span>
@@ -209,7 +213,11 @@ export function BrandDetailPage({ slug }: { slug: string }) {
                   {brand.oemParts.map((p) => (
                     <Link
                       key={p.code}
-                      href={`/sizes/${encodeURIComponent(p.size)}`}
+                      href={
+                        catalogSizeForSlug(p.size)
+                          ? `/sizes/${encodeURIComponent(p.size)}`
+                          : `/custom-air-filters?size=${encodeURIComponent(p.size)}`
+                      }
                         className="catalog-row"
                     >
                       <span className="font-semibold">{p.code}</span>

@@ -15,7 +15,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { MERV_TYPES, mervTypesForDisplay, type MervTypeInfo } from "@shared/products";
+import { MERV_TYPES, isMervKeyOnSale, mervTypesForDisplay, type MervTypeInfo } from "@shared/products";
 import { scrollToHashTarget } from "@/hooks/useHashScroll";
 import { MERV_GUIDE } from "@/lib/merv-guide";
 import {
@@ -23,6 +23,7 @@ import {
   type PreferredMerv,
 } from "@/lib/merv-pref";
 import { cn } from "@/lib/utils";
+import CaptureDots from "@/components/CaptureDots";
 import MervBadge from "@/components/MervBadge";
 import LifeImage from "@/components/LifeImage";
 import { LIFE } from "@/data/life-photos";
@@ -73,6 +74,10 @@ const COMPARE: { label: string; levels: Record<PreferredMerv, CaptureLevel> }[] 
   ];
 
 function shopThisRating(key: PreferredMerv) {
+  if (!isMervKeyOnSale(key)) {
+    window.location.assign("/custom-air-filters");
+    return;
+  }
   setPreferredMerv(key);
   const onHome =
     window.location.pathname === "/" || window.location.pathname === "";
@@ -82,30 +87,6 @@ function shopThisRating(key: PreferredMerv) {
     return;
   }
   window.location.assign("/#finder");
-}
-
-function CaptureDots({ filled, accent }: { filled: number; accent: string }) {
-  return (
-    <div className="flex items-end gap-1.5" aria-hidden>
-      {Array.from({ length: 5 }).map((_, i) => {
-        const on = i < filled;
-        const size = 7 + i * 3;
-        return (
-          <span
-            key={i}
-            className="rounded-full"
-            style={{
-              width: size,
-              height: size,
-              background: on ? accent : "transparent",
-              border: `1.5px solid ${accent}`,
-              opacity: on ? 1 : 0.28,
-            }}
-          />
-        );
-      })}
-    </div>
-  );
 }
 
 function LevelMark({
@@ -216,7 +197,7 @@ function MervCard({
           <p className="mb-2 text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-white/40">
             Capture
           </p>
-          <CaptureDots filled={guide.strength} accent={guide.accent} />
+          <CaptureDots merv={type.key} />
           <p className="mt-2 text-xs leading-relaxed text-white/50">
             {guide.efficiency}
           </p>
@@ -244,7 +225,7 @@ function MervCard({
         onClick={() => shopThisRating(type.key)}
         className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold text-ice transition-colors hover:text-white"
       >
-        Shop this rating
+        {isMervKeyOnSale(type.key) ? "Shop this rating" : "Request a quote"}
         <ArrowRight className="h-4 w-4" />
       </button>
     </article>
@@ -369,7 +350,7 @@ export default function MervCarousel() {
               className="mt-6 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: selectedType.badgeColor }}
             >
-              Find your size
+              {isMervKeyOnSale(selected) ? "Find your size" : "Request a quote"}
               <ArrowRight className="h-4 w-4" />
             </button>
             <p className="mt-3 text-xs leading-relaxed text-white/45">

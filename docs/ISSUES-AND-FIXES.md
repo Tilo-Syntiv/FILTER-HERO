@@ -14,7 +14,235 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-075**
+Next id: **FH-094**
+
+---
+
+### FH-093 — Hero Filter King pill was not a statement
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The right-side lockup was a red pill that only said “Filter King — by Filter Hero,” then a second line “Our Filter King filters.” It read as a label, not a claim, and hid the actual filter.
+- **Do NOT:** Put the maroon pill or the “Our Filter King filters.” headline back. Do not replace the build plate with text-only attribution.
+- **Do:** The claim is one slanted statement plate: cinematic shot of the bare Filter King build (frame, diamond grid, pleats) plus “This is the filter.” Keep the fit line under it. Packs stay below.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`, `client/public/hero/filter-build.png`
+- **Verify:** `/` desktop — no “Our Filter King filters.” No red pill. Statement plate with the filter visual sits above the four packs.
+- **Added:** 2026-08-30
+
+---
+
+### FH-092 — Hero captions redesigned off the pill
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** Under-pack pills (text, then capture dots) read as a second bubble system and fought the lineup.
+- **Do NOT:** Put pills, glass chips, or capture dots back under the hero packs. Do not invent another caption row below the filters.
+- **Do:** Each pack wears a slanted rating ticket on the product — same cut as the shop CTAs. Grade + use (Dust / Odors / Pets / Allergies). Carbon is the ice ticket. Catch-page dots stay on the catch cards only.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — four slanted tickets sit on the packs. No pills under the row. Brands and claim stay clear.
+- **Added:** 2026-08-30
+
+---
+
+### FH-091 — Hero captions did not match catch bubbles
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The four hero pills under the packs were text-only. They did not use the CAPTURE dots from “What should your filter catch?”
+- **Do NOT:** Put the text-only navy pills back. Do not invent a second dot scale for the hero.
+- **Do:** Hero captions use the shared `CaptureDots` (MERV 8 / Carbon: 1 filled, even size; MERV 11: 3 filled, slightly larger; MERV 13: 5 filled, growing). Pill chrome tints to the same accent. Catch cards and size-page Capture use the same component.
+- **Files:** `client/src/components/CaptureDots.tsx`, `client/src/components/Hero.tsx`, `client/src/components/MervCarousel.tsx`, `client/src/pages/SizeDetail.tsx`, `client/src/lib/merv-guide.ts`, `client/src/index.css`
+- **Verify:** `/` desktop — each pack caption shows the matching capture dots. `/` catch cards and `/sizes/20x25x1` Capture match those fills and sizes.
+- **Added:** 2026-08-30
+
+---
+
+### FH-090 — Hero packs sat still after the lineup
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After the side-by-side restage, MERV 8 / Carbon / MERV 11 / MERV 13 no longer floated.
+- **Do NOT:** Put the packs back on overlapping corners to get motion. Do not turn the float off.
+- **Do:** Keep the row. Each pack uses its old `hero-float-*` idle. Reduced motion still kills the animation.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — four packs side by side and drifting on their old float cycles.
+- **Added:** 2026-08-30
+
+---
+
+### FH-089 — Hero MERV 13 used the older pack shot
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The lineup still showed the previous MERV 13 render instead of the photoreal Filter King MERV 13 the shop should use.
+- **Do NOT:** Point MERV 13 at `showcase-merv13.png` or the old `merv-13-packshot.png`. Do not leave MERV 13 on a different canvas than MERV 8 / 11.
+- **Do:** Official and source pack shots are the uploaded photoreal MERV 13. Hero isolate is the same file, cropped to the 508×833 canvas as the other packs.
+- **Files:** `client/public/products/merv-13-packshot.png`, `client/public/products/source/merv-13-packshot.png`, `client/public/hero/pack-merv13.png`, `client/src/components/Hero.tsx`, `shared/products.ts`
+- **Verify:** `/` hero MERV 13 matches the photoreal upload and sits the same size as MERV 8 / 11 / Carbon. `/sizes/20x25x1` MERV 13 gallery uses the new pack shot.
+- **Added:** 2026-08-30
+
+---
+
+### FH-088 — Hero packs sat in a small overlapping fan
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** MERV 8 / Carbon / MERV 11 / MERV 13 were tilted and stacked, so they read small and graphic instead of a product lineup.
+- **Do NOT:** Put the four packs back on absolute overlapping corners or restore the tilt/float collage. Do not cover the Filter King claim or 30+ brand line.
+- **Do:** Stand the official isolated pack shots in one row. Keep them large (`max-height: 52vh`, `34vh` on short screens). Claim stays above, brands stay below. Do not let MERV 8 cover the lede or CTAs.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`, `client/public/hero/pack-merv8.png`, `client/public/hero/pack-merv11.png`, `client/public/hero/pack-merv13.png`
+- **Verify:** `/` desktop — four filters side by side, larger, claim and brand type readable.
+- **Added:** 2026-08-30
+
+---
+
+### FH-087 — Header CTAs drifted from the shop buttons
+- **Status:** mitigated
+- **Area:** header
+- **Symptom:** FIND, Need a custom size, and How to measure did not share the Filter Hero crimson slant / italic used on hero and finder buttons. Header FIND also skipped the preferred MERV query the page finder sends. Cold `/#clock` and `/#how-to-measure` loads missed their sections.
+- **Do NOT:** Style header actions as navy pills or plain text links. Do not send header FIND to a different size route than `FilterFinder`.
+- **Do:** Header FIND / custom use the same crimson slanted CTA as `.hero-shop-btn`. How to measure stays a crimson pill. Header FIND appends `?merv=` from `getPreferredMerv()`. Hash landings retry until the section is in view.
+- **Files:** `client/src/index.css`, `client/src/components/SiteHeader.tsx`, `client/src/hooks/useHashScroll.ts`
+- **Verify:** `/` header — FIND and custom match the shop CTAs; FIND opens `/sizes/20x25x1`; How to measure / Filter Clock land on their sections from a fresh `/#` URL.
+- **Added:** 2026-08-30
+
+---
+
+### FH-086 — Header lockup left the 8:09 shopper bar
+- **Status:** mitigated
+- **Area:** header
+- **Symptom:** The top bar no longer matched the running-mark + Filter Hero shopper header (Shop / Brands / Filter Clock / Contact, How to Measure, size finder, Need a Custom Size, cart).
+- **Do NOT:** Put `/hero/nav-icon.png` or the italic uppercase FILTER / HERO lockup back in the header. Do not hide `SiteHeader` from the top of `/`.
+- **Do:** Header stays first. Emblem is the `/logo.png` running crop beside title-case Filter Hero. Full shopper chrome stays in one top row.
+- **Files:** `client/src/components/BrandLockup.tsx`
+- **Verify:** `/` — navy header at the top matches the 8:09 bar; trust chips still sit on the first screen under the hero.
+- **Added:** 2026-08-30
+
+---
+
+### FH-085 — Trust marquee sat below the first screen
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** Free Shipping / Built To Last / MERV / support chips only appeared after scrolling past the locked hero.
+- **Do NOT:** Hide `.home-lock-rest` or lock `html` / `body` / `#root` overflow. Do not put the marquee back under the hero-only first viewport.
+- **Do:** First screen is header + hero + `TrustMarquee`. Hero flexes into the leftover height. The rest of the shop still scrolls below.
+- **Files:** `client/src/pages/Home.tsx`, `client/src/index.css`, `client/src/components/TrustMarquee.tsx`
+- **Verify:** `/` — chips visible without scrolling; scroll still reaches finder, clock, footer.
+- **Added:** 2026-08-30
+
+---
+
+### FH-084 — Home hid everything below the hero
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** `/` showed only the header and hero. Shoppers could not scroll to Find your size, Filter Clock, brands, FAQ, contact, or the footer.
+- **Do NOT:** Set `.home-lock-rest { display: none }` or lock `html` / `body` / `#root` / `.home-lock` to `100dvh` + `overflow: hidden`. Do not redirect `/#clock`, `/#faq`, `/#contact`, `/#finder`, or `/#how-to-measure` away from the home sections.
+- **Do:** Header + hero still fill the first viewport. The rest of the page sits below in normal flow. Hash links scroll to those home sections.
+- **Files:** `client/src/index.css`, `client/src/pages/Home.tsx`, `client/src/components/SiteHeader.tsx`
+- **Verify:** `/` — scroll past the hero to the trust bar, finder, clock, brands, FAQ, contact, footer. Header Filter Clock / How to measure / FAQ / contact stay on `/`.
+- **Added:** 2026-08-30
+
+---
+
+### FH-083 — Filter King claim sat under the packs
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After the scale-up, MERV 8 covered “Our Filter King filters” / “Guaranteed to fit…”, and Carbon covered “Filter King also fits 30+ major brands.”
+- **Do NOT:** Let pack shots share the top or bottom type bands.
+- **Do:** Top band for the claim, bottom band for the 30+ line, packs in the middle at `max-height: 34vh` so every word stays visible.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — claim and brand lines fully readable; packs do not cover type.
+- **Added:** 2026-08-30
+
+---
+
+### FH-082 — Hero type and packs read too small
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The locked first screen left empty navy around the lockup, headline, and Filter King packs compared with the reworded preview.
+- **Do NOT:** Shrink the desktop lockup back under 5rem or cap pack shots at 36vh.
+- **Do:** Scale lockup, title, lede, CTAs, claim, packs, brand marks, and the character together. Keep the giant outlined HERO behind the packs.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — type and packs fill the stage like the preview; header still on the first screen.
+- **Added:** 2026-08-30
+
+---
+
+### FH-081 — Leftover hero line overlays stayed on
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After hiding `.hero-mesh`, diagonal ray streaks and dust still read as leftover graph lines on the stage.
+- **Do NOT:** Put `.hero-mesh`, `.hero-rays`, `.hero-slash`, or `.hero-dust` back on the home hero.
+- **Do:** Navy wash only. The filter-grid lives on the cape, not the stage.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` — no grid, no diagonal streaks behind copy or packs.
+- **Added:** 2026-08-30
+
+---
+
+### FH-080 — Hero graph-paper grid came off
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The stage still showed a graph-paper grid behind the figure and the Filter King packs.
+- **Do NOT:** Turn `.hero-mesh` back on.
+- **Do:** Keep the navy wash only. No graph overlay.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` — smooth navy behind character and packs; no grid lines.
+- **Added:** 2026-08-30
+
+---
+
+### FH-079 — Hero looked like two different backgrounds
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** Dark grid sat behind the character; a lighter, ungridded blue sat behind the Filter King packs, with a diagonal seam in the middle.
+- **Do NOT:** Mask `.hero-mesh` / `.hero-rays` to the left 24%. Do not keep `.hero-slash` or the 118° ramp that ends in `#2f5a96`.
+- **Do:** One navy field across the stage. Grid and rays cover the full width. No copy-column wash. No diagonal slash.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` — same navy + grid behind the figure and the packs; no left/right seam.
+- **Added:** 2026-08-30
+
+---
+
+### FH-078 — Hero stage wash no longer matched the preview
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** Shifting the mascot also moved the ice/red/navy blobs, so the stage no longer matched `hero-reworded-preview_2.html`.
+- **Do NOT:** Recolor the 118° navy ramp. Do not keep the center-weighted ice blob from FH-077.
+- **Do:** Use the preview wash: ice at 72% 42%, red at 8% 88%, blue at 4% 12%. Leave copy and Filter King packs in place.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` — dark left, ice light on the right, same navy ramp as the preview.
+- **Added:** 2026-08-30
+
+---
+
+### FH-077 — Hero background hugged the left crop
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After receding the mascot, the figure, grid, and glow still sat on the far left and clipped off the edge.
+- **Do NOT:** Slide the Filter King packs or the headline with the background. Do not pin the character at `left: -6%`.
+- **Do:** Keep copy and products where they are. Shift the stage wash, mesh, rays, glow, ground, red orb, and character slot right so the figure sits behind the lockup.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — full figure visible under FILTER HERO type, not cut off on the left; packs stay on the right.
+- **Added:** 2026-08-30
+
+---
+
+### FH-076 — Hero character sat too far forward
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The crossed-arms figure read as the main subject, in front of the headline, instead of sitting behind FILTER HERO copy like the reworded preview.
+- **Do NOT:** Put the idle video back in front of the type. Do not crop the cape or hide the filter-mesh lining. Do not paint a banner composite.
+- **Do:** Keep the existing crossed-arms mascot (`character.png` — red chest, navy legs, filter-grid cape). Sit him left and back: `opacity` ~0.58, right-edge fade, dimmer glow, `z-index: 2` under `.hero-copy`.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`, `client/public/hero/character.png`
+- **Verify:** `/` desktop — character visible behind the lockup and headline; Filter King packs stay on the right.
+- **Added:** 2026-08-30
+
+---
+
+### FH-075 — Header character icon looked blank after the public swap
+- **Status:** mitigated
+- **Area:** header
+- **Symptom:** The header mark stayed empty after `BrandLockup` pointed at `/hero/nav-icon.png`. The file was valid; the slot was still the old wide `logo.png` crop (`md:w-[4.6rem]` on a 48px-tall box), so the 528×650 portrait sat in empty navy and read as a blank gap.
+- **Do NOT:** Route the icon through `useKnockoutLogo()` (punches out the eye slits). Do not keep the old crop (`h-[168%]` / `object-[center_8%]` / `overflow: hidden`) or the wide 4.6rem mark box.
+- **Do:** Size `.brand-emblem` to the icon aspect (~0.81). Load `/hero/nav-icon.png` eagerly with intrinsic 528×650. `object-contain` / `object-center`.
+- **Files:** `client/src/components/BrandLockup.tsx`, `client/src/components/SiteHeader.tsx`, `client/src/index.css`, `client/public/hero/nav-icon.png`
+- **Verify:** `/` header — crossed-arms character fills the mark beside italic FILTER / HERO; Network `/hero/nav-icon.png?v=fh075` 200.
+- **Added:** 2026-08-30
 
 ---
 
@@ -199,13 +427,13 @@ Next id: **FH-075**
 ---
 
 ### FH-059 — Home is a single locked hero screen
-- **Status:** mitigated
+- **Status:** wontfix
 - **Area:** photos
 - **Symptom:** Header + hero did not fill the viewport, so the page still scrolled into the trust bar and finder.
-- **Do NOT:** Let `/` scroll. Do not give the home shell `min-h-screen` with content below the hero in normal flow.
-- **Do:** `.home-lock` is `100dvh`, overflow hidden. Hero flexes to fill the remaining space under the header. Page body below the hero is in `.home-lock-rest` (not shown). Find your filter size goes to `/sizes`. Start your clock goes to `/how-often-to-change-air-filter`. Header Filter Clock / How to measure / FAQ / contact hashes go to those pages instead of scrolling a hidden home section.
+- **Do NOT:** Re-lock `/` to a hero-only screen. Reversed by FH-084 — shoppers need the rest of the site.
+- **Do:** Hero still fills the first viewport under the header (`100dvh` minus `--site-header-h`). Content below stays in normal flow.
 - **Files:** `client/src/pages/Home.tsx`, `client/src/components/Hero.tsx`, `client/src/components/SiteHeader.tsx`, `client/src/index.css`
-- **Verify:** `/` — no vertical scrollbar. Hero and header fill the window. Wheel/trackpad does not move the page.
+- **Verify:** `/` — first screen is header + hero. Scroll starts at the trust bar.
 - **Added:** 2026-08-30
 
 ---

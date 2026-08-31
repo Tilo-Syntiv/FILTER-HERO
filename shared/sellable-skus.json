@@ -1,0 +1,1804 @@
+{
+  "source": "Paul Sellaro 2025 Filter King dealer sheet",
+  "extractedFrom": ".firecrawl/fk-wholesale-2025.txt",
+  "note": "Shop sells only these size × MERV lines. Keep filter-catalog.json intact. Set SELLABLE_ONLY to false in shared/products.ts to restore every size and carbon.",
+  "sheetRows": 313,
+  "count": 299,
+  "sizes": 182,
+  "skus": [
+    {
+      "size": "10x10x1",
+      "merv": 8,
+      "wholesaleSku": "FK10x10x1",
+      "cost": 2.81
+    },
+    {
+      "size": "10x10x2",
+      "merv": 8,
+      "wholesaleSku": "FK10x10x2",
+      "cost": 3.64
+    },
+    {
+      "size": "10x10x2",
+      "merv": 11,
+      "wholesaleSku": "FK10x10x2",
+      "cost": 8.71
+    },
+    {
+      "size": "10x20x4",
+      "merv": 11,
+      "wholesaleSku": "FK10x20x4",
+      "cost": 8.87
+    },
+    {
+      "size": "10x25x2",
+      "merv": 11,
+      "wholesaleSku": "FK10x25x2",
+      "cost": 7.81
+    },
+    {
+      "size": "10x25x2",
+      "merv": 13,
+      "wholesaleSku": "FK10x25x2",
+      "cost": 8.59
+    },
+    {
+      "size": "10x30x1",
+      "merv": 8,
+      "wholesaleSku": "FK10x30x1N",
+      "cost": 3.87
+    },
+    {
+      "size": "10x36x1",
+      "merv": 8,
+      "wholesaleSku": "FK10x36x1",
+      "cost": 4.07
+    },
+    {
+      "size": "10x36x1",
+      "merv": 11,
+      "wholesaleSku": "FK10x36x1",
+      "cost": 4.41
+    },
+    {
+      "size": "10x36x1",
+      "merv": 13,
+      "wholesaleSku": "FK10x36x1",
+      "cost": 4.85
+    },
+    {
+      "size": "12.5x24.25x1",
+      "merv": 8,
+      "wholesaleSku": "FK12.5x24.25x1A",
+      "cost": 3.74
+    },
+    {
+      "size": "12x12x1",
+      "merv": 8,
+      "wholesaleSku": "FK12x12x1",
+      "cost": 2.95
+    },
+    {
+      "size": "12x12x1",
+      "merv": 11,
+      "wholesaleSku": "FK12x12x1",
+      "cost": 2.88
+    },
+    {
+      "size": "12x12x1",
+      "merv": 13,
+      "wholesaleSku": "FK12x12x1",
+      "cost": 3.17
+    },
+    {
+      "size": "12x15x0.5",
+      "merv": 11,
+      "wholesaleSku": "FK12x15x0.5",
+      "cost": 6.48
+    },
+    {
+      "size": "12x15x0.5",
+      "merv": 13,
+      "wholesaleSku": "FK12x15x0.5",
+      "cost": 7.13
+    },
+    {
+      "size": "12x18x1",
+      "merv": 8,
+      "wholesaleSku": "FK12x18x1A",
+      "cost": 2.5
+    },
+    {
+      "size": "12x20x1",
+      "merv": 8,
+      "wholesaleSku": "FK12x20x1",
+      "cost": 3.48
+    },
+    {
+      "size": "12x20x2",
+      "merv": 11,
+      "wholesaleSku": "FK12x20x2n",
+      "cost": 8.84
+    },
+    {
+      "size": "12x20x2",
+      "merv": 13,
+      "wholesaleSku": "FK12x20x2n",
+      "cost": 9.72
+    },
+    {
+      "size": "12x24x1",
+      "merv": 8,
+      "wholesaleSku": "FK12x24x1",
+      "cost": 3.74
+    },
+    {
+      "size": "12x24x1",
+      "merv": 11,
+      "wholesaleSku": "FK12x24x1",
+      "cost": 4.01
+    },
+    {
+      "size": "12x24x1",
+      "merv": 13,
+      "wholesaleSku": "FK12x24x1",
+      "cost": 4.42
+    },
+    {
+      "size": "12x24x2",
+      "merv": 8,
+      "wholesaleSku": "FK12x24x2",
+      "cost": 4.97
+    },
+    {
+      "size": "12x24x2",
+      "merv": 11,
+      "wholesaleSku": "FK12x24x2n",
+      "cost": 7.09
+    },
+    {
+      "size": "12x24x2",
+      "merv": 13,
+      "wholesaleSku": "FK12x24x2n",
+      "cost": 7.8
+    },
+    {
+      "size": "12x30x2",
+      "merv": 11,
+      "wholesaleSku": "FK12x30x2",
+      "cost": 8.46
+    },
+    {
+      "size": "12x30x2",
+      "merv": 13,
+      "wholesaleSku": "FK12x30x2",
+      "cost": 9.31
+    },
+    {
+      "size": "12x36x0.5",
+      "merv": 8,
+      "wholesaleSku": "FK12x36x0.5",
+      "cost": 3.93
+    },
+    {
+      "size": "12x36x0.5",
+      "merv": 11,
+      "wholesaleSku": "FK12x36x0.5",
+      "cost": 4.63
+    },
+    {
+      "size": "12x36x0.5",
+      "merv": 13,
+      "wholesaleSku": "FK12x36x0.5",
+      "cost": 5.09
+    },
+    {
+      "size": "12x36x1",
+      "merv": 8,
+      "wholesaleSku": "FK12x36x1",
+      "cost": 4.5
+    },
+    {
+      "size": "13x13x1",
+      "merv": 8,
+      "wholesaleSku": "FK13x13x1",
+      "cost": 4.01
+    },
+    {
+      "size": "13x21.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK13x21.5x1A",
+      "cost": 4.03
+    },
+    {
+      "size": "13x21x1",
+      "merv": 8,
+      "wholesaleSku": "FK13x21x1A",
+      "cost": 3.7
+    },
+    {
+      "size": "14x14x1",
+      "merv": 8,
+      "wholesaleSku": "FK14x14x1",
+      "cost": 3.36
+    },
+    {
+      "size": "14x14x1",
+      "merv": 11,
+      "wholesaleSku": "FK14x14x1",
+      "cost": 3.22
+    },
+    {
+      "size": "14x14x1",
+      "merv": 13,
+      "wholesaleSku": "FK14x14x1",
+      "cost": 3.54
+    },
+    {
+      "size": "14x18x1",
+      "merv": 8,
+      "wholesaleSku": "FK14x18x1",
+      "cost": 3.62
+    },
+    {
+      "size": "14x20x1",
+      "merv": 8,
+      "wholesaleSku": "FK14x20x1",
+      "cost": 3.74
+    },
+    {
+      "size": "14x20x1",
+      "merv": 11,
+      "wholesaleSku": "FK14x20x1",
+      "cost": 3.92
+    },
+    {
+      "size": "14x20x1",
+      "merv": 13,
+      "wholesaleSku": "FK14x20x1",
+      "cost": 4.32
+    },
+    {
+      "size": "14x20x2",
+      "merv": 8,
+      "wholesaleSku": "FK14x20x2",
+      "cost": 5.86
+    },
+    {
+      "size": "14x22x1",
+      "merv": 8,
+      "wholesaleSku": "FK14x22x1",
+      "cost": 3.91
+    },
+    {
+      "size": "14x24x1",
+      "merv": 8,
+      "wholesaleSku": "FK14x24x1",
+      "cost": 3.91
+    },
+    {
+      "size": "14x24x1",
+      "merv": 11,
+      "wholesaleSku": "FK14x24x1",
+      "cost": 4.27
+    },
+    {
+      "size": "14x24x1",
+      "merv": 13,
+      "wholesaleSku": "FK14x24x1",
+      "cost": 4.69
+    },
+    {
+      "size": "14x25x1",
+      "merv": 8,
+      "wholesaleSku": "FK14x25x1",
+      "cost": 4.33
+    },
+    {
+      "size": "14x25x2",
+      "merv": 8,
+      "wholesaleSku": "FK14x25x2",
+      "cost": 4.7
+    },
+    {
+      "size": "14x30x1",
+      "merv": 8,
+      "wholesaleSku": "FK14x30x1",
+      "cost": 4.78
+    },
+    {
+      "size": "14x30x1",
+      "merv": 11,
+      "wholesaleSku": "FK14x30x1",
+      "cost": 5.2
+    },
+    {
+      "size": "14x30x1",
+      "merv": 13,
+      "wholesaleSku": "FK14x30x1",
+      "cost": 5.72
+    },
+    {
+      "size": "14x30x2",
+      "merv": 11,
+      "wholesaleSku": "FK14x30x2",
+      "cost": 8.46
+    },
+    {
+      "size": "14x30x2",
+      "merv": 13,
+      "wholesaleSku": "FK14x30x2",
+      "cost": 9.31
+    },
+    {
+      "size": "15x15x1",
+      "merv": 8,
+      "wholesaleSku": "FK15x15x1A",
+      "cost": 3.68
+    },
+    {
+      "size": "15x20x1",
+      "merv": 8,
+      "wholesaleSku": "FK15x20x1",
+      "cost": 3.91
+    },
+    {
+      "size": "15x24x1",
+      "merv": 8,
+      "wholesaleSku": "FK15x24x1",
+      "cost": 3.95
+    },
+    {
+      "size": "15x30x2",
+      "merv": 11,
+      "wholesaleSku": "FK15x30x2",
+      "cost": 8.46
+    },
+    {
+      "size": "15x30x2",
+      "merv": 13,
+      "wholesaleSku": "FK15x30x2",
+      "cost": 9.31
+    },
+    {
+      "size": "16x16x1",
+      "merv": 8,
+      "wholesaleSku": "FK16x16x1",
+      "cost": 3.62
+    },
+    {
+      "size": "16x16x1",
+      "merv": 11,
+      "wholesaleSku": "FK16x16x1",
+      "cost": 3.8
+    },
+    {
+      "size": "16x16x1",
+      "merv": 13,
+      "wholesaleSku": "FK16x16x1",
+      "cost": 4.18
+    },
+    {
+      "size": "16x16x2",
+      "merv": 8,
+      "wholesaleSku": "FK16x16x2",
+      "cost": 4.15
+    },
+    {
+      "size": "16x19x1",
+      "merv": 8,
+      "wholesaleSku": "FK16x19x1",
+      "cost": 3.83
+    },
+    {
+      "size": "16x19x1",
+      "merv": 11,
+      "wholesaleSku": "FK16x19x1",
+      "cost": 4.28
+    },
+    {
+      "size": "16x19x1",
+      "merv": 13,
+      "wholesaleSku": "FK16x19x1",
+      "cost": 4.71
+    },
+    {
+      "size": "16x20x1",
+      "merv": 8,
+      "wholesaleSku": "FK16x20x1",
+      "cost": 3.76
+    },
+    {
+      "size": "16x20x1",
+      "merv": 11,
+      "wholesaleSku": "FK16x20x1",
+      "cost": 4.09
+    },
+    {
+      "size": "16x20x1",
+      "merv": 13,
+      "wholesaleSku": "FK16x20x1",
+      "cost": 4.49
+    },
+    {
+      "size": "16x20x2",
+      "merv": 8,
+      "wholesaleSku": "FK16x20x2",
+      "cost": 4.21
+    },
+    {
+      "size": "16x20x2",
+      "merv": 11,
+      "wholesaleSku": "FK16x20x2",
+      "cost": 5.06
+    },
+    {
+      "size": "16x20x2",
+      "merv": 13,
+      "wholesaleSku": "FK16x20x2",
+      "cost": 5.56
+    },
+    {
+      "size": "16x20x4",
+      "merv": 8,
+      "wholesaleSku": "FK16x20x4",
+      "cost": 5.96
+    },
+    {
+      "size": "16x20x4",
+      "merv": 11,
+      "wholesaleSku": "FK16x20x4",
+      "cost": 7.78
+    },
+    {
+      "size": "16x20x4",
+      "merv": 13,
+      "wholesaleSku": "FK16x20x4",
+      "cost": 8.55
+    },
+    {
+      "size": "16x21x1",
+      "merv": 8,
+      "wholesaleSku": "FK16x21x1A",
+      "cost": 3.99
+    },
+    {
+      "size": "16x22x1",
+      "merv": 8,
+      "wholesaleSku": "FK16x22x1A",
+      "cost": 4.38
+    },
+    {
+      "size": "16x24x1",
+      "merv": 8,
+      "wholesaleSku": "FK16x24x1",
+      "cost": 4.19
+    },
+    {
+      "size": "16x24x2",
+      "merv": 8,
+      "wholesaleSku": "FK16x24x2",
+      "cost": 5.41
+    },
+    {
+      "size": "16x24x4",
+      "merv": 8,
+      "wholesaleSku": "FK16x24x4",
+      "cost": 6.29
+    },
+    {
+      "size": "16x25x1",
+      "merv": 8,
+      "wholesaleSku": "FK16x25x1",
+      "cost": 4.21
+    },
+    {
+      "size": "16x25x1",
+      "merv": 11,
+      "wholesaleSku": "FK16x25x1",
+      "cost": 4.68
+    },
+    {
+      "size": "16x25x1",
+      "merv": 13,
+      "wholesaleSku": "FK16x25x1",
+      "cost": 5.15
+    },
+    {
+      "size": "16x25x2",
+      "merv": 8,
+      "wholesaleSku": "FK16x25x2",
+      "cost": 5.17
+    },
+    {
+      "size": "16x25x2",
+      "merv": 11,
+      "wholesaleSku": "FK16x25x2",
+      "cost": 6.26
+    },
+    {
+      "size": "16x25x2",
+      "merv": 13,
+      "wholesaleSku": "FK16x25x2",
+      "cost": 6.89
+    },
+    {
+      "size": "16x25x4",
+      "merv": 11,
+      "wholesaleSku": "FK16x25x4",
+      "cost": 8.98
+    },
+    {
+      "size": "16x25x4",
+      "merv": 13,
+      "wholesaleSku": "FK16x25x4",
+      "cost": 9.88
+    },
+    {
+      "size": "16x25x5",
+      "merv": 8,
+      "wholesaleSku": "FK16x25x5",
+      "cost": 18.5
+    },
+    {
+      "size": "16x25x5",
+      "merv": 11,
+      "wholesaleSku": "FK16x25x5",
+      "cost": 19
+    },
+    {
+      "size": "16x25x5",
+      "merv": 13,
+      "wholesaleSku": "FK16x25x5",
+      "cost": 19.5
+    },
+    {
+      "size": "16x30x1",
+      "merv": 8,
+      "wholesaleSku": "FK16x30x1",
+      "cost": 4.54
+    },
+    {
+      "size": "16x30x2",
+      "merv": 8,
+      "wholesaleSku": "FK16x30x2",
+      "cost": 6
+    },
+    {
+      "size": "17.5x21x1",
+      "merv": 8,
+      "wholesaleSku": "FK17.5x21x1A",
+      "cost": 4.84
+    },
+    {
+      "size": "17.5x22x1",
+      "merv": 8,
+      "wholesaleSku": "FK17.5x22x1A",
+      "cost": 4.64
+    },
+    {
+      "size": "17.5x22x1",
+      "merv": 11,
+      "wholesaleSku": "FK17.5x22x1A",
+      "cost": 4.99
+    },
+    {
+      "size": "17.5x22x1",
+      "merv": 13,
+      "wholesaleSku": "FK17.5x22x1A",
+      "cost": 5.48
+    },
+    {
+      "size": "17x17x1",
+      "merv": 8,
+      "wholesaleSku": "FK17x17x1A",
+      "cost": 3.97
+    },
+    {
+      "size": "17x20x1",
+      "merv": 8,
+      "wholesaleSku": "FK17x20x1",
+      "cost": 4.03
+    },
+    {
+      "size": "17x21x1",
+      "merv": 8,
+      "wholesaleSku": "FK17x21x1A",
+      "cost": 4.07
+    },
+    {
+      "size": "17x21x1",
+      "merv": 11,
+      "wholesaleSku": "FK17x21x1A",
+      "cost": 4.43
+    },
+    {
+      "size": "17x21x1",
+      "merv": 13,
+      "wholesaleSku": "FK17x21x1A",
+      "cost": 4.87
+    },
+    {
+      "size": "17x22x1",
+      "merv": 8,
+      "wholesaleSku": "FK17x22x1",
+      "cost": 4.11
+    },
+    {
+      "size": "18x18x1",
+      "merv": 8,
+      "wholesaleSku": "FK18x18x1",
+      "cost": 3.89
+    },
+    {
+      "size": "18x18x1",
+      "merv": 11,
+      "wholesaleSku": "FK18x18x1",
+      "cost": 4.19
+    },
+    {
+      "size": "18x18x1",
+      "merv": 13,
+      "wholesaleSku": "FK18x18x1",
+      "cost": 4.61
+    },
+    {
+      "size": "18x18x2",
+      "merv": 8,
+      "wholesaleSku": "FK18x18x2",
+      "cost": 5.7
+    },
+    {
+      "size": "18x20x1",
+      "merv": 8,
+      "wholesaleSku": "FK18x20x1",
+      "cost": 4.09
+    },
+    {
+      "size": "18x20x1",
+      "merv": 11,
+      "wholesaleSku": "FK18x20x1",
+      "cost": 4.43
+    },
+    {
+      "size": "18x20x1",
+      "merv": 13,
+      "wholesaleSku": "FK18x20x1",
+      "cost": 4.87
+    },
+    {
+      "size": "18x22x1",
+      "merv": 8,
+      "wholesaleSku": "FK18x22x1",
+      "cost": 4.09
+    },
+    {
+      "size": "18x24x1",
+      "merv": 8,
+      "wholesaleSku": "FK18x24x1",
+      "cost": 4.38
+    },
+    {
+      "size": "18x24x1",
+      "merv": 11,
+      "wholesaleSku": "FK18x24x1",
+      "cost": 4.86
+    },
+    {
+      "size": "18x24x1",
+      "merv": 13,
+      "wholesaleSku": "FK18x24x1",
+      "cost": 5.35
+    },
+    {
+      "size": "18x24x2",
+      "merv": 8,
+      "wholesaleSku": "FK18x24x2",
+      "cost": 5.35
+    },
+    {
+      "size": "18x25x1",
+      "merv": 8,
+      "wholesaleSku": "FK18x25x1",
+      "cost": 4.03
+    },
+    {
+      "size": "18x30x1",
+      "merv": 8,
+      "wholesaleSku": "FK18x30x1",
+      "cost": 5.03
+    },
+    {
+      "size": "18x30x1",
+      "merv": 11,
+      "wholesaleSku": "FK18x30x1",
+      "cost": 5.67
+    },
+    {
+      "size": "18x30x1",
+      "merv": 13,
+      "wholesaleSku": "FK18x30x1",
+      "cost": 6.24
+    },
+    {
+      "size": "18x36x1",
+      "merv": 8,
+      "wholesaleSku": "FK18x36x1",
+      "cost": 5.49
+    },
+    {
+      "size": "18x36x1",
+      "merv": 11,
+      "wholesaleSku": "FK18x36x1",
+      "cost": 6.23
+    },
+    {
+      "size": "18x36x1",
+      "merv": 13,
+      "wholesaleSku": "FK18x36x1",
+      "cost": 6.85
+    },
+    {
+      "size": "19.25x23.25x1",
+      "merv": 8,
+      "wholesaleSku": "FK19.25x23.25x1A",
+      "cost": 4.56
+    },
+    {
+      "size": "19.5x21x1",
+      "merv": 8,
+      "wholesaleSku": "FK19.5x21x1A",
+      "cost": 4.64
+    },
+    {
+      "size": "19.75x21.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK19.75x21.5x1A",
+      "cost": 4.54
+    },
+    {
+      "size": "19.88x21.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK19.88x21.5x1A",
+      "cost": 4.6
+    },
+    {
+      "size": "19x19x1",
+      "merv": 8,
+      "wholesaleSku": "FK19x19x1A",
+      "cost": 4.4
+    },
+    {
+      "size": "19x19x1",
+      "merv": 11,
+      "wholesaleSku": "FK19x19x1A",
+      "cost": 4.68
+    },
+    {
+      "size": "19x19x1",
+      "merv": 13,
+      "wholesaleSku": "FK19x19x1A",
+      "cost": 5.15
+    },
+    {
+      "size": "19x20x1",
+      "merv": 8,
+      "wholesaleSku": "FK19x20x1A",
+      "cost": 4.46
+    },
+    {
+      "size": "19x21x1",
+      "merv": 8,
+      "wholesaleSku": "FK19x21x1",
+      "cost": 4.33
+    },
+    {
+      "size": "19x22x1",
+      "merv": 8,
+      "wholesaleSku": "FK19x22x1A",
+      "cost": 4.38
+    },
+    {
+      "size": "19x22x1",
+      "merv": 11,
+      "wholesaleSku": "FK19x22x1A",
+      "cost": 4.75
+    },
+    {
+      "size": "19x22x1",
+      "merv": 13,
+      "wholesaleSku": "FK19x22x1A",
+      "cost": 5.23
+    },
+    {
+      "size": "19x23x1",
+      "merv": 8,
+      "wholesaleSku": "FK19x23x1A",
+      "cost": 4.6
+    },
+    {
+      "size": "19x23x1",
+      "merv": 11,
+      "wholesaleSku": "FK19x23x1A",
+      "cost": 5
+    },
+    {
+      "size": "19x23x1",
+      "merv": 13,
+      "wholesaleSku": "FK19x23x1A",
+      "cost": 5.5
+    },
+    {
+      "size": "19x25x1",
+      "merv": 8,
+      "wholesaleSku": "FK19x25x1",
+      "cost": 4.97
+    },
+    {
+      "size": "19x26x1",
+      "merv": 8,
+      "wholesaleSku": "FK19x26x1",
+      "cost": 5.35
+    },
+    {
+      "size": "19x27x1",
+      "merv": 8,
+      "wholesaleSku": "FK19x27x1A",
+      "cost": 4.92
+    },
+    {
+      "size": "20x20x1",
+      "merv": 8,
+      "wholesaleSku": "FK20x20x1",
+      "cost": 4.38
+    },
+    {
+      "size": "20x20x1",
+      "merv": 11,
+      "wholesaleSku": "FK20x20x1",
+      "cost": 4.82
+    },
+    {
+      "size": "20x20x1",
+      "merv": 13,
+      "wholesaleSku": "FK20x20x1",
+      "cost": 5.31
+    },
+    {
+      "size": "20x20x2",
+      "merv": 8,
+      "wholesaleSku": "FK20x20x2",
+      "cost": 4.86
+    },
+    {
+      "size": "20x20x2",
+      "merv": 11,
+      "wholesaleSku": "FK20x20x2",
+      "cost": 5.96
+    },
+    {
+      "size": "20x20x2",
+      "merv": 13,
+      "wholesaleSku": "FK20x20x2",
+      "cost": 6.55
+    },
+    {
+      "size": "20x20x4",
+      "merv": 11,
+      "wholesaleSku": "FK20x20x4",
+      "cost": 8.96
+    },
+    {
+      "size": "20x20x4",
+      "merv": 13,
+      "wholesaleSku": "FK20x20x4",
+      "cost": 9.86
+    },
+    {
+      "size": "20x21x1",
+      "merv": 8,
+      "wholesaleSku": "FK20x21x1A",
+      "cost": 4.82
+    },
+    {
+      "size": "20x21x1",
+      "merv": 11,
+      "wholesaleSku": "FK20x21x1A",
+      "cost": 5.2
+    },
+    {
+      "size": "20x21x1",
+      "merv": 13,
+      "wholesaleSku": "FK20x21x1A",
+      "cost": 5.72
+    },
+    {
+      "size": "20x22x1",
+      "merv": 8,
+      "wholesaleSku": "FK20x22x1",
+      "cost": 4.52
+    },
+    {
+      "size": "20x22x2",
+      "merv": 8,
+      "wholesaleSku": "FK20x22x2",
+      "cost": 5.05
+    },
+    {
+      "size": "20x23x1",
+      "merv": 8,
+      "wholesaleSku": "FK20x23x1",
+      "cost": 4.76
+    },
+    {
+      "size": "20x23x1",
+      "merv": 11,
+      "wholesaleSku": "FK20x23x1A",
+      "cost": 4.73
+    },
+    {
+      "size": "20x23x1",
+      "merv": 13,
+      "wholesaleSku": "FK20x23x1A",
+      "cost": 5.21
+    },
+    {
+      "size": "20x24x1",
+      "merv": 8,
+      "wholesaleSku": "FK20x24x1",
+      "cost": 4.7
+    },
+    {
+      "size": "20x24x1",
+      "merv": 11,
+      "wholesaleSku": "FK20x24x1",
+      "cost": 5.35
+    },
+    {
+      "size": "20x24x1",
+      "merv": 13,
+      "wholesaleSku": "FK20x24x1",
+      "cost": 5.88
+    },
+    {
+      "size": "20x24x2",
+      "merv": 8,
+      "wholesaleSku": "FK20x24x2",
+      "cost": 5.35
+    },
+    {
+      "size": "20x24x2",
+      "merv": 11,
+      "wholesaleSku": "FK20x24x2",
+      "cost": 8.08
+    },
+    {
+      "size": "20x24x2",
+      "merv": 13,
+      "wholesaleSku": "FK20x24x2",
+      "cost": 8.89
+    },
+    {
+      "size": "20x24x4",
+      "merv": 8,
+      "wholesaleSku": "FK20x24x4",
+      "cost": 6
+    },
+    {
+      "size": "20x25x1",
+      "merv": 8,
+      "wholesaleSku": "FK20x25x1",
+      "cost": 4.76
+    },
+    {
+      "size": "20x25x1",
+      "merv": 11,
+      "wholesaleSku": "FK20x25x1",
+      "cost": 5.42
+    },
+    {
+      "size": "20x25x1",
+      "merv": 13,
+      "wholesaleSku": "FK20x25x1",
+      "cost": 5.96
+    },
+    {
+      "size": "20x25x2",
+      "merv": 8,
+      "wholesaleSku": "FK20x25x2",
+      "cost": 5.58
+    },
+    {
+      "size": "20x25x2",
+      "merv": 11,
+      "wholesaleSku": "FK20x25x2",
+      "cost": 7.02
+    },
+    {
+      "size": "20x25x2",
+      "merv": 13,
+      "wholesaleSku": "FK20x25x2",
+      "cost": 7.72
+    },
+    {
+      "size": "20x25x5",
+      "merv": 8,
+      "wholesaleSku": "FK20x25x5",
+      "cost": 18.5
+    },
+    {
+      "size": "20x25x5",
+      "merv": 11,
+      "wholesaleSku": "FK20x25x5",
+      "cost": 19
+    },
+    {
+      "size": "20x25x5",
+      "merv": 13,
+      "wholesaleSku": "FK20x25x5",
+      "cost": 19.5
+    },
+    {
+      "size": "20x26x1",
+      "merv": 8,
+      "wholesaleSku": "FK20x26x1A",
+      "cost": 4.95
+    },
+    {
+      "size": "20x30x1",
+      "merv": 8,
+      "wholesaleSku": "FK20x30x1",
+      "cost": 5.07
+    },
+    {
+      "size": "20x30x1",
+      "merv": 11,
+      "wholesaleSku": "FK20x30x1",
+      "cost": 5.9
+    },
+    {
+      "size": "20x30x1",
+      "merv": 13,
+      "wholesaleSku": "FK20x30x1",
+      "cost": 6.49
+    },
+    {
+      "size": "20x30x2",
+      "merv": 8,
+      "wholesaleSku": "FK20x30x2",
+      "cost": 5.92
+    },
+    {
+      "size": "20x30x2",
+      "merv": 11,
+      "wholesaleSku": "FK20x30x2",
+      "cost": 7.67
+    },
+    {
+      "size": "20x30x2",
+      "merv": 13,
+      "wholesaleSku": "FK20x30x2",
+      "cost": 8.43
+    },
+    {
+      "size": "20x35x2",
+      "merv": 11,
+      "wholesaleSku": "FK20x35x2",
+      "cost": 8.84
+    },
+    {
+      "size": "20x35x2",
+      "merv": 13,
+      "wholesaleSku": "FK20x35x2",
+      "cost": 9.72
+    },
+    {
+      "size": "20x36x1",
+      "merv": 8,
+      "wholesaleSku": "FK20x36x1",
+      "cost": 5.54
+    },
+    {
+      "size": "20x40x1",
+      "merv": 8,
+      "wholesaleSku": "FK20x40x1",
+      "cost": 5.88
+    },
+    {
+      "size": "20x40x1",
+      "merv": 11,
+      "wholesaleSku": "FK20x40x1",
+      "cost": 7.07
+    },
+    {
+      "size": "20x40x1",
+      "merv": 13,
+      "wholesaleSku": "FK20x40x1",
+      "cost": 7.78
+    },
+    {
+      "size": "21.5x23.25x1",
+      "merv": 8,
+      "wholesaleSku": "FK21.5x23.25x1A",
+      "cost": 5.17
+    },
+    {
+      "size": "21x21x1",
+      "merv": 8,
+      "wholesaleSku": "FK21x21x1",
+      "cost": 4.8
+    },
+    {
+      "size": "21x21x1",
+      "merv": 11,
+      "wholesaleSku": "FK21x21x1A",
+      "cost": 5.22
+    },
+    {
+      "size": "21x21x1",
+      "merv": 13,
+      "wholesaleSku": "FK21x21x1A",
+      "cost": 5.74
+    },
+    {
+      "size": "21x23x1",
+      "merv": 8,
+      "wholesaleSku": "FK21x23x1A",
+      "cost": 4.97
+    },
+    {
+      "size": "21x23x1",
+      "merv": 11,
+      "wholesaleSku": "FK21x23x1A",
+      "cost": 5.4
+    },
+    {
+      "size": "21x23x1",
+      "merv": 13,
+      "wholesaleSku": "FK21x23x1A",
+      "cost": 5.94
+    },
+    {
+      "size": "21x24x1",
+      "merv": 8,
+      "wholesaleSku": "FK21x24x1A",
+      "cost": 4.86
+    },
+    {
+      "size": "22x22x1",
+      "merv": 8,
+      "wholesaleSku": "FK22x22x1",
+      "cost": 4.8
+    },
+    {
+      "size": "22x24x1",
+      "merv": 8,
+      "wholesaleSku": "FK22x24x1",
+      "cost": 4.99
+    },
+    {
+      "size": "22x24x1",
+      "merv": 11,
+      "wholesaleSku": "FK22x24x1",
+      "cost": 5.44
+    },
+    {
+      "size": "22x24x1",
+      "merv": 13,
+      "wholesaleSku": "FK22x24x1",
+      "cost": 5.98
+    },
+    {
+      "size": "23x23x1",
+      "merv": 8,
+      "wholesaleSku": "FK23x23x1A",
+      "cost": 5.31
+    },
+    {
+      "size": "24x24x1",
+      "merv": 8,
+      "wholesaleSku": "FK24x24x1",
+      "cost": 5.31
+    },
+    {
+      "size": "24x24x1",
+      "merv": 11,
+      "wholesaleSku": "FK24x24x1",
+      "cost": 6.16
+    },
+    {
+      "size": "24x24x1",
+      "merv": 13,
+      "wholesaleSku": "FK24x24x1",
+      "cost": 6.77
+    },
+    {
+      "size": "24x24x2",
+      "merv": 8,
+      "wholesaleSku": "FK24x24x2",
+      "cost": 5.86
+    },
+    {
+      "size": "24x24x2",
+      "merv": 11,
+      "wholesaleSku": "FK24x24x2",
+      "cost": 7.63
+    },
+    {
+      "size": "24x24x2",
+      "merv": 13,
+      "wholesaleSku": "FK24x24x2",
+      "cost": 8.4
+    },
+    {
+      "size": "24x30x0.5",
+      "merv": 8,
+      "wholesaleSku": "FK24x30x0.5",
+      "cost": 5.35
+    },
+    {
+      "size": "24x30x1",
+      "merv": 8,
+      "wholesaleSku": "FK24x30x1",
+      "cost": 5.49
+    },
+    {
+      "size": "24x30x1",
+      "merv": 11,
+      "wholesaleSku": "FK24x30x1",
+      "cost": 6.61
+    },
+    {
+      "size": "24x30x1",
+      "merv": 13,
+      "wholesaleSku": "FK24x30x1",
+      "cost": 7.27
+    },
+    {
+      "size": "24x36x1",
+      "merv": 8,
+      "wholesaleSku": "FK24x36x1",
+      "cost": 6.08
+    },
+    {
+      "size": "24x36x1",
+      "merv": 11,
+      "wholesaleSku": "FK24x36x1",
+      "cost": 7.49
+    },
+    {
+      "size": "24x36x1",
+      "merv": 13,
+      "wholesaleSku": "FK24x36x1",
+      "cost": 8.24
+    },
+    {
+      "size": "25x25x1",
+      "merv": 8,
+      "wholesaleSku": "FK25x25x1",
+      "cost": 5.19
+    },
+    {
+      "size": "25x25x2",
+      "merv": 8,
+      "wholesaleSku": "FK25x25x2",
+      "cost": 6.27
+    },
+    {
+      "size": "25x30x1",
+      "merv": 8,
+      "wholesaleSku": "FK25x30x1",
+      "cost": 5.6
+    },
+    {
+      "size": "25x30x1",
+      "merv": 11,
+      "wholesaleSku": "FK25x30x1",
+      "cost": 6.75
+    },
+    {
+      "size": "25x30x1",
+      "merv": 13,
+      "wholesaleSku": "FK25x30x1",
+      "cost": 7.43
+    },
+    {
+      "size": "25x32x1",
+      "merv": 8,
+      "wholesaleSku": "FK25x32x1",
+      "cost": 5.8
+    },
+    {
+      "size": "25x32x1",
+      "merv": 11,
+      "wholesaleSku": "FK25x32x1",
+      "cost": 7.11
+    },
+    {
+      "size": "25x32x1",
+      "merv": 13,
+      "wholesaleSku": "FK25x32x1",
+      "cost": 7.82
+    },
+    {
+      "size": "30x30x1",
+      "merv": 11,
+      "wholesaleSku": "FK30x30x1",
+      "cost": 7.96
+    },
+    {
+      "size": "30x30x1",
+      "merv": 13,
+      "wholesaleSku": "FK30x30x1",
+      "cost": 8.75
+    },
+    {
+      "size": "30x30x2",
+      "merv": 11,
+      "wholesaleSku": "FK30x30x2",
+      "cost": 8.21
+    },
+    {
+      "size": "30x30x2",
+      "merv": 13,
+      "wholesaleSku": "FK30x30x2",
+      "cost": 9.03
+    },
+    {
+      "size": "4.5x11.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK4.5x11.5x1A",
+      "cost": 6.08
+    },
+    {
+      "size": "4.5x11x1",
+      "merv": 8,
+      "wholesaleSku": "FK4.5x11x1A",
+      "cost": 6.06
+    },
+    {
+      "size": "4.5x12x1",
+      "merv": 8,
+      "wholesaleSku": "FK4.5x12x1A",
+      "cost": 5.84
+    },
+    {
+      "size": "4.5x13.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK4.5x13.5x1A",
+      "cost": 6.31
+    },
+    {
+      "size": "4.5x18x1",
+      "merv": 8,
+      "wholesaleSku": "FK4.5x18x1A",
+      "cost": 5.84
+    },
+    {
+      "size": "4.5x19.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK4.5x19.5x1A",
+      "cost": 6.37
+    },
+    {
+      "size": "4.5x6x1",
+      "merv": 8,
+      "wholesaleSku": "FK4.5x6x1A",
+      "cost": 6.06
+    },
+    {
+      "size": "4.5x8x1",
+      "merv": 8,
+      "wholesaleSku": "FK4.5x8x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "4.5x9.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK4.5x9.5x1A",
+      "cost": 6
+    },
+    {
+      "size": "4.5x9x1",
+      "merv": 8,
+      "wholesaleSku": "FK4.5x9x1A",
+      "cost": 6.06
+    },
+    {
+      "size": "4x11.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK4x11.5x1A",
+      "cost": 6.08
+    },
+    {
+      "size": "4x11x1",
+      "merv": 8,
+      "wholesaleSku": "FK4x11x1A",
+      "cost": 6.06
+    },
+    {
+      "size": "4x12x1",
+      "merv": 8,
+      "wholesaleSku": "FK4x12x1A",
+      "cost": 5.84
+    },
+    {
+      "size": "4x13.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK4x13.5x1A",
+      "cost": 6.31
+    },
+    {
+      "size": "4x18x1",
+      "merv": 8,
+      "wholesaleSku": "FK4x18x1A",
+      "cost": 5.84
+    },
+    {
+      "size": "4x19.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK4x19.5x1A",
+      "cost": 6.37
+    },
+    {
+      "size": "4x24x1",
+      "merv": 8,
+      "wholesaleSku": "FK4x24x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "4x6x1",
+      "merv": 8,
+      "wholesaleSku": "FK4x6x1A",
+      "cost": 6.06
+    },
+    {
+      "size": "4x8x1",
+      "merv": 8,
+      "wholesaleSku": "FK4x8x1A",
+      "cost": 5.82
+    },
+    {
+      "size": "4x9.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK4x9.5x1A",
+      "cost": 6
+    },
+    {
+      "size": "4x9x1",
+      "merv": 8,
+      "wholesaleSku": "FK4x9x1A",
+      "cost": 6.06
+    },
+    {
+      "size": "5.5x12x1",
+      "merv": 8,
+      "wholesaleSku": "FK5.5x12x1A",
+      "cost": 5.84
+    },
+    {
+      "size": "5.5x13.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK5.5x13.5x1A",
+      "cost": 6.31
+    },
+    {
+      "size": "5.5x18x1",
+      "merv": 8,
+      "wholesaleSku": "FK5.5x18x1A",
+      "cost": 5.84
+    },
+    {
+      "size": "5.5x19.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK5.5x19.5x1A",
+      "cost": 6.37
+    },
+    {
+      "size": "5.5x6x1",
+      "merv": 8,
+      "wholesaleSku": "FK5.5x6x1A",
+      "cost": 6.06
+    },
+    {
+      "size": "5.5x8x1",
+      "merv": 8,
+      "wholesaleSku": "FK5.5x8x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "5x11.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK5x11.5x1A",
+      "cost": 6.08
+    },
+    {
+      "size": "5x12x1",
+      "merv": 8,
+      "wholesaleSku": "FK5x12x1A",
+      "cost": 5.84
+    },
+    {
+      "size": "5x13.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK5x13.5x1A",
+      "cost": 6.31
+    },
+    {
+      "size": "5x18x1",
+      "merv": 8,
+      "wholesaleSku": "FK5x18x1A",
+      "cost": 5.84
+    },
+    {
+      "size": "5x19.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK5x19.5x1A",
+      "cost": 6.37
+    },
+    {
+      "size": "5x6x1",
+      "merv": 8,
+      "wholesaleSku": "FK5x6x1A",
+      "cost": 6.06
+    },
+    {
+      "size": "5x8x1",
+      "merv": 8,
+      "wholesaleSku": "FK5x8x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "6.5x13.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK6.5x13.5x1A",
+      "cost": 6.31
+    },
+    {
+      "size": "6.5x8x1",
+      "merv": 8,
+      "wholesaleSku": "FK6.5x8x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "6.88x15.88x2",
+      "merv": 11,
+      "wholesaleSku": "FK6.88x15.88x2a",
+      "cost": 8.71
+    },
+    {
+      "size": "6.88x15.88x2",
+      "merv": 13,
+      "wholesaleSku": "FK6.88x15.88x2a",
+      "cost": 9.58
+    },
+    {
+      "size": "6x12x1",
+      "merv": 8,
+      "wholesaleSku": "FK6x12x1",
+      "cost": 6.08
+    },
+    {
+      "size": "6x13.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK6x13.5x1A",
+      "cost": 6.31
+    },
+    {
+      "size": "6x14x1",
+      "merv": 8,
+      "wholesaleSku": "FK6x14x1",
+      "cost": 6.31
+    },
+    {
+      "size": "6x18x1",
+      "merv": 8,
+      "wholesaleSku": "FK6x18x1A",
+      "cost": 5.84
+    },
+    {
+      "size": "6x6.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK6x6.5x1A",
+      "cost": 6.06
+    },
+    {
+      "size": "6x6x1",
+      "merv": 8,
+      "wholesaleSku": "FK6x6x1A",
+      "cost": 6.06
+    },
+    {
+      "size": "6x7x1",
+      "merv": 8,
+      "wholesaleSku": "FK6x7x1A",
+      "cost": 6.06
+    },
+    {
+      "size": "6x8x1",
+      "merv": 8,
+      "wholesaleSku": "FK6x8x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "7.5x8x1",
+      "merv": 8,
+      "wholesaleSku": "FK7.5x8x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "7x8x1",
+      "merv": 8,
+      "wholesaleSku": "FK7x8x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "8x10.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x10.5x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "8x10x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x10x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "8x11.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x11.5x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "8x11x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x11x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "8x12x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x12x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "8x14x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x14x1A",
+      "cost": 3.72
+    },
+    {
+      "size": "8x16x2",
+      "merv": 11,
+      "wholesaleSku": "FK8x16x2",
+      "cost": 6.73
+    },
+    {
+      "size": "8x16x2",
+      "merv": 13,
+      "wholesaleSku": "FK8x16x2",
+      "cost": 7.41
+    },
+    {
+      "size": "8x16x4",
+      "merv": 11,
+      "wholesaleSku": "FK8x16x4",
+      "cost": 8.23
+    },
+    {
+      "size": "8x16x4",
+      "merv": 13,
+      "wholesaleSku": "FK8x16x4",
+      "cost": 9.05
+    },
+    {
+      "size": "8x24x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x24x1A",
+      "cost": 3.09
+    },
+    {
+      "size": "8x24x1",
+      "merv": 11,
+      "wholesaleSku": "FK8x24x1A",
+      "cost": 3.22
+    },
+    {
+      "size": "8x24x1",
+      "merv": 13,
+      "wholesaleSku": "FK8x24x1A",
+      "cost": 3.54
+    },
+    {
+      "size": "8x30x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x30x1",
+      "cost": 3.76
+    },
+    {
+      "size": "8x30x2",
+      "merv": 11,
+      "wholesaleSku": "FK8x30x2",
+      "cost": 8.17
+    },
+    {
+      "size": "8x30x2",
+      "merv": 13,
+      "wholesaleSku": "FK8x30x2",
+      "cost": 8.99
+    },
+    {
+      "size": "8x7.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x7.5x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "8x7x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x7x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "8x8.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x8.5x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "8x8x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x8x1A",
+      "cost": 2.46
+    },
+    {
+      "size": "8x8x1",
+      "merv": 11,
+      "wholesaleSku": "FK8x8x1A",
+      "cost": 3.6
+    },
+    {
+      "size": "8x8x1",
+      "merv": 13,
+      "wholesaleSku": "FK8x8x1A",
+      "cost": 3.96
+    },
+    {
+      "size": "8x9.5x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x9.5x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "8x9x1",
+      "merv": 8,
+      "wholesaleSku": "FK8x9x1A",
+      "cost": 6.17
+    },
+    {
+      "size": "9.75x23.75x2",
+      "merv": 11,
+      "wholesaleSku": "FK9.75x23.75x2a",
+      "cost": 8.15
+    },
+    {
+      "size": "9.75x23.75x2",
+      "merv": 13,
+      "wholesaleSku": "FK9.75x23.75x2a",
+      "cost": 8.97
+    },
+    {
+      "size": "9x11.38x1",
+      "merv": 8,
+      "wholesaleSku": "FK9x11.38x1A",
+      "cost": 3.05
+    },
+    {
+      "size": "9x11x1",
+      "merv": 8,
+      "wholesaleSku": "FK9x11x1A",
+      "cost": 2.91
+    }
+  ]
+}

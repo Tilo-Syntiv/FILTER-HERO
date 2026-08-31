@@ -38,14 +38,6 @@ import { useCart } from "@/contexts/CartContext";
 import { takeQuoteHandoff } from "@/lib/quote-handoff";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 
-const HOME_HASH_ROUTES: Record<string, string> = {
-  clock: "/how-often-to-change-air-filter",
-  faq: "/how-often-to-change-air-filter",
-  contact: "/custom-air-filters#custom-quote",
-  finder: "/sizes",
-  "how-to-measure": "/sizes",
-};
-
 export default function Home() {
   useHashScroll();
   const [, setLocation] = useLocation();
@@ -54,12 +46,6 @@ export default function Home() {
   const [quoteMessage, setQuoteMessage] = useState("");
   const [quoteCartSummary, setQuoteCartSummary] = useState("");
   const contactRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const hash = decodeURIComponent(window.location.hash.replace(/^#/, ""));
-    const dest = HOME_HASH_ROUTES[hash];
-    if (dest) setLocation(dest);
-  }, [setLocation]);
 
   useEffect(() => {
     const handed = takeQuoteHandoff();
@@ -105,11 +91,12 @@ export default function Home() {
   return (
     <div className="home-lock">
       <SiteHeader />
-
-      <Hero />
+      <div className="home-first">
+        <Hero />
+        <TrustMarquee />
+      </div>
 
       <div className="home-lock-rest">
-      <TrustMarquee />
 
       <main>
         <section

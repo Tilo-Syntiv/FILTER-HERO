@@ -12,14 +12,15 @@ import {
   Wind,
 } from "lucide-react";
 import {
-  FILTER_PRODUCT_GALLERY,
-  FILTER_PRODUCT_IMAGE,
   MERV_TYPES,
   PACK_TIERS,
   findProductVariant,
   getFilterSize,
-  mervTypesForDisplay,
+  mervTypesForSize,
   packTotal,
+  productGalleryFor,
+  packShotSrc,
+  sellableMervPhrase,
   unitPriceForQty,
   type MervRating,
   type Product,
@@ -33,6 +34,7 @@ import {
   sizeSeo,
   type FaqItem,
 } from "@shared/seo";
+import CaptureDots from "@/components/CaptureDots";
 import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
 import FilterFinder from "@/components/FilterFinder";
@@ -59,54 +61,46 @@ type SizeDetailPageProps = {
   sizeSlug: string;
 };
 
-function CaptureDots({ filled, accent }: { filled: number; accent: string }) {
-  return (
-    <div className="flex items-end gap-1.5" aria-hidden>
-      {Array.from({ length: 5 }).map((_, i) => {
-        const on = i < filled;
-        const size = 7 + i * 3;
-        return (
-          <span
-            key={i}
-            className="rounded-full"
-            style={{
-              width: size,
-              height: size,
-              background: on ? accent : "transparent",
-              border: `1.5px solid ${accent}`,
-              opacity: on ? 1 : 0.28,
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
 export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
   const decoded = decodeURIComponent(sizeSlug);
   const sizeMeta = getFilterSize(decoded);
   const { addItem } = useCart();
+  const availableTypes = useMemo(() => mervTypesForSize(decoded), [decoded]);
+  const mervOptions = sellableMervPhrase(decoded);
 
-  const [mervKey, setMervKey] = useState<PreferredMerv>("8");
+  const [mervKey, setMervKey] = useState<PreferredMerv>(
+    () => (availableTypes[0]?.key as PreferredMerv) ?? "8",
+  );
   const [qty, setQty] = useState(6);
   const [shot, setShot] = useState(0);
 
   useEffect(() => {
     const fromUrl = new URLSearchParams(window.location.search).get("merv");
-    const next = isPreferredMerv(fromUrl) ? fromUrl : getPreferredMerv();
+    const preferred = isPreferredMerv(fromUrl) ? fromUrl : getPreferredMerv();
+    const keys = availableTypes.map((t) => t.key);
+    const next =
+      preferred && keys.includes(preferred)
+        ? preferred
+        : (availableTypes[0]?.key as PreferredMerv | undefined);
     if (next) setMervKey(next);
     const pack = getPowerPackQty();
     if (pack) setQty(pack);
-  }, []);
+  }, [availableTypes]);
 
   const pickMerv = (key: PreferredMerv) => {
     setMervKey(key);
     setPreferredMerv(key);
   };
 
-  const selectedType = MERV_TYPES.find((t) => t.key === mervKey)!;
-  const guide = MERV_GUIDE[mervKey];
+  const selectedType =
+    availableTypes.find((t) => t.key === mervKey) ?? availableTypes[0] ?? MERV_TYPES[0];
+  const gallery = productGalleryFor(selectedType.merv, selectedType.isCarbon);
+  const packShot = packShotSrc(selectedType.merv, selectedType.isCarbon);
+  const guide = MERV_GUIDE[selectedType.key];
+
+  useEffect(() => {
+    setShot((n) => Math.min(n, Math.max(0, gallery.length - 1)));
+  }, [selectedType.key, gallery.length]);
   const variant: Product | undefined = findProductVariant(
     decoded,
     selectedType.merv as MervRating,
@@ -161,12 +155,12 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
         question: `What MERV options are available for ${decoded}?`,
         category: "MERV",
         answer: inCatalog
-          ? `${decoded} is available in MERV 8, MERV 11, MERV 13, and MERV 8 Carbon. Choose based on everyday dust, pets/allergies, high filtration needs, or odor control.`
+          ? `${decoded} is available in ${mervOptions}. Choose based on everyday dust, pets/allergies, or high filtration needs. Carbon and other ratings can be quoted if you need them.`
           : "Once we confirm your custom size, we can quote MERV 8, 11, 13, or carbon options when available.",
         action: { href: "/#merv", label: "Compare MERV ratings" },
       },
     ],
-    [decoded, sizeMeta, inCatalog],
+    [decoded, sizeMeta, inCatalog, mervOptions],
   );
 
   const jsonLd = useMemo(() => {
@@ -198,15 +192,16 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
           mervName: selectedType.name,
           price: unitPriceForQty(variant.price, 1, variant),
           description: `${decoded} ${selectedType.name} pleated HVAC air filter. ${selectedType.description}`,
+          image: packShot,
         }),
       );
     }
     return schemas;
-  }, [siteUrl, sizeMeta, decoded, sizeFaqs, variant, selectedType]);
+  }, [siteUrl, sizeMeta, decoded, sizeFaqs, variant, selectedType, packShot]);
 
   useSeo({
     ...seo,
-    image: FILTER_PRODUCT_IMAGE,
+    image: packShot,
     noindex: !inCatalog,
     jsonLd,
   });
@@ -236,7 +231,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
       <main>
         <div className="container py-8 md:py-12">
-          <nav aria-label="Breadcrumb" className="text-sm text-ice/80 mb-5 break-words">
+          <nav aria-label="Breadcrumb" className="text-sm text-white/80 mb-5 break-words">
             <Link href="/" className="hover:text-white">
               Home
             </Link>{" "}
@@ -314,14 +309,14 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
                 <div className="product-shot-wrap">
                   <img
-                    src={FILTER_PRODUCT_GALLERY[shot].src}
-                    alt={`${decoded} ${selectedType.name} — ${FILTER_PRODUCT_GALLERY[shot].alt}`}
+                    src={gallery[shot].src}
+                    alt={`${decoded} ${selectedType.name} — ${gallery[shot].alt}`}
                     className="product-shot"
                   />
                 </div>
 
                 <div className="product-thumbs" role="list">
-                  {FILTER_PRODUCT_GALLERY.map((item, i) => (
+                  {gallery.map((item, i) => (
                     <button
                       key={item.src}
                       type="button"
@@ -355,7 +350,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                 </h1>
                 <p className="seo-answer mt-3 mb-7 text-[0.95rem] leading-relaxed text-muted-foreground">
                   Buy {decoded} HVAC and furnace air filters from {BRAND_NAME}.
-                  Choose MERV 8, 11, 13, or carbon and replace every 30–90 days
+                  Choose {mervOptions} and replace every 30–90 days
                   depending on use.{" "}
                   <Link
                     href="/how-often-to-change-air-filter"
@@ -369,7 +364,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                 <div className="mb-7">
                   <h2 className="section-label !text-mesh">1 · Choose MERV</h2>
                   <div className="pdp-merv-row">
-                    {mervTypesForDisplay().map((t) => {
+                    {availableTypes.map((t) => {
                       const active = t.key === mervKey;
                       const g = MERV_GUIDE[t.key];
                       return (
@@ -402,10 +397,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                   </div>
                   <div className="pdp-merv-note">
                     <p className="pdp-merv-capture-label">Capture</p>
-                    <CaptureDots
-                      filled={guide.strength}
-                      accent={mervKey === "carbon" ? selectedType.badgeColor : guide.accent}
-                    />
+                    <CaptureDots merv={selectedType.key} />
                     <p className="pdp-merv-efficiency">{guide.efficiency}</p>
                     <p className="pdp-merv-copy">
                       <span>{guide.bestFor}.</span> {guide.note} Catches{" "}
@@ -509,7 +501,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                       <div key={spec.label} className="pdp-spec">
                         <Icon className="h-4 w-4 text-ice" />
                         <div>
-                          <p className="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-ice/70">
+                          <p className="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-white/80">
                             {spec.label}
                           </p>
                           <p className="mt-0.5 font-bold tracking-tight text-white">
@@ -541,7 +533,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
               {matchingBrands.length > 0 && (
                 <div className="mt-10">
-                  <p className="mb-3 text-xs font-bold uppercase tracking-wider text-ice/80">
+                  <p className="mb-3 text-xs font-bold uppercase tracking-wider text-white/85">
                     Fits these HVAC brands
                   </p>
                   <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9">
@@ -565,7 +557,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
               {related.length > 0 && (
                 <div className="mt-8">
-                  <p className="mb-3 text-xs font-bold uppercase tracking-wider text-ice/80">
+                  <p className="mb-3 text-xs font-bold uppercase tracking-wider text-white/85">
                     Other thicknesses
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -600,7 +592,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
       {inCatalog && (
         <div className="pdp-sticky lg:hidden">
           <div>
-            <p className="text-[0.62rem] font-extrabold uppercase tracking-[0.12em] text-ice/80">
+            <p className="text-[0.62rem] font-extrabold uppercase tracking-[0.12em] text-white/85">
               {qty} × {selectedType.name}
             </p>
             <p className="text-lg font-extrabold text-white">${total.toFixed(2)}</p>

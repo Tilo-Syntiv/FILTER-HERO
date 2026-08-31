@@ -5,9 +5,11 @@ Sellable Filter Hero catalog = **only** the size × MERV lines on Paul Sellaro�
 - **Written:** 2026-08-24
 - **Wholesale:** `E:\FILTER HEROE\FK PRICING_SHEET PS (1).pdf` (extracted text: `.firecrawl/fk-wholesale-2025.txt`)
 - **Filter King website:** `shared/pricing/fk-live-prices.json`, scraped 2026-08-20
-- **Filter Hero website:** Filter King public unit × 0.90 (`UNDERCUT_RATIO`), or × 0.88 when that ladder was modeled (`ESTIMATED_UNDERCUT_RATIO`)
+- **Filter Hero website:** 1-inch qty 1 matches Target Filtrete 1-packs (MERV 8 $9.99, MERV 11 $13.49, MERV 13 $22.99). All other rungs stay Filter King public unit × 0.90 (`UNDERCUT_RATIO`), or × 0.88 when that ladder was modeled (`ESTIMATED_UNDERCUT_RATIO`), capped so a multi-pack is never more per filter than the Filtrete single. Where a Filtrete 2-pack or 12-pack still beats us, that rung matches Filtrete only (MERV 11 qty 2 $11.00 on 14x20 / 16x20 / 16x25 / 20x20 / 20x25; 16x25x1 MERV 13 qty 2 $15.00; 20x20x1 MERV 8 qty 12 $5.18).
 - **Spreadsheet copy:** [Filter-Hero-Wholesale-vs-Retail-Pricing.xlsx](Filter-Hero-Wholesale-vs-Retail-Pricing.xlsx) (two tabs)
 - **Research write-up:** [FILTER-KING-PRICING-BRIEF.md](FILTER-KING-PRICING-BRIEF.md)
+- **Allowlist in code:** `shared/sellable-skus.json` (rebuild: `pnpm exec tsx scripts/build-sellable-skus.ts`)
+- **Shop switch:** `SELLABLE_ONLY` in `shared/products.ts` — `true` means only this sheet is for sale. The full size archive stays in `shared/filter-catalog.json`.
 
 Every price is **dollars per filter** at quantity 1 / 2 / 4 / 6 / 12.
 
@@ -34,7 +36,7 @@ These popular or merchandised SKUs are **not** on the 2025 sheet:
 - 20x20x4 MERV 8
 - Carbon / odor filters (quote-only on the wholesale sheet)
 
-When Paul quotes a new size × MERV, add it to the wholesale sheet extract and this file. Then it can go on the site.
+When Paul quotes a new size × MERV, add it to the wholesale sheet extract and this file, then run `pnpm exec tsx scripts/build-sellable-skus.ts`. Then it can go on the site. To sell the full archived catalog again, set `SELLABLE_ONLY` to `false` in `shared/products.ts` — do not delete the archive.
 
 Sheet SKUs with no retail ladder:
 

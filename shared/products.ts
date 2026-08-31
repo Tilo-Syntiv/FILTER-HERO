@@ -1,5 +1,7 @@
 import FILTER_CATALOG from "./filter-catalog.json";
+import SELLABLE_FILE from "./sellable-skus.json";
 import {
+  FILTRETE_1INCH_QTY1,
   liveFromPrice,
   liveListPrice,
   liveUnitPrice,
@@ -7,6 +9,9 @@ import {
 } from "./pricing/engine";
 
 export {
+  FILTRETE_1INCH_QTY1,
+  filtreteBeatUnit,
+  filtreteQty1,
   liveFromPrice,
   liveListPrice,
   liveUnitPrice,
@@ -19,27 +24,74 @@ export {
 
 export type MervRating = 8 | 11 | 13;
 
-/** Pack shot used on every size page and cart line. */
-export const FILTER_PRODUCT_IMAGE = "/products/merv-8-thin-rectangle-6pack.png";
+/** Bump when pack-shot files change so browsers do not keep a stale photo. */
+const PACK_SHOT_REV = "fh089";
 
-export const FILTER_PRODUCT_GALLERY = [
-  {
-    src: FILTER_PRODUCT_IMAGE,
-    alt: "6-pack of pleated HVAC air filters",
-  },
-  {
-    src: "/products/merv-8-thin-rectangle-no-labels.png",
-    alt: "Single pleated air filter, three-quarter view",
-  },
-  {
-    src: "/products/merv-8-macro.png",
-    alt: "Close-up of pleated media, mesh, and support lattice",
-  },
-  {
-    src: "/products/merv-8-layers.png",
-    alt: "Exploded view of frame, filter media, and metal mesh",
-  },
-] as const;
+function productMedia(path: string): string {
+  return `${path}?v=${PACK_SHOT_REV}`;
+}
+
+export function mervMediaKey(merv: MervRating, isCarbon = false): "8" | "11" | "13" | "carbon" {
+  return isCarbon ? "carbon" : (String(merv) as "8" | "11" | "13");
+}
+
+const OFFICIAL_PACKSHOT: ReadonlySet<string> = new Set(["8", "11", "13"]);
+
+export function packShotSrc(merv: MervRating, isCarbon = false): string {
+  const key = mervMediaKey(merv, isCarbon);
+  if (OFFICIAL_PACKSHOT.has(key)) {
+    return productMedia(`/products/merv-${key}-packshot.png`);
+  }
+  return productMedia(`/products/merv-${key}-thin-rectangle-6pack.png`);
+}
+
+export type ProductShot = {
+  src: string;
+  alt: string;
+};
+
+/** Pack and detail shots for one MERV line. Printed MERV on the photo matches the rating. */
+export function productGalleryFor(merv: MervRating, isCarbon = false): ProductShot[] {
+  const key = mervMediaKey(merv, isCarbon);
+  const name = isCarbon ? "MERV 8 Carbon" : `MERV ${merv}`;
+  const pack: ProductShot = {
+    src: packShotSrc(merv, isCarbon),
+    alt: `${name} pleated HVAC air filter`,
+  };
+  if (OFFICIAL_PACKSHOT.has(key)) {
+    return [
+      pack,
+      {
+        src: productMedia("/products/merv-8-macro.png"),
+        alt: "Close-up of pleated media, mesh, and support lattice",
+      },
+      {
+        src: productMedia(`/products/merv-${key}-layers.png`),
+        alt: `Exploded view of ${name} frame, filter media, and metal mesh`,
+      },
+    ];
+  }
+  return [
+    pack,
+    {
+      src: productMedia(`/products/merv-${key}-thin-rectangle-no-labels.png`),
+      alt: `Single ${name} pleated air filter, three-quarter view`,
+    },
+    {
+      src: productMedia("/products/merv-8-macro.png"),
+      alt: "Close-up of pleated media, mesh, and support lattice",
+    },
+    {
+      src: productMedia(`/products/merv-${key}-layers.png`),
+      alt: `Exploded view of ${name} frame, filter media, and metal mesh`,
+    },
+  ];
+}
+
+/** Default pack shot (MERV 8). Prefer packShotSrc / productGalleryFor for a specific rating. */
+export const FILTER_PRODUCT_IMAGE = packShotSrc(8);
+
+export const FILTER_PRODUCT_GALLERY = productGalleryFor(8);
 
 export type FilterSize = {
   /** Nominal size slug used in URLs, e.g. 20x25x1 */
@@ -58,7 +110,7 @@ export type Product = {
   size: string;
   merv: MervRating;
   isCarbon?: boolean;
-  /** Qty-1 unit price (live FilterKing × 0.90 when known) */
+  /** Qty-1 unit price (1-inch matches Filtrete; else FilterKing × 0.90) */
   price: number;
   inStock: boolean;
   name: string;
@@ -90,8 +142,10 @@ function fallbackUnitPrice(listPrice: number, qty: number): number {
 }
 
 /**
- * Pack unit price. When `product` has a live FilterKing ladder, uses that
- * SKU's qty table × 0.90. Otherwise applies PACK_TIERS to listPrice.
+ * Pack unit price. 1-inch qty 1 matches Filtrete. Other rungs use the
+ * FilterKing qty table × 0.90, capped so a multi-pack is never more per
+ * filter than the single. If a Filtrete multi-pack still beats that, match
+ * that unit only. No ladder: PACK_TIERS on listPrice.
  */
 export function unitPriceForQty(
   listPrice: number,
@@ -143,15 +197,73 @@ function uniqueSizes(list: FilterSize[]): FilterSize[] {
   });
 }
 
-/** Full shoppable catalog. Each slug maps to `/sizes/{slug}`. */
-export const FILTER_SIZES: FilterSize[] = uniqueSizes(
+/**
+ * When true, the shop only lists size × MERV lines on the wholesale sheet.
+ * Flip to false to restore the full archived catalog (including carbon).
+ * Do not delete filter-catalog.json or sellable-skus.json.
+ */
+export const SELLABLE_ONLY = true;
+
+type SellableSkuRow = {
+  size: string;
+  merv: 8 | 11 | 13;
+  wholesaleSku: string;
+  cost: number;
+};
+
+const SELLABLE_ROWS = SELLABLE_FILE.skus as SellableSkuRow[];
+const SELLABLE_SKU_KEYS = new Set(
+  SELLABLE_ROWS.map((row) => `${row.size.toLowerCase()}|${row.merv}`),
+);
+const SELLABLE_SIZE_KEYS = new Set(SELLABLE_ROWS.map((row) => row.size.toLowerCase()));
+const SELLABLE_MERV_KEYS = new Set<MervTypeKey>(
+  SELLABLE_ROWS.map((row) => String(row.merv) as MervTypeKey),
+);
+
+export function isSkuSellable(
+  size: string,
+  merv: MervRating,
+  isCarbon = false,
+): boolean {
+  if (!SELLABLE_ONLY) return true;
+  if (isCarbon) return false;
+  return SELLABLE_SKU_KEYS.has(`${size.toLowerCase()}|${merv}`);
+}
+
+export function isSizeShoppable(slug: string): boolean {
+  if (!SELLABLE_ONLY) return true;
+  return SELLABLE_SIZE_KEYS.has(slug.toLowerCase());
+}
+
+export function isMervKeyOnSale(key: MervTypeKey): boolean {
+  if (!SELLABLE_ONLY) return true;
+  return SELLABLE_MERV_KEYS.has(key);
+}
+
+/** Archived Filter King size universe. Keep this for when more wholesale lands. */
+export const ALL_FILTER_SIZES: FilterSize[] = uniqueSizes(
   (FILTER_CATALOG as Array<[number, number, number]>).map(([w, l, d]) => size(w, l, d)),
 );
 
-const SIZE_INDEX = new Map(FILTER_SIZES.map((s, i) => [s.slug.toLowerCase(), i]));
+/** Live shop catalog. Each slug maps to `/sizes/{slug}`. */
+export const FILTER_SIZES: FilterSize[] = SELLABLE_ONLY
+  ? ALL_FILTER_SIZES.filter((s) => isSizeShoppable(s.slug))
+  : ALL_FILTER_SIZES;
+
+const ALL_SIZE_INDEX = new Map(
+  ALL_FILTER_SIZES.map((s, i) => [s.slug.toLowerCase(), i]),
+);
+
+function widthsFrom(list: FilterSize[]): number[] {
+  return Array.from(new Set(list.map((s) => s.width))).sort((a, b) => a - b);
+}
+
+function lengthsFrom(list: FilterSize[]): number[] {
+  return Array.from(new Set(list.map((s) => s.length))).sort((a, b) => a - b);
+}
 
 export function catalogWidths(): number[] {
-  return Array.from(new Set(FILTER_SIZES.map((s) => s.width))).sort((a, b) => a - b);
+  return widthsFrom(FILTER_SIZES);
 }
 
 export function catalogWidthsForDepth(depth: number): number[] {
@@ -161,7 +273,16 @@ export function catalogWidthsForDepth(depth: number): number[] {
 }
 
 export function catalogLengths(): number[] {
-  return Array.from(new Set(FILTER_SIZES.map((s) => s.length))).sort((a, b) => a - b);
+  return lengthsFrom(FILTER_SIZES);
+}
+
+/** Finder dropdowns keep the archived dimension universe so unsold sizes still route to quote. */
+export function finderWidths(): number[] {
+  return widthsFrom(ALL_FILTER_SIZES);
+}
+
+export function finderLengths(): number[] {
+  return lengthsFrom(ALL_FILTER_SIZES);
 }
 
 export const THICKNESSES = [0.5, 1, 2, 4, 5] as const;
@@ -236,7 +357,22 @@ export function mervTypesForDisplay(): MervTypeInfo[] {
   );
 }
 
+/** MERV chips a shopper can buy for this size. Carbon and missing wholesale lines stay in MERV_TYPES for later. */
+export function mervTypesForSize(slug: string): MervTypeInfo[] {
+  return mervTypesForDisplay().filter((t) => isSkuSellable(slug, t.merv, t.isCarbon));
+}
+
+export function sellableMervPhrase(slug: string): string {
+  const types = mervTypesForSize(slug);
+  if (!types.length) return "MERV 8, 11, or 13";
+  if (types.length === 1) return types[0].name;
+  if (types.length === 2) return `${types[0].name} or ${types[1].name}`;
+  const last = types[types.length - 1];
+  return `${types.slice(0, -1).map((t) => t.name).join(", ")}, or ${last.name}`;
+}
+
 function listPriceFor(depth: number, merv: MervRating, isCarbon: boolean): number {
+  if (depth === 1 && !isCarbon) return FILTRETE_1INCH_QTY1[String(merv) as "8" | "11" | "13"];
   const depthBase: Record<number, number> = {
     0.5: 10.99,
     1: 14.99,
@@ -268,16 +404,22 @@ function makeProduct(sizeMeta: FilterSize, type: MervTypeInfo, sizeIndex: number
     price:
       liveListPrice(sizeMeta.slug, type.merv, type.isCarbon) ??
       listPriceFor(sizeMeta.depth, type.merv, type.isCarbon),
-    inStock: true,
+    inStock: isSkuSellable(sizeMeta.slug, type.merv, type.isCarbon),
     name: productName(type),
     description: type.description,
   };
 }
 
-export function getFilterSize(slug: string): FilterSize | undefined {
+export function getArchivedFilterSize(slug: string): FilterSize | undefined {
   const normalized = slug.toLowerCase().replace(/\s/g, "");
-  const idx = SIZE_INDEX.get(normalized);
-  return idx === undefined ? undefined : FILTER_SIZES[idx];
+  const idx = ALL_SIZE_INDEX.get(normalized);
+  return idx === undefined ? undefined : ALL_FILTER_SIZES[idx];
+}
+
+export function getFilterSize(slug: string): FilterSize | undefined {
+  const size = getArchivedFilterSize(slug);
+  if (!size || !isSizeShoppable(size.slug)) return undefined;
+  return size;
 }
 
 export function compareFilterSizes(a: FilterSize, b: FilterSize): number {
@@ -293,17 +435,21 @@ export function getProductById(id: number): Product | undefined {
   const idx = id - 1;
   const sizeIndex = Math.floor(idx / MERV_TYPES.length);
   const mervIndex = idx % MERV_TYPES.length;
-  const sizeMeta = FILTER_SIZES[sizeIndex];
+  const sizeMeta = ALL_FILTER_SIZES[sizeIndex];
   const type = MERV_TYPES[mervIndex];
   if (!sizeMeta || !type) return undefined;
   return makeProduct(sizeMeta, type, sizeIndex);
 }
 
 export function findProductsBySize(size: string): Product[] {
-  const sizeMeta = getFilterSize(size);
+  const sizeMeta = getArchivedFilterSize(size);
   if (!sizeMeta) return [];
-  const sizeIndex = SIZE_INDEX.get(sizeMeta.slug.toLowerCase()) ?? 0;
+  const sizeIndex = ALL_SIZE_INDEX.get(sizeMeta.slug.toLowerCase()) ?? 0;
   return MERV_TYPES.map((t) => makeProduct(sizeMeta, t, sizeIndex));
+}
+
+export function firstSellableProduct(size: string): Product | undefined {
+  return findProductsBySize(size).find((p) => p.inStock);
 }
 
 export function findProductVariant(

@@ -11,7 +11,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { FILTER_PRODUCT_IMAGE } from "@shared/products";
+import { FILTER_PRODUCT_IMAGE, getProductById, packShotSrc } from "@shared/products";
 import { useCart } from "@/contexts/CartContext";
 import { stashQuoteHandoff } from "@/lib/quote-handoff";
 
@@ -68,14 +68,19 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
               Your cart is empty. Find your size and add a filter to get started.
             </p>
           ) : (
-            items.map((item) => (
+            items.map((item) => {
+              const product = getProductById(item.productId);
+              const shot = product
+                ? packShotSrc(product.merv, Boolean(product.isCarbon))
+                : FILTER_PRODUCT_IMAGE;
+              return (
               <div
                 key={item.productId}
                 className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4"
               >
                 <img
-                  src={FILTER_PRODUCT_IMAGE}
-                  alt=""
+                  src={shot}
+                  alt={`${item.size} ${item.name}`}
                   className="h-16 w-16 shrink-0 rounded-lg border border-border bg-white object-contain"
                 />
                 <div className="min-w-0 flex-1">
@@ -122,7 +127,8 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
                   </Button>
                 </div>
               </div>
-            ))
+              );
+            })
           )}
         </div>
 

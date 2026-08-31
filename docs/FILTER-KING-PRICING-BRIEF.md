@@ -5,7 +5,7 @@ Complete written record of the Aug 21–23, 2026 Filter Hero pricing work: commo
 - **Written:** 2026-08-23
 - **Retail scrape:** `shared/pricing/fk-live-prices.json`, dated 2026-08-20, source `filterking-local+model`. Notes in the file: “Sale / one-time unit prices. Real scrapes preferred. estimated=true rows are filled from same-size MERV ratios or nearest same-depth area peers.”
 - **Catalog counts in that file:** 19,337 scraped + 20,555 estimated = 39,892 size × MERV ladders.
-- **Hero formula:** live Filter King sale unit × 0.90 (`UNDERCUT_RATIO`); modeled ladder × 0.88 (`ESTIMATED_UNDERCUT_RATIO`). Files: `shared/pricing/engine.ts`, `shared/products.ts` (`unitPriceForQty`, `PACK_TIERS` fallback only when no live ladder).
+- **Hero formula:** 1-inch qty 1 matches Target Filtrete 1-packs (MERV 8 $9.99, MERV 11 $13.49, MERV 13 $22.99). All other rungs stay Filter King sale unit × 0.90 (`UNDERCUT_RATIO`), or × 0.88 when modeled (`ESTIMATED_UNDERCUT_RATIO`), capped so a multi-pack is never more per filter than that Filtrete single. Where a Filtrete 2-pack or 12-pack still beats us, that rung matches Filtrete only. Files: `shared/pricing/engine.ts`, `shared/products.ts` (`unitPriceForQty`, `PACK_TIERS` fallback only when no live ladder).
 - **Wholesale source:** `E:\FILTER HEROE\FK PRICING_SHEET PS (1).pdf` (5 pages, labeled 2025; extracted text in `.firecrawl/fk-wholesale-2025.txt`).
 - **Wholesale contact on the sheet:** Filter King LLC, 7301 NW 36th Ct, Miami FL 33147; Paul Sellaro; 305-300-2431; paul@filterking.com.
 - **Carbon / odor:** not priced on the wholesale sheet. Page 4: “Our dedicated team will quote any carbon filter size you need in just a minute!”

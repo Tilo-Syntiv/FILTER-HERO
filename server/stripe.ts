@@ -23,11 +23,6 @@ export function getStripe(): Stripe | null {
 export type CheckoutItem = { productId: number; quantity: number };
 
 export async function createCheckoutSession(items: CheckoutItem[], clientUrl: string) {
-  const stripe = getStripe();
-  if (!stripe) {
-    throw new Error("Stripe is not configured. Set STRIPE_SECRET_KEY in .env");
-  }
-
   const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
   for (const item of items) {
@@ -57,6 +52,11 @@ export async function createCheckoutSession(items: CheckoutItem[], clientUrl: st
   }
 
   if (line_items.length === 0) throw new Error("Cart is empty");
+
+  const stripe = getStripe();
+  if (!stripe) {
+    throw new Error("Stripe is not configured. Set STRIPE_SECRET_KEY in .env");
+  }
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",

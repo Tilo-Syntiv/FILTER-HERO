@@ -68,7 +68,7 @@ function normalizeCart(items: CartItem[]): CartItem[] {
   const next: CartItem[] = [];
   byId.forEach((qty, productId) => {
     const product = getProductById(productId);
-    if (!product) return;
+    if (!product || !product.inStock) return;
     next.push(lineFromProduct(product, qty));
   });
   return next;
@@ -102,6 +102,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, hydrated]);
 
   const addItem = useCallback((product: Product, qty = 1) => {
+    if (!product.inStock) return;
     setItems((prev) => {
       const existing = prev.find((i) => i.productId === product.id);
       const nextQty = Math.min(50, (existing?.qty ?? 0) + qty);
@@ -118,7 +119,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => {
       if (qty <= 0) return prev.filter((i) => i.productId !== productId);
       const product = getProductById(productId);
-      if (!product) return prev.filter((i) => i.productId !== productId);
+      if (!product || !product.inStock) return prev.filter((i) => i.productId !== productId);
       const line = lineFromProduct(product, qty);
       return prev.map((i) => (i.productId === productId ? line : i));
     });

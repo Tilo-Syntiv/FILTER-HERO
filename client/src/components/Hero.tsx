@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BrandLogo from "@/components/BrandLogo";
 import { HVAC_BRAND_LIST } from "@shared/hvac-brands";
+import { MERV_TYPES } from "@shared/products";
+import type { PreferredMerv } from "@/lib/merv-pref";
 
-const ASSET = "?v=fh074";
+const ASSET = "?v=fh093";
 
 const COMPAT = [
   { slug: "trane", name: "Trane" },
@@ -14,86 +16,70 @@ const COMPAT = [
   { slug: "rheem", name: "Rheem" },
 ] as const;
 
-const SHOWCASE = [
+const SHOWCASE: {
+  src: string;
+  merv: PreferredMerv;
+  grade: string;
+  kicker: string;
+  use: string;
+  href: string;
+  className: string;
+  alt: string;
+}[] = [
   {
-    src: `/hero/showcase-merv8.png${ASSET}`,
-    label: "MERV 8",
-    hint: "Standard",
+    src: `/hero/pack-merv8.png${ASSET}`,
+    merv: "8",
+    grade: "8",
+    kicker: "MERV",
+    use: "Dust",
     href: "/sizes/20x25x1",
     className: "hero-product hero-product-merv8",
-    alt: "MERV 8 standard air filter",
-    hideCaption: false,
+    alt: "Filter King MERV 8 standard air filter",
   },
   {
     src: `/hero/showcase-carbon.png${ASSET}`,
-    label: "Carbon",
-    hint: "Odor eliminator",
+    merv: "carbon",
+    grade: "C",
+    kicker: "Carbon",
+    use: "Odors",
     href: "/sizes/20x25x1",
     className: "hero-product hero-product-carbon",
-    alt: "Carbon odor-eliminator air filter",
-    hideCaption: true,
+    alt: "Filter King carbon odor-eliminator air filter",
   },
   {
-    src: `/hero/showcase-merv11.png${ASSET}`,
-    label: "MERV 11",
-    hint: "Advanced",
+    src: `/hero/pack-merv11.png${ASSET}`,
+    merv: "11",
+    grade: "11",
+    kicker: "MERV",
+    use: "Pets",
     href: "/sizes/20x25x1",
     className: "hero-product hero-product-merv11",
-    alt: "MERV 11 advanced air filter",
-    hideCaption: false,
+    alt: "Filter King MERV 11 advanced air filter",
   },
   {
-    src: `/hero/showcase-merv13.png${ASSET}`,
-    label: "MERV 13",
-    hint: "Superior",
+    src: `/hero/pack-merv13.png${ASSET}`,
+    merv: "13",
+    grade: "13",
+    kicker: "MERV",
+    use: "Allergies",
     href: "/sizes/20x25x1",
     className: "hero-product hero-product-merv13",
-    alt: "MERV 13 superior air filter",
-    hideCaption: true,
+    alt: "Filter King MERV 13 superior air filter",
   },
-] as const;
+];
 
 function HeroCharacter() {
-  const [live, setLive] = useState(true);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => setLive(!mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  const shared = {
-    className: "hero-character",
-    width: 900,
-    height: 906,
-  } as const;
-
-  if (!live) {
-    return (
-      <img
-        {...shared}
-        src={`/hero/character.png${ASSET}`}
-        alt="Filter Hero standing guard"
-        fetchPriority="high"
-        decoding="async"
-      />
-    );
-  }
-
   return (
-    <video
-      {...shared}
-      autoPlay
-      muted
-      loop
-      playsInline
-      poster={`/hero/character.png${ASSET}`}
-      aria-label="Filter Hero standing guard"
-    >
-      <source src={`/hero/character-idle.webm${ASSET}`} type="video/webm" />
-    </video>
+    <img
+      className="hero-character"
+      width={900}
+      height={1200}
+      src={`/hero/character.png${ASSET}`}
+      alt=""
+      aria-hidden
+      fetchPriority="high"
+      decoding="async"
+    />
   );
 }
 
@@ -125,12 +111,9 @@ export default function Hero() {
   return (
     <section className="hero-stage hero-cast-stage">
       <div className="hero-atmosphere" aria-hidden>
-        <div className="hero-mesh" />
-        <div className="hero-rays" />
+        <p className="hero-wordmark">HERO</p>
         <div className="hero-orb hero-orb-ice" />
         <div className="hero-orb hero-orb-red" />
-        <div className="hero-slash" />
-        <div className="hero-dust" />
       </div>
 
       <div className="hero-cast">
@@ -209,31 +192,56 @@ export default function Hero() {
                 </div>
               </div>
               <div className="hero-filter-claim">
-                <p className="hero-fk-kicker">Filter King — by Filter Hero</p>
-                <p className="hero-filter-claim-title">Our Filter King filters.</p>
+                <p className="hero-build-tag">
+                  <span className="hero-build-tag-visual">
+                    <img
+                      src={`/hero/filter-build.png${ASSET}`}
+                      alt=""
+                      width={640}
+                      height={360}
+                      decoding="async"
+                    />
+                  </span>
+                  <span className="hero-build-tag-copy">
+                    <span className="hero-build-tag-statement">This is the filter.</span>
+                  </span>
+                </p>
                 <p className="hero-filter-claim-sub">
                   Guaranteed to fit Trane, Carrier, Rheem + 30 more.
                 </p>
               </div>
-              {SHOWCASE.map((item) => (
-                <div key={item.label} className={item.className}>
-                  <Link href={item.href} className="hero-product-link">
-                    <img
-                      src={item.src}
-                      alt={item.alt}
-                      width={482}
-                      height={810}
-                      decoding="async"
-                    />
-                    {item.hideCaption ? null : (
-                      <span className="hero-product-meta">
-                        <span className="hero-product-label">{item.label}</span>
-                        <span className="hero-product-hint">{item.hint}</span>
-                      </span>
-                    )}
-                  </Link>
-                </div>
-              ))}
+              <div className="hero-pack-row">
+                {SHOWCASE.map((item) => {
+                  const type = MERV_TYPES.find((t) => t.key === item.merv) ?? MERV_TYPES[0];
+                  return (
+                    <div key={item.merv} className={item.className}>
+                      <Link href={item.href} className="hero-product-link">
+                        <img
+                          src={item.src}
+                          alt={item.alt}
+                          width={508}
+                          height={834}
+                          decoding="async"
+                        />
+                        <span
+                          className={
+                            item.merv === "carbon"
+                              ? "hero-pack-ticket hero-pack-ticket-carbon"
+                              : "hero-pack-ticket"
+                          }
+                          style={{ "--ticket": type.badgeColor } as CSSProperties}
+                        >
+                          <span className="hero-pack-ticket-grade">{item.grade}</span>
+                          <span className="hero-pack-ticket-copy">
+                            <span className="hero-pack-ticket-kicker">{item.kicker}</span>
+                            <span className="hero-pack-ticket-use">{item.use}</span>
+                          </span>
+                        </span>
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
               <div className="hero-brands">
                 <p className="hero-brands-label">
                   Filter King also fits <strong>30+ major brands</strong>
@@ -249,7 +257,7 @@ export default function Hero() {
                       <BrandLogo
                         slug={brand.slug}
                         name={brand.name}
-                        className="h-9 w-auto max-w-[7.25rem]"
+                        className="h-11 w-auto max-w-[8.5rem]"
                       />
                     </Link>
                   ))}

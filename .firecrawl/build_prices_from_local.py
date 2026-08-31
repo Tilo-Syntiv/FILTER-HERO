@@ -45,6 +45,7 @@ MERV_LIVE = {
     "merv-8": "8",
     "merv-11": "11",
     "merv-13": "13",
+    "merv-8-carbon": "carbon",
     "freedom": None,  # skip Freedom line
 }
 QTY_KEYS = ("q1", "q2", "q4", "q6", "q12")
@@ -159,7 +160,7 @@ def harvest_local() -> list[dict]:
         if parsed:
             rows.append(parsed)
 
-    for name in ("fk-verified-prices.json", "fk-full-prices.json"):
+    for name in ("fk-verified-prices.json", "fk-full-prices.json", "fk-direct-leftover.json"):
         path = ROOT / name
         if not path.exists():
             continue

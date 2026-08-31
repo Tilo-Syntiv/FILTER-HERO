@@ -64,7 +64,9 @@ function FaqActionLink({
 }) {
   const className = cn(
     "mt-4 inline-flex items-center gap-1.5 text-sm font-bold tracking-tight transition-colors",
-    onBand ? "text-ice hover:text-white" : "text-primary hover:text-hero",
+    onBand
+      ? "text-white underline decoration-white/55 underline-offset-4 hover:decoration-white"
+      : "text-primary hover:text-hero",
   );
   const inner = (
     <>
@@ -120,7 +122,7 @@ function FaqCard({
         <p
           className={cn(
             "leading-relaxed seo-speakable-a",
-            onBand ? "text-ice/85" : "text-muted-foreground",
+            onBand ? "font-medium text-white" : "text-muted-foreground",
           )}
         >
           {faq.answer}
@@ -210,7 +212,7 @@ export default function FaqSection({
           <p
             className={cn(
               "max-w-2xl leading-relaxed",
-              onBand ? "text-ice/80" : "text-muted-foreground",
+              onBand ? "text-white/90" : "text-muted-foreground",
             )}
           >
             {subtitle}
@@ -231,7 +233,7 @@ export default function FaqSection({
               placeholder="Search size, MERV, shipping…"
               className={cn(
                 "min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground md:text-base",
-                onBand && "text-white placeholder:text-ice/60",
+                onBand && "text-white placeholder:text-white/55",
               )}
             />
           </label>
@@ -275,7 +277,7 @@ export default function FaqSection({
         {visible.length === 0 ? (
           <div className="faq-empty">
             <p className="font-bold tracking-tight">No matching questions</p>
-            <p className={onBand ? "text-ice/80" : "text-muted-foreground"}>
+            <p className={onBand ? "text-white/90" : "text-muted-foreground"}>
               Try a different search, or jump to the size finder.
             </p>
             <a href="/#finder" className="section-link mt-3">
@@ -297,7 +299,7 @@ export default function FaqSection({
                   <p
                     className={cn(
                       "px-1 text-[0.72rem] font-extrabold uppercase tracking-[0.14em]",
-                      onBand ? "text-ice" : "text-mesh",
+                      onBand ? "text-white" : "text-mesh",
                     )}
                   >
                     {group.name}
@@ -322,7 +324,7 @@ export default function FaqSection({
             <p
               className={cn(
                 "mt-1 text-sm leading-relaxed",
-                onBand ? "text-ice/80" : "text-muted-foreground",
+                onBand ? "text-white/90" : "text-muted-foreground",
               )}
             >
               Find the exact size, get a replacement date, or talk to a person

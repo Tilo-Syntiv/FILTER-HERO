@@ -4,7 +4,7 @@ import { BRAND_NAME } from "@/const";
 
 type LockupTone = "header" | "footer";
 
-const LOGO_SRC = "/logo.png";
+const LOGO_SRC = "/logo.png?v=fh086";
 
 let knockoutCache: string | null = null;
 let knockoutPromise: Promise<string> | null = null;
@@ -20,7 +20,7 @@ function knockOutWhite(src: string): Promise<string> {
       const canvas = document.createElement("canvas");
       canvas.width = img.naturalWidth;
       canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
       if (!ctx) {
         reject(new Error("Canvas unavailable"));
         return;
