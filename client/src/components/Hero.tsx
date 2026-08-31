@@ -1,52 +1,170 @@
-import { Link } from "wouter";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import BrandLogo from "@/components/BrandLogo";
+import { HVAC_BRAND_LIST } from "@shared/hvac-brands";
 
-const HERO_DESKTOP = "/hero-banner.webp?v=reset";
-const HERO_MOBILE = "/hero-banner-mobile.webp?v=reset";
+const ASSET = "?v=fh074";
 
-const scrollToFinder = () => {
-  document.getElementById("finder")?.scrollIntoView({ behavior: "smooth" });
-};
+const COMPAT = [
+  { slug: "trane", name: "Trane" },
+  { slug: "carrier", name: "Carrier" },
+  { slug: "rheem", name: "Rheem" },
+] as const;
 
-const scrollToClock = () => {
-  document.getElementById("clock")?.scrollIntoView({ behavior: "smooth" });
-};
+const SHOWCASE = [
+  {
+    src: `/hero/showcase-merv8.png${ASSET}`,
+    label: "MERV 8",
+    hint: "Standard",
+    href: "/sizes/20x25x1",
+    className: "hero-product hero-product-merv8",
+    alt: "MERV 8 standard air filter",
+    hideCaption: false,
+  },
+  {
+    src: `/hero/showcase-carbon.png${ASSET}`,
+    label: "Carbon",
+    hint: "Odor eliminator",
+    href: "/sizes/20x25x1",
+    className: "hero-product hero-product-carbon",
+    alt: "Carbon odor-eliminator air filter",
+    hideCaption: true,
+  },
+  {
+    src: `/hero/showcase-merv11.png${ASSET}`,
+    label: "MERV 11",
+    hint: "Advanced",
+    href: "/sizes/20x25x1",
+    className: "hero-product hero-product-merv11",
+    alt: "MERV 11 advanced air filter",
+    hideCaption: false,
+  },
+  {
+    src: `/hero/showcase-merv13.png${ASSET}`,
+    label: "MERV 13",
+    hint: "Superior",
+    href: "/sizes/20x25x1",
+    className: "hero-product hero-product-merv13",
+    alt: "MERV 13 superior air filter",
+    hideCaption: true,
+  },
+] as const;
+
+function HeroCharacter() {
+  const [live, setLive] = useState(true);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setLive(!mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  const shared = {
+    className: "hero-character",
+    width: 900,
+    height: 906,
+  } as const;
+
+  if (!live) {
+    return (
+      <img
+        {...shared}
+        src={`/hero/character.png${ASSET}`}
+        alt="Filter Hero standing guard"
+        fetchPriority="high"
+        decoding="async"
+      />
+    );
+  }
+
+  return (
+    <video
+      {...shared}
+      autoPlay
+      muted
+      loop
+      playsInline
+      poster={`/hero/character.png${ASSET}`}
+      aria-label="Filter Hero standing guard"
+    >
+      <source src={`/hero/character-idle.webm${ASSET}`} type="video/webm" />
+    </video>
+  );
+}
+
+function BrandMarks({ compact }: { compact?: boolean }) {
+  return (
+    <>
+      {COMPAT.map((brand) => (
+        <Link
+          key={brand.slug}
+          href={`/brands/${brand.slug}`}
+          className="hero-compat-mark"
+          aria-label={`Shop ${brand.name} filter sizes`}
+        >
+          <BrandLogo
+            slug={brand.slug}
+            name={brand.name}
+            className={compact ? "h-6 w-auto max-w-[4.75rem]" : "h-7 w-auto max-w-[5.75rem]"}
+          />
+        </Link>
+      ))}
+    </>
+  );
+}
 
 export default function Hero() {
+  const [, setLocation] = useLocation();
+  const brandCount = HVAC_BRAND_LIST.length;
+
   return (
-    <section className="hero-stage relative">
-      {/* Mobile: character crop + live copy */}
-      <div className="relative overflow-hidden lg:hidden min-h-[min(78dvh,42rem)]">
-        <img
-          src={HERO_MOBILE}
-          alt="Filter Hero standing guard with MERV 8 air filters"
-          width={1024}
-          height={868}
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 h-full w-full object-cover object-[center_20%]"
-        />
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#d7eef8] via-[#d7eef8]/90 to-transparent px-5 pt-24 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+    <section className="hero-stage hero-cast-stage">
+      <div className="hero-atmosphere" aria-hidden>
+        <div className="hero-mesh" />
+        <div className="hero-rays" />
+        <div className="hero-orb hero-orb-ice" />
+        <div className="hero-orb hero-orb-red" />
+        <div className="hero-slash" />
+        <div className="hero-dust" />
+      </div>
+
+      <div className="hero-cast">
+        <div className="hero-copy">
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, y: 22, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            <h1 className="mb-3 text-[1.55rem] font-bold leading-[1.08] tracking-[-0.04em] text-deep sm:text-4xl">
-              The First Line of Defense for Your Indoor Air.
-            </h1>
-            <p className="seo-answer mb-6 max-w-lg text-sm leading-relaxed text-deep/75">
-              Filter Hero sells exact-fit HVAC and furnace air filters. Measure
-              Width, Length, and Depth — then shop MERV 8, 11, 13, or carbon in
-              seconds.
+            <p className="hero-lockup" aria-hidden>
+              <span className="hero-lockup-filter">Filter</span>
+              <span className="hero-lockup-hero">Hero</span>
             </p>
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <p className="hero-kicker">
+              <span className="hero-live-dot" aria-hidden />
+              Exact-fit HVAC filters
+            </p>
+            <h1 className="hero-title">
+              The first line
+              <em>of defense</em>
+              <span className="hero-title-rest">
+                for your <em>indoor air.</em>
+              </span>
+            </h1>
+            <p className="seo-answer hero-lede">
+              Filter Hero&apos;s Filter King filters are exact-fit replacements
+              for Trane, Carrier, Rheem, and 30+ major HVAC brands. Measure
+              Width, Length, and Depth — then shop MERV 8, 11, or 13.
+            </p>
+            <div className="hero-actions">
               <Button
                 size="lg"
                 className="hero-shop-btn hero-shop-btn-glow w-full text-white sm:w-auto"
-                onClick={scrollToFinder}
+                onClick={() => setLocation("/sizes")}
               >
                 Find your filter size
                 <ArrowRight className="h-4 w-4" />
@@ -54,48 +172,92 @@ export default function Hero() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full border-navy/20 bg-white/80 text-navy hover:bg-white hover:text-navy sm:w-auto"
-                onClick={scrollToClock}
+                className="hero-ghost-btn w-full sm:w-auto"
+                onClick={() => setLocation("/how-often-to-change-air-filter")}
               >
                 Start your clock
               </Button>
             </div>
+            <div className="hero-compat hero-compat-mobile">
+              <p className="hero-compat-label">
+                Fits {COMPAT[0].name}, {COMPAT[1].name}, {COMPAT[2].name}
+                {" + "}
+                {brandCount} brands
+              </p>
+              <div className="hero-compat-row">
+                <BrandMarks />
+              </div>
+            </div>
           </motion.div>
         </div>
-      </div>
 
-      {/* Desktop: RESET artwork with the painted Shop Now as a live control */}
-      <div className="relative hidden lg:block">
-        <motion.img
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          src={HERO_DESKTOP}
-          alt="Filter Hero — the first line of defense for your indoor air"
-          width={2048}
-          height={868}
-          fetchPriority="high"
-          decoding="async"
-          className="block h-auto w-full"
-        />
-        <h1 className="sr-only">The First Line of Defense for Your Indoor Air.</h1>
-        <p className="seo-answer sr-only">
-          Filter Hero sells exact-fit HVAC and furnace air filters. Measure
-          Width, Length, and Depth — then shop MERV 8, 11, 13, or carbon in
-          seconds.
-        </p>
-        <Link href="/sizes" className="hero-live-cta" aria-label="Shop now">
-          <span className="hero-live-cta-glow" aria-hidden />
-          <img
-            src="/hero-shop-now.webp?v=reset"
-            alt=""
-            width={330}
-            height={88}
-            decoding="async"
-            draggable={false}
-            className="hero-live-cta-art"
-          />
-        </Link>
+        <div className="hero-art">
+          <div className="hero-glow" aria-hidden />
+          <div className="hero-showcase">
+            <div className="hero-lineup">
+              <div className="hero-ground" aria-hidden />
+              <div className="hero-character-slot">
+                <div className="hero-character-float">
+                  <motion.div
+                    initial={{ opacity: 0, y: 28, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.85, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+                    className="hero-character-motion"
+                  >
+                    <HeroCharacter />
+                  </motion.div>
+                </div>
+              </div>
+              <div className="hero-filter-claim">
+                <p className="hero-fk-kicker">Filter King — by Filter Hero</p>
+                <p className="hero-filter-claim-title">Our Filter King filters.</p>
+                <p className="hero-filter-claim-sub">
+                  Guaranteed to fit Trane, Carrier, Rheem + 30 more.
+                </p>
+              </div>
+              {SHOWCASE.map((item) => (
+                <div key={item.label} className={item.className}>
+                  <Link href={item.href} className="hero-product-link">
+                    <img
+                      src={item.src}
+                      alt={item.alt}
+                      width={482}
+                      height={810}
+                      decoding="async"
+                    />
+                    {item.hideCaption ? null : (
+                      <span className="hero-product-meta">
+                        <span className="hero-product-label">{item.label}</span>
+                        <span className="hero-product-hint">{item.hint}</span>
+                      </span>
+                    )}
+                  </Link>
+                </div>
+              ))}
+              <div className="hero-brands">
+                <p className="hero-brands-label">
+                  Filter King also fits <strong>30+ major brands</strong>
+                </p>
+                <div className="hero-brands-row">
+                  {COMPAT.map((brand) => (
+                    <Link
+                      key={brand.slug}
+                      href={`/brands/${brand.slug}`}
+                      className="hero-compat-mark"
+                      aria-label={`Shop ${brand.name} filter sizes`}
+                    >
+                      <BrandLogo
+                        slug={brand.slug}
+                        name={brand.name}
+                        className="h-9 w-auto max-w-[7.25rem]"
+                      />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

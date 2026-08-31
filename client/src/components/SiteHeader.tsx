@@ -8,16 +8,24 @@ import { scrollToHashTarget } from "@/hooks/useHashScroll";
 import { allBrandFamilies } from "@shared/hvac-brands";
 import { BrandFamilyGrid } from "@/components/BrandDirectory";
 import {
-  catalogLengths,
-  catalogWidths,
+  finderLengths,
+  finderWidths,
   getFilterSize,
   popularSizeSlugs,
   THICKNESSES,
 } from "@shared/products";
 import { customQuotePath } from "@/lib/filter-size";
 
-const WIDTHS = catalogWidths().map(String);
-const LENGTHS = catalogLengths().map(String);
+const WIDTHS = finderWidths().map(String);
+const LENGTHS = finderLengths().map(String);
+
+const HOME_SECTION_ROUTES: Record<string, string> = {
+  clock: "/how-often-to-change-air-filter",
+  faq: "/how-often-to-change-air-filter",
+  contact: "/custom-air-filters#custom-quote",
+  finder: "/sizes",
+  "how-to-measure": "/sizes",
+};
 const DEPTHS = THICKNESSES.map(String);
 const ALL_BRAND_FAMILIES = allBrandFamilies();
 const POPULAR = popularSizeSlugs(8);
@@ -142,6 +150,26 @@ export default function SiteHeader() {
   const headerRef = useRef<HTMLElement>(null);
   const closeMenuTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+
+    const publishHeight = () => {
+      document.documentElement.style.setProperty(
+        "--site-header-h",
+        `${header.offsetHeight}px`,
+      );
+    };
+
+    publishHeight();
+    const observer = new ResizeObserver(publishHeight);
+    observer.observe(header);
+    return () => {
+      observer.disconnect();
+      document.documentElement.style.removeProperty("--site-header-h");
+    };
+  }, []);
+
   const clearCloseMenuTimer = () => {
     if (closeMenuTimer.current) {
       clearTimeout(closeMenuTimer.current);
@@ -167,6 +195,11 @@ export default function SiteHeader() {
   const goHomeSection = (id: string) => (event: ReactMouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     closeMenus();
+    const dest = HOME_SECTION_ROUTES[id];
+    if (dest) {
+      setLocation(dest);
+      return;
+    }
     if (window.location.pathname === "/" || window.location.pathname === "") {
       scrollToHashTarget(id);
       if (window.location.hash !== `#${id}`) {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useHashScroll } from "@/hooks/useHashScroll";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { ArrowRight } from "lucide-react";
 import { THICKNESSES } from "@shared/products";
 import { HVAC_BRAND_LIST, featuredBrandFamilies } from "@shared/hvac-brands";
@@ -38,13 +38,28 @@ import { useCart } from "@/contexts/CartContext";
 import { takeQuoteHandoff } from "@/lib/quote-handoff";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 
+const HOME_HASH_ROUTES: Record<string, string> = {
+  clock: "/how-often-to-change-air-filter",
+  faq: "/how-often-to-change-air-filter",
+  contact: "/custom-air-filters#custom-quote",
+  finder: "/sizes",
+  "how-to-measure": "/sizes",
+};
+
 export default function Home() {
   useHashScroll();
+  const [, setLocation] = useLocation();
   const { cartSummaryText } = useCart();
   const [quoteSize, setQuoteSize] = useState("");
   const [quoteMessage, setQuoteMessage] = useState("");
   const [quoteCartSummary, setQuoteCartSummary] = useState("");
   const contactRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const hash = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+    const dest = HOME_HASH_ROUTES[hash];
+    if (dest) setLocation(dest);
+  }, [setLocation]);
 
   useEffect(() => {
     const handed = takeQuoteHandoff();
@@ -88,11 +103,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="home-lock">
       <SiteHeader />
 
       <Hero />
 
+      <div className="home-lock-rest">
       <TrustMarquee />
 
       <main>
@@ -323,14 +339,12 @@ export default function Home() {
           </div>
         </div>
       </footer>
+      </div>
 
       <CartDrawer
         onRequestQuote={() => {
           takeQuoteHandoff();
-          scrollToContact({
-            withCart: true,
-            message: "Please help with the items in my cart (details attached).",
-          });
+          setLocation("/custom-air-filters#custom-quote");
         }}
       />
     </div>
