@@ -1,15 +1,15 @@
 # Wholesale price lists
 
-Sellable Filter Hero catalog = **only** the size × MERV lines on Paul Sellaro’s 2025 Filter King dealer sheet. If a size or MERV is not on that sheet, do not list it for sale until a wholesale cost is added here.
+Sellable Filter Hero catalog = the full archived Filter King size universe when `VITE_FULL_CATALOG=true` (default shop mode as of FH-133). Paul’s 2025 dealer sheet remains the wholesale cost source for the 299 lines that appear on it. Set `VITE_FULL_CATALOG=false` to restrict the shop to that sheet only.
 
 - **Written:** 2026-08-24
 - **Wholesale:** `E:\FILTER HEROE\FK PRICING_SHEET PS (1).pdf` (extracted text: `.firecrawl/fk-wholesale-2025.txt`)
 - **Filter King website:** `shared/pricing/fk-live-prices.json`, scraped 2026-08-20
-- **Filter Hero website:** 1-inch qty 1 matches Target Filtrete 1-packs (MERV 8 $9.99, MERV 11 $13.49, MERV 13 $22.99). All other rungs stay Filter King public unit × 0.90 (`UNDERCUT_RATIO`), or × 0.88 when that ladder was modeled (`ESTIMATED_UNDERCUT_RATIO`), capped so a multi-pack is never more per filter than the Filtrete single. Where a Filtrete 2-pack or 12-pack still beats us, that rung matches Filtrete only (MERV 11 qty 2 $11.00 on 14x20 / 16x20 / 16x25 / 20x20 / 20x25; 16x25x1 MERV 13 qty 2 $15.00; 20x20x1 MERV 8 qty 12 $5.18).
+- **Filter Hero website:** On any rung where we have both a Filtrete listing and a Filter King listing, match the cheaper one at list (FH-136). 1-inch qty 1 is always Filtrete ($9.99 / $13.49 / $22.99 / carbon $16.70). Confirmed Filtrete multi-packs live in `FILTRETE_PACKS`. Where Filtrete has no listing, stay on Filter King public unit × 0.90 (`UNDERCUT_RATIO`), or × 0.88 when modeled, capped so a multi-pack is never more per filter than the Filtrete single. Then match a confirmed FilterBuy sale ticket if that ticket is cheaper (FH-138). FilterBuy rows are only the Sep 1, 2026 scrapes that beat us (10% sale ends Sep 7). Do not invent Filtrete or FilterBuy tickets. Do not match HDX.
 - **Spreadsheet copy:** [Filter-Hero-Wholesale-vs-Retail-Pricing.xlsx](Filter-Hero-Wholesale-vs-Retail-Pricing.xlsx) (two tabs)
 - **Research write-up:** [FILTER-KING-PRICING-BRIEF.md](FILTER-KING-PRICING-BRIEF.md)
 - **Allowlist in code:** `shared/sellable-skus.json` (rebuild: `pnpm exec tsx scripts/build-sellable-skus.ts`)
-- **Shop switch:** `SELLABLE_ONLY` in `shared/products.ts` — `true` means only this sheet is for sale. The full size archive stays in `shared/filter-catalog.json`.
+- **Shop switch:** `VITE_FULL_CATALOG` / `FULL_CATALOG` in `.env` (`shared/products.ts` reads it). `true` sells every archived size × MERV including carbon. `false` means only this sheet is for sale (`SELLABLE_ONLY`). The full size archive stays in `shared/filter-catalog.json`.
 
 Every price is **dollars per filter** at quantity 1 / 2 / 4 / 6 / 12.
 
@@ -24,7 +24,7 @@ Every price is **dollars per filter** at quantity 1 / 2 / 4 / 6 / 12.
 | MERV 11 | 68 |
 | MERV 13 | 66 |
 | Matched to a Filter King / Hero ladder | 299 |
-| Carbon / odor | 0 (quote-only) |
+| Carbon / odor | 0 on sheet (sold when `VITE_FULL_CATALOG=true`; no wholesale cost) |
 
 ## Do not sell until we have a wholesale price
 
@@ -34,9 +34,9 @@ These popular or merchandised SKUs are **not** on the 2025 sheet:
 - 16x25x4 MERV 8
 - 14x25x1 MERV 11 and 13
 - 20x20x4 MERV 8
-- Carbon / odor filters (quote-only on the wholesale sheet)
+- Carbon / odor filters (no sheet cost; 1-inch qty 1 still matches Filtrete odor $16.70)
 
-When Paul quotes a new size × MERV, add it to the wholesale sheet extract and this file, then run `pnpm exec tsx scripts/build-sellable-skus.ts`. Then it can go on the site. To sell the full archived catalog again, set `SELLABLE_ONLY` to `false` in `shared/products.ts` — do not delete the archive.
+When Paul quotes a new size × MERV, add it to the wholesale sheet extract and this file, then run `pnpm exec tsx scripts/build-sellable-skus.ts` so cost is on file. The live shop no longer waits on that sheet when `VITE_FULL_CATALOG=true`. To restrict the shop to this sheet, set `VITE_FULL_CATALOG=false` — do not delete the archive.
 
 Sheet SKUs with no retail ladder:
 

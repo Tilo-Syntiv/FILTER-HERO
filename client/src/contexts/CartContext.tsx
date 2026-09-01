@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { toast } from "sonner";
 import {
   getProductById,
   unitPriceForQty,
@@ -74,15 +75,26 @@ function normalizeCart(items: CartItem[]): CartItem[] {
   return next;
 }
 
-function loadCart(): CartItem[] {
+function loadCart(): { items: CartItem[]; dropped: number } {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
+    if (!raw) return { items: [], dropped: 0 };
     const parsed = JSON.parse(raw) as CartItem[];
-    if (!Array.isArray(parsed)) return [];
-    return normalizeCart(parsed);
+    if (!Array.isArray(parsed)) return { items: [], dropped: 0 };
+    const before = new Set(
+      parsed
+        .map((item) => item?.productId)
+        .filter((id): id is number => typeof id === "number"),
+    );
+    const items = normalizeCart(parsed);
+    const after = new Set(items.map((item) => item.productId));
+    let dropped = 0;
+    before.forEach((id) => {
+      if (!after.has(id)) dropped += 1;
+    });
+    return { items, dropped };
   } catch {
-    return [];
+    return { items: [], dropped: 0 };
   }
 }
 
@@ -92,8 +104,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setItems(loadCart());
+    const { items: next, dropped } = loadCart();
+    setItems(next);
     setHydrated(true);
+    if (dropped > 0) {
+      toast.info(
+        dropped === 1
+          ? "One item in your cart is no longer available and was removed."
+          : `${dropped} items in your cart are no longer available and were removed.`,
+      );
+    }
   }, []);
 
   useEffect(() => {

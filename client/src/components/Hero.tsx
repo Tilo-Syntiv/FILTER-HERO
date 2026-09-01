@@ -6,8 +6,8 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BrandLogo from "@/components/BrandLogo";
 import { HVAC_BRAND_LIST } from "@shared/hvac-brands";
-import { MERV_TYPES } from "@shared/products";
-import type { PreferredMerv } from "@/lib/merv-pref";
+import { MERV_TYPES, isMervKeyOnSale } from "@shared/products";
+import { setPreferredMerv, type PreferredMerv } from "@/lib/merv-pref";
 
 const ASSET = "?v=fh113";
 
@@ -25,7 +25,6 @@ const SHOWCASE: {
   grade: string;
   kicker: string;
   use: string;
-  href: string;
   className: string;
   alt: string;
 }[] = [
@@ -35,7 +34,6 @@ const SHOWCASE: {
     grade: "8",
     kicker: "MERV",
     use: "Dust",
-    href: "/sizes/20x25x1",
     className: "hero-product hero-product-merv8",
     alt: "Filter King MERV 8 standard air filter",
   },
@@ -45,7 +43,6 @@ const SHOWCASE: {
     grade: "C",
     kicker: "Carbon",
     use: "Odors",
-    href: "/sizes/20x25x1",
     className: "hero-product hero-product-carbon",
     alt: "Filter King carbon odor-eliminator air filter",
   },
@@ -55,7 +52,6 @@ const SHOWCASE: {
     grade: "11",
     kicker: "MERV",
     use: "Pets",
-    href: "/sizes/20x25x1",
     className: "hero-product hero-product-merv11",
     alt: "Filter King MERV 11 advanced air filter",
   },
@@ -65,7 +61,6 @@ const SHOWCASE: {
     grade: "13",
     kicker: "MERV",
     use: "Allergies",
-    href: "/sizes/20x25x1",
     className: "hero-product hero-product-merv13",
     alt: "Filter King MERV 13 superior air filter",
   },
@@ -88,6 +83,7 @@ function HeroCharacter() {
     const node = videoRef.current;
     if (!node) return;
     node.muted = true;
+    node.defaultMuted = true;
     const play = () => {
       void node.play().catch(() => undefined);
     };
@@ -123,7 +119,6 @@ function HeroCharacter() {
       ref={videoRef}
       autoPlay
       muted
-      defaultMuted
       loop
       playsInline
       disablePictureInPicture
@@ -259,9 +254,19 @@ export default function Hero() {
               <div className="hero-pack-row">
                 {SHOWCASE.map((item) => {
                   const type = MERV_TYPES.find((t) => t.key === item.merv) ?? MERV_TYPES[0];
+                  const onSale = isMervKeyOnSale(item.merv);
+                  const href = onSale
+                    ? `/sizes/20x25x1?merv=${item.merv}`
+                    : "/custom-air-filters";
                   return (
                     <div key={item.merv} className={item.className}>
-                      <Link href={item.href} className="hero-product-link">
+                      <Link
+                        href={href}
+                        className="hero-product-link"
+                        onClick={() => {
+                          if (onSale) setPreferredMerv(item.merv);
+                        }}
+                      >
                         <img
                           src={item.src}
                           alt={item.alt}

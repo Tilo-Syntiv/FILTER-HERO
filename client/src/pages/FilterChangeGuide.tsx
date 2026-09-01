@@ -16,7 +16,6 @@ import FilterPower from "@/components/FilterPower";
 import FaqSection from "@/components/FaqSection";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { useHashScroll } from "@/hooks/useHashScroll";
-import { takeQuoteHandoff } from "@/lib/quote-handoff";
 import { BASE_DAYS, cadenceLabel, formatDepth } from "@/lib/filter-cadence";
 import { BRAND_NAME } from "@/const";
 import {
@@ -748,7 +747,6 @@ export default function FilterChangeGuidePage() {
       </footer>
       <CartDrawer
         onRequestQuote={() => {
-          takeQuoteHandoff();
           window.location.href = "/#contact";
         }}
       />

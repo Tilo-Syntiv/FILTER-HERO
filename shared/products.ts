@@ -12,6 +12,7 @@ export {
   FILTRETE_1INCH_QTY1,
   filtreteBeatUnit,
   filtreteQty1,
+  filterbuyUnit,
   liveFromPrice,
   liveListPrice,
   liveUnitPrice,
@@ -110,7 +111,7 @@ export type Product = {
   size: string;
   merv: MervRating;
   isCarbon?: boolean;
-  /** Qty-1 unit price (1-inch matches Filtrete; else FilterKing × 0.90) */
+  /** Qty-1 unit price (cheaper of Filtrete / Filter King when both exist) */
   price: number;
   inStock: boolean;
   name: string;
@@ -142,10 +143,11 @@ function fallbackUnitPrice(listPrice: number, qty: number): number {
 }
 
 /**
- * Pack unit price. 1-inch qty 1 matches Filtrete. Other rungs use the
- * FilterKing qty table × 0.90, capped so a multi-pack is never more per
- * filter than the single. If a Filtrete multi-pack still beats that, match
- * that unit only. No ladder: PACK_TIERS on listPrice.
+ * Pack unit price. When Filtrete and Filter King both list the same rung,
+ * match the cheaper one. Otherwise 1-inch qty 1 is Filtrete; other rungs
+ * are Filter King × 0.90, capped at the Filtrete single. Then match a
+ * confirmed FilterBuy ticket if that ticket is cheaper. No ladder:
+ * PACK_TIERS on listPrice.
  */
 export function unitPriceForQty(
   listPrice: number,
@@ -197,12 +199,36 @@ function uniqueSizes(list: FilterSize[]): FilterSize[] {
   });
 }
 
+function envFlag(...keys: string[]): boolean | undefined {
+  const values: unknown[] = [];
+  if (typeof process !== "undefined" && process.env) {
+    for (const key of keys) values.push(process.env[key]);
+  }
+  const viteEnv = (import.meta as ImportMeta & { env?: Record<string, unknown> }).env;
+  if (viteEnv) {
+    for (const key of keys) values.push(viteEnv[key]);
+  }
+  for (const raw of values) {
+    if (raw == null || raw === "") continue;
+    const v = String(raw).trim().toLowerCase();
+    if (v === "true" || v === "1" || v === "yes" || v === "on") return true;
+    if (v === "false" || v === "0" || v === "no" || v === "off") return false;
+  }
+  return undefined;
+}
+
+/**
+ * Sell every archived Filter King size × MERV, including carbon.
+ * Set VITE_FULL_CATALOG=true in .env (client + server). FULL_CATALOG=true
+ * also works on the API. Set either to false to restrict to the wholesale sheet.
+ */
+export const FULL_CATALOG = envFlag("VITE_FULL_CATALOG", "FULL_CATALOG") === true;
+
 /**
  * When true, the shop only lists size × MERV lines on the wholesale sheet.
- * Flip to false to restore the full archived catalog (including carbon).
- * Do not delete filter-catalog.json or sellable-skus.json.
+ * Inverse of FULL_CATALOG. Do not delete filter-catalog.json or sellable-skus.json.
  */
-export const SELLABLE_ONLY = true;
+export const SELLABLE_ONLY = !FULL_CATALOG;
 
 type SellableSkuRow = {
   size: string;
@@ -357,7 +383,7 @@ export function mervTypesForDisplay(): MervTypeInfo[] {
   );
 }
 
-/** MERV chips a shopper can buy for this size. Carbon and missing wholesale lines stay in MERV_TYPES for later. */
+/** MERV chips a shopper can buy for this size. Off-sheet ratings stay in MERV_TYPES when SELLABLE_ONLY. */
 export function mervTypesForSize(slug: string): MervTypeInfo[] {
   return mervTypesForDisplay().filter((t) => isSkuSellable(slug, t.merv, t.isCarbon));
 }
@@ -372,7 +398,8 @@ export function sellableMervPhrase(slug: string): string {
 }
 
 function listPriceFor(depth: number, merv: MervRating, isCarbon: boolean): number {
-  if (depth === 1 && !isCarbon) return FILTRETE_1INCH_QTY1[String(merv) as "8" | "11" | "13"];
+  if (depth === 1 && isCarbon) return FILTRETE_1INCH_QTY1.carbon;
+  if (depth === 1) return FILTRETE_1INCH_QTY1[String(merv) as "8" | "11" | "13"];
   const depthBase: Record<number, number> = {
     0.5: 10.99,
     1: 14.99,

@@ -24,8 +24,8 @@ export const SITE_DEFAULTS = {
   tagline: BRAND_TAGLINE,
   email: BRAND_EMAIL,
   titleDefault: `${BRAND_NAME} | Exact-Fit HVAC & Furnace Air Filters`,
-  descriptionDefault:
-    "Find your exact HVAC filter size in seconds. Shop MERV 8, 11, and 13 air filters by Width × Length × Depth with bulk pricing and a 30-day fit guarantee. Carbon and other sizes can be quoted.",
+    descriptionDefault:
+    "Find your exact HVAC filter size in seconds. Shop MERV 8, MERV 8 Carbon, 11, and 13 air filters by Width × Length × Depth with bulk pricing and a 30-day fit guarantee.",
   locale: "en_US",
   twitterHandle: "",
 } as const;
@@ -79,14 +79,14 @@ export const SITE_FAQS: FaqItem[] = [
     question: "What MERV rating should I buy?",
     category: "MERV",
     answer:
-      "MERV 8 is standard everyday filtration. MERV 11 is better for pets and mild allergies. MERV 13 offers higher filtration for asthma and sensitivities. MERV 8 Carbon adds odor reduction and is quote-only until we have wholesale cost. Confirm your HVAC system supports higher MERV before upgrading.",
+      "MERV 8 is standard everyday filtration. MERV 11 is better for pets and mild allergies. MERV 13 offers higher filtration for asthma and sensitivities. MERV 8 Carbon adds odor reduction. Confirm your HVAC system supports higher MERV before upgrading.",
     action: { href: "/#merv", label: "Compare MERV ratings" },
   },
   {
     question: "Do you sell filters for Carrier, Trane, Honeywell, and other HVAC brands?",
     category: "Ordering",
     answer:
-      `Yes. ${BRAND_NAME} replacement filters are made to the same Width × Length × Depth as OEM media for major HVAC brands. Shop by brand, model number, or OEM part number, then choose MERV 8, 11, or 13. Carbon and sizes we do not stock yet can be quoted.`,
+      `Yes. ${BRAND_NAME} replacement filters are made to the same Width × Length × Depth as OEM media for major HVAC brands. Shop by brand, model number, or OEM part number, then choose MERV 8, MERV 8 Carbon, 11, or 13. Sizes we do not list can be quoted.`,
     action: { href: "/brands", label: "Shop by HVAC brand" },
   },
   {
@@ -200,7 +200,7 @@ export function thicknessSeo(siteUrl: string, depth: number) {
   const path = `/filters/${depth}-inch`;
   return {
     title: `${depth}" Air Filters — Shop by Size | ${BRAND_NAME}`,
-    description: `Shop ${depth}-inch depth HVAC and furnace air filters. Pick your width, then Width × Length. MERV 8, 11, and 13 where we have wholesale cost; other ratings can be quoted.`,
+    description: `Shop ${depth}-inch depth HVAC and furnace air filters. Pick your width, then Width × Length. MERV 8, MERV 8 Carbon, 11, and 13.`,
     path,
     canonical: absoluteUrl(siteUrl, path),
     type: "website" as const,
@@ -608,7 +608,7 @@ export function buildLlmsTxt(siteUrl: string): string {
 ${THICKNESSES.map((d) => `- ${d}" hub: ${absoluteUrl(siteUrl, `/filters/${d}-inch`)}`).join("\n")}
 
 ## Catalog
-- ${sizeCount} shoppable WxLxD sizes (only size × MERV lines with a wholesale cost; full archive kept for later)
+- ${sizeCount} shoppable WxLxD sizes (full Filter King archive, including carbon)
 - Example 1" sizes: ${examples}
 
 ## Facts for assistants
@@ -647,7 +647,7 @@ ${byDepth}
 ## Voice / answer snippets
 - Direct answer: You need the Width × Length × Depth printed on your current filter or measured from the slot.
 - Replacement: Most homes change HVAC filters every 30 to 90 days. Pets, dust, and thickness change the interval — see ${absoluteUrl(siteUrl, CHANGE_GUIDE_PATH)}.
-- MERV: MERV 8 everyday, MERV 11 pets/allergies, MERV 13 higher filtration. Carbon is quote-only until wholesale cost is on file.
+- MERV: MERV 8 everyday, MERV 11 pets/allergies, MERV 13 higher filtration, MERV 8 Carbon for odors.
 
 ## Video
 - ${BRAND_NAME} does not currently host a product video library. Use HowTo JSON-LD on the homepage for measurement steps.

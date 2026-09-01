@@ -102,7 +102,11 @@ export function useSeo({
 
     setMeta("property", "og:title", title);
     setMeta("property", "og:description", description);
-    setMeta("property", "og:type", type === "product" ? "product" : "website");
+    setMeta(
+      "property",
+      "og:type",
+      type === "product" ? "product" : type === "article" ? "article" : "website",
+    );
     setMeta("property", "og:url", canonical);
     setMeta("property", "og:site_name", SITE_DEFAULTS.brand);
     setMeta("property", "og:locale", SITE_DEFAULTS.locale);
@@ -121,11 +125,8 @@ export function useSeo({
     document.getElementById("jsonld-ssr")?.remove();
     if (parsed.length > 0) {
       setJsonLd("page", parsed.length === 1 ? parsed[0] : parsed);
+    } else {
+      document.getElementById("jsonld-page")?.remove();
     }
-
-    return () => {
-      const el = document.getElementById("jsonld-page");
-      if (el) el.remove();
-    };
   }, [title, description, path, type, image, noindex, jsonLdKey]);
 }

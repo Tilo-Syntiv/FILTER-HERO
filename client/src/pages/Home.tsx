@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useHashScroll } from "@/hooks/useHashScroll";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
 import { THICKNESSES } from "@shared/products";
 import { HVAC_BRAND_LIST, featuredBrandFamilies } from "@shared/hvac-brands";
@@ -40,7 +40,6 @@ import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 
 export default function Home() {
   useHashScroll();
-  const [, setLocation] = useLocation();
   const { cartSummaryText } = useCart();
   const [quoteSize, setQuoteSize] = useState("");
   const [quoteMessage, setQuoteMessage] = useState("");
@@ -330,8 +329,12 @@ export default function Home() {
 
       <CartDrawer
         onRequestQuote={() => {
-          takeQuoteHandoff();
-          setLocation("/custom-air-filters#custom-quote");
+          const handed = takeQuoteHandoff();
+          scrollToContact({
+            size: handed.size,
+            message: handed.message,
+            withCart: true,
+          });
         }}
       />
     </div>

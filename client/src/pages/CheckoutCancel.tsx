@@ -34,12 +34,7 @@ export default function CheckoutCancel() {
             variant="outline"
             className="w-full sm:w-auto"
             onClick={() => {
-              setLocation("/");
-              window.setTimeout(() => {
-                document
-                  .getElementById("contact")
-                  ?.scrollIntoView({ behavior: "smooth" });
-              }, 100);
+              window.location.href = "/#contact";
             }}
           >
             Request a quote instead

@@ -55,9 +55,9 @@ export function AllSizesPage() {
         title="Every Filter Hero size"
         photo={LIFE.installWall}
       >
-        Browse every {BRAND_NAME} HVAC size we can supply today. Pick a
+        Browse every Filter King HVAC size in the catalog. Pick a
         whole-inch width to narrow the list, or browse all sizes.{" "}
-        {allSizes.length} sizes in the catalog. Other sizes can be quoted.
+        {allSizes.length} sizes in the catalog. Odd sizes not listed can be quoted.
       </PageHero>
       <main className="sheet-section">
         <div className="container py-10 md:py-14">

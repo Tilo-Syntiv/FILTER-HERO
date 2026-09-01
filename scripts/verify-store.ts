@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { BRAND_EMAIL } from "../shared/const.ts";
 import fs from "node:fs";
 import path from "node:path";
@@ -8,12 +9,14 @@ import {
   FILTER_SIZES,
   MERV_DISPLAY_ORDER,
   MERV_TYPES,
+  FULL_CATALOG,
   SELLABLE_ONLY,
   THICKNESSES,
   findProductVariant,
   getArchivedFilterSize,
   getFilterSize,
   getSizesByThickness,
+  isMervKeyOnSale,
   mervTypesForSize,
   packShotSrc,
   packTotal,
@@ -33,14 +36,16 @@ function assert(cond: unknown, message: string): asserts cond {
 }
 
 assert(BRAND_EMAIL === "info@filterhero.net", `brand email should be info@, got ${BRAND_EMAIL}`);
-assert(SELLABLE_ONLY, "shop must stay on the wholesale allowlist until more costs land");
+assert(FULL_CATALOG, "VITE_FULL_CATALOG / FULL_CATALOG must be true to sell the full Filter King archive");
+assert(!SELLABLE_ONLY, "full catalog means SELLABLE_ONLY is false");
+assert(isMervKeyOnSale("carbon"), "carbon is shoppable when the full catalog is on");
 assert(
   ALL_FILTER_SIZES.length > 9000,
   `archived catalog should stay intact, got ${ALL_FILTER_SIZES.length}`,
 );
 assert(
-  FILTER_SIZES.length === 182,
-  `shop catalog should be the 182 wholesale sizes, got ${FILTER_SIZES.length}`,
+  FILTER_SIZES.length === ALL_FILTER_SIZES.length,
+  `shop catalog should be the full archive (${ALL_FILTER_SIZES.length} sizes), got ${FILTER_SIZES.length}`,
 );
 assert(
   THICKNESSES.join(",") === "0.5,1,2,4,5",
@@ -96,7 +101,7 @@ assert(
 );
 const popularSlugs = popularSizeSlugs(8);
 assert(popularSlugs.includes("16x25x2") && popularSlugs.includes("20x25x2"), "popular chips must include 16x25x2 and 20x25x2");
-assert(!popularSlugs.includes("20x25x4"), "20x25x4 has no wholesale cost and must not be a popular chip");
+assert(getFilterSize("20x25x4"), "20x25x4 is in the Filter King archive and must be shoppable");
 
 const popular = getFilterSize("20x25x1");
 assert(popular, "20x25x1 must exist");
@@ -105,10 +110,6 @@ assert(popular.depth === 1 && popular.width === 20 && popular.length === 25, "20
 for (const type of MERV_TYPES) {
   const variant = findProductVariant("20x25x1", type.merv, type.isCarbon);
   assert(variant, `missing 20x25x1 ${type.name}`);
-  if (type.isCarbon) {
-    assert(!variant.inStock, "20x25x1 carbon is quote-only until wholesale cost exists");
-    continue;
-  }
   assert(variant.inStock, `${type.name} 20x25x1 should be in stock`);
   const unit1 = unitPriceForQty(variant.price, 1, variant);
   const unit6 = unitPriceForQty(variant.price, 6, variant);
@@ -118,16 +119,16 @@ for (const type of MERV_TYPES) {
   assert(Math.abs(total6 - unit6 * 6) < 0.02, `${type.name} pack total mismatch`);
 }
 
-assert(!getFilterSize("20x25x4"), "20x25x4 must not be shoppable");
+assert(getFilterSize("20x25x4"), "20x25x4 must be shoppable in the full catalog");
 assert(getArchivedFilterSize("20x25x4"), "20x25x4 must stay in the archived catalog");
 const fourteen = findProductVariant("14x25x1", 8);
-assert(fourteen?.inStock, "14x25x1 MERV 8 is on the wholesale sheet");
-assert(!findProductVariant("14x25x1", 11)?.inStock, "14x25x1 MERV 11 is not on the wholesale sheet");
-assert(!findProductVariant("16x25x4", 8)?.inStock, "16x25x4 MERV 8 is not on the wholesale sheet");
-assert(findProductVariant("16x25x4", 11)?.inStock, "16x25x4 MERV 11 is on the wholesale sheet");
+assert(fourteen?.inStock, "14x25x1 MERV 8 is in the Filter King archive");
+assert(findProductVariant("14x25x1", 11)?.inStock, "14x25x1 MERV 11 is shoppable in the full catalog");
+assert(findProductVariant("16x25x4", 8)?.inStock, "16x25x4 MERV 8 is shoppable in the full catalog");
+assert(findProductVariant("16x25x4", 11)?.inStock, "16x25x4 MERV 11 is shoppable in the full catalog");
 assert(
-  mervTypesForSize("14x25x1").map((t) => t.key).join(",") === "8",
-  "14x25x1 should only offer MERV 8",
+  mervTypesForSize("14x25x1").map((t) => t.key).join(",") === "8,carbon,11,13",
+  "14x25x1 should offer MERV 8, Carbon, 11, and 13",
 );
 
 let sellableCount = 0;
@@ -137,7 +138,10 @@ for (const size of ALL_FILTER_SIZES) {
     if (variant?.inStock) sellableCount += 1;
   }
 }
-assert(sellableCount === 299, `exactly 299 wholesale SKUs should be in stock, got ${sellableCount}`);
+assert(
+  sellableCount === ALL_FILTER_SIZES.length * MERV_TYPES.length,
+  `every archived size × MERV should be in stock, got ${sellableCount}`,
+);
 
 const sizePages = sitemapPaths().filter((p) => p.path.startsWith("/sizes/")).length;
 assert(sizePages === FILTER_SIZES.length, `sitemap size pages ${sizePages} must match shop catalog`);
@@ -150,18 +154,42 @@ assert(liveListPrice("20x20x1", 8) === 9.99, "20x20x1 MERV 8 qty 1 must match Fi
 assert(liveListPrice("16x25x1", 8) === 9.99, "16x25x1 MERV 8 qty 1 must match Filtrete $9.99");
 assert(liveListPrice("20x20x1", 11) === 13.49, "20x20x1 MERV 11 qty 1 must match Filtrete $13.49");
 assert(liveListPrice("20x25x1", 13) === 22.99, "20x25x1 MERV 13 qty 1 must match Filtrete $22.99");
+assert(
+  liveListPrice("20x25x1", 8, true) === 16.7,
+  `20x25x1 MERV 8 Carbon qty 1 must match Filtrete odor $16.70, got ${liveListPrice("20x25x1", 8, true)}`,
+);
+assert(liveListPrice("20x20x1", 8, true) === 16.7, "20x20x1 carbon qty 1 must match Filtrete odor $16.70");
+assert(
+  typeof liveUnitPrice({ size: "20x25x1", merv: 8, isCarbon: true }, 6) === "number" &&
+    (liveUnitPrice({ size: "20x25x1", merv: 8, isCarbon: true }, 6) as number) <= 16.7,
+  "carbon 6-pack must not exceed the Filtrete odor single",
+);
 const live2 = liveUnitPrice({ size: "20x20x1", merv: 8 }, 2);
 assert(typeof live2 === "number" && live2 <= 9.99, `20x20x1 MERV 8 qty 2 must not exceed the Filtrete single (${live2})`);
 assert(liveUnitPrice({ size: "20x20x1", merv: 11 }, 2) === 11, "20x20x1 MERV 11 qty 2 must match Filtrete $11.00");
 assert(liveUnitPrice({ size: "16x25x1", merv: 11 }, 2) === 11, "16x25x1 MERV 11 qty 2 must match Filtrete $11.00");
 assert(liveUnitPrice({ size: "16x25x1", merv: 13 }, 2) === 15, "16x25x1 MERV 13 qty 2 must match Filtrete $15.00");
-assert(liveUnitPrice({ size: "20x25x1", merv: 13 }, 2) === 15.98, "20x25x1 MERV 13 qty 2 stays on the Filter King undercut");
+assert(liveUnitPrice({ size: "20x25x1", merv: 13 }, 2) === 17.76, "20x25x1 MERV 13 qty 2 must match cheaper Filter King $17.76");
 assert(liveUnitPrice({ size: "20x20x1", merv: 8 }, 12) === 5.18, "20x20x1 MERV 8 qty 12 must match Filtrete Walmart $5.18");
-assert(liveUnitPrice({ size: "16x25x1", merv: 8 }, 12) === 5.43, "16x25x1 MERV 8 qty 12 stays cheaper than Filtrete");
+assert(liveUnitPrice({ size: "16x25x1", merv: 8 }, 12) === 5.83, "16x25x1 MERV 8 qty 12 must match cheaper Filtrete $5.83");
+assert(liveUnitPrice({ size: "20x25x1", merv: 8 }, 6) === 7.49, "20x25x1 MERV 8 qty 6 must match cheaper Filter King $7.49");
+assert(liveUnitPrice({ size: "16x25x1", merv: 8 }, 4) === 8.57, "16x25x1 MERV 8 qty 4 must match cheaper Filter King $8.57");
+assert(liveUnitPrice({ size: "20x20x1", merv: 8 }, 4) === 7.34, "20x20x1 MERV 8 qty 4 must match cheaper Filter King $7.34");
+assert(liveUnitPrice({ size: "16x25x1", merv: 11 }, 6) === 7.55, "16x25x1 MERV 11 qty 6 must match cheaper Filter King $7.55");
+assert(liveUnitPrice({ size: "14x25x1", merv: 11 }, 2) === 13.49, "14x25x1 MERV 11 qty 2 stays at the Filtrete single — no 2-pack scrape");
 const live6 = liveUnitPrice({ size: "20x25x1", merv: 8 }, 6);
 assert(typeof live6 === "number" && live6 <= (live as number), "live 6-pack should undercut or match list");
+assert(liveListPrice("20x25x4", 8) === 30.59, "20x25x4 MERV 8 qty 1 must match cheaper FilterBuy $30.59");
+assert(liveListPrice("20x25x2", 8) === 24.29, "20x25x2 MERV 8 qty 1 must match cheaper FilterBuy $24.29");
+assert(liveListPrice("16x25x4", 8) === 30.59, "16x25x4 MERV 8 qty 1 must match cheaper FilterBuy $30.59");
+assert(liveListPrice("16x25x2", 8) === 28.79, "16x25x2 MERV 8 qty 1 must match cheaper FilterBuy $28.79");
+assert(liveListPrice("16x25x4", 11) === 34.19, "16x25x4 MERV 11 qty 1 must match cheaper FilterBuy $34.19");
+assert(liveUnitPrice({ size: "16x25x4", merv: 8 }, 6) === 14.39, "16x25x4 MERV 8 qty 6 must match cheaper FilterBuy $14.39");
+assert(liveUnitPrice({ size: "20x25x4", merv: 8 }, 6) === 14.91, "20x25x4 MERV 8 qty 6 stays on cheaper Filter King — FilterBuy $14.99");
+assert(liveUnitPrice({ size: "20x25x2", merv: 8 }, 6) === 8.9, "20x25x2 MERV 8 qty 6 stays on cheaper Filter King — FilterBuy $9.75");
+assert(liveListPrice("20x25x4", 13) === 39.95, "20x25x4 MERV 13 qty 1 stays on cheaper Filter King — FilterBuy $42.29");
 const thick = liveListPrice("16x25x4", 11);
-assert(typeof thick === "number" && thick > 22.99, `4-inch qty 1 stays on the Filter King ladder, got ${thick}`);
+assert(typeof thick === "number" && thick > 22.99, `4-inch qty 1 is still above the 1-inch Filtrete 13 ticket, got ${thick}`);
 
 const inch = getSizesByThickness(1);
 assert(inch.length > 20, `1" catalog too small: ${inch.length}`);

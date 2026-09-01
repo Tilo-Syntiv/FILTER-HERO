@@ -258,14 +258,20 @@ export default function FilterPower() {
             </div>
           </div>
 
-          <ReminderCapture result={result} />
+          <ReminderCapture result={result} input={input} />
         </div>
       </div>
     </div>
   );
 }
 
-function ReminderCapture({ result }: { result: ReturnType<typeof computeCadence> }) {
+function ReminderCapture({
+  result,
+  input,
+}: {
+  result: ReturnType<typeof computeCadence>;
+  input: CadenceInput;
+}) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
@@ -283,11 +289,11 @@ function ReminderCapture({ result }: { result: ReturnType<typeof computeCadence>
         body: JSON.stringify({
           name: "Filter Clock reminder",
           email,
-          filterSize: result.recommendedMervName,
           message: [
-            `Remind me before ${result.nextDate}.`,
+            `Clock cadence saved (no email until purchase). Next swap ${result.nextDate}.`,
             `Profile: ${result.house.name} (${result.label}).`,
-            `Recommended: ${result.recommendedMervName}. Suggested pack: ${result.packQty}.`,
+            `Filter: ${formatDepth(input.depth)} ${result.recommendedMervName}.`,
+            `Suggested pack: ${result.packQty}.`,
           ].join(" "),
           intent: "reminder",
         }),
@@ -308,7 +314,8 @@ function ReminderCapture({ result }: { result: ReturnType<typeof computeCadence>
       <div className="flex items-center gap-3 rounded-2xl border border-hero/30 bg-hero/5 p-4">
         <Check className="h-5 w-5 shrink-0 text-hero" />
         <p className="text-sm font-semibold text-navy">
-          You're on the list — we'll email you before {result.nextDate}.
+          Saved. Replacement emails start after you buy — next swap around{" "}
+          {result.nextDate}.
         </p>
       </div>
     );
@@ -318,10 +325,11 @@ function ReminderCapture({ result }: { result: ReturnType<typeof computeCadence>
     <form onSubmit={submit} className="rounded-2xl border border-border bg-white p-4">
       <p className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-primary">
         <Mail className="h-3 w-3" />
-        Get a reminder
+        Save this cadence
       </p>
       <p className="mt-1 text-sm text-muted-foreground">
-        We'll email you a few days before {result.nextDate} — no spam, just the one nudge.
+        Checking the clock does not start emails. After you buy, we&apos;ll remind you
+        before the next swap ({result.nextDate}).
       </p>
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <Input
@@ -338,7 +346,7 @@ function ReminderCapture({ result }: { result: ReturnType<typeof computeCadence>
           className="hero-shop-btn inline-flex h-11 items-center justify-center gap-1.5 px-5 text-sm text-white disabled:opacity-70"
         >
           {status === "sending" ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-          {status === "sending" ? "Saving…" : "Remind me"}
+          {status === "sending" ? "Saving…" : "Save cadence"}
         </button>
       </div>
     </form>

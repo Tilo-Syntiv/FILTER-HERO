@@ -17,7 +17,7 @@ import {
   sitemapPaths,
 } from "../shared/seo";
 import { submitContact } from "./contact";
-import { createCheckoutSession, handleStripeWebhook } from "./stripe";
+import { createCheckoutSession, getCheckoutSessionStatus, handleStripeWebhook } from "./stripe";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -167,6 +167,20 @@ Sitemap: ${absoluteUrl(siteUrl, "/sitemap.xml")}
       thicknesses: THICKNESSES,
       merv: MERV_TYPES.map((t) => t.key),
     });
+  });
+
+  app.get("/api/checkout/session", async (req, res) => {
+    try {
+      const sessionId =
+        typeof req.query.session_id === "string" ? req.query.session_id : "";
+      const result = await getCheckoutSessionStatus(sessionId);
+      res.json(result);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Session lookup failed";
+      const status = message.includes("not configured") ? 503 : 400;
+      if (status !== 400) console.error("[checkout session]", err);
+      res.status(status).json({ error: message, paid: false });
+    }
   });
 
   app.post("/api/checkout", async (req, res) => {

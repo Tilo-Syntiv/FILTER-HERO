@@ -1,7 +1,7 @@
 {
   "source": "Paul Sellaro 2025 Filter King dealer sheet",
   "extractedFrom": ".firecrawl/fk-wholesale-2025.txt",
-  "note": "Shop sells only these size × MERV lines. Keep filter-catalog.json intact. Set SELLABLE_ONLY to false in shared/products.ts to restore every size and carbon.",
+  "note": "Wholesale cost source for 299 size × MERV lines. Keep filter-catalog.json intact. VITE_FULL_CATALOG=true in .env sells every archived size and carbon; false restricts the shop to this list.",
   "sheetRows": 313,
   "count": 299,
   "sizes": 182,

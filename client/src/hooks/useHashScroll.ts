@@ -30,25 +30,34 @@ function nearHashTarget(id: string) {
 /** Scroll to a section after arriving with a hash like /#finder or #custom-quote. */
 export function useHashScroll() {
   useEffect(() => {
-    const id = decodeURIComponent(window.location.hash.replace(/^#/, ""));
-    if (!id) return;
-
     let cancelled = false;
     const timers: ReturnType<typeof setTimeout>[] = [];
 
-    const run = () => {
-      if (cancelled) return;
-      if (!nearHashTarget(id)) scrollToHashTarget(id, "auto");
+    const clearTimers = () => {
+      timers.forEach((timer) => clearTimeout(timer));
+      timers.length = 0;
     };
 
-    run();
-    for (const ms of [80, 200, 450, 800, 1400]) {
-      timers.push(setTimeout(run, ms));
-    }
+    const schedule = () => {
+      const id = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+      if (!id) return;
+      clearTimers();
+      const run = () => {
+        if (cancelled) return;
+        if (!nearHashTarget(id)) scrollToHashTarget(id, "auto");
+      };
+      run();
+      for (const ms of [80, 200, 450, 800, 1400]) {
+        timers.push(setTimeout(run, ms));
+      }
+    };
 
+    schedule();
+    window.addEventListener("hashchange", schedule);
     return () => {
       cancelled = true;
-      timers.forEach((timer) => clearTimeout(timer));
+      clearTimers();
+      window.removeEventListener("hashchange", schedule);
     };
   }, []);
 }

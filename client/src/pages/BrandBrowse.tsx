@@ -93,7 +93,7 @@ export function BrandDetailPage({ slug }: { slug: string }) {
     () => [
       {
         question: `Do you sell genuine ${brand?.name ?? slug} filters?`,
-        answer: `We sell ${BRAND_NAME} replacement filters sized for ${brand?.name ?? "this"} HVAC systems. They are built to the OEM slot dimensions so they drop in like the original media, in MERV 8, 11, and 13 where we have wholesale cost. Carbon and other sizes can be quoted.`,
+        answer: `We sell ${BRAND_NAME} replacement filters sized for ${brand?.name ?? "this"} HVAC systems. They are built to the OEM slot dimensions so they drop in like the original media, in MERV 8, MERV 8 Carbon, 11, and 13. Other sizes can be quoted.`,
       },
       {
         question: `How do I find the right ${brand?.name ?? ""} filter?`,

@@ -178,7 +178,9 @@ function MervCard({
               {type.shortLabel}
             </p>
             <p className="mt-1 text-xs font-semibold text-ice">
-              from ${type.fromPrice.toFixed(2)}
+              {isMervKeyOnSale(type.key)
+                ? `from $${type.fromPrice.toFixed(2)}`
+                : "Quote only"}
             </p>
           </div>
         </div>

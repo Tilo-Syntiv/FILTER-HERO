@@ -1,0 +1,11 @@
+ERV 8, 11, 13",
+    "url": "https://filterking.com/air-filter-sizes/19x23x4a",
+    "image": "https://filterking.com/img/filters/merv-8/air-filter-merv-8.jpg",
+    "description": "Item Model Number: FKFB19X23X4A,  Brand: Filter King,  Filter size: 19x23x4,  Actual Size: 19 x 23 x 3.75,  4-Inch Filter,  MERV 8 Filter Rating,  Protection From: Pollen, Dust, Mold, Dust Mites, Bacteria, Pet Dander, Smoke, Viruses,  Residential / Commercial Use",
+    "sku": "FK19x23x4a-M8",
+    "brand": {
+        "@type": "Brand",
+        "name": "Filter King",
+        "@id": "https://filterking.com#brand"
+    },
+  

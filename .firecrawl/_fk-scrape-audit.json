@@ -1,0 +1,18 @@
+{
+  "catalog_raw_urls": 39831,
+  "catalog_priceable": 39831,
+  "already_have_real_price": 39831,
+  "already_have_raw_scrape": 39831,
+  "missing_live_price": 0,
+  "missing_any_scrape_credits_needed": 0,
+  "have_raw_but_no_price_parse": 0,
+  "ndjson_ok": 4367,
+  "ndjson_fail": 1245,
+  "ndjson_credits_logged": 4367,
+  "harvest_unique_real": 39878,
+  "full_prices_unique": 19291,
+  "live_file_scraped": 39878,
+  "live_file_estimated": 14,
+  "remaining_by_merv": {},
+  "remaining_by_depth": {}
+}

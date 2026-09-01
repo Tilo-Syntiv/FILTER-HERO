@@ -6,7 +6,8 @@ HVAC filter storefront: size finder, catalog, cart, Stripe Checkout, and quote/c
 
 - React 19 + Vite 7 + Tailwind 4 + wouter
 - Express API (checkout, webhook, contact, products)
-- Stripe Checkout + optional Resend email for leads
+- Stripe Checkout (Tax, Customer, Invoice) + optional Resend email for leads
+- Books: QuickBooks Online beside Stripe — see `docs/STRIPE-BOOKS.md`
 
 ## Setup
 
@@ -25,6 +26,7 @@ Edit `.env`:
 | `STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (`pk_test_…`) |
 | `VITE_STRIPE_PUBLISHABLE_KEY` | Same publishable key for the Vite client |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
+| `STRIPE_TAX_CODE` | Optional product tax code (default `txcd_99999999`) |
 | `CONTACT_TO` | Inbox for lead emails |
 | `RESEND_API_KEY` | Optional — if unset, leads save to `server/data/leads.json` only |
 | `RESEND_FROM` | Verified Resend from address |
@@ -63,3 +65,4 @@ Serves the SPA and API from the Express server (`NODE_ENV=production`).
 | `pnpm build` | Client + server bundle → `dist/` |
 | `pnpm start` | Run production server |
 | `pnpm check` | TypeScript check |
+| `pnpm verify:stripe-books` | Mapping checks + live Tax Settings read |

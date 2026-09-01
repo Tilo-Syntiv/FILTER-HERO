@@ -1,13 +1,11 @@
 import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { nanoid } from "nanoid";
 import { Resend } from "resend";
 import { z } from "zod";
 import { BRAND_EMAIL, BRAND_NAME } from "../shared/const";
+import { dataFile } from "./data-store";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const LEADS_PATH = path.resolve(__dirname, "data", "leads.json");
+const LEADS_PATH = dataFile("leads.json");
 
 export const contactSchema = z.object({
   name: z.string().trim().min(1).max(120),
@@ -22,8 +20,6 @@ export const contactSchema = z.object({
 export type ContactPayload = z.infer<typeof contactSchema>;
 
 function ensureLeadsFile() {
-  const dir = path.dirname(LEADS_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   if (!fs.existsSync(LEADS_PATH)) fs.writeFileSync(LEADS_PATH, "[]", "utf-8");
 }
 
@@ -61,13 +57,17 @@ async function sendLeadEmail(lead: ContactPayload & { id: string }) {
     lead.message,
   ].join("\n");
 
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from,
     to: [to],
     replyTo: lead.email,
     subject,
     text,
   });
+  if (error) {
+    console.error("[contact] resend", error);
+    return { emailed: false as const };
+  }
 
   return { emailed: true as const };
 }
@@ -80,6 +80,11 @@ export async function submitContact(raw: unknown) {
     createdAt: new Date().toISOString(),
   };
   appendLead(lead);
-  const emailResult = await sendLeadEmail(lead);
-  return { ok: true as const, id: lead.id, ...emailResult };
+  try {
+    const emailResult = await sendLeadEmail(lead);
+    return { ok: true as const, id: lead.id, ...emailResult };
+  } catch (err) {
+    console.error("[contact] email failed after save", err);
+    return { ok: true as const, id: lead.id, emailed: false as const };
+  }
 }

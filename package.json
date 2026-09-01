@@ -11,6 +11,7 @@
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
+    "verify:stripe-books": "tsx scripts/verify-stripe-books.ts",
     "format": "prettier --write ."
   },
   "dependencies": {

@@ -1,0 +1,316 @@
+{
+  "skuCount": 299,
+  "belowCost": 0,
+  "packInvCount": 43,
+  "packInvSkus": 41,
+  "mervInvCells": 56,
+  "mervInvSizes": 32,
+  "qty2Stuck": 34,
+  "m11inch": 39,
+  "matched11q2": [
+    "14x20x1",
+    "16x20x1",
+    "16x25x1",
+    "20x20x1",
+    "20x25x1"
+  ],
+  "carbonFrom": 6.37,
+  "carbonOnSale": false,
+  "fromPrices": {
+    "8": 4.96,
+    "11": 5.64,
+    "13": 5.69,
+    "carbon": 6.37
+  },
+  "packInvHighVol": [
+    {
+      "size": "14x20x1",
+      "merv": 11,
+      "fromQty": 6,
+      "fromU": 6.37,
+      "toQty": 12,
+      "toU": 6.53,
+      "overpay": 1.92
+    },
+    {
+      "size": "14x20x1",
+      "merv": 13,
+      "fromQty": 6,
+      "fromU": 6.03,
+      "toQty": 12,
+      "toU": 6.18,
+      "overpay": 1.8
+    },
+    {
+      "size": "16x25x1",
+      "merv": 13,
+      "fromQty": 6,
+      "fromU": 6.03,
+      "toQty": 12,
+      "toU": 6.18,
+      "overpay": 1.8
+    },
+    {
+      "size": "16x25x4",
+      "merv": 13,
+      "fromQty": 6,
+      "fromU": 16.38,
+      "toQty": 12,
+      "toU": 18.4,
+      "overpay": 24.24
+    },
+    {
+      "size": "16x25x5",
+      "merv": 11,
+      "fromQty": 2,
+      "fromU": 25.51,
+      "toQty": 4,
+      "toU": 30.83,
+      "overpay": 21.28
+    },
+    {
+      "size": "18x18x1",
+      "merv": 11,
+      "fromQty": 6,
+      "fromU": 5.64,
+      "toQty": 12,
+      "toU": 7.12,
+      "overpay": 17.76
+    },
+    {
+      "size": "19.75x21.5x1",
+      "merv": 8,
+      "fromQty": 6,
+      "fromU": 7.79,
+      "toQty": 12,
+      "toU": 9.99,
+      "overpay": 26.4
+    },
+    {
+      "size": "20x25x5",
+      "merv": 8,
+      "fromQty": 4,
+      "fromU": 20.83,
+      "toQty": 6,
+      "toU": 23.46,
+      "overpay": 15.78
+    },
+    {
+      "size": "20x25x5",
+      "merv": 13,
+      "fromQty": 1,
+      "fromU": 39,
+      "toQty": 2,
+      "toU": 40.83,
+      "overpay": 3.66
+    },
+    {
+      "size": "20x30x1",
+      "merv": 13,
+      "fromQty": 4,
+      "fromU": 8.53,
+      "toQty": 6,
+      "toU": 9.78,
+      "overpay": 7.5
+    },
+    {
+      "size": "20x30x1",
+      "merv": 13,
+      "fromQty": 6,
+      "fromU": 9.78,
+      "toQty": 12,
+      "toU": 10.4,
+      "overpay": 7.44
+    }
+  ],
+  "mervInvCore": [
+    {
+      "size": "14x20x1",
+      "qty": 4,
+      "u8": 7.71,
+      "u11": 7.64,
+      "u13": 8.34,
+      "problem": "11 < 8"
+    },
+    {
+      "size": "14x20x1",
+      "qty": 6,
+      "u8": 6.74,
+      "u11": 6.37,
+      "u13": 6.03,
+      "problem": "11 < 8, 13 < 11, 13 < 8"
+    },
+    {
+      "size": "14x20x1",
+      "qty": 12,
+      "u8": 5.61,
+      "u11": 6.53,
+      "u13": 6.18,
+      "problem": "13 < 11"
+    },
+    {
+      "size": "16x25x1",
+      "qty": 4,
+      "u8": 7.71,
+      "u11": 8.81,
+      "u13": 8.43,
+      "problem": "13 < 11"
+    },
+    {
+      "size": "16x25x1",
+      "qty": 6,
+      "u8": 6.74,
+      "u11": 6.8,
+      "u13": 6.03,
+      "problem": "13 < 11, 13 < 8"
+    },
+    {
+      "size": "16x25x1",
+      "qty": 12,
+      "u8": 5.43,
+      "u11": 6.73,
+      "u13": 6.18,
+      "problem": "13 < 11"
+    },
+    {
+      "size": "16x25x4",
+      "qty": 6,
+      "u11": 16.97,
+      "u13": 16.38,
+      "problem": "13 < 11"
+    },
+    {
+      "size": "16x25x5",
+      "qty": 1,
+      "u8": 35.72,
+      "u11": 42.87,
+      "u13": 39,
+      "problem": "13 < 11"
+    },
+    {
+      "size": "16x25x5",
+      "qty": 2,
+      "u8": 30.82,
+      "u11": 25.51,
+      "u13": 33.44,
+      "problem": "11 < 8"
+    },
+    {
+      "size": "18x18x1",
+      "qty": 4,
+      "u8": 7.71,
+      "u11": 7.64,
+      "u13": 8.43,
+      "problem": "11 < 8"
+    },
+    {
+      "size": "18x18x1",
+      "qty": 6,
+      "u8": 6.74,
+      "u11": 5.64,
+      "u13": 6.87,
+      "problem": "11 < 8"
+    },
+    {
+      "size": "18x18x1",
+      "qty": 12,
+      "u8": 6.07,
+      "u11": 7.12,
+      "u13": 6.8,
+      "problem": "13 < 11"
+    },
+    {
+      "size": "20x25x1",
+      "qty": 6,
+      "u8": 6.74,
+      "u11": 8.52,
+      "u13": 8.42,
+      "problem": "13 < 11"
+    },
+    {
+      "size": "20x25x1",
+      "qty": 12,
+      "u8": 5.88,
+      "u11": 8.29,
+      "u13": 7.39,
+      "problem": "13 < 11"
+    },
+    {
+      "size": "20x25x5",
+      "qty": 1,
+      "u8": 35.72,
+      "u11": 42.87,
+      "u13": 39,
+      "problem": "13 < 11"
+    },
+    {
+      "size": "20x30x1",
+      "qty": 4,
+      "u8": 9.92,
+      "u11": 9.57,
+      "u13": 8.53,
+      "problem": "11 < 8, 13 < 11, 13 < 8"
+    }
+  ],
+  "carbonInvFlagship": [
+    {
+      "size": "14x20x1",
+      "from": 4,
+      "fromU": 8.57,
+      "to": 6,
+      "toU": 9.86
+    },
+    {
+      "size": "14x25x1",
+      "from": 4,
+      "fromU": 8.57,
+      "to": 6,
+      "toU": 10.85
+    },
+    {
+      "size": "16x20x1",
+      "from": 4,
+      "fromU": 8.32,
+      "to": 6,
+      "toU": 11.84
+    },
+    {
+      "size": "16x25x1",
+      "from": 4,
+      "fromU": 8.57,
+      "to": 6,
+      "toU": 9.86
+    },
+    {
+      "size": "20x20x1",
+      "from": 4,
+      "fromU": 7.34,
+      "to": 6,
+      "toU": 11.17
+    },
+    {
+      "size": "20x25x1",
+      "from": 4,
+      "fromU": 9.3,
+      "to": 6,
+      "toU": 11.49
+    }
+  ],
+  "carbonNonMono": 116,
+  "fkNonMono": 618,
+  "fkScraped": "2026-08-29",
+  "qty2StuckSample": [
+    "10x36x1",
+    "12x12x1",
+    "12x24x1",
+    "14x14x1",
+    "14x24x1",
+    "14x30x1",
+    "16x16x1",
+    "16x19x1",
+    "17.5x22x1",
+    "17x21x1",
+    "18x18x1",
+    "18x20x1"
+  ]
+}

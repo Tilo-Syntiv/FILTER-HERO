@@ -14,7 +14,283 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-116**
+Next id: **FH-139**
+
+---
+
+### FH-138 — Match FilterBuy on confirmed cheaper 2-inch / 4-inch rungs
+- **Status:** mitigated
+- **Area:** pricing
+- **Symptom:** After FH-136, Filtrete-gap 2-inch and 4-inch rungs stayed on Filter King × 0.90. FilterBuy’s Sep 1, 2026 10% sale (ends Sep 7) was cheaper on those singles and some packs.
+- **Do NOT:** Stamp FilterBuy across sizes or MERVs we did not scrape. Do not match HDX. Do not undercut FilterBuy another 10%. Do not invent 16x25x2 MERV 13, 16x20x2 MERV 13, or 20x25x4 MERV 13 tickets — FilterBuy is not cheaper there.
+- **Do:** `FILTERBUY_PACKS` holds only confirmed cheaper FilterBuy sale units. `liveUnitPrice` = min(existing Hero, FilterBuy) on those rungs. 6-packs that already beat FilterBuy stay on Filter King.
+- **Files:** `shared/pricing/engine.ts`, `shared/products.ts`, `scripts/verify-store.ts`, `docs/WHOLESALE-PRICE-LISTS.md`
+- **Verify:** `pnpm exec tsx scripts/verify-store.ts` — 20x25x4 MERV 8 qty 1 === 30.59; 20x25x2 MERV 8 qty 1 === 24.29; 16x25x4 MERV 8 qty 6 === 14.39; 20x25x4 MERV 8 qty 6 === 14.91; 20x25x4 MERV 13 qty 1 === 39.95.
+- **Added:** 2026-09-01
+
+---
+
+### FH-137 — Filtrete-gap rungs: cheapest peer is FilterBuy; HDX undercuts MERV 8 store-brand
+- **Status:** mitigated
+- **Area:** pricing
+- **Symptom:** Rungs with no Filtrete listing still use Filter King × 0.90. Live Sep 1, 2026 research: FilterBuy (10% sale through Sep 7) beats Hero on several 2-inch and 4-inch qty-1 tickets. HDX MERV 8 at Home Depot is $3.50–$5.98 and sits near or below wholesale — not the same pleat. Do not invent Filtrete packs.
+- **Do NOT:** Stamp FilterBuy or HDX tickets across sizes we did not scrape. Do not match HDX 3-packs we do not sell.
+- **Do:** If we match the cheapest true peer, add confirmed FilterBuy rungs the same way as `FILTRETE_PACKS`. Keep HDX as a separate store-brand compare. FilterBuy match landed as FH-138.
+- **Files:** `docs/ISSUES-AND-FIXES.md`, `shared/pricing/engine.ts`
+- **Verify:** FilterBuy 20x25x4 / 14x25x1 / 20x25x2 hubs; Home Depot HDX 14x25x1 and 20x30x1.
+- **Added:** 2026-09-01
+
+---
+
+### FH-136 — Match the cheaper of Filtrete and Filter King on compared rungs
+- **Status:** mitigated
+- **Area:** pricing
+- **Symptom:** Hero undercut Filter King by 10% even on rungs where Filter King was already cheaper than Filtrete, and stayed under Filtrete’s Office Depot 12-pack on 16x25x1 MERV 8.
+- **Do NOT:** Invent Filtrete multi-packs. Do not apply the 10% undercut on a rung that already has both a Filtrete listing and a Filter King listing. Do not drop `FILTRETE_1INCH_QTY1`.
+- **Do:** `liveUnitPrice` = `min(Filtrete, Filter King)` when both exist. Otherwise 1-inch qty 1 = Filtrete; other rungs = Filter King × 0.90 (× 0.88 if modeled), capped at the Filtrete single.
+- **Files:** `shared/pricing/engine.ts`, `shared/products.ts`, `scripts/verify-store.ts`, `docs/WHOLESALE-PRICE-LISTS.md`
+- **Verify:** `pnpm exec tsx scripts/verify-store.ts` — 20x25x1 MERV 8 qty 6 === 7.49; 16x25x1 MERV 8 qty 12 === 5.83; 20x25x1 MERV 13 qty 2 === 17.76; 14x25x1 MERV 11 qty 2 === 13.49.
+- **Added:** 2026-09-01
+
+---
+
+### FH-135 — Full-catalog Filtrete match still leaves pack, MERV, and thick-size gaps
+- **Status:** open
+- **Area:** pricing
+- **Symptom:** After FH-134, every 1-inch qty 1 (8 / 11 / 13 / carbon) matches a Filtrete 1-pack. Shoppers still see: (1) 253 pack rungs where a bigger pack costs more per filter (102 of those are carbon qty 4 cheaper than qty 6, copied from Filter King); (2) 815 size × qty cells where a higher MERV is cheaper; (3) Filtrete MERV 11 2-pack $11.00 only on five sizes — 9,376 other 1-inch MERV 11 stay at $13.49 at qty 2; (4) 2" / 4" / 5" / 0.5" (2,308 SKUs) have no Filtrete table, so they stay on Filter King × 0.90; (5) carbon is Filter King MERV 8 Carbon priced to Filtrete MERV 11 odor; (6) off-sheet SKUs, including all carbon, have no wholesale cost.
+- **Do NOT:** Invent Filtrete 4-inch or 2-pack tickets. Do not expand `FILTRETE_BEAT` beyond confirmed scrapes. Do not flatten pack inversions by raising cheap rungs without a new rule.
+- **Do:** Keep 1-inch qty 1 on `FILTRETE_1INCH_QTY1`. Add a Filtrete-beat row only when a live Filtrete multi-pack still undercuts us. Thick sizes stay on the Filter King undercut unless a confirmed FilterBuy ticket is cheaper (FH-138).
+- **Files:** `shared/pricing/engine.ts`, `docs/WHOLESALE-PRICE-LISTS.md`
+- **Verify:** Canvas `filtrete-match-gaps.canvas.tsx`. `pnpm exec tsx scripts/verify-store.ts`.
+- **Added:** 2026-09-01
+
+---
+
+### FH-134 — 1-inch carbon qty 1 did not match Filtrete odor
+- **Status:** mitigated
+- **Area:** pricing
+- **Symptom:** Full catalog put MERV 8 Carbon on sale, but `filtreteQty1` returned undefined for carbon, so qty 1 was Filter King × 0.90 (~$37.40 on 20x25x1) instead of Filtrete Allergen Defense Odor Reduction $16.70.
+- **Do NOT:** Drop carbon from `FILTRETE_1INCH_QTY1`. Do not treat Filtrete odor as MERV 8. Do not invent a carbon 2-pack beat without a scrape.
+- **Do:** 1-inch carbon qty 1 = Lowe’s Filtrete odor 1-pack $16.70 (same flat-ticket rule as MERV 8 / 11 / 13). Multi-packs stay on the Filter King undercut, capped at that single.
+- **Files:** `shared/pricing/engine.ts`, `shared/products.ts`, `scripts/verify-store.ts`, `docs/WHOLESALE-PRICE-LISTS.md`
+- **Verify:** `pnpm exec tsx scripts/verify-store.ts` — 20x25x1 and 20x20x1 carbon qty 1 === 16.70; carbon 6-pack ≤ 16.70.
+- **Added:** 2026-09-01
+
+---
+
+### FH-133 — Full Filter King catalog stayed behind a code flag the .env did not read
+- **Status:** mitigated
+- **Area:** catalog
+- **Symptom:** `.env` already had `VITE_FULL_CATALOG=true`, but the shop still sold only the 299 wholesale-sheet SKUs. `SELLABLE_ONLY` was hardcoded `true` in `shared/products.ts`, so carbon, 20x25x4, and off-sheet MERVs stayed quote-only.
+- **Do NOT:** Hardcode `SELLABLE_ONLY = true`. Do not ignore `VITE_FULL_CATALOG` / `FULL_CATALOG`. Do not delete `shared/filter-catalog.json` or `shared/sellable-skus.json`.
+- **Do:** `VITE_FULL_CATALOG=true` (and `FULL_CATALOG=true` for the API) sells every archived size × MERV, including carbon. `false` restores the wholesale allowlist. Checkout still refuses `inStock: false`.
+- **Files:** `shared/products.ts`, `.env.example`, `scripts/verify-store.ts`, `shared/seo.ts`, `client/public/llms.txt`, `docs/WHOLESALE-PRICE-LISTS.md`
+- **Verify:** `pnpm exec tsx scripts/verify-store.ts`. `/sizes/20x25x4` and `/sizes/20x25x1?merv=carbon` add to cart. `/#merv` Carbon card shows `from $`.
+- **Added:** 2026-09-01
+
+---
+
+### FH-132 — Checkout collected no sales tax and no Stripe customer
+- **Status:** mitigated
+- **Area:** cart
+- **Symptom:** Payment-mode Checkout had line items and a US address but no `automatic_tax`, no product tax code, and no Customer/Invoice. QBO/Stripe Connector had nothing to attach; catalog prices never grew tax.
+- **Do NOT:** Drop `automatic_tax`, `customer_creation: "always"`, `invoice_creation`, exclusive `tax_behavior`, or `txcd_99999999` on filter line items. Do not invent a different `txcd_` without Stripe’s tax-code list.
+- **Do:** Keep Tax on Checkout. Persist subtotal/tax/customer/invoice/payment_intent on `orders.json`. Head office + registrations still happen in the Dashboard — code cannot collect tax without them.
+- **Files:** `server/stripe.ts`, `shared/stripe-tax.ts`, `client/src/pages/CheckoutSuccess.tsx`, `docs/STRIPE-BOOKS.md`, `scripts/verify-stripe-books.ts`
+- **Verify:** `pnpm exec tsx scripts/verify-stripe-books.ts`. Start checkout — Stripe Customer is created; tax line appears only after Tax Settings are active and a registration exists for the ship-to state.
+- **Added:** 2026-09-01
+
+---
+
+### FH-131 — Filter Clock must not send replacement emails before a purchase
+- **Status:** mitigated
+- **Area:** clock
+- **Symptom:** Clock copy promised “we’ll email you before {date}” when someone only checked or saved a cadence. Replenish mail must not start until they buy.
+- **Do NOT:** Enroll `replenish` (or any send) from Filter Clock check, house-profile save, or `Signed Up Reminder` / `intent: "reminder"` without `Placed Order`.
+- **Do:** Clock is a calculator. Store cadence on the profile if they save it. Set the sendable `next_change_date` and enroll replenish only on `Placed Order` (`paid_at + interval`). Copy must say emails start after checkout.
+- **Files:** `docs/KLAVIYO-REPLICA-PLAN.md`, `client/src/components/FilterPower.tsx`
+- **Verify:** Clock save / check produces no customer replenish mail. A paid order does.
+- **Added:** 2026-09-01
+
+---
+
+### FH-130 — Stale public robots.txt and llms.txt lagged the server
+- **Status:** mitigated
+- **Area:** seo
+- **Symptom:** `client/public/robots.txt` omitted AI crawler rules the Express route already allowed. Static `llms.txt` said carbon had bulk pricing after carbon became quote-only.
+- **Do NOT:** Let the copied public files contradict `shared/seo.ts` / `server/index.ts`.
+- **Do:** Keep static copies aligned with the server generators (AI bots allowed; carbon quote-only). Prefer the Express routes in production.
+- **Files:** `client/public/robots.txt`, `client/public/llms.txt`, `server/index.ts`, `shared/seo.ts`
+- **Verify:** `/robots.txt` and `/llms.txt` via the API server; `vite preview` still has matching static files.
+- **Added:** 2026-08-31
+
+---
+
+### FH-129 — SPA navigation dropped `og:type=article`
+- **Status:** mitigated
+- **Area:** seo
+- **Symptom:** Filter Change Guide is an article in SSR, but client `useSeo` always set `og:type` to `website` unless the page was a product.
+- **Do NOT:** Map only `product` vs everything-else-as-website.
+- **Do:** Pass through `article` as `og:type=article`.
+- **Files:** `client/src/hooks/useSeo.ts`
+- **Verify:** `/how-often-to-change-air-filter` — document head `og:type` is `article`.
+- **Added:** 2026-08-31
+
+---
+
+### FH-128 — Unsellable cart lines vanished on reload with no notice
+- **Status:** mitigated
+- **Area:** cart
+- **Symptom:** `normalizeCart()` dropped SKUs that were no longer `inStock` (carbon, delisted wholesale) on hydrate. Shoppers saw a smaller cart and no explanation.
+- **Do NOT:** Silently omit those lines on `loadCart()`.
+- **Do:** Toast when one or more saved lines cannot be restored.
+- **Files:** `client/src/contexts/CartContext.tsx`
+- **Verify:** Seed `fpf-cart-v1` with an unknown `productId`, reload — toast fires, remaining good lines stay.
+- **Added:** 2026-08-31
+
+---
+
+### FH-127 — Checkout cancel “quote instead” raced Home paint
+- **Status:** mitigated
+- **Area:** cart
+- **Symptom:** Cancel page called `setLocation("/")` then scrolled to `#contact` after 100ms. Home often had not painted, so the scroll no-op’d and the URL had no hash for `useHashScroll`.
+- **Do NOT:** Timebox a scroll after a client route change with no hash.
+- **Do:** Navigate with `window.location.href = "/#contact"` so Home mounts and hash-scrolls.
+- **Files:** `client/src/pages/CheckoutCancel.tsx`
+- **Verify:** `/checkout/cancel` → Request a quote instead → lands on `/#contact`.
+- **Added:** 2026-08-31
+
+---
+
+### FH-126 — Filter Clock reminder stored MERV as “filter size”
+- **Status:** mitigated
+- **Area:** clock
+- **Symptom:** Reminder POST sent `filterSize: "MERV 11"` instead of Width × Length × Depth. Leads looked like a size request.
+- **Do NOT:** Put `recommendedMervName` in `filterSize`.
+- **Do:** Leave `filterSize` empty. Put depth + MERV + pack in `message`.
+- **Files:** `client/src/components/FilterPower.tsx`
+- **Verify:** Submit a Filter Clock reminder — lead `filterSize` is empty; message names thickness and MERV.
+- **Added:** 2026-08-31
+
+---
+
+### FH-125 — Carbon carousel showed a “from $” price while quote-only
+- **Status:** mitigated
+- **Area:** pricing
+- **Symptom:** MERV 8 Carbon is not on the wholesale allowlist, but the home MERV deck still rendered `from $6.37`.
+- **Do NOT:** Display `fromPrice` for a rating `isMervKeyOnSale` rejects.
+- **Do:** Show “Quote only” when the rating is not on sale.
+- **Files:** `client/src/components/MervCarousel.tsx`, `scripts/verify-store.ts`
+- **Verify:** `/#merv` — Carbon card says Quote only. `pnpm exec tsx scripts/verify-store.ts`
+- **Added:** 2026-08-31
+
+---
+
+### FH-124 — Contact email failure returned 400 after the lead was saved
+- **Status:** mitigated
+- **Area:** contact
+- **Symptom:** `appendLead()` ran, then Resend threw or returned `{ error }`. The API answered 400, so the shopper retried and duplicated the lead.
+- **Do NOT:** Treat a saved lead as a failed submit just because email delivery failed.
+- **Do:** Return `{ ok: true, emailed: false }` after a successful save. Log the Resend error.
+- **Files:** `server/contact.ts`
+- **Verify:** POST `/api/contact` with no `RESEND_API_KEY` still returns `{ ok: true }`.
+- **Added:** 2026-08-31
+
+---
+
+### FH-123 — Stripe webhook wrote duplicate orders on retry
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** Every `checkout.session.completed` appended to `orders.json`. Stripe retries created duplicate rows for the same `session.id`.
+- **Do NOT:** Push an order when that `sessionId` already exists.
+- **Do:** Skip duplicates. Persist shipping + phone from the session.
+- **Files:** `server/stripe.ts`
+- **Verify:** Handle the same completed event twice — `orders.json` has one row.
+- **Added:** 2026-08-31
+
+---
+
+### FH-122 — Production leads and orders wrote into `dist/data`
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** Paths used `__dirname/data`. Dev wrote `server/data/`. Production `dist/index.js` wrote `dist/data/`, which a redeploy wipes.
+- **Do NOT:** Resolve lead/order files from the bundled file’s directory.
+- **Do:** Write to `DATA_DIR` or `<cwd>/server/data`.
+- **Files:** `server/data-store.ts`, `server/contact.ts`, `server/stripe.ts`, `.env.example`
+- **Verify:** After `pnpm start`, new leads land in `server/data/leads.json`.
+- **Added:** 2026-08-31
+
+---
+
+### FH-121 — Success page cleared the cart without verifying payment
+- **Status:** mitigated
+- **Area:** cart
+- **Symptom:** Visiting `/checkout/success` with no `session_id` still called `clearCart()` and said “Payment successful.”
+- **Do NOT:** Trust the success URL alone.
+- **Do:** `GET /api/checkout/session?session_id=` and clear the cart only when Stripe says `paid`.
+- **Files:** `server/stripe.ts`, `server/index.ts`, `client/src/pages/CheckoutSuccess.tsx`
+- **Verify:** Open `/checkout/success` — cart stays, copy says no session. Invalid `session_id` does not clear the cart.
+- **Added:** 2026-08-31
+
+---
+
+### FH-120 — Stripe Checkout did not collect a shipping address
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** `checkout.sessions.create()` had line items only. Stripe could charge with no deliverable US address.
+- **Do NOT:** Create payment-mode sessions without `shipping_address_collection`.
+- **Do:** Collect US shipping addresses and phone. Store them on the webhook order.
+- **Files:** `server/stripe.ts`
+- **Verify:** Start checkout — Stripe asks for a US shipping address.
+- **Added:** 2026-08-31
+
+---
+
+### FH-119 — Hash scroll only ran on first mount
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** `useHashScroll` used `[]` deps and no `hashchange` listener. Back/Forward between `/#contact` and `/#finder` did not re-scroll because Home stayed mounted.
+- **Do NOT:** Scroll hash targets only once per page mount.
+- **Do:** Re-run on `hashchange` with the same retry timers.
+- **Files:** `client/src/hooks/useHashScroll.ts`
+- **Verify:** On `/`, click footer Contact then Finder in the header — each hash scrolls to the matching section.
+- **Added:** 2026-08-31
+
+---
+
+### FH-118 — Hero pack tiles ignored the selected MERV
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** MERV 8 / Carbon / 11 / 13 packs all linked to `/sizes/20x25x1` with no `?merv=` and no preferred-MERV stash. Carbon is not even sellable.
+- **Do NOT:** Point every pack at the default MERV 8 PDP.
+- **Do:** Shopable packs go to `/sizes/20x25x1?merv={key}` and `setPreferredMerv`. Carbon (quote-only) goes to `/custom-air-filters`.
+- **Files:** `client/src/components/Hero.tsx`
+- **Verify:** `/` — MERV 13 pack opens 20x25x1 on MERV 13. Carbon pack opens custom quote.
+- **Added:** 2026-08-31
+
+---
+
+### FH-117 — Cart quote handoff was cleared before the destination page could read it
+- **Status:** mitigated
+- **Area:** cart
+- **Symptom:** `CartDrawer` stashed the cart, then Home and Filter Change Guide called `takeQuoteHandoff()` and navigated away. The destination form read an empty stash, so “Cart attached” never appeared.
+- **Do NOT:** Call `takeQuoteHandoff()` and then leave the page that needs that payload.
+- **Do:** On Home, consume the stash into the contact form and scroll to `#contact`. On other pages, navigate to `/#contact` and let Home’s mount effect take it.
+- **Files:** `client/src/pages/Home.tsx`, `client/src/pages/FilterChangeGuide.tsx`, `client/src/lib/quote-handoff.ts`
+- **Verify:** Add a size to cart on Home → Request a quote → contact form shows the cart summary. Repeat from `/how-often-to-change-air-filter`.
+- **Added:** 2026-08-31
+
+---
+
+### FH-116 — Hero video used invalid React `defaultMuted` prop
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** `pnpm check` (`tsc --noEmit`) failed: `defaultMuted` is not a valid React `<video>` prop, so the client typecheck did not pass.
+- **Do NOT:** Put `defaultMuted` back on the JSX `<video>` element.
+- **Do:** Keep `muted` on the element. Set `node.muted` and `node.defaultMuted` on the video ref so autoplay still starts muted.
+- **Files:** `client/src/components/Hero.tsx`
+- **Verify:** `pnpm check`
+- **Added:** 2026-08-31
 
 ---
 

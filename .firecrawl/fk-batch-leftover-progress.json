@@ -1,0 +1,8 @@
+{
+  "total_urls": 20540,
+  "already_done": 1000,
+  "pending": 19540,
+  "scraped_this_run": 1000,
+  "failed_this_run": 0,
+  "chunks_done": 20
+}
