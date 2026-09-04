@@ -30,6 +30,7 @@ export const LIFE = {
     alt: "A woman sneezing into a tissue in a sunlit meadow thick with pollen",
     width: 360,
     height: 240,
+    position: "28% center",
   },
   cookingWithLove: {
     src: "/life/cooking-with-love.jpg",

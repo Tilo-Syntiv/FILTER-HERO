@@ -14,9 +14,19 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-163**
+Next id: **FH-164**
 
 ---
+
+### FH-163 — Catch-card photos were not one size
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** On homepage `#merv`, MERV 8 / 11 / 13 used a short `h-28` strip while MERV 8 Carbon used `aspect-[4/3]`. The cooking photo looked taller; the other three read as panoramic bars.
+- **Do NOT:** Restore the carbon-only `aspect-[4/3]` / `h-28` split. Do not force `LIFE.familyCooking` back through `h-28` (FH-162 — that crops the pot).
+- **Do:** All four `MervCard` LifeImages share `aspect-[4/3]`. Carbon source is 1472×1104 (4:3). Landscape sources cover-crop; keep `LIFE.pollenSneeze` `object-position: 28% center` so the sneezing woman stays in frame.
+- **Files:** `client/src/components/MervCarousel.tsx`, `client/src/data/life-photos.ts`
+- **Verify:** Homepage `#merv` — four header photos the same 4:3 height. Carbon still shows pot, steam, and all four people.
+- **Added:** 2026-09-04
 
 ### FH-162 — MERV 8 Carbon cooking photo cropped the pot out
 - **Status:** mitigated

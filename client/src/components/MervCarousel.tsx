@@ -165,10 +165,7 @@ function MervCard({
         {photo ? (
           <LifeImage
             photo={photo}
-            className={cn(
-              "mb-5 rounded-xl",
-              type.key === "carbon" ? "aspect-[4/3]" : "h-28",
-            )}
+            className="mb-5 aspect-[4/3] rounded-xl"
             sizes="(max-width: 1024px) 80vw, 280px"
           />
         ) : null}
