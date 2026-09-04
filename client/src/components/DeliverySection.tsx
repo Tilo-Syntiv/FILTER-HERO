@@ -58,11 +58,8 @@ function DeliveryMap() {
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl"
-      style={{
-        background: MAP_COLORS.bg,
-        boxShadow: "inset 0 0 0 1px rgba(32, 56, 104, 0.12)",
-      }}
+      className="delivery-map-frame relative overflow-hidden rounded-2xl"
+      style={{ ["--map-wash" as string]: MAP_COLORS.bg }}
     >
       <svg
         viewBox={`0 0 ${MAP_VIEW.width} ${MAP_VIEW.height}`}
@@ -71,7 +68,6 @@ function DeliveryMap() {
         className="block h-auto w-full"
       >
         <title>US delivery map</title>
-        <rect width={MAP_VIEW.width} height={MAP_VIEW.height} fill={MAP_COLORS.bg} />
 
         <defs>
           <clipPath id="us-land">

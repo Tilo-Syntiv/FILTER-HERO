@@ -14,9 +14,29 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-164**
+Next id: **FH-166**
 
 ---
+
+### FH-165 — Delivery map sat in a solid blue square
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** Homepage `#delivery` wrapped the US map in a solid `#d4e0ee` rounded card. The 3-day states (`#7ea8d4`) blended into that fill, so the map silhouette disappeared into a light-blue slab.
+- **Do NOT:** Restore a solid `MAP_COLORS.bg` fill on the frame or the SVG `<rect>`. Do not paint an opaque ocean behind the states.
+- **Do:** Keep `.delivery-map-frame` as a faded wash into the white sheet (`radial-gradient` to transparent). States stay the only opaque blues so the US shape reads.
+- **Files:** `client/src/components/DeliverySection.tsx`, `client/src/index.css`
+- **Verify:** Homepage `#delivery` — rounded square is a faint wash; WA / MT / ND / ME edges are visible against the sheet.
+- **Added:** 2026-09-04
+
+### FH-164 — Capture dots were smaller than MERV 13
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** On homepage `#merv` (and size-page Capture), MERV 8 / Carbon / 11 used even 8–10px dots. MERV 13 used the growing 7 / 10 / 13 / 16 / 19 scale, so its row read larger.
+- **Do NOT:** Restore per-rating `grow: false` or a smaller even size for 8 / carbon / 11. Do not invent a second dot scale.
+- **Do:** Every `CaptureDots` row uses the MERV 13 sizes (`7 + i * 3`). Fill count still follows `MERV_GUIDE.strength`. Carbon keeps the ice accent.
+- **Files:** `client/src/components/CaptureDots.tsx`
+- **Verify:** Homepage `#merv` and `/sizes/20x25x1` — all four Capture rows share the same five circle sizes. MERV 13 still fills all five.
+- **Added:** 2026-09-04
 
 ### FH-163 — Catch-card photos were not one size
 - **Status:** mitigated

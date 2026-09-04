@@ -2335,6 +2335,16 @@ a.hero-ghost-btn:focus-visible {
   background: #ffffff;
 }
 
+.delivery-map-frame {
+  --map-wash: #d4e0ee;
+  background: radial-gradient(
+    ellipse 88% 80% at 50% 46%,
+    color-mix(in srgb, var(--map-wash) 42%, transparent) 0%,
+    color-mix(in srgb, var(--map-wash) 14%, transparent) 62%,
+    transparent 100%
+  );
+}
+
 .glass-tile {
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.15);

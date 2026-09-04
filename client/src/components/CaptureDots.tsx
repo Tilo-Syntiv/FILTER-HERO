@@ -1,15 +1,9 @@
 import type { PreferredMerv } from "@/lib/merv-pref";
 import { MERV_GUIDE } from "@/lib/merv-guide";
 
-const DOT_SPEC: Record<
-  PreferredMerv,
-  { grow: boolean; size: number; accent?: string }
-> = {
-  "8": { grow: false, size: 8 },
-  carbon: { grow: false, size: 8, accent: "#f7f8fb" },
-  "11": { grow: false, size: 10 },
-  "13": { grow: true, size: 7 },
-};
+const BASE = 7;
+const STEP = 3;
+const CARBON_ACCENT = "#f7f8fb";
 
 export default function CaptureDots({
   merv,
@@ -18,16 +12,15 @@ export default function CaptureDots({
   merv: PreferredMerv;
   compact?: boolean;
 }) {
-  const spec = DOT_SPEC[merv];
   const filled = MERV_GUIDE[merv].strength;
-  const accent = spec.accent ?? MERV_GUIDE[merv].accent;
+  const accent = merv === "carbon" ? CARBON_ACCENT : MERV_GUIDE[merv].accent;
   const scale = compact ? 0.82 : 1;
 
   return (
     <div className="flex items-end justify-center gap-1.5" aria-hidden>
       {Array.from({ length: 5 }).map((_, i) => {
         const on = i < filled;
-        const size = (spec.grow ? spec.size + i * 3 : spec.size) * scale;
+        const size = (BASE + i * STEP) * scale;
         return (
           <span
             key={i}
