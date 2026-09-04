@@ -14,7 +14,281 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-139**
+Next id: **FH-163**
+
+---
+
+### FH-162 — MERV 8 Carbon cooking photo cropped the pot out
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After FH-161 the family-of-four photo sat in the same `h-28` strip as the other catch cards. `object-cover` kept faces and steam and cut the pot, spoon, and food — shoppers could not see them cooking.
+- **Do NOT:** Force `LIFE.familyCooking` through the short 2.6:1 header. Do not rely on `object-position` to reveal a square source in `h-28`.
+- **Do:** Keep a 4:3 people-and-pot crop on `/life/family-cooking.jpg`. Give only the carbon tile `aspect-[4/3]` so the pot stays in frame.
+- **Files:** `client/src/data/life-photos.ts`, `client/src/components/MervCarousel.tsx`, `client/public/life/family-cooking.jpg`
+- **Verify:** Homepage `#merv` MERV 8 Carbon card — pot, steam, and all four people visible.
+- **Added:** 2026-09-04
+
+### FH-161 — MERV 8 Carbon catch card used the pizza-topping kitchen photo
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The MERV 8 Carbon tile in What should your filter catch? showed a woman and two children topping a pizza. The shopper-supplied family-of-four cooking photo belongs in that card slot, cropped so faces stay readable in the short header.
+- **Do NOT:** Swap `LIFE.cookingWithLove` globally. Do not drop a square source into `object-cover` without a landscape people crop.
+- **Do:** Keep a dedicated `LIFE.familyCooking` (`/life/family-cooking.jpg`, ~2.6:1 faces-and-steam crop) and point only `MervCarousel` HOME_PICKS key `carbon` at it.
+- **Files:** `client/src/data/life-photos.ts`, `client/src/components/MervCarousel.tsx`, `client/public/life/family-cooking.jpg`
+- **Verify:** Homepage `#merv` MERV 8 Carbon card header.
+- **Added:** 2026-09-04
+
+### FH-160 — Flyer grew off-screen; last pose was not the logo
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The live Seedance clip ended with the mascot filling the hero height (head and feet cropped). The last pose was not the Filter Hero logo flyer (profile right, leading fist, tucked knee, cape streaming left with filter-grid lining).
+- **Do NOT:** Shrink the live `<video>` with `transform: scale(<1)` — that boxes the plate (FH-154–158). Do not swap the Seedance flight for a pose-sprite wander. Do not use `nav-icon.png` as the end pose.
+- **Do:** Keep the clip full-bleed (`inset: 0` / `object-fit: cover`). Compose Seedance onto 4K navy at ~52% plate width so he stays in frame, feather and match Seedance navy so the inset does not read as a rectangle, then crossfade/hold the `logo.png` flyer cutout. Cache `?v=fh160`.
+- **Files:** `client/public/hero/character-fly-natural.mp4`, `client/public/hero/character-fly-natural.webm`, `client/public/hero/character-fly-still.png`, `client/src/components/Hero.tsx`, `scripts/_compose_hero_fly_logo_end.py`
+- **Verify:** Homepage hero — flyer stays on-screen for the whole loop; last hold is the logo pose; no square around the plate.
+- **Added:** 2026-09-04
+
+---
+
+### FH-159 — Fly clip still read as a boxed plate inside the lineup
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After FH-158 the video still sat in `.hero-character-slot` inside the lineup, so it could letterbox as a 16:9 square on the CSS navy.
+- **Do NOT:** Nest the live fly clip in `.hero-lineup` / a sized slot. Do not scale the plate below 1.
+- **Do:** Mount `HeroCharacter` as `.hero-sky-fill` on the stage — `position: absolute; inset: 0; object-fit: cover`. Stage fallback is `#1a2f50`.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** Homepage hero — navy video is the full stage. No rectangle around the flyer.
+- **Added:** 2026-09-04
+
+---
+
+### FH-158 — Scaled fly plate showed a square in the navy
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** FH-154–157 shrank the whole video with `scale(0.78–0.9)`, so the 16:9 plate sat as a rectangle on the hero navy.
+- **Do NOT:** Scale `.hero-character` below 1 to shrink the mascot. That boxes the clip. Do not bring back the masked 37% slot.
+- **Do:** Video and still stay `inset: 0` / `object-fit: cover` with no transform, so the navy plate is the stage.
+- **Files:** `client/src/index.css`
+- **Verify:** Homepage hero — no square edge around the fly clip. Stage navy is the video.
+- **Added:** 2026-09-04
+
+---
+
+### FH-157 — Hero flyer still a tad large after FH-156
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After `scale(0.84)` the mascot still read a bit big on the full-bleed plate.
+- **Do NOT:** Bring back the boxed slot, mask, or drop-shadow. Do not jump from 0.78 to a much smaller scale.
+- **Do:** Keep the plate full-bleed. Flyer scale is `0.78`.
+- **Files:** `client/src/index.css`
+- **Verify:** Homepage hero — same Seedance clip, slightly smaller than FH-156.
+- **Added:** 2026-09-04
+
+---
+
+### FH-156 — Hero flyer still a tad large after FH-154
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After the 4K full-bleed plate, `scale(0.9)` still read a bit big against the copy and packs.
+- **Do NOT:** Bring back the boxed slot, mask, or drop-shadow. Do not jump from 0.84 to a much smaller scale.
+- **Do:** Keep the plate full-bleed. Flyer scale is `0.84`.
+- **Files:** `client/src/index.css`
+- **Verify:** Homepage hero — same Seedance clip, slightly smaller than FH-154, no square plate edge.
+- **Added:** 2026-09-04
+
+---
+
+### FH-155 — Hero fly plate was 720p on a full-bleed stage
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The live Seedance clip and poster were 1280×720, so the full-bleed hero looked soft on large screens.
+- **Do NOT:** Drop the live files back to 720p. Do not swap the clip or change the flight.
+- **Do:** Serve `character-fly-natural` mp4/webm and `character-fly-still.png` at 3840×2160. Cache `?v=fh155`.
+- **Files:** `client/public/hero/character-fly-natural.mp4`, `client/public/hero/character-fly-natural.webm`, `client/public/hero/character-fly-still.png`, `client/src/components/Hero.tsx`
+- **Verify:** Homepage hero — same Seedance motion, 4K sources in the network panel.
+- **Added:** 2026-09-04
+
+---
+
+### FH-154 — Hero flyer read a notch too large on the full-bleed plate
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After FH-153 the Seedance plate filled the stage, so the mascot read a bit big against the copy and packs.
+- **Do NOT:** Bring back the boxed 37% / 72% slot, radial mask, or drop-shadow. Do not jump down more than a tad (this pass is `scale(0.9)`).
+- **Do:** Keep the plate full-bleed. Shrink the flyer only with a centered scale on `.hero-character`.
+- **Files:** `client/src/index.css`
+- **Verify:** Homepage hero — same Seedance clip, slightly smaller character, no square plate edge.
+- **Added:** 2026-09-03
+
+---
+
+### FH-153 — Hero fly plate sat in a boxed slot
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** `.hero-character-slot` was a receded rectangle (mask + drop-shadow), so the live fly clip read as a square card in the navy. A pose-composited wander plate was tried and rejected — keep the FH-152 Seedance clip.
+- **Do NOT:** Box the flyer in a 37% / 72% slot, radial mask, or drop-shadow that outlines a plate. Do not swap the live mascot to the pose-sprite compose plate.
+- **Do:** Full-bleed the FH-152 Seedance plate (`object-fit: cover`, `inset: 0`). Cache `?v=fh154`. Reduced motion uses `character-fly-still.png`.
+- **Files:** `client/public/hero/character-fly-natural.mp4`, `client/public/hero/character-fly-natural.webm`, `client/public/hero/character-fly-still.png`, `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** Homepage hero — Seedance flyer, video fills the stage with no square edge. Copy and packs stay readable.
+- **Added:** 2026-09-03
+
+---
+
+### FH-152 — Hero fly clip had a ghost second cape and locked-pose motion
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The FH-149 Seedance plate copied the old Veo lock-pose path and sometimes showed a second plaided cape. Shoppers need one sheet-accurate flyer on the same navy, with new entertaining travel (circle, cross, climb, dive) and no extra FX or costume pieces.
+- **Do NOT:** Drive the live mascot from the old Veo warehouse clip. Do not add a second cape, extra horns, logos, particles, trails, or speed lines. Do not remount the pose-sprite sky rig while this plate is live.
+- **Do:** Loop the 15s Seedance omni_reference plate from the latest three-panel sheet + clean navy still. One navy cape (grid only on the hem). Background stays `#1b3258` → `#23406a`. Cache `?v=fh152`.
+- **Files:** `client/public/hero/character-fly-natural.mp4`, `client/public/hero/character-fly-natural.webm`, `client/public/hero/character-fly-still.png`, `client/src/components/Hero.tsx`
+- **Verify:** Homepage hero — sheet costume, one cape, navy sky never changes, he circles then crosses then climbs and dives. `prefers-reduced-motion` shows the still.
+- **Added:** 2026-09-03
+
+---
+
+### FH-151 — Hero flyer still a touch large after FH-150
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After FH-150 the mascot was better but still a bit big in the middle lane.
+- **Do NOT:** Jump back to FH-150 slot size (mobile 78% / 12% inset, desktop 40% × 84%).
+- **Do:** Keep a small further shrink — mobile ~72% height with 14% side inset; desktop ~37% width and 78% height.
+- **Files:** `client/src/index.css`
+- **Verify:** Homepage hero. Noticeably smaller than FH-150, not a big drop.
+- **Added:** 2026-09-03
+
+---
+
+### FH-150 — Hero flyer sat too large in the middle lane
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After FH-149 the new navy fly plate filled most of the hero slot, so the mascot read too big against the copy and packs.
+- **Do NOT:** Stretch `.hero-character-slot` back to full-bleed height / ~48% desktop width.
+- **Do:** Keep the plate receded and a notch smaller — mobile ~78% height with 12% side inset; desktop ~40% width and 84% height.
+- **Files:** `client/src/index.css`
+- **Verify:** Homepage hero. Character is smaller than FH-149 but still readable in the middle lane.
+- **Added:** 2026-09-03
+
+---
+
+### FH-149 — Hero fly clip used the old sheet and baked-in particle effects
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** `character-fly-natural.mp4` was the first Veo loop: old costume, warehouse beams, dust/sparkle trails. The latest V-abdomen character sheet and the site navy (`#1b3258` → `#23406a`) belong on that plate, with the original flight motion only.
+- **Do NOT:** Restore the particle/sparkle/warehouse Veo as the hero source. Do not drive the live mascot with the pose-sprite sky rig while this plate is mounted.
+- **Do:** Loop `character-fly-natural.webm` / `.mp4` from the latest sheet still. Poster and reduced-motion still are `character-fly-still.png`. Keep him receded in the middle lane so the navy plate blends into `.hero-cast-stage`.
+- **Files:** `client/public/hero/character-fly-natural.mp4`, `client/public/hero/character-fly-natural.webm`, `client/public/hero/character-fly-still.png`, `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** Homepage hero — new sheet character flies on navy, no sparkles/dust. `prefers-reduced-motion` shows the still.
+- **Added:** 2026-09-03
+
+---
+
+### FH-148 — MERV 8 Carbon catch card had no cooking photo
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** After FH-144 the odor card had no header image. The shopper-supplied kitchen shot (`E:\FILTER HEROE\PICS\cooking with love.jpeg`) belongs in that slot.
+- **Do NOT:** Put `LIFE.womanPets` on carbon. Do not leave the carbon HOME_PICKS photo empty.
+- **Do:** Keep a dedicated `LIFE.cookingWithLove` (`/life/cooking-with-love.jpg`) and point only `MervCarousel` HOME_PICKS key `carbon` at it.
+- **Files:** `client/src/data/life-photos.ts`, `client/src/components/MervCarousel.tsx`, `client/public/life/cooking-with-love.jpg`
+- **Verify:** Homepage `#merv` MERV 8 Carbon card header shows the woman and kids making pizza.
+- **Added:** 2026-09-03
+
+---
+
+### FH-147 — Hero flyer vanished after the pose-machine swap
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** After FH-146 the mascot was gone. The rig sat at 0,0 under the copy wash, the first path point started off-canvas, and a 0×0 absolute rig plus a pause-on-unseen observer could skip drawing.
+- **Do NOT:** Park the flyer at the top-left of `.hero-copy`. Do not start the loop at a negative X. Do not leave `.hero-sky-rig` sizeless with both frames at opacity 0.
+- **Do:** Keep a CSS fallback in the open sky. Paths stay on-stage. JS zeros `left/top` then translates. Opacity stays readable. Slot `z-index` 4, still under copy/packs.
+- **Files:** `client/src/lib/hero-sky-flight.ts`, `client/src/components/HeroSkyFlight.tsx`, `client/src/index.css`
+- **Verify:** Homepage hero shows the flyer immediately, then he moves through the sky.
+- **Added:** 2026-09-03
+
+### FH-146 — Hero flyer was still one locked pose on a path
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** After FH-142 he still read as a sticker: one silhouette, slight cape warp, dragged along a spline.
+- **Do NOT:** Translate or rotate a single fly PNG / 8-frame cape sheet and call it flying.
+- **Do:** Switch distinct drawings — cruise, stroke, climb, dive, bank — from heading and turn rate. Crossfade. Flip for leftward travel. Only a small extra pitch. Keep him receded behind copy and packs.
+- **Files:** `client/src/lib/hero-sky-flight.ts`, `client/src/components/HeroSkyFlight.tsx`, `client/src/index.css`, `client/public/hero/fly-poses/`
+- **Verify:** Homepage hero. Level flight alternates cruise/stroke. Climbs and dives change the silhouette. Circles use the bank pose.
+- **Added:** 2026-09-03
+
+### FH-145 — Hero stage used a darker blue than the rest of the site
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The homepage hero sat on midnight `#122240` / `#162848`, so it did not match the header, footer, trust marquee, or brand-band navy (`#1b3258` → `#23406a`).
+- **Do NOT:** Put `#122240`, `#162848`, or a near-black `#0a101e` wash back on `.hero-stage` / `.hero-cast-stage`. Do not add a bright ice/white center glow that reads as a different blue.
+- **Do:** Hero stage uses the same navy as `.site-header` / `.site-footer` (`#1b3258` → `--navy` `#203868` → `#23406a`). Atmosphere stays subtle. Copy overlays stay in that navy, not midnight.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` — hero sky matches the header above it and the trust / brand bands below. Other pages' `.brand-band` heroes unchanged.
+- **Added:** 2026-09-03
+
+---
+
+### FH-144 — MERV 8 Carbon catch card showed the woman-with-pets photo
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The MERV 8 Carbon tile in What should your filter catch? opened with `/life/woman-pets.jpg` (woman hugging a dog and cat). Copy said cooking / odors, so the photo read as the wrong scene.
+- **Do NOT:** Put `LIFE.womanPets` back on the carbon HOME_PICKS slot.
+- **Do:** Carbon uses `LIFE.cookingWithLove` (FH-148). `LIFE.womanPets` stays on Family Air as the pets inset.
+- **Files:** `client/src/components/MervCarousel.tsx`
+- **Verify:** Homepage `#merv` MERV 8 Carbon card has no woman photo at the top.
+- **Added:** 2026-09-03
+
+---
+
+### FH-143 — MERV 11 catch card used the sleeping cat-and-dog photo
+- **Status:** mitigated
+- **Area:** photos
+- **Symptom:** The MERV 11 tile in What should your filter catch? showed a sleeping golden dog and orange cat. The shopper-supplied doorway pair (terrier + Yorkie) belongs in that card slot.
+- **Do NOT:** Swap `LIFE.petsSleep` globally. Family Air and the filter-change guide still use the sleeping pair.
+- **Do:** Keep a dedicated `LIFE.petsDoorway` (`/life/pets-doorway.jpg`) and point only `MervCarousel` HOME_PICKS key `11` at it.
+- **Files:** `client/src/data/life-photos.ts`, `client/src/components/MervCarousel.tsx`, `client/public/life/pets-doorway.jpg`
+- **Verify:** Homepage `#merv` MERV 11 card header. Other pets photos unchanged.
+- **Added:** 2026-09-03
+
+### FH-142 — Hero flyer looked dragged because the pose never flew
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** After FH-141 the vector sat in one flying pose and was translated along a path. He read as a sticker being pulled, not a body flying.
+- **Do NOT:** Keep him screen-upright with a horizontal flip. Do not ease each beat to a stop. Do not drive the hero with a single still PNG.
+- **Do:** Point the artwork along the velocity (head leads, `ART_PITCH` offset). Cycle the cape/limb sheet. Keep path timing linear and add a stroke heave perpendicular to the heading.
+- **Files:** `client/src/lib/hero-sky-flight.ts`, `client/src/components/HeroSkyFlight.tsx`, `client/src/index.css`, `client/public/hero/character-sky-fly-cycle.png`
+- **Verify:** Homepage hero. On a circle or figure-eight his nose follows the turn; cape and legs keep cycling.
+- **Added:** 2026-09-03
+
+### FH-141 — Hero character sat planted instead of flying the sky
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** The homepage hero used an in-place `character-fly-natural` loop in the middle lane. He read as a foreground plate, not a receded mascot flying the navy sky.
+- **Do NOT:** Plant a full-height video/still in `.hero-character-slot`. Do not remount the unused pack-presenting `HeroFlight` sales choreography on top of copy and MERV tiles.
+- **Do:** Fly the transparent vector cutout (`character-sky-fly.png`) on a long background loop — crosses, ovals, weaves, figure-eight — behind copy (`z-index` 6) and packs. Keep him small and dim, and park a still when `prefers-reduced-motion` is on.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/components/HeroSkyFlight.tsx`, `client/src/lib/hero-sky-flight.ts`, `client/src/index.css`, `client/public/hero/character-sky-fly.png`
+- **Verify:** Homepage hero, desktop and mobile. Copy and packs stay readable while he crosses and circles in the sky.
+- **Added:** 2026-09-03
+
+### FH-140 — Brand model/OEM search always opened /sizes, even off-catalog
+- **Status:** mitigated
+- **Area:** brands
+- **Symptom:** Search hits in Shop by brand always linked to `/sizes/{slug}`. Brand detail size/model/OEM chips already sent off-catalog sizes to `/custom-air-filters?size=`. In wholesale mode those search hits landed on the quote empty-state PDP instead of the custom quote form.
+- **Do NOT:** Hardcode `/sizes/` for brand codes. Do not skip `getFilterSize` / `shopOrQuotePath`.
+- **Do:** One helper, `shopOrQuotePath(size)`, for brand search, brand chips, the finder, and the header finder. Shoppable → PDP. Not shoppable → custom quote with the size prefilled.
+- **Files:** `client/src/lib/filter-size.ts`, `client/src/components/BrandDirectory.tsx`, `client/src/pages/BrandBrowse.tsx`, `client/src/components/FilterFinder.tsx`, `client/src/components/SiteHeader.tsx`
+- **Verify:** `/brands` search `FC100` opens a size or custom-quote page. `pnpm exec tsx scripts/smoke-site.ts`.
+- **Added:** 2026-09-01
+
+---
+
+### FH-139 — Checkout 400 when Stripe Tax had no head office
+- **Status:** mitigated
+- **Area:** cart
+- **Symptom:** `checkout.sessions.create` with `automatic_tax.enabled=true` returned 400: “You must have a valid head office address to enable automatic tax calculation.” Cart checkout failed for every shopper.
+- **Do NOT:** Force `automatic_tax.enabled=true` while Tax Settings `status` is `pending`.
+- **Do:** Read Tax Settings first. Enable automatic tax only when status is `active`. Checkout still creates Customer + Invoice. After the Dashboard head office is set, the next session turns tax on with no deploy.
+- **Files:** `server/stripe.ts`, `scripts/debug-stripe-checkout.ts`, `docs/STRIPE-BOOKS.md`
+- **Verify:** `pnpm exec tsx scripts/debug-stripe-checkout.ts` — session creates; `automatic_tax` is off until head office exists.
+- **Added:** 2026-09-01
 
 ---
 
@@ -94,8 +368,8 @@ Next id: **FH-139**
 - **Status:** mitigated
 - **Area:** cart
 - **Symptom:** Payment-mode Checkout had line items and a US address but no `automatic_tax`, no product tax code, and no Customer/Invoice. QBO/Stripe Connector had nothing to attach; catalog prices never grew tax.
-- **Do NOT:** Drop `automatic_tax`, `customer_creation: "always"`, `invoice_creation`, exclusive `tax_behavior`, or `txcd_99999999` on filter line items. Do not invent a different `txcd_` without Stripe’s tax-code list.
-- **Do:** Keep Tax on Checkout. Persist subtotal/tax/customer/invoice/payment_intent on `orders.json`. Head office + registrations still happen in the Dashboard — code cannot collect tax without them.
+- **Do NOT:** Drop `customer_creation: "always"`, `invoice_creation`, exclusive `tax_behavior`, or `txcd_99999999` on filter line items. Do not invent a different `txcd_` without Stripe’s tax-code list. Do not force `automatic_tax` on while Tax Settings are pending (FH-139).
+- **Do:** Enable `automatic_tax` when Tax Settings are `active`. Persist subtotal/tax/customer/invoice/payment_intent on `orders.json`. Head office + registrations still happen in the Dashboard.
 - **Files:** `server/stripe.ts`, `shared/stripe-tax.ts`, `client/src/pages/CheckoutSuccess.tsx`, `docs/STRIPE-BOOKS.md`, `scripts/verify-stripe-books.ts`
 - **Verify:** `pnpm exec tsx scripts/verify-stripe-books.ts`. Start checkout — Stripe Customer is created; tax line appears only after Tax Settings are active and a registration exists for the ship-to state.
 - **Added:** 2026-09-01
@@ -1253,7 +1527,7 @@ Next id: **FH-139**
 - **Added:** 2026-08-20
 
 ### FH-032 — How to Measure chip belongs with Shop / Brands / Clock / Contact
-- **Status:** open
+- **Status:** mitigated
 - **Area:** header
 - **Symptom:** Measure help is not in the primary nav. Do not put it inside Enter Your Filter Size.
 - **Do NOT:** Nest How to Measure in the header finder.
@@ -1263,7 +1537,7 @@ Next id: **FH-139**
 - **Added:** 2026-08-20
 
 ### FH-033 — Clock nav still says Clock, not FILTER CLOCK
-- **Status:** open
+- **Status:** mitigated
 - **Area:** header
 - **Symptom:** Header link is `Clock`.
 - **Do NOT:** Label it Filter Hero or leave it as Clock.
@@ -1273,7 +1547,7 @@ Next id: **FH-139**
 - **Added:** 2026-08-20
 
 ### FH-034 — Custom CTA should read Need a custom size
-- **Status:** open
+- **Status:** mitigated
 - **Area:** header
 - **Symptom:** Button says `Custom size`.
 - **Do NOT:** Use Custom size or a second finder.
@@ -1283,11 +1557,11 @@ Next id: **FH-139**
 - **Added:** 2026-08-20
 
 ### FH-035 — Tape-measure diagram missing from product pages
-- **Status:** open
+- **Status:** mitigated
 - **Area:** measure
 - **Symptom:** Size/product pages do not all show the filter + tape measure.
 - **Do NOT:** Leave it homepage-only, or clip Width / Length / Depth labels.
-- **Do:** Same diagram on every `/sizes/{slug}` page, using that page’s dimensions.
+- **Do:** Same How to Measure guide (tape diagram + Width / Length / Depth steps) on every `/sizes/{slug}` page, including the off-catalog quote empty state.
 - **Files:** `client/src/pages/SizeDetail.tsx`, `client/src/components/HowToMeasureGuide.tsx`, `client/src/components/MeasureFilterDiagram.tsx`
-- **Verify:** Several size pages show the diagram with sharp labels.
+- **Verify:** `/sizes/20x25x1` and `/sizes/99x99x9` show “How to measure your air filter”.
 - **Added:** 2026-08-20

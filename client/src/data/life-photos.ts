@@ -31,6 +31,19 @@ export const LIFE = {
     width: 360,
     height: 240,
   },
+  cookingWithLove: {
+    src: "/life/cooking-with-love.jpg",
+    alt: "A woman and two children topping a pizza in the kitchen",
+    width: 736,
+    height: 589,
+    position: "center 40%",
+  },
+  familyCooking: {
+    src: "/life/family-cooking.jpg",
+    alt: "A family of four cooking together around a steaming pot",
+    width: 1472,
+    height: 1104,
+  },
   womanPets: {
     src: "/life/woman-pets.jpg",
     alt: "A woman hugging her dog and cat",
@@ -47,6 +60,12 @@ export const LIFE = {
     src: "/life/pets-sleep.jpg",
     alt: "A golden dog and an orange cat sleeping snuggled together",
     width: 429,
+    height: 240,
+  },
+  petsDoorway: {
+    src: "/life/pets-doorway.jpg",
+    alt: "A terrier and a Yorkshire Terrier sitting side by side in a doorway",
+    width: 430,
     height: 240,
   },
   petsLineup: {

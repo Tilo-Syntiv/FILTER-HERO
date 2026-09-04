@@ -7,11 +7,10 @@ import { Label } from "@/components/ui/label";
 import HowToMeasureGuide from "@/components/HowToMeasureGuide";
 import FilterSizeDiagram from "@/components/FilterSizeDiagram";
 import PopularSizesCarousel from "@/components/PopularSizesCarousel";
-import { customQuotePath } from "@/lib/filter-size";
+import { shopOrQuotePath } from "@/lib/filter-size";
 import {
   finderLengths,
   finderWidths,
-  getFilterSize,
   THICKNESSES,
 } from "@shared/products";
 import { getPreferredMerv } from "@/lib/merv-pref";
@@ -44,11 +43,8 @@ export default function FilterFinder({
     }
     const merv = getPreferredMerv();
     const mervQuery = merv ? `?merv=${merv}` : "";
-    setLocation(
-      getFilterSize(size)
-        ? `/sizes/${encodeURIComponent(size)}${mervQuery}`
-        : customQuotePath(size),
-    );
+    const dest = shopOrQuotePath(size);
+    setLocation(dest.startsWith("/sizes/") ? `${dest}${mervQuery}` : dest);
   };
 
   const handleFind = () => {

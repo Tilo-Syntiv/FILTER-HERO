@@ -37,11 +37,11 @@ const HOME_PICKS: {
   key: PreferredMerv;
   title: string;
   blurb: string;
-  photo: (typeof LIFE)[keyof typeof LIFE];
+  photo?: (typeof LIFE)[keyof typeof LIFE];
 }[] = [
   { key: "8", title: "Everyday dust", blurb: "Pollen, lint, household dust", photo: LIFE.pollenSneeze },
-  { key: "carbon", title: "Cooking smells", blurb: "Odors and smoke smell", photo: LIFE.womanPets },
-  { key: "11", title: "Pets", blurb: "Fur, dander, extra dust", photo: LIFE.petsSleep },
+  { key: "carbon", title: "Cooking smells", blurb: "Odors and smoke smell", photo: LIFE.familyCooking },
+  { key: "11", title: "Pets", blurb: "Fur, dander, extra dust", photo: LIFE.petsDoorway },
   { key: "13", title: "Allergies", blurb: "Smoke, fine particles, asthma", photo: LIFE.sickNebulizer },
 ];
 
@@ -147,6 +147,7 @@ function MervCard({
 }) {
   const guide = GUIDE[type.key];
   const Icon = guide.icon;
+  const photo = HOME_PICKS.find((p) => p.key === type.key)?.photo;
 
   return (
     <article
@@ -161,11 +162,16 @@ function MervCard({
         onClick={onSelect}
         className="flex flex-1 flex-col text-left"
       >
-        <LifeImage
-          photo={HOME_PICKS.find((p) => p.key === type.key)!.photo}
-          className="mb-5 h-28 rounded-xl"
-          sizes="(max-width: 1024px) 80vw, 240px"
-        />
+        {photo ? (
+          <LifeImage
+            photo={photo}
+            className={cn(
+              "mb-5 rounded-xl",
+              type.key === "carbon" ? "aspect-[4/3]" : "h-28",
+            )}
+            sizes="(max-width: 1024px) 80vw, 280px"
+          />
+        ) : null}
         <div className="mb-5 flex items-start justify-between gap-3">
           <div
             className="flex h-10 w-10 items-center justify-center rounded-full"

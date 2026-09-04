@@ -9,7 +9,7 @@ import { HVAC_BRAND_LIST } from "@shared/hvac-brands";
 import { MERV_TYPES, isMervKeyOnSale } from "@shared/products";
 import { setPreferredMerv, type PreferredMerv } from "@/lib/merv-pref";
 
-const ASSET = "?v=fh113";
+const ASSET = "?v=fh160";
 
 const COMPAT = [
   { slug: "trane", name: "Trane" },
@@ -94,8 +94,8 @@ function HeroCharacter() {
 
   const shared = {
     className: "hero-character",
-    width: 1280,
-    height: 720,
+    width: 3840,
+    height: 2160,
   } as const;
 
   if (!live) {
@@ -158,6 +158,9 @@ export default function Hero() {
 
   return (
     <section className="hero-stage hero-cast-stage">
+      <div className="hero-sky-fill" aria-hidden>
+        <HeroCharacter />
+      </div>
       <div className="hero-atmosphere" aria-hidden>
         <div className="hero-orb hero-orb-ice" />
         <div className="hero-orb hero-orb-red" />
@@ -226,18 +229,6 @@ export default function Hero() {
           <div className="hero-showcase">
             <div className="hero-lineup">
               <div className="hero-ground" aria-hidden />
-              <div className="hero-character-slot">
-                <div className="hero-character-float">
-                  <motion.div
-                    initial={{ opacity: 0, y: 28, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 0.85, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-                    className="hero-character-motion"
-                  >
-                    <HeroCharacter />
-                  </motion.div>
-                </div>
-              </div>
               <div className="hero-filter-claim">
                 <p className="hero-build-tag">
                   <span className="hero-build-tag-visual">

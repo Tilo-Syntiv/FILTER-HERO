@@ -66,3 +66,4 @@ Serves the SPA and API from the Express server (`NODE_ENV=production`).
 | `pnpm start` | Run production server |
 | `pnpm check` | TypeScript check |
 | `pnpm verify:stripe-books` | Mapping checks + live Tax Settings read |
+| `pnpm debug:stripe-checkout` | Webhook + live Checkout Session probe |

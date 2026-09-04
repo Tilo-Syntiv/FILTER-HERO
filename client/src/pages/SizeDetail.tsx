@@ -38,6 +38,7 @@ import CaptureDots from "@/components/CaptureDots";
 import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
 import FilterFinder from "@/components/FilterFinder";
+import HowToMeasureGuide from "@/components/HowToMeasureGuide";
 import FaqSection from "@/components/FaqSection";
 import LifeImage from "@/components/LifeImage";
 import { cn } from "@/lib/utils";
@@ -279,7 +280,8 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                   </Button>
                 </div>
               </div>
-              <div className="mt-10 rounded-3xl bg-white p-4 sm:p-6 text-foreground">
+              <div className="mt-10 rounded-3xl bg-white p-4 sm:p-6 text-foreground space-y-10">
+                <HowToMeasureGuide />
                 <FilterFinder showPopular compact />
               </div>
             </>
@@ -574,7 +576,8 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                 </div>
               )}
 
-              <div className="mt-12 rounded-3xl bg-white p-4 sm:p-6 text-foreground">
+              <div className="mt-12 rounded-3xl bg-white p-4 sm:p-6 text-foreground space-y-10">
+                <HowToMeasureGuide />
                 <FilterFinder showPopular compact />
               </div>
             </>

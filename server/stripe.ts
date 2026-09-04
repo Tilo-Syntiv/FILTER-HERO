@@ -5,12 +5,20 @@ import { getProductById, unitPriceForQty } from "../shared/products";
 import { productTaxCode } from "../shared/stripe-tax";
 import { dataFile } from "./data-store";
 
-const ORDERS_PATH = dataFile("orders.json");
 const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]+$/;
 const META_MAX = 490;
 
+function ordersPath() {
+  return dataFile("orders.json");
+}
+
 function ensureOrdersFile() {
-  if (!fs.existsSync(ORDERS_PATH)) fs.writeFileSync(ORDERS_PATH, "[]", "utf-8");
+  const file = ordersPath();
+  if (!fs.existsSync(file)) fs.writeFileSync(file, "[]", "utf-8");
+}
+
+export function isCheckoutSessionId(sessionId: string): boolean {
+  return SESSION_ID.test(sessionId);
 }
 
 export function getStripe(): Stripe | null {
@@ -79,21 +87,28 @@ export function orderFromCheckoutSession(
   };
 }
 
-async function logTaxReadiness(stripe: Stripe) {
+async function taxSettingsReady(stripe: Stripe): Promise<boolean> {
   try {
     const settings = await stripe.tax.settings.retrieve();
     const regs = await stripe.tax.registrations.list({ status: "active", limit: 1 });
-    const collecting = settings.status === "active" && regs.data.length > 0;
-    if (collecting) {
-      console.info("[stripe tax] head office set; active registration present");
-      return;
+    if (settings.status === "active") {
+      if (regs.data.length > 0) {
+        console.info("[stripe tax] head office set; active registration present");
+      } else {
+        console.warn(
+          "[stripe tax] Tax Settings are active but there is no registration — tax will calculate $0 until one is added. See docs/STRIPE-BOOKS.md",
+        );
+      }
+      return true;
     }
     const missing = settings.status_details?.pending?.missing_fields?.join(", ") || "none";
     console.warn(
-      `[stripe tax] automatic_tax is on, but Stripe will collect $0 until Tax Settings are active and a registration exists (status=${settings.status}, missing=${missing}, activeRegs=${regs.data.length}). See docs/STRIPE-BOOKS.md`,
+      `[stripe tax] automatic_tax off until Tax Settings are active (status=${settings.status}, missing=${missing}). Checkout still runs. See docs/STRIPE-BOOKS.md`,
     );
+    return false;
   } catch (err) {
-    console.warn("[stripe tax] could not read Tax Settings / registrations", err);
+    console.warn("[stripe tax] could not read Tax Settings; Checkout continues without automatic_tax", err);
+    return false;
   }
 }
 
@@ -146,7 +161,7 @@ export async function createCheckoutSession(items: CheckoutItem[], clientUrl: st
     throw new Error("Stripe is not configured. Set STRIPE_SECRET_KEY in .env");
   }
 
-  await logTaxReadiness(stripe);
+  const taxEnabled = await taxSettingsReady(stripe);
 
   const itemsMeta = compactItemsMeta(items);
 
@@ -159,7 +174,7 @@ export async function createCheckoutSession(items: CheckoutItem[], clientUrl: st
     phone_number_collection: { enabled: true },
     customer_creation: "always",
     invoice_creation: { enabled: true },
-    automatic_tax: { enabled: true },
+    automatic_tax: { enabled: taxEnabled },
     metadata: { items: itemsMeta },
     payment_intent_data: {
       metadata: { items: itemsMeta },
@@ -183,9 +198,20 @@ export async function handleStripeWebhook(
   const event = stripe.webhooks.constructEvent(rawBody, signature, secret);
 
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+    const completed = event.data.object as Stripe.Checkout.Session;
+    let session = completed;
+    try {
+      session = await stripe.checkout.sessions.retrieve(completed.id);
+    } catch (err) {
+      const code =
+        err && typeof err === "object" && "code" in err ? String(err.code) : "";
+      if (code !== "resource_missing") {
+        console.warn("[stripe webhook] session retrieve failed; using event payload", err);
+      }
+    }
     ensureOrdersFile();
-    const orders = JSON.parse(fs.readFileSync(ORDERS_PATH, "utf-8")) as Array<
+    const file = ordersPath();
+    const orders = JSON.parse(fs.readFileSync(file, "utf-8")) as Array<
       Record<string, unknown>
     >;
     if (orders.some((order) => order.sessionId === session.id)) {
@@ -195,14 +221,14 @@ export async function handleStripeWebhook(
       id: nanoid(),
       ...orderFromCheckoutSession(session),
     });
-    fs.writeFileSync(ORDERS_PATH, JSON.stringify(orders, null, 2), "utf-8");
+    fs.writeFileSync(file, JSON.stringify(orders, null, 2), "utf-8");
   }
 
   return { received: true };
 }
 
 export async function getCheckoutSessionStatus(sessionId: string) {
-  if (!SESSION_ID.test(sessionId)) {
+  if (!isCheckoutSessionId(sessionId)) {
     throw new Error("Invalid checkout session");
   }
   const stripe = getStripe();

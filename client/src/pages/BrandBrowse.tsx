@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import { Link } from "wouter";
 import {
-  catalogSizeForSlug,
   getHvacBrand,
   HVAC_BRAND_LIST,
 } from "@shared/hvac-brands";
+import { shopOrQuotePath } from "@/lib/filter-size";
 import BrandLogo from "@/components/BrandLogo";
 import {
   allBrandsSeo,
@@ -163,18 +163,15 @@ export function BrandDetailPage({ slug }: { slug: string }) {
               <>
                 <h2 className="text-xl font-bold mb-3 tracking-tight">Shop by size</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-10">
-                  {brand.sizes.map((s) => {
-                    const inCatalog = Boolean(catalogSizeForSlug(s));
-                    return (
+                  {brand.sizes.map((s) => (
                       <Link
                         key={s}
-                        href={inCatalog ? `/sizes/${encodeURIComponent(s)}` : `/custom-air-filters?size=${encodeURIComponent(s)}`}
+                        href={shopOrQuotePath(s)}
                         className="size-chip !py-3"
                       >
                         {s}
                       </Link>
-                    );
-                  })}
+                  ))}
                 </div>
               </>
             ) : (
@@ -191,11 +188,7 @@ export function BrandDetailPage({ slug }: { slug: string }) {
                   {brand.models.map((m) => (
                     <Link
                       key={m.code}
-                      href={
-                        catalogSizeForSlug(m.size)
-                          ? `/sizes/${encodeURIComponent(m.size)}`
-                          : `/custom-air-filters?size=${encodeURIComponent(m.size)}`
-                      }
+                      href={shopOrQuotePath(m.size)}
                         className="catalog-row"
                     >
                       <span className="font-semibold">{m.code}</span>
@@ -213,11 +206,7 @@ export function BrandDetailPage({ slug }: { slug: string }) {
                   {brand.oemParts.map((p) => (
                     <Link
                       key={p.code}
-                      href={
-                        catalogSizeForSlug(p.size)
-                          ? `/sizes/${encodeURIComponent(p.size)}`
-                          : `/custom-air-filters?size=${encodeURIComponent(p.size)}`
-                      }
+                      href={shopOrQuotePath(p.size)}
                         className="catalog-row"
                     >
                       <span className="font-semibold">{p.code}</span>

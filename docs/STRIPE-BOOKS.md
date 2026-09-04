@@ -2,7 +2,9 @@
 
 Checkout stays on Stripe. Books sit next to it. Do not move payment into QuickBooks or an ERP.
 
-Sandbox account seen 2026-09-01: Tax Settings `status=pending` (missing `head_office`), **zero** tax registrations. `automatic_tax` is on in code; Stripe still collects **$0** until the two Dashboard steps below are done. That is not a code bug.
+Sandbox account seen 2026-09-01: Tax Settings `status=pending` (missing `head_office`), **zero** tax registrations.
+
+`automatic_tax` is **off** until Tax Settings are `active`. Stripe returns 400 (`You must have a valid head office address`) if we enable it earlier — that blocks Checkout entirely. After you set a head office, the next session turns tax on automatically. Without a registration, tax still calculates **$0**.
 
 ## 1. Stripe Tax (Dashboard)
 
@@ -38,7 +40,7 @@ Stripe never sees wholesale. In QBO: Supplier **Filter King LLC**, enter each de
 |---|---|
 | Hosted Checkout | `server/stripe.ts` |
 | US shipping + phone | Checkout Session |
-| Stripe Tax + exclusive `txcd_99999999` | line items + `automatic_tax` |
+| Stripe Tax | `automatic_tax` only when Tax Settings are `active` |
 | Customer + invoice on pay | `customer_creation`, `invoice_creation` |
 | Order log for packing | `server/data/orders.json` (subtotal, tax, customer, invoice, payment intent) |
 

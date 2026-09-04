@@ -12,6 +12,7 @@
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
     "verify:stripe-books": "tsx scripts/verify-stripe-books.ts",
+    "debug:stripe-checkout": "tsx scripts/debug-stripe-checkout.ts",
     "format": "prettier --write ."
   },
   "dependencies": {

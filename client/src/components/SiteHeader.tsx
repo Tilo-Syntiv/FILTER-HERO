@@ -10,11 +10,10 @@ import { BrandFamilyGrid } from "@/components/BrandDirectory";
 import {
   finderLengths,
   finderWidths,
-  getFilterSize,
   popularSizeSlugs,
   THICKNESSES,
 } from "@shared/products";
-import { customQuotePath } from "@/lib/filter-size";
+import { customQuotePath, shopOrQuotePath } from "@/lib/filter-size";
 import { getPreferredMerv } from "@/lib/merv-pref";
 
 const WIDTHS = finderWidths().map(String);
@@ -71,11 +70,8 @@ function HeaderFinder({ onFound }: { onFound?: () => void }) {
     const merv = getPreferredMerv();
     const mervQuery = merv ? `?merv=${merv}` : "";
     onFound?.();
-    setLocation(
-      getFilterSize(slug)
-        ? `/sizes/${encodeURIComponent(slug)}${mervQuery}`
-        : customQuotePath(slug),
-    );
+    const dest = shopOrQuotePath(slug);
+    setLocation(dest.startsWith("/sizes/") ? `${dest}${mervQuery}` : dest);
   };
 
   return (

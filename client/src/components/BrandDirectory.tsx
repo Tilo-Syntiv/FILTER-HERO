@@ -8,6 +8,7 @@ import {
 } from "@shared/hvac-brands";
 import { BRAND_NAME } from "@/const";
 import BrandLogo from "@/components/BrandLogo";
+import { shopOrQuotePath } from "@/lib/filter-size";
 
 export function BrandFamilyGrid({
   families,
@@ -85,7 +86,7 @@ export default function BrandDirectory({ compact = false }: { compact?: boolean 
             {hits.map((h) => (
               <li key={`${h.brand.slug}-${h.kind}-${h.code}`}>
                 <Link
-                  href={`/sizes/${encodeURIComponent(h.size)}`}
+                  href={shopOrQuotePath(h.size)}
                   className="font-semibold text-primary hover:underline"
                 >
                   {h.code}
