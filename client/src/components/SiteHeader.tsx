@@ -292,6 +292,7 @@ export default function SiteHeader() {
             href="/#how-to-measure"
             className="header-measure-chip"
             aria-label="How to measure your filter"
+            title="How to measure your filter"
             onPointerEnter={() => {
               clearCloseMenuTimer();
               setDesktopMenu(null);
@@ -299,12 +300,12 @@ export default function SiteHeader() {
             onFocus={() => setDesktopMenu(null)}
             onClick={goHomeSection("how-to-measure")}
           >
-            <Ruler className="h-3 w-3" aria-hidden />
-            How to measure
+            <Ruler className="h-2.5 w-2.5" aria-hidden />
+            Measure
           </Link>
         </nav>
 
-        <div className="order-last w-full min-w-0 xl:order-none xl:flex-1 xl:max-w-2xl xl:mx-2">
+        <div className="order-last w-full min-w-0 xl:order-none xl:flex-1 xl:max-w-3xl xl:mx-2">
           <HeaderFinder onFound={closeMenus} />
         </div>
 
@@ -314,7 +315,8 @@ export default function SiteHeader() {
             className="header-find-btn header-custom-btn inline-flex shrink-0"
             onClick={goCustomQuote}
           >
-            Need a custom size
+            <span className="2xl:hidden">Custom</span>
+            <span className="hidden 2xl:inline">Need a custom size</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
           <button

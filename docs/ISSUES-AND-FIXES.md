@@ -14,7 +14,46 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-166**
+Next id: **FH-169**
+
+---
+
+### FH-168 — Header How to Measure chip squeezed Width / Length numbers
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** On the desktop header, the crimson How to Measure pill sat wide next to Enter Your Filter Size. Width and Length clipped values like `20` and `25` so shoppers could not read the size they picked.
+- **Do NOT:** Let `.header-finder-field` shrink with `min-width: 0` / `flex: 1 1 0`. Do not grow How to Measure back to the wide padded chip. Do not nest the chip inside the finder (FH-032).
+- **Do:** Keep How to Measure a compact crimson pill (`Measure` + ruler, full aria-label). Finder can use `max-w-3xl`. Hide the “Enter Your Filter Size” prompt between 1280–1535px. Custom CTA shortens to “Custom” below 1536px. Width / Length keep a min width that shows two-digit inches plus the quote.
+- **Files:** `client/src/components/SiteHeader.tsx`, `client/src/index.css`
+- **Verify:** `/` header at ~1280px — Width shows `20"`, Length shows `25"`, Depth shows `1"`. Measure chip still jumps to `#how-to-measure`.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-167 — Everyday Home card still used the girl-and-dog photo
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage `#family` Everyday Home / MERV 8 card (and the size-page mosaic tile) showed a girl coloring next to a dog. The shopper-supplied carpet steam-clean photo belongs in that slot.
+- **Do NOT:** Point `LIFE.carpetClean` back at `/life/girl-dog.jpg`. Do not restore `LIFE.girlDog`.
+- **Do:** Keep `LIFE.carpetClean` (`/life/carpet-clean.jpg`) as the Everyday Home story photo and the size-page "Air the house can feel" mosaic tile.
+- **Files:** `client/src/data/life-photos.ts`, `client/src/components/FamilyAirSection.tsx`, `client/src/pages/SizeDetail.tsx`, `client/public/life/carpet-clean.jpg`
+- **Verify:** `/` `#family` Everyday Home card shows the steam-clean carpet. `/sizes/20x25x1` mosaic "Air the house can feel" uses the same photo.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-166 — Who you're protecting sat on a white sheet
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage `#family` ("Who you're protecting") used `sheet-section` (white). The band read as another white block after the finder instead of a brand-blue section.
+- **Do NOT:** Put `sheet-section` or a white fill back on `#family`. Do not let `.brand-band { color: #fff }` paint the white `.life-story` cards — titles and CTAs go invisible.
+- **Do:** `#family` is `.brand-band` (same ice radials over `#1a3058` → `#2a4d82` → `#3a66a3`). Intro copy is white / `white/65`. Cards stay white with navy type, mesh labels, and navy links.
+- **Files:** `client/src/components/FamilyAirSection.tsx`, `client/src/index.css`
+- **Verify:** `/` — `#family` is the site blue band. Story cards stay white with dark titles and navy "Shop MERV" links. Filter Clock below stays a white sheet.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
 
 ---
 

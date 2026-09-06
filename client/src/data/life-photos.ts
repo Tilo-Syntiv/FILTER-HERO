@@ -19,10 +19,10 @@ export const LIFE = {
     width: 355,
     height: 240,
   },
-  girlDog: {
-    src: "/life/girl-dog.jpg",
-    alt: "A young girl coloring on the living-room floor next to a golden retriever",
-    width: 395,
+  carpetClean: {
+    src: "/life/carpet-clean.jpg",
+    alt: "A technician steam-cleaning a living-room carpet in front of a sofa",
+    width: 360,
     height: 240,
   },
   pollenSneeze: {
