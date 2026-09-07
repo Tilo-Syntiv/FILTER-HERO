@@ -1,10 +1,10 @@
-# Cloudflare nameservers (blocked until FH-181 and FH-183)
+# Cloudflare nameservers (zone ready — Squarespace NS click left)
 
 **Summary:** Keep `filterhero.net` registered at Squarespace. When we want a DNS API, point **nameservers only** at Cloudflare. Copy every record into Cloudflare first. Do not transfer the domain.
 
 **Why this file exists:** Squarespace has no public DNS API. Railway, Resend, and Klaviyo all need records we cannot script today. This is the cutover checklist.
 
-**Gate (2026-09-07):** Do not change nameservers until (1) apex still loads the shop from every resolver, (2) FH-181 has a www → apex path ready in the Cloudflare zone, and (3) FH-183 has a working Cloudflare token and a zone that matches [Records to copy](#records-to-copy).
+**Gate (2026-09-07):** Apex shop still loads from every resolver. Cloudflare zone `filterhero.net` exists (status `pending`) with every row in [Records to copy](#records-to-copy) and the FH-181 www redirect. Public NS are still Squarespace. The remaining step is the Squarespace nameserver click.
 
 **Last snapshot:** 2026-09-07. Re-check live DNS before applying. Railway’s CNAME target can change if the custom domain is deleted and re-added.
 
@@ -23,9 +23,10 @@
 | Railway regions | `us-east4-eqdc4a` × 1 (FH-182). Do not add `ams` |
 | Service host | `https://filter-hero-production.up.railway.app/api/health` 200 |
 | `ckury9c8.up.railway.app` as Host | 404 (edge CNAME target, not an app hostname) |
-| Cloudflare zone | **none** — token in `.env` is invalid (FH-183) |
+| Cloudflare zone | **ready, pending NS** — records + www redirect in zone (FH-183 fixed) |
+| Cloudflare NS (not live yet) | `ganz.ns.cloudflare.com`, `marjory.ns.cloudflare.com` |
 
-Apex shoppers are fine. `www` shoppers are not. Fix FH-181 in Cloudflare (proxied redirect) or Squarespace URL forward before flipping NS.
+Apex shoppers are fine. `www` stays broken on the public internet until Squarespace uses the Cloudflare nameservers. Do not transfer the domain.
 
 ## Do not
 
@@ -50,13 +51,20 @@ Apex shoppers are fine. `www` shoppers are not. Fix FH-181 in Cloudflare (proxie
 6. Wait until `nslookup -type=NS filterhero.net 8.8.8.8` shows only Cloudflare.
 7. Confirm site (apex and www), Gmail, Resend, and Klaviyo.
 
-## Current nameservers (Squarespace)
+## Current nameservers (still Squarespace)
 
 ```
 nsc1.squarespacedns.com
 nsc2.squarespacedns.com
 nsc3.squarespacedns.com
 nsc4.squarespacedns.com
+```
+
+## Cloudflare nameservers (paste these at Squarespace)
+
+```
+ganz.ns.cloudflare.com
+marjory.ns.cloudflare.com
 ```
 
 ## Records to copy

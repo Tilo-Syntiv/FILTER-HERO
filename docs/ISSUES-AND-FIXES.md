@@ -19,14 +19,15 @@ Next id: **FH-184**
 ---
 
 ### FH-183 — Cloudflare API token cannot create the filterhero.net zone
-- **Status:** open
+- **Status:** fixed
 - **Area:** other
 - **Symptom:** `CLOUDFLARE_API_TOKEN` returns Cloudflare `1000 Invalid API Token`. No `filterhero.net` zone exists. The nameserver cutover in `docs/CLOUDFLARE-NAMESERVERS.md` cannot be scripted until a valid token creates the zone and copies records.
-- **Do NOT:** Point Squarespace nameservers at Cloudflare before the zone exists and matches live DNS. Do not commit a Cloudflare token.
-- **Do:** Mint a new token with Zone / DNS / Redirect edit. Create the zone, copy every row in the checklist, add the FH-181 www redirect, then change nameservers only.
+- **Do NOT:** Point Squarespace nameservers at Cloudflare before the zone exists and matches live DNS. Do not commit a Cloudflare token. Do not paste the token into chat after this.
+- **Do:** Keep the working user token in local `.env` only. Zone `filterhero.net` is created (pending NS). All checklist records plus the FH-181 www redirect are in the zone.
 - **Files:** `docs/CLOUDFLARE-NAMESERVERS.md`
-- **Verify:** `https://api.cloudflare.com/client/v4/user/tokens/verify` → `success: true`. `GET /zones?name=filterhero.net` returns one zone.
+- **Verify:** Token verify `status=active`. Zone exists. Cloudflare NS `ganz` / `marjory`. Public NS still Squarespace until the registrar click.
 - **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
 
 ---
 
@@ -44,14 +45,15 @@ Next id: **FH-184**
 ---
 
 ### FH-181 — www.filterhero.net does not load the shop
-- **Status:** open
+- **Status:** mitigated
 - **Area:** seo
 - **Symptom:** Every public resolver CNAMEs `www` to `ckury9c8.up.railway.app` (same Railway IP as apex). HTTPS to `www.filterhero.net` fails TLS (`SEC_E_WRONG_PRINCIPAL`). Skipping verify returns Railway `404 Application not found`. Apex `https://filterhero.net` serves the shop. Cause: trial plan allows one custom domain; only `filterhero.net` is attached. `railway domain www.filterhero.net` is rejected.
 - **Do NOT:** Expect the www CNAME alone to serve the app. Do not delete the apex custom domain to free the slot. Do not orange-cloud mail, DKIM, or verify hosts.
-- **Do:** Keep apex on Railway. Until Pro, send www to apex with a Squarespace URL forward or a Cloudflare Single Redirect on a proxied `www` (after FH-183). Shoppers who type the apex already get the store.
+- **Do:** Keep apex on Railway. Cloudflare zone now has proxied `www` plus a Single Redirect `www.filterhero.net` → `https://filterhero.net` + path (301). That rule is dark until Squarespace NS move to `ganz` / `marjory`.
 - **Files:** `docs/CLOUDFLARE-NAMESERVERS.md`
-- **Verify:** `curl.exe -sI https://www.filterhero.net/` → 301/308 to `https://filterhero.net/` or 200 shop HTML. Today it is TLS fail / 404.
+- **Verify:** After NS cutover, `curl.exe -sI https://www.filterhero.net/` → 301 to `https://filterhero.net/`. Until then it stays TLS fail / 404.
 - **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
 
 ---
 
