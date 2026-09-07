@@ -14,7 +14,253 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-166**
+Next id: **FH-185**
+
+---
+
+### FH-184 — Recheck 2026-09-07 02:02: apex shop is live; NS and www are not unanimous
+- **Status:** open
+- **Area:** seo
+- **Symptom:** Apex `https://filterhero.net` loads Filter Hero from this PC and from Google / Cloudflare / Quad9 / OpenDNS (all A `69.46.46.70`, health ok, `Server: railway-hikari`). NS is split: `1.1.1.1` and OpenDNS already `ganz` / `marjory`; Google and Quad9 still list Squarespace `nsc1`–`nsc4` even though Google SOA primary is already `ganz`. `www` is split: Cloudflare/Quad9 return CF anycast; Google/OpenDNS still mix in Railway `69.46.46.70`. Hitting `www` on the Railway IP still fails TLS (`SEC_E_WRONG_PRINCIPAL`). Hitting `www` on `104.21.41.176` now TLS-works and **301s** to apex health `{"ok":true}`.
+- **Do NOT:** Treat Google's leftover `nsc*` NS as proof the Squarespace click failed. Do not attach `www` on Railway. Do not change apex off Railway.
+- **Do:** Wait for NS and `www` cache to die. Keep using `https://filterhero.net`. FH-181 stays the www ticket until default `https://www.filterhero.net` 301s without `--resolve`.
+- **Files:** `docs/CLOUDFLARE-NAMESERVERS.md`
+- **Verify:** `nslookup -type=NS filterhero.net 8.8.8.8` is only `ganz` / `marjory`. `nslookup www.filterhero.net 8.8.8.8` has no `69.46.46.70`. `curl.exe -sI https://www.filterhero.net/` is 301 to the apex.
+- **Added:** 2026-09-07
+
+---
+
+### FH-183 — Cloudflare API token cannot create the filterhero.net zone
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** `CLOUDFLARE_API_TOKEN` returns Cloudflare `1000 Invalid API Token`. No `filterhero.net` zone exists. The nameserver cutover in `docs/CLOUDFLARE-NAMESERVERS.md` cannot be scripted until a valid token creates the zone and copies records.
+- **Do NOT:** Point Squarespace nameservers at Cloudflare before the zone exists and matches live DNS. Do not commit a Cloudflare token. Do not paste the token into chat after this.
+- **Do:** Keep the working user token in local `.env` only. Zone `filterhero.net` is created. All checklist records plus the FH-181 www redirect are in the zone. Public NS are now Cloudflare (`ganz` / `marjory`) as of 2026-09-07 01:58 EDT.
+- **Files:** `docs/CLOUDFLARE-NAMESERVERS.md`
+- **Verify:** Token verify `status=active`. Zone exists. `nslookup -type=NS filterhero.net 8.8.8.8` shows only `ganz` / `marjory`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-182 — Railway trial deploy failed when a second region was set
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Deploy `1fb6e2a6` (2026-09-05 23:01 EDT) failed with “Your plan can only deploy to a single region.” The trial service had `ams` and `us-east4-eqdc4a` both at 1 replica. The FILTER-HERO card stayed Online on an older replica.
+- **Do NOT:** Add Amsterdam, `eu-west`, or a second region while the workspace is on trial. Do not upgrade only to get a second region for this shop.
+- **Do:** Keep one replica in `us-east4-eqdc4a`. `railway scale us-east=1` must stay `{"regions":{"us-east4-eqdc4a":{"numReplicas":1}}}`. Later SUCCESS deploy `499083eb` already runs that way.
+- **Files:** `.railway/config.json`
+- **Verify:** `railway deployment list --limit 5 --json` latest `status=SUCCESS`. `railway scale us-east=1 --json` shows only us-east.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-181 — www.filterhero.net does not load the shop
+- **Status:** mitigated
+- **Area:** seo
+- **Symptom:** Railway trial allows one custom domain (`filterhero.net` only). `www` cannot be attached. After the Squarespace → Cloudflare NS click, some resolvers return Cloudflare anycast for `www`; others still cache Railway `69.46.46.70`. Recheck 2026-09-07 02:02: HTTPS to `104.21.41.176` now completes and **301s** to `https://filterhero.net/api/health` (`{"ok":true}`). Default `https://www` on this PC still hits `69.46.46.70` and fails `SEC_E_WRONG_PRINCIPAL`. Apex stays 200. See FH-184.
+- **Do NOT:** Expect the www CNAME alone to serve the app. Do not delete the apex custom domain to free the slot. Do not orange-cloud mail, DKIM, or verify hosts. Do not attach `www` on Railway.
+- **Do:** Keep apex on Railway, DNS only. Keep `www` proxied. Leave the Single Redirect `www.filterhero.net/*` → `https://filterhero.net/$1` (301). Wait for Cloudflare to issue the `www` cert. Old Railway CNAME cache can take a few hours.
+- **Files:** `docs/CLOUDFLARE-NAMESERVERS.md`
+- **Verify:** `curl.exe -sI --resolve www.filterhero.net:80:104.21.41.176 http://www.filterhero.net/sizes/20x25x1` → 301 `https://filterhero.net/sizes/20x25x1`. Done when `curl.exe -sI https://www.filterhero.net/` → 301 to `https://filterhero.net/` with a valid cert.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-180 — Size-page sticky Add to cart leaked onto desktop
+- **Status:** fixed
+- **Area:** cart
+- **Symptom:** `.pdp-sticky { display: flex }` beat Tailwind `lg:hidden`, so the mobile Add to cart bar could sit over the desktop size page.
+- **Do NOT:** Set `display: flex` on `.pdp-sticky` outside a max-width 1023px query.
+- **Do:** Hide `.pdp-sticky` by default. Show flex only under 1024px. Keep the page bottom padding in that same query.
+- **Files:** `client/src/index.css`
+- **Verify:** `/sizes/20x25x1` at 1280px — no bottom Add to cart bar. At 390px the bar is there.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-179 — Header Measure chip was too short to tap
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** After shrinking How to Measure (FH-168), the crimson chip was ~19px tall. Width / Length numbers were readable, but the control missed the 44px tap target.
+- **Do NOT:** Drop `.header-measure-chip` below `min-height: 44px` to save horizontal space.
+- **Do:** Keep the compact `Measure` label. Chip stays 44px tall. Finder fields still show two-digit inches.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` header — Measure chip height is 44px. Width still shows `20"`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-178 — Free shipping was missing on delivery, cart, and checkout
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** FAQ said free shipping, but `#delivery`, the cart drawer, Stripe Checkout, size-page meta, and custom-quote FAQ did not. Shoppers could think shipping would be charged.
+- **Do NOT:** Leave a shipping surface without “free.” Do not put a dollar minimum back on free shipping (FH-177).
+- **Do:** Delivery section, cart line, Stripe `$0` shipping rate, homepage/size SEO, custom FAQ, and footer all say free shipping on every contiguous-US order.
+- **Files:** `client/src/components/DeliverySection.tsx`, `client/src/components/CartDrawer.tsx`, `client/src/components/TrustSection.tsx`, `client/src/pages/Home.tsx`, `server/stripe.ts`, `shared/seo.ts`, `scripts/verify-store.ts`
+- **Verify:** `/#delivery` — “Free shipping on every order.” Cart shows Shipping Free. `/#faq` and `/custom-air-filters` FAQ. Stripe Checkout lists Free shipping $0.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-177 — FAQ said free shipping only over $50
+- **Status:** fixed
+- **Area:** seo
+- **Symptom:** Homepage `#faq` “Do you offer free shipping?” and `/llms.txt` said free shipping on orders over $50. Shipping is free on every order.
+- **Do NOT:** Put a dollar minimum on free shipping in FAQ, llms, or schema copy.
+- **Do:** Say free shipping on every order within the contiguous United States. Trust tiles and the delivery map already say free shipping with no minimum.
+- **Files:** `shared/seo.ts`, `client/public/llms.txt`
+- **Verify:** `/#faq` — answer has no $50. `/llms.txt` shipping line has no $50.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-176 — `pnpm check` died on NodeList spread in hero sky flight
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** `tsc --noEmit` failed with TS2802 in `createHeroSkyFlight` because the project tsconfig has no `target` and spreading `NodeListOf<HTMLImageElement>` needs downlevelIteration.
+- **Do NOT:** Spread a DOM NodeList with `[...]` under the root tsconfig. Do not flip `target` just to silence this one call.
+- **Do:** Collect pose images with `Array.from(rig.querySelectorAll("img"))`.
+- **Files:** `client/src/lib/hero-sky-flight.ts`
+- **Verify:** `pnpm check`
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-175 — Site-wide product prices must be live tickets
+- **Status:** fixed
+- **Area:** pricing
+- **Symptom:** Home MERV cards, size pages, cart, Stripe, and JSON-LD already used `liveUnitPrice`, but `/how-often-to-change-air-filter` still said “A $18 filter.” That is not a Filter Hero ticket. A catalog SKU could also silently fall back to `listPriceFor` / `PACK_TIERS` and show a different number than checkout.
+- **Do NOT:** Hardcode a filter dollar amount in shopper copy. Do not display `unitPriceForQty` when `liveUnitPrice` is missing for an in-stock SKU.
+- **Do:** Editorial filter prices use `liveListPrice("20x25x1", 8)`. Every in-stock size × MERV × pack qty on the shop must equal `liveUnitPrice`. MERV `fromPrice`, size-page packs, cart, Stripe, and schema qty 1 share that function. Repair ranges stay editorial, not product tickets. Shipping is free on every order (FH-177).
+- **Files:** `client/src/pages/FilterChangeGuide.tsx`, `scripts/verify-store.ts`, `shared/pricing/engine.ts`, `shared/products.ts`
+- **Verify:** `/how-often-to-change-air-filter` Why it matters — “A $9.99 filter”. `/#merv` from-prices. `/sizes/20x25x1` pack eaches. `pnpm exec tsx scripts/verify-store.ts`
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-174 — Header account and cart icons did not label on hover
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** The circular Sign in and Cart controls only tinted a little on hover. Shoppers could not tell what the icons did.
+- **Do NOT:** Leave those icon-only controls without a visible hover/focus label. Do not rely on the native `title` delay.
+- **Do:** `.header-cart` shows `.header-cart-tip` on hover and `:focus-visible` (Sign in / Account, Cart). The button also brightens. Cart tip aligns to the right so it does not clip the viewport.
+- **Files:** `client/src/components/SiteHeader.tsx`, `client/src/index.css`
+- **Verify:** Header — hover the user icon: “Sign in” (or “Account”). Hover the cart: “Cart”. Keyboard focus shows the same tips.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-173 — MERV 13 catch card still used the child nebulizer photo
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage `#merv` Ultimate / MERV 13 card opened with `LIFE.sickNebulizer` (parent helping a child with a mask). The shopper-supplied woman-with-inhaler photo belongs in that header.
+- **Do NOT:** Point HOME_PICKS key `13` back at `LIFE.sickNebulizer`. Do not swap `LIFE.asthmaInhaler` or the Family Air kids card.
+- **Do:** Keep `LIFE.ladyAsthma` (`/life/lady-asthma.jpg`, `object-position: center 38%`) on the MERV 13 catch card so face and inhaler stay in the 4:3 crop.
+- **Files:** `client/src/data/life-photos.ts`, `client/src/components/MervCarousel.tsx`, `client/public/life/lady-asthma.jpg`
+- **Verify:** `/#merv` Ultimate card shows the woman using the inhaler. `#family` Kids & asthma still uses the nebulizer photo.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-172 — MERV deck “from $” used Filter King undercut, not shop tickets
+- **Status:** fixed
+- **Area:** pricing
+- **Symptom:** Home `#merv` cards read `from $4.96` / `$6.37` / `$5.64` / `$5.69`. Those numbers came from Filter King × 0.90, not `liveUnitPrice`. A Filtrete or FilterBuy match on the same rung would make the card cheaper than the size page.
+- **Do NOT:** Compute merchandising `fromPrice` with `heroFromFk` alone. Do not hardcode the four card prices.
+- **Do:** `liveFromPrice` is the cheapest `liveUnitPrice` across live ladders, Filtrete packs, and FilterBuy packs. `MERV_TYPES.fromPrice` must equal that ticket. Shop check walks every in-stock SKU × pack qty.
+- **Files:** `shared/pricing/engine.ts`, `shared/products.ts`, `scripts/verify-store.ts`
+- **Verify:** `/#merv` — Standard `$4.96` (12x12x1 ×12), Odor `$6.37` (12x12x1 ×4), Advanced `$5.64` (18x18x1 ×6), Ultimate `$5.69` (16x16x1 ×12). `pnpm exec tsx scripts/verify-store.ts`
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-171 — Sign-in vanished after switching to family-section-blue
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** `/login` 404ed and the header had no Sign in control. `design/family-section-blue` did not include the customer-account files; they stayed on `feat/customer-accounts` and in `stash@{0}`.
+- **Do NOT:** Ship this branch without `/login`, `AccountProvider`, and the header user icon. Do not send shoppers to a 404 for Sign in.
+- **Do:** Keep email + password login on `/login` (compact card on the navy band). Header user icon goes to `/login` or `/account`. `/api/account` stays behind `requireCustomer`.
+- **Files:** `client/src/App.tsx`, `client/src/pages/account/Login.tsx`, `client/src/contexts/AccountContext.tsx`, `client/src/components/SiteHeader.tsx`, `server/account-routes.ts`, `server/index.ts`
+- **Verify:** Open `/login`. Email and password are on the first screen. Header Sign in lands there. Wrong password shows an error, not a blank page.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-170 — Pets card inset was the woman with dog and cat
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage `#family` Pets / MERV 11 card used `LIFE.womanPets` (woman hugging a dog and cat) as the overlapping inset. The shopper-supplied cat-only sofa / lint-roller photo belongs in that slot.
+- **Do NOT:** Point the Pets story `inset` back at `LIFE.womanPets`. Do not swap the main `LIFE.petsSleep` dog-and-cat photo.
+- **Do:** Keep `LIFE.catDander` (`/life/cat-dander.jpg`, `object-position: 58% 40%`) as the Pets inset so the cat's face stays in the square crop.
+- **Files:** `client/src/data/life-photos.ts`, `client/src/components/FamilyAirSection.tsx`, `client/public/life/cat-dander.jpg`
+- **Verify:** `/` `#family` Pets card — large photo is still the sleeping dog and cat; the small overlapping tile is the cat on the sofa with the lint roller.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-169 — Header Filter Clock on the home page did not scroll
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** From another home hash (`/#how-to-measure`), Filter Clock set `/#clock` but left the shopper on the measure section. Same-page jumps used smooth `scrollIntoView` and `replaceState`, which does not fire `hashchange`, so the retry helper never ran.
+- **Do NOT:** Use only smooth scroll + `replaceState` for in-page header jumps. Do not skip the hash-landing retries.
+- **Do:** `jumpToHashTarget` scrolls `auto`, writes the hash, and dispatches `hashchange` so `useHashScroll` retries until the section is in view.
+- **Files:** `client/src/hooks/useHashScroll.ts`, `client/src/components/SiteHeader.tsx`
+- **Verify:** On `/#how-to-measure`, click Filter Clock — `#clock` is in view. Measure still lands on `#how-to-measure`.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-168 — Header How to Measure chip squeezed Width / Length numbers
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** On the desktop header, the crimson How to Measure pill sat wide next to Enter Your Filter Size. Width and Length clipped values like `20` and `25` so shoppers could not read the size they picked.
+- **Do NOT:** Let `.header-finder-field` shrink with `min-width: 0` / `flex: 1 1 0`. Do not grow How to Measure back to the wide padded chip. Do not nest the chip inside the finder (FH-032).
+- **Do:** Keep How to Measure a compact crimson pill (`Measure` + ruler, full aria-label). Finder can use `max-w-3xl`. Hide the “Enter Your Filter Size” prompt between 1280–1535px. Custom CTA shortens to “Custom” below 1536px. Width / Length keep a min width that shows two-digit inches plus the quote.
+- **Files:** `client/src/components/SiteHeader.tsx`, `client/src/index.css`
+- **Verify:** `/` header at ~1280px — Width shows `20"`, Length shows `25"`, Depth shows `1"`. Measure chip still jumps to `#how-to-measure`.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-167 — Everyday Home card still used the girl-and-dog photo
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage `#family` Everyday Home / MERV 8 card (and the size-page mosaic tile) showed a girl coloring next to a dog. The shopper-supplied carpet steam-clean photo belongs in that slot.
+- **Do NOT:** Point `LIFE.carpetClean` back at `/life/girl-dog.jpg`. Do not restore `LIFE.girlDog`.
+- **Do:** Keep `LIFE.carpetClean` (`/life/carpet-clean.jpg`) as the Everyday Home story photo and the size-page "Air the house can feel" mosaic tile.
+- **Files:** `client/src/data/life-photos.ts`, `client/src/components/FamilyAirSection.tsx`, `client/src/pages/SizeDetail.tsx`, `client/public/life/carpet-clean.jpg`
+- **Verify:** `/` `#family` Everyday Home card shows the steam-clean carpet. `/sizes/20x25x1` mosaic "Air the house can feel" uses the same photo.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-166 — Who you're protecting sat on a white sheet
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage `#family` ("Who you're protecting") used `sheet-section` (white). The band read as another white block after the finder instead of a brand-blue section.
+- **Do NOT:** Put `sheet-section` or a white fill back on `#family`. Do not let `.brand-band { color: #fff }` paint the white `.life-story` cards — titles and CTAs go invisible.
+- **Do:** `#family` is `.brand-band` (same ice radials over `#1a3058` → `#2a4d82` → `#3a66a3`). Intro copy is white / `white/65`. Cards stay white with navy type, mesh labels, and navy links.
+- **Files:** `client/src/components/FamilyAirSection.tsx`, `client/src/index.css`
+- **Verify:** `/` — `#family` is the site blue band. Story cards stay white with dark titles and navy "Shop MERV" links. Filter Clock below stays a white sheet.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
 
 ---
 

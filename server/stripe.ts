@@ -47,6 +47,14 @@ export type StoredOrder = {
   paidAt: string;
 };
 
+export function listOrdersForEmail(email: string): StoredOrder[] {
+  const needle = email.trim().toLowerCase();
+  if (!needle) return [];
+  ensureOrdersFile();
+  const orders = JSON.parse(fs.readFileSync(ordersPath(), "utf-8")) as StoredOrder[];
+  return orders.filter((order) => (order.customerEmail || "").toLowerCase() === needle);
+}
+
 export function compactItemsMeta(items: CheckoutItem[]): string {
   const raw = JSON.stringify(items);
   if (raw.length <= META_MAX) return raw;

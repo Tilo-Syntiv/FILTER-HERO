@@ -1898,12 +1898,12 @@ a.hero-ghost-btn:focus-visible {
 }
 
 .pdp-sticky {
+  display: none;
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 30;
-  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
@@ -1916,6 +1916,10 @@ a.hero-ghost-btn:focus-visible {
 }
 
 @media (max-width: 1023px) {
+  .pdp-sticky {
+    display: flex;
+  }
+
   .product-page:has(.pdp-sticky) {
     padding-bottom: 5.75rem;
   }
@@ -2406,6 +2410,19 @@ a.hero-ghost-btn:focus-visible {
   border-radius: 1.15rem;
   border: 1px solid rgba(208, 216, 228, 0.95);
   background: #fff;
+  color: var(--navy);
+}
+
+.brand-band .life-story .section-label {
+  color: var(--mesh);
+}
+
+.brand-band .life-story .section-link {
+  color: var(--navy);
+}
+
+.brand-band .life-story .section-link:hover {
+  color: var(--hero);
 }
 
 .life-story-inset {
@@ -2590,13 +2607,13 @@ a.hero-ghost-btn:focus-visible {
 .header-finder-prompt {
   display: none;
   margin: 0;
-  padding-right: 0.55rem;
+  padding-right: 0.4rem;
   border-right: 1px solid rgba(142, 176, 216, 0.28);
   line-height: 1.15;
   white-space: nowrap;
   color: #fff;
   font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.64rem;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
@@ -2605,22 +2622,23 @@ a.hero-ghost-btn:focus-visible {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  gap: 0.28rem;
-  margin-left: 0.1rem;
+  gap: 0.18rem;
+  margin-left: 0.05rem;
+  min-height: 44px;
   border: 0;
   border-radius: 999px;
   background: var(--hero);
   color: #fff;
   font-family: "FilterHero", "Plus Jakarta Sans", sans-serif;
   font-style: italic;
-  font-size: 0.62rem;
+  font-size: 0.5rem;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   line-height: 1;
   white-space: nowrap;
   text-decoration: none;
-  padding: 0.42rem 0.7rem 0.42rem 0.55rem;
+  padding: 0.28rem 0.55rem 0.28rem 0.42rem;
   box-shadow:
     0 8px 16px rgba(127, 35, 40, 0.28),
     0 0 0 1px rgba(255, 255, 255, 0.1);
@@ -2650,10 +2668,10 @@ a.hero-ghost-btn:focus-visible {
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  min-width: 0;
-  flex: 1 1 0;
+  min-width: 3.7rem;
+  flex: 1.15 1 3.7rem;
   gap: 0.02rem;
-  padding: 0.18rem 0.15rem 0.12rem 0.4rem;
+  padding: 0.18rem 0.12rem 0.12rem 0.32rem;
   border-radius: 0.75rem;
   background: rgba(142, 176, 216, 0.14);
   border: 1px dashed rgba(142, 176, 216, 0.55);
@@ -2663,6 +2681,11 @@ a.hero-ghost-btn:focus-visible {
     border-color 0.2s ease,
     box-shadow 0.2s ease;
   animation: header-field-hint 2.4s ease-out 0.4s 2;
+}
+
+.header-finder-dims > .header-finder-field:last-of-type {
+  flex: 0.85 1 3rem;
+  min-width: 3rem;
 }
 
 .header-finder-field:hover,
@@ -2689,16 +2712,16 @@ a.hero-ghost-btn:focus-visible {
   min-width: 0;
   max-width: none;
   background-color: transparent;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23c4dcf4' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c4dcf4' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.05rem center;
+  background-position: right 0.02rem center;
   color: #fff;
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 0.84rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   border: 0;
-  padding: 0.28rem 1.15rem 0.28rem 0;
+  padding: 0.28rem 0.95rem 0.28rem 0;
   cursor: pointer;
 }
 
@@ -2774,7 +2797,7 @@ a.header-find-btn:hover {
   }
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1536px) {
   .header-nav-link {
     padding: 0.5rem 0.85rem;
     font-size: 0.78rem;
@@ -2799,9 +2822,64 @@ a.header-find-btn:hover {
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
-.header-cart:hover {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(142, 176, 216, 0.7);
+.header-cart:hover,
+.header-cart:focus-visible {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: #fff;
+  box-shadow: 0 0 0 4px rgba(214, 232, 248, 0.28);
+}
+
+.header-cart-tip {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  z-index: 60;
+  padding: 0.28rem 0.5rem;
+  border-radius: 0.45rem;
+  background: #152a4c;
+  border: 1px solid rgba(214, 232, 248, 0.45);
+  box-shadow: 0 10px 22px rgba(8, 14, 26, 0.35);
+  color: #fff;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(4px);
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+}
+
+.header-cart:last-child .header-cart-tip {
+  left: auto;
+  right: 0;
+  transform: translateX(0) translateY(4px);
+}
+
+.header-cart:focus-visible .header-cart-tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.header-cart:last-child:focus-visible .header-cart-tip {
+  transform: translateX(0) translateY(0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .header-cart:hover .header-cart-tip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .header-cart:last-child:hover .header-cart-tip {
+    transform: translateX(0) translateY(0);
+  }
 }
 
 .header-mega {
@@ -2900,7 +2978,13 @@ a.header-find-btn:hover {
   animation: cart-badge-pop 0.35s ease;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .header-finder-prompt {
+    display: block;
+  }
+}
+
+@media (min-width: 1536px) {
   .header-finder-prompt {
     display: block;
   }

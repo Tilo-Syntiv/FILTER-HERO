@@ -1,10 +1,11 @@
 import { useEffect, useId, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, ChevronDown, Mail, MessageSquare, Ruler, ShoppingCart } from "lucide-react";
+import { ArrowRight, ChevronDown, Mail, MessageSquare, Ruler, ShoppingCart, UserRound } from "lucide-react";
 import BrandLockup from "@/components/BrandLockup";
+import { useAccount } from "@/contexts/AccountContext";
 import { useCart } from "@/contexts/CartContext";
 import { BRAND_EMAIL } from "@/const";
-import { scrollToHashTarget } from "@/hooks/useHashScroll";
+import { jumpToHashTarget, scrollToHashTarget } from "@/hooks/useHashScroll";
 import { allBrandFamilies } from "@shared/hvac-brands";
 import { BrandFamilyGrid } from "@/components/BrandDirectory";
 import {
@@ -137,6 +138,7 @@ function HeaderFinder({ onFound }: { onFound?: () => void }) {
 
 export default function SiteHeader() {
   const { itemCount, openCart } = useCart();
+  const { session } = useAccount();
   const [, setLocation] = useLocation();
   const [desktopMenu, setDesktopMenu] = useState<DesktopMenu>(null);
   const headerRef = useRef<HTMLElement>(null);
@@ -188,10 +190,7 @@ export default function SiteHeader() {
     event.preventDefault();
     closeMenus();
     if (window.location.pathname === "/" || window.location.pathname === "") {
-      scrollToHashTarget(id);
-      if (window.location.hash !== `#${id}`) {
-        history.replaceState(null, "", `/#${id}`);
-      }
+      jumpToHashTarget(id);
       return;
     }
     setLocation(`/#${id}`);
@@ -292,6 +291,7 @@ export default function SiteHeader() {
             href="/#how-to-measure"
             className="header-measure-chip"
             aria-label="How to measure your filter"
+            title="How to measure your filter"
             onPointerEnter={() => {
               clearCloseMenuTimer();
               setDesktopMenu(null);
@@ -299,12 +299,12 @@ export default function SiteHeader() {
             onFocus={() => setDesktopMenu(null)}
             onClick={goHomeSection("how-to-measure")}
           >
-            <Ruler className="h-3 w-3" aria-hidden />
-            How to measure
+            <Ruler className="h-2.5 w-2.5" aria-hidden />
+            Measure
           </Link>
         </nav>
 
-        <div className="order-last w-full min-w-0 xl:order-none xl:flex-1 xl:max-w-2xl xl:mx-2">
+        <div className="order-last w-full min-w-0 xl:order-none xl:flex-1 xl:max-w-3xl xl:mx-2">
           <HeaderFinder onFound={closeMenus} />
         </div>
 
@@ -314,8 +314,20 @@ export default function SiteHeader() {
             className="header-find-btn header-custom-btn inline-flex shrink-0"
             onClick={goCustomQuote}
           >
-            Need a custom size
+            <span className="2xl:hidden">Custom</span>
+            <span className="hidden 2xl:inline">Need a custom size</span>
             <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            href={session ? "/account" : "/login"}
+            className="header-cart"
+            aria-label={session ? "Open your account" : "Sign in"}
+            onClick={closeMenus}
+          >
+            <UserRound className="h-4 w-4" />
+            <span className="header-cart-tip" aria-hidden="true">
+              {session ? "Account" : "Sign in"}
+            </span>
           </Link>
           <button
             type="button"
@@ -329,6 +341,9 @@ export default function SiteHeader() {
                 {itemCount}
               </span>
             )}
+            <span className="header-cart-tip" aria-hidden="true">
+              {itemCount ? `Cart · ${itemCount}` : "Cart"}
+            </span>
           </button>
         </div>
       </div>

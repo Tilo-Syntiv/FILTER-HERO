@@ -19,10 +19,10 @@ export const LIFE = {
     width: 355,
     height: 240,
   },
-  girlDog: {
-    src: "/life/girl-dog.jpg",
-    alt: "A young girl coloring on the living-room floor next to a golden retriever",
-    width: 395,
+  carpetClean: {
+    src: "/life/carpet-clean.jpg",
+    alt: "A technician steam-cleaning a living-room carpet in front of a sofa",
+    width: 360,
     height: 240,
   },
   pollenSneeze: {
@@ -50,6 +50,13 @@ export const LIFE = {
     alt: "A woman hugging her dog and cat",
     width: 420,
     height: 240,
+  },
+  catDander: {
+    src: "/life/cat-dander.jpg",
+    alt: "A light-colored cat on a dark sofa next to a lint roller and shed fur",
+    width: 736,
+    height: 486,
+    position: "58% 40%",
   },
   womanDog: {
     src: "/life/woman-dog.jpg",
@@ -112,6 +119,13 @@ export const LIFE = {
     width: 1024,
     height: 682,
     position: "28% center",
+  },
+  ladyAsthma: {
+    src: "/life/lady-asthma.jpg",
+    alt: "A woman using an inhaler at the table during an asthma flare",
+    width: 1024,
+    height: 682,
+    position: "center 38%",
   },
   installWall: {
     src: "/life/install-wall.jpg",

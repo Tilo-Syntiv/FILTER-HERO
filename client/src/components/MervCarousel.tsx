@@ -42,7 +42,7 @@ const HOME_PICKS: {
   { key: "8", title: "Everyday dust", blurb: "Pollen, lint, household dust", photo: LIFE.pollenSneeze },
   { key: "carbon", title: "Cooking smells", blurb: "Odors and smoke smell", photo: LIFE.familyCooking },
   { key: "11", title: "Pets", blurb: "Fur, dander, extra dust", photo: LIFE.petsDoorway },
-  { key: "13", title: "Allergies", blurb: "Smoke, fine particles, asthma", photo: LIFE.sickNebulizer },
+  { key: "13", title: "Allergies", blurb: "Smoke, fine particles, asthma", photo: LIFE.ladyAsthma },
 ];
 
 const COMPARE: { label: string; levels: Record<PreferredMerv, CaptureLevel> }[] =

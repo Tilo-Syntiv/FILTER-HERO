@@ -520,7 +520,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                 {[
                   { photo: LIFE.installWall, caption: "Drops into the slot" },
                   { photo: LIFE.filterCleanDirty, caption: "New vs. overdue" },
-                  { photo: LIFE.girlDog, caption: "Air the house can feel" },
+                  { photo: LIFE.carpetClean, caption: "Air the house can feel" },
                 ].map((tile) => (
                   <figure key={tile.caption} className="pdp-mosaic">
                     <LifeImage

@@ -26,7 +26,7 @@ const STORIES: {
   {
     merv: "11",
     photo: LIFE.petsSleep,
-    inset: LIFE.womanPets,
+    inset: LIFE.catDander,
     label: "Pets",
     title: "Fur, dander, and a pack on the couch",
     body: "Dogs and cats load a filter faster than a quiet house. MERV 11 is the upgrade when there's fur on the vents and someone in the family is sniffly.",
@@ -34,7 +34,7 @@ const STORIES: {
   },
   {
     merv: "8",
-    photo: LIFE.girlDog,
+    photo: LIFE.carpetClean,
     inset: LIFE.familyKitchen,
     label: "Everyday home",
     title: "Dust, lint, and a house that stays busy",
@@ -57,21 +57,21 @@ function shopMerv(key: PreferredMerv) {
 
 export default function FamilyAirSection() {
   return (
-    <section id="family" className="sheet-section scroll-mt-28 py-16 md:py-24">
+    <section id="family" className="brand-band scroll-mt-28 py-16 md:py-24">
       <div className="container">
         <div className="mb-8 grid items-end gap-6 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <span className="section-label">Who you're protecting</span>
-            <h2 className="mb-3 max-w-2xl text-3xl font-bold tracking-tight md:text-4xl">
+            <h2 className="mb-3 max-w-2xl text-3xl font-bold tracking-tight text-white md:text-4xl">
               Clean air for the people — and pets — you live with.
             </h2>
-            <p className="max-w-xl text-muted-foreground leading-relaxed md:text-lg">
+            <p className="max-w-xl text-white/65 leading-relaxed md:text-lg">
               A filter isn't a box on a shelf. It's the air kids breathe during
               a cold, the dander that settles on the couch, and the dust that
               films the house when the media is spent.
             </p>
           </div>
-          <p className="lg:col-span-5 lg:text-right text-sm text-muted-foreground leading-relaxed">
+          <p className="lg:col-span-5 lg:text-right text-sm text-white/65 leading-relaxed">
             Pick the house you actually have. Then we'll match MERV and a change
             date.
           </p>
@@ -125,7 +125,7 @@ export default function FamilyAirSection() {
           imgClassName="object-contain bg-white"
           sizes="(max-width: 1200px) 100vw, 1120px"
         />
-        <p className="mt-3 text-center text-sm text-muted-foreground">
+        <p className="mt-3 text-center text-sm text-white/65">
           Pets load a filter faster. Tell the Filter Clock how many you have —
           it pulls the change date closer.
         </p>
