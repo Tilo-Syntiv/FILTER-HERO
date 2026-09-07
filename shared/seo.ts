@@ -25,7 +25,7 @@ export const SITE_DEFAULTS = {
   email: BRAND_EMAIL,
   titleDefault: `${BRAND_NAME} | Exact-Fit HVAC & Furnace Air Filters`,
     descriptionDefault:
-    "Find your exact HVAC filter size in seconds. Shop MERV 8, MERV 8 Carbon, 11, and 13 air filters by Width × Length × Depth with bulk pricing and a 30-day fit guarantee.",
+    "Find your exact HVAC filter size in seconds. Shop MERV 8, MERV 8 Carbon, 11, and 13 air filters by Width × Length × Depth with bulk pricing, free shipping on every order, and a 30-day fit guarantee.",
   locale: "en_US",
   twitterHandle: "",
 } as const;
@@ -93,7 +93,7 @@ export const SITE_FAQS: FaqItem[] = [
     question: "Do you offer free shipping?",
     category: "Ordering",
     answer:
-      `Yes. ${BRAND_NAME} offers free shipping on orders over $50 within the contiguous United States, with a 30-day fit guarantee on standard catalog sizes.`,
+      `Yes. ${BRAND_NAME} offers free shipping on every order within the contiguous United States, with a 30-day fit guarantee on standard catalog sizes.`,
   },
 ];
 
@@ -166,6 +166,12 @@ export const CUSTOM_FAQS: FaqItem[] = [
       "Provide Width, Length, and Depth in inches, preferred MERV (8, 11, 13, or carbon), and quantity. A photo of the existing filter label helps confirm nominal vs actual size.",
     action: { href: "#custom-quote", label: "Jump to the quote form" },
   },
+  {
+    question: "Is shipping free on custom filters?",
+    category: "Ordering",
+    answer:
+      `Yes. Quoted custom orders ship free within the contiguous United States, same as catalog sizes.`,
+  },
 ];
 
 export function absoluteUrl(siteUrl: string, path: string): string {
@@ -216,7 +222,7 @@ export function sizeSeo(siteUrl: string, size: FilterSize | string) {
     : "";
   return {
     title: `${slug} Air Filter | HVAC & Furnace | ${BRAND_NAME}`,
-    description: `Buy ${slug} air filters for HVAC and furnace systems. Choose ${sellableMervPhrase(slug)}.${actual} Bulk packs, fit guarantee, and fast checkout.`,
+    description: `Buy ${slug} air filters for HVAC and furnace systems. Choose ${sellableMervPhrase(slug)}.${actual} Bulk packs, free shipping on every order, fit guarantee, and fast checkout.`,
     path,
     canonical: absoluteUrl(siteUrl, path),
     type: "product" as const,
@@ -599,6 +605,7 @@ export function buildLlmsTxt(siteUrl: string): string {
 - Sizing model: Width × Length × Depth (nominal + actual listed)
 - MERV options: ${mervList}
 - Thicknesses: ${THICKNESSES.map((d) => `${d}"`).join(", ")}
+- Shipping: Free shipping on every order (contiguous US)
 
 ## Key pages
 - Home / size finder: ${absoluteUrl(siteUrl, "/")}

@@ -14,7 +14,33 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-177**
+Next id: **FH-179**
+
+---
+
+### FH-178 — Free shipping was missing on delivery, cart, and checkout
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** FAQ said free shipping, but `#delivery`, the cart drawer, Stripe Checkout, size-page meta, and custom-quote FAQ did not. Shoppers could think shipping would be charged.
+- **Do NOT:** Leave a shipping surface without “free.” Do not put a dollar minimum back on free shipping (FH-177).
+- **Do:** Delivery section, cart line, Stripe `$0` shipping rate, homepage/size SEO, custom FAQ, and footer all say free shipping on every contiguous-US order.
+- **Files:** `client/src/components/DeliverySection.tsx`, `client/src/components/CartDrawer.tsx`, `client/src/components/TrustSection.tsx`, `client/src/pages/Home.tsx`, `server/stripe.ts`, `shared/seo.ts`, `scripts/verify-store.ts`
+- **Verify:** `/#delivery` — “Free shipping on every order.” Cart shows Shipping Free. `/#faq` and `/custom-air-filters` FAQ. Stripe Checkout lists Free shipping $0.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-177 — FAQ said free shipping only over $50
+- **Status:** fixed
+- **Area:** seo
+- **Symptom:** Homepage `#faq` “Do you offer free shipping?” and `/llms.txt` said free shipping on orders over $50. Shipping is free on every order.
+- **Do NOT:** Put a dollar minimum on free shipping in FAQ, llms, or schema copy.
+- **Do:** Say free shipping on every order within the contiguous United States. Trust tiles and the delivery map already say free shipping with no minimum.
+- **Files:** `shared/seo.ts`, `client/public/llms.txt`
+- **Verify:** `/#faq` — answer has no $50. `/llms.txt` shipping line has no $50.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
 
 ---
 
@@ -36,7 +62,7 @@ Next id: **FH-177**
 - **Area:** pricing
 - **Symptom:** Home MERV cards, size pages, cart, Stripe, and JSON-LD already used `liveUnitPrice`, but `/how-often-to-change-air-filter` still said “A $18 filter.” That is not a Filter Hero ticket. A catalog SKU could also silently fall back to `listPriceFor` / `PACK_TIERS` and show a different number than checkout.
 - **Do NOT:** Hardcode a filter dollar amount in shopper copy. Do not display `unitPriceForQty` when `liveUnitPrice` is missing for an in-stock SKU.
-- **Do:** Editorial filter prices use `liveListPrice("20x25x1", 8)`. Every in-stock size × MERV × pack qty on the shop must equal `liveUnitPrice`. MERV `fromPrice`, size-page packs, cart, Stripe, and schema qty 1 share that function. `$50` free-shipping and repair ranges stay policy/editorial, not product tickets.
+- **Do:** Editorial filter prices use `liveListPrice("20x25x1", 8)`. Every in-stock size × MERV × pack qty on the shop must equal `liveUnitPrice`. MERV `fromPrice`, size-page packs, cart, Stripe, and schema qty 1 share that function. Repair ranges stay editorial, not product tickets. Shipping is free on every order (FH-177).
 - **Files:** `client/src/pages/FilterChangeGuide.tsx`, `scripts/verify-store.ts`, `shared/pricing/engine.ts`, `shared/products.ts`
 - **Verify:** `/how-often-to-change-air-filter` Why it matters — “A $9.99 filter”. `/#merv` from-prices. `/sizes/20x25x1` pack eaches. `pnpm exec tsx scripts/verify-store.ts`
 - **Added:** 2026-09-06
