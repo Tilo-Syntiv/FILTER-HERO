@@ -175,6 +175,12 @@ async function main() {
     session.shipping_address_collection?.allowed_countries?.includes("US") === true,
     "US shipping collected",
   );
+  check(
+    session.shipping_options?.some(
+      (opt) => opt.shipping_amount === 0 && opt.shipping_rate,
+    ) === true,
+    "checkout offers free shipping",
+  );
   check(session.phone_number_collection?.enabled === true, "phone collected");
   check(session.metadata?.items?.includes(String(product.id)) === true, "items metadata on session");
 

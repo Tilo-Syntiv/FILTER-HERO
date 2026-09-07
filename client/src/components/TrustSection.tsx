@@ -22,7 +22,7 @@ export default function TrustSection() {
     {
       icon: Truck,
       title: "FREE SHIPPING",
-      description: "Contiguous US orders — clean air shouldn't wait",
+      description: "Every order in the contiguous US — clean air shouldn't wait",
       photo: LIFE.freeShipping,
       graphic: true,
     },

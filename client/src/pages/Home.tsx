@@ -302,7 +302,7 @@ export default function Home() {
                 </li>
                 <li>
                   <a href="#delivery" className="hover:text-ice transition-colors">
-                    Shipping
+                    Free shipping
                   </a>
                 </li>
                 <li>

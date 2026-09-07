@@ -127,6 +127,7 @@ assert(robots.res.ok && robots.text.includes("Sitemap:"), "robots");
 
 const llms = await get(`${API}/llms.txt`);
 assert(llms.res.ok && llms.text.toLowerCase().includes("filter hero"), "llms.txt");
+assert(/every order/i.test(llms.text) && !/over \$50/.test(llms.text), "llms.txt must say free shipping on every order");
 
 const pages = [
   "/",

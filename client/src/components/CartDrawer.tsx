@@ -133,9 +133,15 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
         </div>
 
         <DrawerFooter className="border-t border-border pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span className="font-bold text-lg">${subtotal.toFixed(2)}</span>
+          <div className="mb-2 space-y-1">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="font-bold text-lg">${subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Shipping</span>
+              <span className="font-semibold text-navy">Free</span>
+            </div>
           </div>
           <Button
             size="lg"
