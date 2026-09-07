@@ -6,7 +6,9 @@
 
 **Gate (2026-09-07 01:58 EDT):** Squarespace NS click is done. Google, Cloudflare (`1.1.1.1`), and SOA show only `ganz` / `marjory`. Apex shop, Google MX, SPF, Klaviyo, Resend, and Railway verify are live on Cloudflare. `www` A is orange-cloud (`104.21.41.176`, `172.67.149.19`). HTTP `www` already 301s to `https://filterhero.net` + path. HTTPS `www` is not ready: Cloudflare Universal SSL handshake fails; some clients still follow a cached Railway CNAME and get the old TLS / 404 (FH-181).
 
-**Last snapshot:** 2026-09-07 01:58 EDT.
+**Last snapshot:** 2026-09-07 02:02 EDT (recheck).
+
+**Recheck 2026-09-07 02:02 EDT:** Apex shop is live on Google, Cloudflare, Quad9, OpenDNS, and this PC (`69.46.46.70`, health ok). NS is **not** unanimous — `1.1.1.1` / OpenDNS = `ganz`/`marjory`; Google / Quad9 still list Squarespace `nsc*`. `www` HTTPS via `104.21.41.176` now 301s to the apex shop. Default `www` can still land on cached Railway `69.46.46.70` and fail TLS (FH-184).
 
 ## Live check 2026-09-07 01:58 EDT (after NS change)
 
