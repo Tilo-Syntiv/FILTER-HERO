@@ -171,6 +171,15 @@ export async function createCheckoutSession(items: CheckoutItem[], clientUrl: st
     success_url: `${clientUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${clientUrl}/checkout/cancel`,
     shipping_address_collection: { allowed_countries: ["US"] },
+    shipping_options: [
+      {
+        shipping_rate_data: {
+          type: "fixed_amount",
+          fixed_amount: { amount: 0, currency: "usd" },
+          display_name: "Free shipping",
+        },
+      },
+    ],
     phone_number_collection: { enabled: true },
     customer_creation: "always",
     invoice_creation: { enabled: true },

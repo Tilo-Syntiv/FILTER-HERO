@@ -40,6 +40,7 @@ Stripe never sees wholesale. In QBO: Supplier **Filter King LLC**, enter each de
 |---|---|
 | Hosted Checkout | `server/stripe.ts` |
 | US shipping + phone | Checkout Session |
+| Free shipping ($0 rate) | Checkout Session `shipping_options` |
 | Stripe Tax | `automatic_tax` only when Tax Settings are `active` |
 | Customer + invoice on pay | `customer_creation`, `invoice_creation` |
 | Order log for packing | `server/data/orders.json` (subtotal, tax, customer, invoice, payment intent) |

@@ -196,6 +196,9 @@ export default function DeliverySection() {
           >
             2-day delivery for 80% of the US
           </h2>
+          <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-navy/70 md:text-lg">
+            Free shipping on every order.
+          </p>
         </motion.div>
 
         <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-12">
@@ -220,8 +223,8 @@ export default function DeliverySection() {
               Shipped from the USA
             </h3>
             <p className="text-base leading-relaxed text-navy/80 md:text-lg">
-              All our filters ship from 4 fulfillment centers across the USA for
-              rapid delivery with superior customer service.
+              Free shipping from 4 fulfillment centers across the USA — rapid
+              delivery with superior customer service.
             </p>
           </motion.div>
         </div>

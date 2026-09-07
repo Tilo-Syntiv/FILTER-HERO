@@ -29,13 +29,32 @@ import {
   liveListPrice,
   liveUnitPrice,
 } from "../shared/pricing/engine.ts";
-import { sitemapPaths } from "../shared/seo.ts";
+import { SITE_FAQS, resolveDocumentSeo, sitemapPaths } from "../shared/seo.ts";
 
 function assert(cond: unknown, message: string): asserts cond {
   if (!cond) throw new Error(message);
 }
 
 assert(BRAND_EMAIL === "info@filterhero.net", `brand email should be info@, got ${BRAND_EMAIL}`);
+const shippingFaq = SITE_FAQS.find((f) => f.question.toLowerCase().includes("free shipping"));
+assert(shippingFaq, "homepage FAQ must ask about free shipping");
+assert(
+  /every order/i.test(shippingFaq.answer) && !/\$50/.test(shippingFaq.answer),
+  `shipping FAQ must be free on every order, got: ${shippingFaq.answer}`,
+);
+const sizeDoc = resolveDocumentSeo("/sizes/20x25x1", "https://filterhero.net");
+assert(
+  /free shipping on every order/i.test(sizeDoc.description),
+  `size SEO must mention free shipping, got: ${sizeDoc.description}`,
+);
+const sizeJson = JSON.stringify(sizeDoc.jsonLd ?? []);
+assert(sizeJson.includes("9.99"), "20x25x1 JSON-LD must use live qty-1 $9.99");
+const homeDoc = resolveDocumentSeo("/", "https://filterhero.net");
+assert(
+  /every order/i.test(JSON.stringify(homeDoc.jsonLd ?? [])) &&
+    !/over \$50/.test(JSON.stringify(homeDoc.jsonLd ?? [])),
+  "homepage FAQ JSON-LD must say free shipping on every order",
+);
 assert(FULL_CATALOG, "VITE_FULL_CATALOG / FULL_CATALOG must be true to sell the full Filter King archive");
 assert(!SELLABLE_ONLY, "full catalog means SELLABLE_ONLY is false");
 assert(isMervKeyOnSale("carbon"), "carbon is shoppable when the full catalog is on");
