@@ -23,9 +23,9 @@ Next id: **FH-184**
 - **Area:** other
 - **Symptom:** `CLOUDFLARE_API_TOKEN` returns Cloudflare `1000 Invalid API Token`. No `filterhero.net` zone exists. The nameserver cutover in `docs/CLOUDFLARE-NAMESERVERS.md` cannot be scripted until a valid token creates the zone and copies records.
 - **Do NOT:** Point Squarespace nameservers at Cloudflare before the zone exists and matches live DNS. Do not commit a Cloudflare token. Do not paste the token into chat after this.
-- **Do:** Keep the working user token in local `.env` only. Zone `filterhero.net` is created (pending NS). All checklist records plus the FH-181 www redirect are in the zone.
+- **Do:** Keep the working user token in local `.env` only. Zone `filterhero.net` is created. All checklist records plus the FH-181 www redirect are in the zone. Public NS are now Cloudflare (`ganz` / `marjory`) as of 2026-09-07 01:58 EDT.
 - **Files:** `docs/CLOUDFLARE-NAMESERVERS.md`
-- **Verify:** Token verify `status=active`. Zone exists. Cloudflare NS `ganz` / `marjory`. Public NS still Squarespace until the registrar click.
+- **Verify:** Token verify `status=active`. Zone exists. `nslookup -type=NS filterhero.net 8.8.8.8` shows only `ganz` / `marjory`.
 - **Added:** 2026-09-07
 - **Fixed:** 2026-09-07
 
@@ -47,11 +47,11 @@ Next id: **FH-184**
 ### FH-181 — www.filterhero.net does not load the shop
 - **Status:** mitigated
 - **Area:** seo
-- **Symptom:** Every public resolver CNAMEs `www` to `ckury9c8.up.railway.app` (same Railway IP as apex). HTTPS to `www.filterhero.net` fails TLS (`SEC_E_WRONG_PRINCIPAL`). Skipping verify returns Railway `404 Application not found`. Apex `https://filterhero.net` serves the shop. Cause: trial plan allows one custom domain; only `filterhero.net` is attached. `railway domain www.filterhero.net` is rejected.
-- **Do NOT:** Expect the www CNAME alone to serve the app. Do not delete the apex custom domain to free the slot. Do not orange-cloud mail, DKIM, or verify hosts.
-- **Do:** Keep apex on Railway. Cloudflare zone now has proxied `www` plus a Single Redirect `www.filterhero.net` → `https://filterhero.net` + path (301). That rule is dark until Squarespace NS move to `ganz` / `marjory`.
+- **Symptom:** Railway trial allows one custom domain (`filterhero.net` only). `www` cannot be attached. After the Squarespace → Cloudflare NS click (2026-09-07 01:58 EDT), `www` A is Cloudflare (`104.21.41.176`, `172.67.149.19`). HTTP `www` 301s to `https://filterhero.net` + path. HTTPS `www` still fails: Cloudflare Universal SSL is not issued yet (handshake abort on the CF IPs). Some resolvers still cache CNAME `ckury9c8.up.railway.app`; those clients get `SEC_E_WRONG_PRINCIPAL` then Railway `404 Application not found`. Apex stays 200.
+- **Do NOT:** Expect the www CNAME alone to serve the app. Do not delete the apex custom domain to free the slot. Do not orange-cloud mail, DKIM, or verify hosts. Do not attach `www` on Railway.
+- **Do:** Keep apex on Railway, DNS only. Keep `www` proxied. Leave the Single Redirect `www.filterhero.net/*` → `https://filterhero.net/$1` (301). Wait for Cloudflare to issue the `www` cert. Old Railway CNAME cache can take a few hours.
 - **Files:** `docs/CLOUDFLARE-NAMESERVERS.md`
-- **Verify:** After NS cutover, `curl.exe -sI https://www.filterhero.net/` → 301 to `https://filterhero.net/`. Until then it stays TLS fail / 404.
+- **Verify:** `curl.exe -sI --resolve www.filterhero.net:80:104.21.41.176 http://www.filterhero.net/sizes/20x25x1` → 301 `https://filterhero.net/sizes/20x25x1`. Done when `curl.exe -sI https://www.filterhero.net/` → 301 to `https://filterhero.net/` with a valid cert.
 - **Added:** 2026-09-07
 - **Fixed:** 2026-09-07
 

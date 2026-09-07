@@ -1,32 +1,35 @@
-# Cloudflare nameservers (zone ready — Squarespace NS click left)
+# Cloudflare nameservers (live — www HTTPS cert still issuing)
 
 **Summary:** Keep `filterhero.net` registered at Squarespace. When we want a DNS API, point **nameservers only** at Cloudflare. Copy every record into Cloudflare first. Do not transfer the domain.
 
 **Why this file exists:** Squarespace has no public DNS API. Railway, Resend, and Klaviyo all need records we cannot script today. This is the cutover checklist.
 
-**Gate (2026-09-07):** Apex shop still loads from every resolver. Cloudflare zone `filterhero.net` exists (status `pending`) with every row in [Records to copy](#records-to-copy) and the FH-181 www redirect. Public NS are still Squarespace. The remaining step is the Squarespace nameserver click.
+**Gate (2026-09-07 01:58 EDT):** Squarespace NS click is done. Google, Cloudflare (`1.1.1.1`), and SOA show only `ganz` / `marjory`. Apex shop, Google MX, SPF, Klaviyo, Resend, and Railway verify are live on Cloudflare. `www` A is orange-cloud (`104.21.41.176`, `172.67.149.19`). HTTP `www` already 301s to `https://filterhero.net` + path. HTTPS `www` is not ready: Cloudflare Universal SSL handshake fails; some clients still follow a cached Railway CNAME and get the old TLS / 404 (FH-181).
 
-**Last snapshot:** 2026-09-07. Re-check live DNS before applying. Railway’s CNAME target can change if the custom domain is deleted and re-added.
+**Last snapshot:** 2026-09-07 01:58 EDT.
 
-## Live check 2026-09-07 (run before NS change)
+## Live check 2026-09-07 01:58 EDT (after NS change)
 
 | Check | Result |
 |---|---|
-| NS | Squarespace `nsc1`–`nsc4.squarespacedns.com` on Google, Cloudflare, Quad9, OpenDNS |
-| Apex A | `69.46.46.70` on all five resolvers |
+| NS | Cloudflare `ganz.ns.cloudflare.com`, `marjory.ns.cloudflare.com` on Google and `1.1.1.1`. SOA primary `ganz` |
+| Apex A | `69.46.46.70` (Railway, DNS only). No AAAA |
 | `https://filterhero.net/api/health` | `{"ok":true,"brand":"Filter Hero"}` |
-| `https://filterhero.net/` | 200 shop HTML (`Filter Hero \| Exact-Fit HVAC`) |
-| `/sizes/20x25x1`, `/sitemap.xml`, `/llms.txt`, `/logo.png`, JS, CSS | 200 |
-| `www` CNAME | `ckury9c8.up.railway.app` on all five resolvers |
-| `https://www.filterhero.net/` | **FAIL** — TLS mismatch, then Railway `404 Application not found` (FH-181) |
-| Railway custom domains | `filterhero.net` only. Trial rejects a second host |
-| Railway regions | `us-east4-eqdc4a` × 1 (FH-182). Do not add `ams` |
+| `https://filterhero.net/` | 200 |
+| `/sizes/20x25x1`, `/sitemap.xml` | 200 |
+| MX | `smtp.google.com` priority 1 |
+| TXT `@` | Google SPF + `klaviyo-site-verification=VnVNmQ` |
+| `_railway-verify` | present |
+| `resend._domainkey` / `rsend` / `send` | present, Resend targets |
+| `klv` / `mtd1._domainkey` / `mtd2._domainkey` | present, Klaviyo targets |
+| `www` A | Cloudflare `104.21.41.176`, `172.67.149.19` (proxied) |
+| `www` leftover | Some resolvers still cache CNAME `ckury9c8.up.railway.app` (~3–4h TTL) |
+| `http://www.filterhero.net/...` via CF | **301** to `https://filterhero.net/...` (path + query kept) |
+| `https://www.filterhero.net/` via CF | **FAIL** — TLS handshake abort (Universal SSL not issued yet) |
+| default `https://www` | **FAIL** — `SEC_E_WRONG_PRINCIPAL`, then Railway `404` (cached Railway path) |
 | Service host | `https://filter-hero-production.up.railway.app/api/health` 200 |
-| `ckury9c8.up.railway.app` as Host | 404 (edge CNAME target, not an app hostname) |
-| Cloudflare zone | **ready, pending NS** — records + www redirect in zone (FH-183 fixed) |
-| Cloudflare NS (not live yet) | `ganz.ns.cloudflare.com`, `marjory.ns.cloudflare.com` |
 
-Apex shoppers are fine. `www` stays broken on the public internet until Squarespace uses the Cloudflare nameservers. Do not transfer the domain.
+Apex shoppers and mail are fine. Do not transfer the domain. Wait for Cloudflare to finish the `www` certificate. Do not attach `www` on Railway.
 
 ## Do not
 
@@ -51,16 +54,14 @@ Apex shoppers are fine. `www` stays broken on the public internet until Squaresp
 6. Wait until `nslookup -type=NS filterhero.net 8.8.8.8` shows only Cloudflare.
 7. Confirm site (apex and www), Gmail, Resend, and Klaviyo.
 
-## Current nameservers (still Squarespace)
+## Current nameservers (live at Cloudflare)
 
 ```
-nsc1.squarespacedns.com
-nsc2.squarespacedns.com
-nsc3.squarespacedns.com
-nsc4.squarespacedns.com
+ganz.ns.cloudflare.com
+marjory.ns.cloudflare.com
 ```
 
-## Cloudflare nameservers (paste these at Squarespace)
+## Cloudflare nameservers (already pasted at Squarespace)
 
 ```
 ganz.ns.cloudflare.com
