@@ -1,5 +1,17 @@
 import { useEffect } from "react";
 
+function headerOffset() {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(
+    "--site-header-h",
+  );
+  const n = parseFloat(raw);
+  return (Number.isFinite(n) ? n : 104) + 8;
+}
+
+function scrollTopFor(el: HTMLElement) {
+  return Math.max(0, window.scrollY + el.getBoundingClientRect().top - headerOffset());
+}
+
 export function scrollToHashTarget(
   id: string,
   behavior: ScrollBehavior = "smooth",
@@ -12,10 +24,10 @@ export function scrollToHashTarget(
     const html = document.documentElement;
     const previous = html.style.scrollBehavior;
     html.style.scrollBehavior = "auto";
-    el.scrollIntoView({ behavior: "auto", block: "start" });
+    window.scrollTo({ top: scrollTopFor(el), behavior: "auto" });
     html.style.scrollBehavior = previous;
   } else {
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.scrollTo({ top: scrollTopFor(el), behavior: "smooth" });
   }
   return true;
 }
@@ -34,7 +46,8 @@ function nearHashTarget(id: string) {
   const el = document.getElementById(id);
   if (!el) return false;
   const top = el.getBoundingClientRect().top;
-  return top >= 0 && top < 200;
+  const offset = headerOffset();
+  return top >= offset - 8 && top < offset + 96;
 }
 
 /** Scroll to a section after arriving with a hash like /#finder or #custom-quote. */
