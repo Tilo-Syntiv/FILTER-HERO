@@ -151,7 +151,7 @@ function finite(n: number, fallback: number) {
 }
 
 export function createHeroSkyFlight(layer: HTMLElement, rig: HTMLElement): () => void {
-  const layers = [...rig.querySelectorAll<HTMLImageElement>("img")];
+  const layers = Array.from(rig.querySelectorAll<HTMLImageElement>("img"));
   if (layers.length < 2) return () => undefined;
 
   let band: Band = { W: 1, H: 1, y0: 0, y1: 1 };

@@ -849,6 +849,18 @@ export function resolveDocumentSeo(pathname: string, siteUrl: string): DocumentS
     };
   }
 
+  if (path === "/login" || path === "/account" || path.startsWith("/account/")) {
+    return {
+      title: path === "/login" ? `Sign in | ${BRAND_NAME}` : `Your account | ${BRAND_NAME}`,
+      description: SITE_DEFAULTS.descriptionDefault,
+      path,
+      canonical: absoluteUrl(siteUrl, path),
+      type: "website",
+      noindex: true,
+      jsonLd: [],
+    };
+  }
+
   if (path.startsWith("/checkout")) {
     return {
       title: `Checkout | ${BRAND_NAME}`,

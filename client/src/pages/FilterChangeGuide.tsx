@@ -29,6 +29,9 @@ import {
 } from "@shared/seo";
 import LifeImage from "@/components/LifeImage";
 import { LIFE, type LifePhoto } from "@/data/life-photos";
+import { liveListPrice } from "@shared/products";
+
+const FLAGSHIP_FILTER_PRICE = liveListPrice("20x25x1", 8) ?? 9.99;
 
 const TOC = [
   { href: "#cadence", label: "Your clock" },
@@ -91,7 +94,7 @@ const PILLARS: {
   {
     k: "02",
     title: "The system that moves it",
-    body: "A clogged filter starves the blower. The motor, coils, and heat exchanger work harder, run hotter, and fail sooner. A $18 filter is cheaper than a service call.",
+    body: `A clogged filter starves the blower. The motor, coils, and heat exchanger work harder, run hotter, and fail sooner. A $${FLAGSHIP_FILTER_PRICE.toFixed(2)} filter is cheaper than a service call.`,
     source: "HVAC maintenance reality",
     photo: LIFE.filterFurnace,
   },

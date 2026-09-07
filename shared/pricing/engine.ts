@@ -304,16 +304,31 @@ export function liveUnitPrice(product: Priceable, qty: number): number | undefin
   return hero;
 }
 
-/** Cheapest undercut for merchandising "from $X". */
-export function liveFromPrice(key: MervPriceKey): number | undefined {
-  let min: number | undefined;
+function sizesForFromPrice(key: MervPriceKey): Set<string> {
+  const sizes = new Set<string>();
   for (const row of Array.from(LADDERS.values())) {
-    if (row.merv !== key) continue;
+    if (row.merv === key) sizes.add(row.size);
+  }
+  if (key === "carbon") return sizes;
+  for (const row of FILTRETE_PACKS) {
+    if (row.merv === key) sizes.add(normalizeSize(row.size));
+  }
+  for (const row of FILTERBUY_PACKS) {
+    if (row.merv === key) sizes.add(normalizeSize(row.size));
+  }
+  return sizes;
+}
+
+/** Cheapest live unit a shopper can pay — same ticket as the size page. */
+export function liveFromPrice(key: MervPriceKey): number | undefined {
+  const merv = key === "carbon" ? 8 : (Number(key) as 8 | 11 | 13);
+  const isCarbon = key === "carbon";
+  let min: number | undefined;
+  for (const size of Array.from(sizesForFromPrice(key))) {
     for (const step of QTY_STEPS) {
-      const fk = row[step.key];
-      if (typeof fk !== "number") continue;
-      const hero = heroFromFk(fk, Boolean(row.estimated));
-      if (min === undefined || hero < min) min = hero;
+      const unit = liveUnitPrice({ size, merv, isCarbon }, step.minQty);
+      if (typeof unit !== "number") continue;
+      if (min === undefined || unit < min) min = unit;
     }
   }
   return min;

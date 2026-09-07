@@ -26,7 +26,7 @@ const STORIES: {
   {
     merv: "11",
     photo: LIFE.petsSleep,
-    inset: LIFE.womanPets,
+    inset: LIFE.catDander,
     label: "Pets",
     title: "Fur, dander, and a pack on the couch",
     body: "Dogs and cats load a filter faster than a quiet house. MERV 11 is the upgrade when there's fur on the vents and someone in the family is sniffly.",

@@ -13,6 +13,7 @@ import {
   SELLABLE_ONLY,
   THICKNESSES,
   findProductVariant,
+  firstSellableProduct,
   getArchivedFilterSize,
   getFilterSize,
   getSizesByThickness,
@@ -132,11 +133,45 @@ assert(
 );
 
 let sellableCount = 0;
+const cheapest: Record<string, number> = {};
 for (const size of ALL_FILTER_SIZES) {
   for (const type of MERV_TYPES) {
     const variant = findProductVariant(size.slug, type.merv, type.isCarbon);
-    if (variant?.inStock) sellableCount += 1;
+    if (!variant?.inStock) continue;
+    sellableCount += 1;
+    const list = liveListPrice(size.slug, type.merv, type.isCarbon);
+    assert(
+      typeof list === "number",
+      `missing live qty-1 for ${size.slug} ${type.name}`,
+    );
+    assert(
+      variant.price === list,
+      `${size.slug} ${type.name} list $${variant.price} must be live $${list}`,
+    );
+    for (const qty of [1, 2, 4, 6, 12]) {
+      const live = liveUnitPrice(
+        { size: size.slug, merv: type.merv, isCarbon: type.isCarbon },
+        qty,
+      );
+      const unit = unitPriceForQty(variant.price, qty, variant);
+      assert(
+        typeof live === "number",
+        `missing live unit for ${size.slug} ${type.name} qty ${qty}`,
+      );
+      assert(
+        unit === live,
+        `${size.slug} ${type.name} qty ${qty} shows $${unit} but live is $${live}`,
+      );
+      const prev = cheapest[type.key];
+      if (prev === undefined || unit < prev) cheapest[type.key] = unit;
+    }
   }
+}
+for (const type of MERV_TYPES) {
+  assert(
+    type.fromPrice === cheapest[type.key],
+    `${type.shortLabel} card from $${type.fromPrice.toFixed(2)} must match cheapest live unit $${cheapest[type.key]?.toFixed(2)}`,
+  );
 }
 assert(
   sellableCount === ALL_FILTER_SIZES.length * MERV_TYPES.length,
@@ -150,6 +185,19 @@ const ladders = liveLadderCount();
 assert(ladders > 50, `live ladder table looks empty: ${ladders}`);
 const live = liveListPrice("20x25x1", 8);
 assert(live === 9.99, `20x25x1 MERV 8 qty 1 must match Filtrete $9.99, got ${live}`);
+for (const slug of popularSizeSlugs(13)) {
+  const variant = firstSellableProduct(slug);
+  assert(variant, `popular size ${slug} needs a sellable variant`);
+  const schema = unitPriceForQty(variant.price, 1, variant);
+  const liveQty1 = liveUnitPrice(
+    { size: slug, merv: variant.merv, isCarbon: variant.isCarbon },
+    1,
+  );
+  assert(
+    schema === liveQty1,
+    `${slug} schema/cart qty 1 $${schema} must be live $${liveQty1}`,
+  );
+}
 assert(liveListPrice("20x20x1", 8) === 9.99, "20x20x1 MERV 8 qty 1 must match Filtrete $9.99");
 assert(liveListPrice("16x25x1", 8) === 9.99, "16x25x1 MERV 8 qty 1 must match Filtrete $9.99");
 assert(liveListPrice("20x20x1", 11) === 13.49, "20x20x1 MERV 11 qty 1 must match Filtrete $13.49");

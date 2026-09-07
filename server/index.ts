@@ -17,6 +17,8 @@ import {
   sitemapPaths,
 } from "../shared/seo";
 import { submitContact } from "./contact";
+import { accountRouter } from "./account-routes";
+import { logCrmBoot } from "./db";
 import { createCheckoutSession, getCheckoutSessionStatus, handleStripeWebhook } from "./stripe";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -211,6 +213,8 @@ Sitemap: ${absoluteUrl(siteUrl, "/sitemap.xml")}
     }
   });
 
+  app.use("/api/account", accountRouter());
+
   if (isProd) {
     const staticPath = path.resolve(__dirname, "public");
     app.use(express.static(staticPath, { index: false }));
@@ -228,6 +232,7 @@ Sitemap: ${absoluteUrl(siteUrl, "/sitemap.xml")}
   const listen = () => {
     server.listen(port, () => {
       console.log(`API server running on http://localhost:${port}/`);
+      logCrmBoot();
     });
   };
 

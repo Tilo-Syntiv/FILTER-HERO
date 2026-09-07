@@ -20,6 +20,16 @@ export function scrollToHashTarget(
   return true;
 }
 
+/** Same-page header jumps. replaceState does not fire hashchange, so retry like a cold hash landing. */
+export function jumpToHashTarget(id: string) {
+  if (!id) return;
+  scrollToHashTarget(id, "auto");
+  if (window.location.hash !== `#${id}`) {
+    history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${id}`);
+  }
+  window.dispatchEvent(new HashChangeEvent("hashchange"));
+}
+
 function nearHashTarget(id: string) {
   const el = document.getElementById(id);
   if (!el) return false;

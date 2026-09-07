@@ -9,9 +9,12 @@ import { AllSizesPage, ThicknessHubPage } from "@/pages/SizeBrowse";
 import { AllBrandsPage, BrandDetailPage } from "@/pages/BrandBrowse";
 import CustomAirFiltersPage from "@/pages/CustomAirFilters";
 import FilterChangeGuidePage from "@/pages/FilterChangeGuide";
+import AccountPage from "@/pages/account/Account";
+import CustomerLogin from "@/pages/account/Login";
 import { Route, Switch, useRoute } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { AccountProvider } from "./contexts/AccountContext";
 import { CartProvider } from "./contexts/CartContext";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 
@@ -48,6 +51,8 @@ function Router() {
       <Route path="/how-often-to-change-air-filter" component={FilterChangeGuidePage} />
       <Route path="/checkout/success" component={CheckoutSuccess} />
       <Route path="/checkout/cancel" component={CheckoutCancel} />
+      <Route path="/login" component={CustomerLogin} />
+      <Route path="/account" component={AccountPage} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
@@ -58,12 +63,14 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
-        <CartProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </CartProvider>
+        <AccountProvider>
+          <CartProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </CartProvider>
+        </AccountProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

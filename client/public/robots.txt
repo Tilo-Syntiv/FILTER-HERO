@@ -1,6 +1,9 @@
 User-agent: *
 Allow: /
 Disallow: /checkout/
+Disallow: /admin
+Disallow: /login
+Disallow: /account
 Disallow: /api/
 
 User-agent: GPTBot

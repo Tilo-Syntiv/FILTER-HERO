@@ -14,7 +14,111 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-169**
+Next id: **FH-177**
+
+---
+
+### FH-176 — `pnpm check` died on NodeList spread in hero sky flight
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** `tsc --noEmit` failed with TS2802 in `createHeroSkyFlight` because the project tsconfig has no `target` and spreading `NodeListOf<HTMLImageElement>` needs downlevelIteration.
+- **Do NOT:** Spread a DOM NodeList with `[...]` under the root tsconfig. Do not flip `target` just to silence this one call.
+- **Do:** Collect pose images with `Array.from(rig.querySelectorAll("img"))`.
+- **Files:** `client/src/lib/hero-sky-flight.ts`
+- **Verify:** `pnpm check`
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-175 — Site-wide product prices must be live tickets
+- **Status:** fixed
+- **Area:** pricing
+- **Symptom:** Home MERV cards, size pages, cart, Stripe, and JSON-LD already used `liveUnitPrice`, but `/how-often-to-change-air-filter` still said “A $18 filter.” That is not a Filter Hero ticket. A catalog SKU could also silently fall back to `listPriceFor` / `PACK_TIERS` and show a different number than checkout.
+- **Do NOT:** Hardcode a filter dollar amount in shopper copy. Do not display `unitPriceForQty` when `liveUnitPrice` is missing for an in-stock SKU.
+- **Do:** Editorial filter prices use `liveListPrice("20x25x1", 8)`. Every in-stock size × MERV × pack qty on the shop must equal `liveUnitPrice`. MERV `fromPrice`, size-page packs, cart, Stripe, and schema qty 1 share that function. `$50` free-shipping and repair ranges stay policy/editorial, not product tickets.
+- **Files:** `client/src/pages/FilterChangeGuide.tsx`, `scripts/verify-store.ts`, `shared/pricing/engine.ts`, `shared/products.ts`
+- **Verify:** `/how-often-to-change-air-filter` Why it matters — “A $9.99 filter”. `/#merv` from-prices. `/sizes/20x25x1` pack eaches. `pnpm exec tsx scripts/verify-store.ts`
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-174 — Header account and cart icons did not label on hover
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** The circular Sign in and Cart controls only tinted a little on hover. Shoppers could not tell what the icons did.
+- **Do NOT:** Leave those icon-only controls without a visible hover/focus label. Do not rely on the native `title` delay.
+- **Do:** `.header-cart` shows `.header-cart-tip` on hover and `:focus-visible` (Sign in / Account, Cart). The button also brightens. Cart tip aligns to the right so it does not clip the viewport.
+- **Files:** `client/src/components/SiteHeader.tsx`, `client/src/index.css`
+- **Verify:** Header — hover the user icon: “Sign in” (or “Account”). Hover the cart: “Cart”. Keyboard focus shows the same tips.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-173 — MERV 13 catch card still used the child nebulizer photo
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage `#merv` Ultimate / MERV 13 card opened with `LIFE.sickNebulizer` (parent helping a child with a mask). The shopper-supplied woman-with-inhaler photo belongs in that header.
+- **Do NOT:** Point HOME_PICKS key `13` back at `LIFE.sickNebulizer`. Do not swap `LIFE.asthmaInhaler` or the Family Air kids card.
+- **Do:** Keep `LIFE.ladyAsthma` (`/life/lady-asthma.jpg`, `object-position: center 38%`) on the MERV 13 catch card so face and inhaler stay in the 4:3 crop.
+- **Files:** `client/src/data/life-photos.ts`, `client/src/components/MervCarousel.tsx`, `client/public/life/lady-asthma.jpg`
+- **Verify:** `/#merv` Ultimate card shows the woman using the inhaler. `#family` Kids & asthma still uses the nebulizer photo.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-172 — MERV deck “from $” used Filter King undercut, not shop tickets
+- **Status:** fixed
+- **Area:** pricing
+- **Symptom:** Home `#merv` cards read `from $4.96` / `$6.37` / `$5.64` / `$5.69`. Those numbers came from Filter King × 0.90, not `liveUnitPrice`. A Filtrete or FilterBuy match on the same rung would make the card cheaper than the size page.
+- **Do NOT:** Compute merchandising `fromPrice` with `heroFromFk` alone. Do not hardcode the four card prices.
+- **Do:** `liveFromPrice` is the cheapest `liveUnitPrice` across live ladders, Filtrete packs, and FilterBuy packs. `MERV_TYPES.fromPrice` must equal that ticket. Shop check walks every in-stock SKU × pack qty.
+- **Files:** `shared/pricing/engine.ts`, `shared/products.ts`, `scripts/verify-store.ts`
+- **Verify:** `/#merv` — Standard `$4.96` (12x12x1 ×12), Odor `$6.37` (12x12x1 ×4), Advanced `$5.64` (18x18x1 ×6), Ultimate `$5.69` (16x16x1 ×12). `pnpm exec tsx scripts/verify-store.ts`
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-171 — Sign-in vanished after switching to family-section-blue
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** `/login` 404ed and the header had no Sign in control. `design/family-section-blue` did not include the customer-account files; they stayed on `feat/customer-accounts` and in `stash@{0}`.
+- **Do NOT:** Ship this branch without `/login`, `AccountProvider`, and the header user icon. Do not send shoppers to a 404 for Sign in.
+- **Do:** Keep email + password login on `/login` (compact card on the navy band). Header user icon goes to `/login` or `/account`. `/api/account` stays behind `requireCustomer`.
+- **Files:** `client/src/App.tsx`, `client/src/pages/account/Login.tsx`, `client/src/contexts/AccountContext.tsx`, `client/src/components/SiteHeader.tsx`, `server/account-routes.ts`, `server/index.ts`
+- **Verify:** Open `/login`. Email and password are on the first screen. Header Sign in lands there. Wrong password shows an error, not a blank page.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-170 — Pets card inset was the woman with dog and cat
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage `#family` Pets / MERV 11 card used `LIFE.womanPets` (woman hugging a dog and cat) as the overlapping inset. The shopper-supplied cat-only sofa / lint-roller photo belongs in that slot.
+- **Do NOT:** Point the Pets story `inset` back at `LIFE.womanPets`. Do not swap the main `LIFE.petsSleep` dog-and-cat photo.
+- **Do:** Keep `LIFE.catDander` (`/life/cat-dander.jpg`, `object-position: 58% 40%`) as the Pets inset so the cat's face stays in the square crop.
+- **Files:** `client/src/data/life-photos.ts`, `client/src/components/FamilyAirSection.tsx`, `client/public/life/cat-dander.jpg`
+- **Verify:** `/` `#family` Pets card — large photo is still the sleeping dog and cat; the small overlapping tile is the cat on the sofa with the lint roller.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
+
+---
+
+### FH-169 — Header Filter Clock on the home page did not scroll
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** From another home hash (`/#how-to-measure`), Filter Clock set `/#clock` but left the shopper on the measure section. Same-page jumps used smooth `scrollIntoView` and `replaceState`, which does not fire `hashchange`, so the retry helper never ran.
+- **Do NOT:** Use only smooth scroll + `replaceState` for in-page header jumps. Do not skip the hash-landing retries.
+- **Do:** `jumpToHashTarget` scrolls `auto`, writes the hash, and dispatches `hashchange` so `useHashScroll` retries until the section is in view.
+- **Files:** `client/src/hooks/useHashScroll.ts`, `client/src/components/SiteHeader.tsx`
+- **Verify:** On `/#how-to-measure`, click Filter Clock — `#clock` is in view. Measure still lands on `#how-to-measure`.
+- **Added:** 2026-09-06
+- **Fixed:** 2026-09-06
 
 ---
 

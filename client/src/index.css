@@ -2817,9 +2817,64 @@ a.header-find-btn:hover {
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
-.header-cart:hover {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(142, 176, 216, 0.7);
+.header-cart:hover,
+.header-cart:focus-visible {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: #fff;
+  box-shadow: 0 0 0 4px rgba(214, 232, 248, 0.28);
+}
+
+.header-cart-tip {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  z-index: 60;
+  padding: 0.28rem 0.5rem;
+  border-radius: 0.45rem;
+  background: #152a4c;
+  border: 1px solid rgba(214, 232, 248, 0.45);
+  box-shadow: 0 10px 22px rgba(8, 14, 26, 0.35);
+  color: #fff;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(4px);
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+}
+
+.header-cart:last-child .header-cart-tip {
+  left: auto;
+  right: 0;
+  transform: translateX(0) translateY(4px);
+}
+
+.header-cart:focus-visible .header-cart-tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.header-cart:last-child:focus-visible .header-cart-tip {
+  transform: translateX(0) translateY(0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .header-cart:hover .header-cart-tip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .header-cart:last-child:hover .header-cart-tip {
+    transform: translateX(0) translateY(0);
+  }
 }
 
 .header-mega {
