@@ -14,7 +14,33 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-179**
+Next id: **FH-181**
+
+---
+
+### FH-180 — Size-page sticky Add to cart leaked onto desktop
+- **Status:** fixed
+- **Area:** cart
+- **Symptom:** `.pdp-sticky { display: flex }` beat Tailwind `lg:hidden`, so the mobile Add to cart bar could sit over the desktop size page.
+- **Do NOT:** Set `display: flex` on `.pdp-sticky` outside a max-width 1023px query.
+- **Do:** Hide `.pdp-sticky` by default. Show flex only under 1024px. Keep the page bottom padding in that same query.
+- **Files:** `client/src/index.css`
+- **Verify:** `/sizes/20x25x1` at 1280px — no bottom Add to cart bar. At 390px the bar is there.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-179 — Header Measure chip was too short to tap
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** After shrinking How to Measure (FH-168), the crimson chip was ~19px tall. Width / Length numbers were readable, but the control missed the 44px tap target.
+- **Do NOT:** Drop `.header-measure-chip` below `min-height: 44px` to save horizontal space.
+- **Do:** Keep the compact `Measure` label. Chip stays 44px tall. Finder fields still show two-digit inches.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` header — Measure chip height is 44px. Width still shows `20"`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
 
 ---
 
