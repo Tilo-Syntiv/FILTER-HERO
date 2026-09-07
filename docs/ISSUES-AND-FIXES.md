@@ -14,7 +14,19 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-184**
+Next id: **FH-185**
+
+---
+
+### FH-184 — Recheck 2026-09-07 02:02: apex shop is live; NS and www are not unanimous
+- **Status:** open
+- **Area:** seo
+- **Symptom:** Apex `https://filterhero.net` loads Filter Hero from this PC and from Google / Cloudflare / Quad9 / OpenDNS (all A `69.46.46.70`, health ok, `Server: railway-hikari`). NS is split: `1.1.1.1` and OpenDNS already `ganz` / `marjory`; Google and Quad9 still list Squarespace `nsc1`–`nsc4` even though Google SOA primary is already `ganz`. `www` is split: Cloudflare/Quad9 return CF anycast; Google/OpenDNS still mix in Railway `69.46.46.70`. Hitting `www` on the Railway IP still fails TLS (`SEC_E_WRONG_PRINCIPAL`). Hitting `www` on `104.21.41.176` now TLS-works and **301s** to apex health `{"ok":true}`.
+- **Do NOT:** Treat Google's leftover `nsc*` NS as proof the Squarespace click failed. Do not attach `www` on Railway. Do not change apex off Railway.
+- **Do:** Wait for NS and `www` cache to die. Keep using `https://filterhero.net`. FH-181 stays the www ticket until default `https://www.filterhero.net` 301s without `--resolve`.
+- **Files:** `docs/CLOUDFLARE-NAMESERVERS.md`
+- **Verify:** `nslookup -type=NS filterhero.net 8.8.8.8` is only `ganz` / `marjory`. `nslookup www.filterhero.net 8.8.8.8` has no `69.46.46.70`. `curl.exe -sI https://www.filterhero.net/` is 301 to the apex.
+- **Added:** 2026-09-07
 
 ---
 
@@ -47,7 +59,7 @@ Next id: **FH-184**
 ### FH-181 — www.filterhero.net does not load the shop
 - **Status:** mitigated
 - **Area:** seo
-- **Symptom:** Railway trial allows one custom domain (`filterhero.net` only). `www` cannot be attached. After the Squarespace → Cloudflare NS click (2026-09-07 01:58 EDT), `www` A is Cloudflare (`104.21.41.176`, `172.67.149.19`). HTTP `www` 301s to `https://filterhero.net` + path. HTTPS `www` still fails: Cloudflare Universal SSL is not issued yet (handshake abort on the CF IPs). Some resolvers still cache CNAME `ckury9c8.up.railway.app`; those clients get `SEC_E_WRONG_PRINCIPAL` then Railway `404 Application not found`. Apex stays 200.
+- **Symptom:** Railway trial allows one custom domain (`filterhero.net` only). `www` cannot be attached. After the Squarespace → Cloudflare NS click, some resolvers return Cloudflare anycast for `www`; others still cache Railway `69.46.46.70`. Recheck 2026-09-07 02:02: HTTPS to `104.21.41.176` now completes and **301s** to `https://filterhero.net/api/health` (`{"ok":true}`). Default `https://www` on this PC still hits `69.46.46.70` and fails `SEC_E_WRONG_PRINCIPAL`. Apex stays 200. See FH-184.
 - **Do NOT:** Expect the www CNAME alone to serve the app. Do not delete the apex custom domain to free the slot. Do not orange-cloud mail, DKIM, or verify hosts. Do not attach `www` on Railway.
 - **Do:** Keep apex on Railway, DNS only. Keep `www` proxied. Leave the Single Redirect `www.filterhero.net/*` → `https://filterhero.net/$1` (301). Wait for Cloudflare to issue the `www` cert. Old Railway CNAME cache can take a few hours.
 - **Files:** `docs/CLOUDFLARE-NAMESERVERS.md`
