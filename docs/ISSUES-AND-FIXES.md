@@ -614,6 +614,32 @@ Next id: **FH-212**
 
 ---
 
+### FH-178 — Free shipping was missing on delivery, cart, and checkout
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** FAQ said free shipping, but `#delivery`, the cart drawer, Stripe Checkout, size-page meta, and custom-quote FAQ did not. Shoppers could think shipping would be charged.
+- **Do NOT:** Leave a shipping surface without “free.” Do not put a dollar minimum back on free shipping (FH-177).
+- **Do:** Delivery section, cart line, Stripe `$0` shipping rate, homepage/size SEO, custom FAQ, and footer all say free shipping on every contiguous-US order.
+- **Files:** `client/src/components/DeliverySection.tsx`, `client/src/components/CartDrawer.tsx`, `client/src/components/TrustSection.tsx`, `client/src/pages/Home.tsx`, `server/stripe.ts`, `shared/seo.ts`, `scripts/verify-store.ts`
+- **Verify:** `/#delivery` — “Free shipping on every order.” Cart shows Shipping Free. `/#faq` and `/custom-air-filters` FAQ. Stripe Checkout lists Free shipping $0.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-177 — FAQ said free shipping only over $50
+- **Status:** fixed
+- **Area:** seo
+- **Symptom:** Homepage `#faq` “Do you offer free shipping?” and `/llms.txt` said free shipping on orders over $50. Shipping is free on every order.
+- **Do NOT:** Put a dollar minimum on free shipping in FAQ, llms, or schema copy.
+- **Do:** Say free shipping on every order within the contiguous United States. Trust tiles and the delivery map already say free shipping with no minimum.
+- **Files:** `shared/seo.ts`, `client/public/llms.txt`
+- **Verify:** `/#faq` — answer has no $50. `/llms.txt` shipping line has no $50.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
 ### FH-165 — Delivery map sat in a solid blue square
 - **Status:** mitigated
 - **Area:** photos
