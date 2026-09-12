@@ -103,31 +103,6 @@ export function orderFromCheckoutSession(
   };
 }
 
-async function taxSettingsReady(stripe: Stripe): Promise<boolean> {
-  try {
-    const settings = await stripe.tax.settings.retrieve();
-    const regs = await stripe.tax.registrations.list({ status: "active", limit: 1 });
-    if (settings.status === "active") {
-      if (regs.data.length > 0) {
-        console.info("[stripe tax] head office set; active registration present");
-      } else {
-        console.warn(
-          "[stripe tax] Tax Settings are active but there is no registration — tax will calculate $0 until one is added. See docs/STRIPE-BOOKS.md",
-        );
-      }
-      return true;
-    }
-    const missing = settings.status_details?.pending?.missing_fields?.join(", ") || "none";
-    console.warn(
-      `[stripe tax] automatic_tax off until Tax Settings are active (status=${settings.status}, missing=${missing}). Checkout still runs. See docs/STRIPE-BOOKS.md`,
-    );
-    return false;
-  } catch (err) {
-    console.warn("[stripe tax] could not read Tax Settings; Checkout continues without automatic_tax", err);
-    return false;
-  }
-}
-
 function lineLabel(
   product: NonNullable<ReturnType<typeof getProductById>>,
 ): string {
@@ -189,8 +164,6 @@ export async function createCheckoutSession(
     throw new Error("Stripe is not configured. Set STRIPE_SECRET_KEY in .env");
   }
 
-  const taxEnabled = await taxSettingsReady(stripe);
-
   const itemsMeta = compactItemsMeta(items);
   const email = shopper?.email?.trim().toLowerCase();
   const customerId = email ? await findCustomerIdByEmail(stripe, email) : null;
@@ -212,7 +185,7 @@ export async function createCheckoutSession(
     ],
     phone_number_collection: { enabled: true },
     invoice_creation: { enabled: true },
-    automatic_tax: { enabled: taxEnabled },
+    automatic_tax: { enabled: false },
     ...(customerId
       ? {
           customer: customerId,

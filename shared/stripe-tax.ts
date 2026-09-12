@@ -1,8 +1,7 @@
 /**
- * Stripe Tax product tax code for HVAC pleated filters (physical goods).
+ * Catalog label only. Checkout does not enable Stripe Tax (paid per calculation).
  * Canonical: GET /v1/tax_codes/txcd_99999999 — "General - Tangible Goods".
- * Confirm with a tax advisor if a narrower physical-goods code is required.
- * Override with STRIPE_TAX_CODE.
+ * Sales tax is QuickBooks Online. Override with STRIPE_TAX_CODE if needed later.
  */
 export const TANGIBLE_GOODS_TAX_CODE = "txcd_99999999";
 

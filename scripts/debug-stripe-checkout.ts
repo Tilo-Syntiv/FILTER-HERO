@@ -161,15 +161,10 @@ async function main() {
   check(Boolean(session.id) && isCheckoutSessionId(session.id), `session id ${session.id}`);
   check(Boolean(session.url), "session has hosted url");
   check(session.mode === "payment", "mode=payment");
-  const settings = await stripe.tax.settings.retrieve();
-  if (settings.status === "active") {
-    check(session.automatic_tax?.enabled === true, "automatic_tax enabled (Tax Settings active)");
-  } else {
-    check(
-      session.automatic_tax?.enabled !== true,
-      `automatic_tax stays off until head office (status=${settings.status})`,
-    );
-  }
+  check(
+    session.automatic_tax?.enabled !== true,
+    "automatic_tax stays off — Stripe Tax is billed; tax is QuickBooks Online",
+  );
   check(
     session.customer_creation === "always" || Boolean(session.customer),
     `customer_creation=${session.customer_creation} customer=${typeof session.customer === "string" ? session.customer : "none"}`,

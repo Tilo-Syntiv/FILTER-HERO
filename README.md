@@ -6,7 +6,7 @@ HVAC filter storefront: size finder, catalog, cart, Stripe Checkout, and quote/c
 
 - React 19 + Vite 7 + Tailwind 4 + wouter
 - Express API (checkout, webhook, contact, products)
-- Stripe Checkout (Tax, Customer, Invoice) + optional Resend email for leads
+- Stripe Checkout (Customer, Invoice) + optional Resend email for leads. Sales tax is QuickBooks Online, not Stripe Tax.
 - Books: QuickBooks Online beside Stripe — see `docs/STRIPE-BOOKS.md`
 
 ## Setup

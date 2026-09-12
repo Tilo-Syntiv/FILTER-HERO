@@ -14,7 +14,20 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-211**
+Next id: **FH-212**
+
+---
+
+### FH-211 — Stripe Tax was calculating (and billing) at Checkout
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Checkout sent `automatic_tax.enabled=true` once Tax Settings were active. Stripe bills a tax-calculation fee on completed live sessions and finalized invoices. The plan was QuickBooks Online Automated Sales Tax (Online Tax app) + the Stripe Connector, not paid Stripe Tax.
+- **Do NOT:** Turn `automatic_tax` back on when head office or registrations exist. Do not enable Tax → Integrations automatic collection on invoices or Payment Links. Do not add Stripe tax registrations to “fix” a missing tax line.
+- **Do:** Keep `automatic_tax.enabled=false`. Collect payment on Stripe; record/apply sales tax in QuickBooks Online. Checkout still creates Customer + Invoice for the connector.
+- **Files:** `server/stripe.ts`, `shared/stripe-tax.ts`, `scripts/debug-stripe-checkout.ts`, `scripts/verify-stripe-books.ts`, `docs/STRIPE-BOOKS.md`, `README.md`
+- **Verify:** `pnpm exec tsx scripts/debug-stripe-checkout.ts` — session `automatic_tax.enabled` is false. Live Dashboard Tax → Integrations is off. New completed checkouts do not show a Stripe Tax fee.
+- **Added:** 2026-09-11
+- **Fixed:** 2026-09-11
 
 ---
 
