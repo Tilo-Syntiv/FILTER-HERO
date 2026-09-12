@@ -6,7 +6,7 @@ HVAC filter storefront: size finder, catalog, cart, Stripe Checkout, and quote/c
 
 - React 19 + Vite 7 + Tailwind 4 + wouter
 - Express API (checkout, webhook, contact, products)
-- Stripe Checkout (Tax, Customer, Invoice) + optional Resend email for leads
+- Stripe Checkout (Customer, Invoice) + optional Resend email for leads. Sales tax is QuickBooks Online, not Stripe Tax.
 - Books: QuickBooks Online beside Stripe — see `docs/STRIPE-BOOKS.md`
 
 ## Setup
@@ -27,9 +27,20 @@ Edit `.env`:
 | `VITE_STRIPE_PUBLISHABLE_KEY` | Same publishable key for the Vite client |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
 | `STRIPE_TAX_CODE` | Optional product tax code (default `txcd_99999999`) |
+| `SITE_URL` / `VITE_SITE_URL` | Canonical origin (`https://filterhero.net`). Vite bakes `VITE_` in at build time |
 | `CONTACT_TO` | Inbox for lead emails |
 | `RESEND_API_KEY` | Optional — if unset, leads save to `server/data/leads.json` only |
-| `RESEND_FROM` | Verified Resend from address |
+| `RESEND_FROM` | Verified Resend from address (`Filter Hero <info@filterhero.net>`) |
+| `VITE_FULL_CATALOG` / `FULL_CATALOG` | `true` sells the full archive including carbon |
+| `SUPABASE_URL` / `VITE_SUPABASE_URL` | Supabase project URL for `/login` and `/admin` |
+| `VITE_SUPABASE_ANON_KEY` | Browser auth key (publishable or JWT anon) |
+| `SUPABASE_ANON_KEY` | Server JWT anon key used to verify sessions |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server only. Never prefix with `VITE_` |
+| `STAFF_EMAILS` | Comma-separated inboxes allowed into `/admin` |
+| `KLAVIYO_PRIVATE_API_KEY` | Klaviyo private key. Server only |
+| `KLAVIYO_PUBLIC_API_KEY` | Six-character site ID for `onsite.js` |
+| `KLAVIYO_LIST_ID` | Marketing list (`RiTKiS`) |
+| `TURNSTILE_SECRET_KEY` / `VITE_TURNSTILE_SITE_KEY` | Cloudflare Turnstile on contact/quote |
 
 ## Develop
 
@@ -46,7 +57,9 @@ pnpm dev
 stripe listen --forward-to localhost:3001/api/stripe/webhook
 ```
 
-Paste the webhook signing secret into `.env` as `STRIPE_WEBHOOK_SECRET`.
+Paste the CLI signing secret into `.env` as `STRIPE_WEBHOOK_SECRET`.
+
+Production needs a Dashboard endpoint at `https://filterhero.net/api/stripe/webhook` (`checkout.session.completed` + `checkout.session.expired`). Create or repair it with `pnpm setup:stripe-webhook`, then put that endpoint's signing secret on Railway — it is not the `stripe listen` secret.
 
 ## Production
 
@@ -65,5 +78,15 @@ Serves the SPA and API from the Express server (`NODE_ENV=production`).
 | `pnpm build` | Client + server bundle → `dist/` |
 | `pnpm start` | Run production server |
 | `pnpm check` | TypeScript check |
-| `pnpm verify:stripe-books` | Mapping checks + live Tax Settings read |
-| `pnpm debug:stripe-checkout` | Webhook + live Checkout Session probe |
+| `pnpm smoke` | Hit local Vite + API routes |
+| `pnpm verify:store` | Catalog / pricing invariants |
+| `pnpm verify:crm` | CRM pipeline, staff gate, rate limits, no-mail invariant |
+| `pnpm verify:security` | Headers, CSP, JSON error shaping, Turnstile fail-closed, public POST limiters |
+| `pnpm setup:crm` | Write service role key + Auth redirects when `SUPABASE_ACCESS_TOKEN` is set |
+| `pnpm verify:account` | Customer account isolation + `/login` noindex |
+| `pnpm verify:supabase` | Live CRM + account tables, RLS, Auth admin |
+| `pnpm verify:stripe-books` | Mapping checks + live Tax Settings + webhook endpoint |
+| `pnpm verify:env` | Load `.env`, check formats, live-ping Stripe / Resend / Klaviyo / Supabase / Turnstile / Cloudflare |
+| `pnpm verify:resend` | Domain + From checks, then a probe to `delivered@resend.dev` |
+| `pnpm debug:stripe-checkout` | Webhook + live Checkout Session + test charge probe |
+| `pnpm setup:stripe-webhook` | Create/repair the production Checkout webhook endpoint |

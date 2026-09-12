@@ -2,6 +2,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { defineConfig } from "vite";
+import { securityHeaderMap } from "./shared/security-headers";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -21,6 +22,7 @@ export default defineConfig({
     port: 3000,
     strictPort: false,
     host: true,
+    headers: securityHeaderMap({ production: false, hsts: false }),
     proxy: {
       "/api": {
         target: "http://127.0.0.1:3001",

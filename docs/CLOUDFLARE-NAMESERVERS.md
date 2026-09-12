@@ -1,4 +1,4 @@
-# Cloudflare nameservers (live — www HTTPS cert still issuing)
+# Cloudflare nameservers (live — apex 100%, www cache still draining)
 
 **Summary:** Keep `filterhero.net` registered at Squarespace. When we want a DNS API, point **nameservers only** at Cloudflare. Copy every record into Cloudflare first. Do not transfer the domain.
 
@@ -6,9 +6,11 @@
 
 **Gate (2026-09-07 01:58 EDT):** Squarespace NS click is done. Google, Cloudflare (`1.1.1.1`), and SOA show only `ganz` / `marjory`. Apex shop, Google MX, SPF, Klaviyo, Resend, and Railway verify are live on Cloudflare. `www` A is orange-cloud (`104.21.41.176`, `172.67.149.19`). HTTP `www` already 301s to `https://filterhero.net` + path. HTTPS `www` is not ready: Cloudflare Universal SSL handshake fails; some clients still follow a cached Railway CNAME and get the old TLS / 404 (FH-181).
 
-**Last snapshot:** 2026-09-07 02:02 EDT (recheck).
+**Last snapshot:** 2026-09-07 02:20 EDT (live copy matches shop).
 
-**Recheck 2026-09-07 02:02 EDT:** Apex shop is live on Google, Cloudflare, Quad9, OpenDNS, and this PC (`69.46.46.70`, health ok). NS is **not** unanimous — `1.1.1.1` / OpenDNS = `ganz`/`marjory`; Google / Quad9 still list Squarespace `nsc*`. `www` HTTPS via `104.21.41.176` now 301s to the apex shop. Default `www` can still land on cached Railway `69.46.46.70` and fail TLS (FH-184).
+**Debug 2026-09-07 02:08 EDT:** Apex shop is 100% — health, 22 routes, sitemap (10006 URLs), assets, HTTP→HTTPS, custom domain ACTIVE. Authoritative Cloudflare `www` HTTPS **301s** to apex. Default `www` on this PC and Google DoH still follow cached CNAME `ckury9c8.up.railway.app` (TTL 14400) and fail TLS (FH-185).
+
+**Live 2026-09-07 02:20 EDT:** Railway `98fd8aed` SUCCESS. FAQ, meta, `/llms.txt`, size pages, and custom-quote FAQ all say free shipping on every order. No `$50` (FH-186).
 
 ## Live check 2026-09-07 01:58 EDT (after NS change)
 
@@ -23,6 +25,7 @@
 | TXT `@` | Google SPF + `klaviyo-site-verification=VnVNmQ` |
 | `_railway-verify` | present |
 | `resend._domainkey` / `rsend` / `send` | present, Resend targets |
+| `_dmarc` | `v=DMARC1; p=none; rua=mailto:info@filterhero.net` |
 | `klv` / `mtd1._domainkey` / `mtd2._domainkey` | present, Klaviyo targets |
 | `www` A | Cloudflare `104.21.41.176`, `172.67.149.19` (proxied) |
 | `www` leftover | Some resolvers still cache CNAME `ckury9c8.up.railway.app` (~3–4h TTL) |
@@ -98,8 +101,9 @@ Railway still lists that CNAME target for the apex custom domain. The clickable 
 | TXT | `resend._domainkey` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDY0W7t8ajkqaBCLXw2hZewiuzDcM6kwa2lr/9LaJpxRCFTonmmcigVp7oqwhQJN7SjYE1BoVnWCVLxd06C8sudInqcGkp+/Lbi7+QaznZ2G8rYLQm4yoJ+GV04ig19JgGX2EXUHQkX1RfsCWTRIlQ2Oa3XRxCpfXTPe26ghUsMSQIDAQAB` | DNS only |
 | CNAME | `rsend` | `rsend.forge.rmta.net` | DNS only |
 | CNAME | `send` | `send.forge.rmta.net` | DNS only |
+| TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:info@filterhero.net` | DNS only |
 
-Re-copy the DKIM `p=` from live DNS if Resend rotated it.
+Re-copy the DKIM `p=` from live DNS if Resend rotated it. DMARC stays `p=none` until reports look clean. Do not jump to `p=reject` on day one.
 
 ### Klaviyo (marketing)
 

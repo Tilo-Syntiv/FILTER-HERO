@@ -14,14 +14,364 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-185**
+Next id: **FH-212**
+
+---
+
+### FH-211 — Stripe Tax was calculating (and billing) at Checkout
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Checkout sent `automatic_tax.enabled=true` once Tax Settings were active. Stripe bills a tax-calculation fee on completed live sessions and finalized invoices. The plan was QuickBooks Online Automated Sales Tax (Online Tax app) + the Stripe Connector, not paid Stripe Tax.
+- **Do NOT:** Turn `automatic_tax` back on when head office or registrations exist. Do not enable Tax → Integrations automatic collection on invoices or Payment Links. Do not add Stripe tax registrations to “fix” a missing tax line.
+- **Do:** Keep `automatic_tax.enabled=false`. Collect payment on Stripe; record/apply sales tax in QuickBooks Online. Checkout still creates Customer + Invoice for the connector.
+- **Files:** `server/stripe.ts`, `shared/stripe-tax.ts`, `scripts/debug-stripe-checkout.ts`, `scripts/verify-stripe-books.ts`, `docs/STRIPE-BOOKS.md`, `README.md`
+- **Verify:** `pnpm exec tsx scripts/debug-stripe-checkout.ts` — session `automatic_tax.enabled` is false. Live Dashboard Tax → Integrations is off. New completed checkouts do not show a Stripe Tax fee.
+- **Added:** 2026-09-11
+- **Fixed:** 2026-09-11
+
+---
+
+### FH-210 — Production still ran an older main build
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Local had CRM, accounts, Klaviyo, Turnstile, and security headers. `filterhero.net` was Railway `main` without them (`X-Powered-By: Express`, no CSP). A `railway up` of this branch would be rolled back by GitHub autodeploy from `main` (FH-187). The working tree also had scrape/video scripts that are not the shop.
+- **Do NOT:** `railway up` this branch while `main` is behind. Do not commit `.firecrawl/`, Veo/cape-fly generators, or `.cursor/mcp.json` with the shop. Do not put service-role keys in `VITE_` vars.
+- **Do:** Ship only the finished shop/CRM/Klaviyo/security stack. Merge that commit to `main` so autodeploy and local are the same code. Leave scrape and video scripts uncommitted.
+- **Files:** `server/`, `client/src/`, `shared/security-headers.ts`, `supabase/migrations/`, `scripts/verify-*.ts`
+- **Verify:** `https://filterhero.net/api/health` has nosniff, DENY, CSP, and no `X-Powered-By`. `/login` and `/admin` 200. CRM 401 when signed out. `git rev-parse origin/main` matches the shipped shop commit.
+- **Added:** 2026-09-11
+- **Fixed:** 2026-09-11
+
+---
+
+### FH-209 — Local CSP blocked Klaviyo onsite identify
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Dev CSP `connect-src` allowed `https://*.klaviyo.com` only. On `http://localhost:3000` the onsite script posts to `http://a.klaviyo.com/client/profiles`, so the browser blocked identify/track. Checkout still reached Stripe; Klaviyo never saw the email on localhost.
+- **Do NOT:** Add `http://*.klaviyo.com` to the production CSP. Do not drop `https://*.klaviyo.com`.
+- **Do:** Development `connect-src` includes `http://*.klaviyo.com`. Production keeps HTTPS Klaviyo plus `upgrade-insecure-requests`.
+- **Files:** `shared/security-headers.ts`, `scripts/verify-security.ts`
+- **Verify:** `pnpm verify:security`. Local HTML `Content-Security-Policy` includes `http://*.klaviyo.com`. Console has no CSP violation on `a.klaviyo.com`. Leftover CORS on localhost HTTP is Klaviyo redirecting http→https; `/api/identify` still writes the profile.
+- **Added:** 2026-09-11
+- **Fixed:** 2026-09-11
+
+---
+
+### FH-208 — Production staff magic links could not land on /admin
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Supabase Auth allows `https://filterhero.net/login` and `/account`, but not `/admin`. Staff OTP used `emailRedirectTo` `/admin`, so the production magic link fell back to the Site URL (`http://localhost:3000`). The 6-digit code still worked.
+- **Do NOT:** Point staff `emailRedirectTo` at `/admin` until that exact URL is on the Auth allowlist and the Site URL is `https://filterhero.net`.
+- **Do:** Staff magic links land on `/login`. `sessionStorage` stores the staff email; after PKCE exchange, `/login` and `/account` send only that email to `/admin`. Shopper sessions are not redirected. Keep `safeNextPath` rejecting `/admin`.
+- **Files:** `client/src/pages/admin/Login.tsx`, `client/src/pages/account/Login.tsx`, `client/src/pages/account/Account.tsx`, `client/src/lib/staff-auth.ts`, `shared/staff-auth.ts`, `scripts/check-auth-redirects.ts`, `scripts/verify-account.ts`
+- **Verify:** `pnpm verify:account`. `pnpm exec tsx scripts/check-auth-redirects.ts` — production `/login` allowed; evil URL blocked. Staff Send link on production, open the email, land on `/admin`.
+- **Added:** 2026-09-11
+- **Fixed:** 2026-09-11
+
+---
+
+### FH-207 — Hash jumps landed under the two-row phone header
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** After FH-206 the sticky header is ~137px. `#clock` / `#finder` / `#contact` used `scroll-mt-28` (112px) and `nearHashTarget` treated anything under 200px as done. Drawer Filter Clock closed the sheet, then the section title sat under the finder row (clock top ~86px).
+- **Do NOT:** Scroll hash targets with a fixed 7rem margin. Do not treat `top < 200` as “close enough” when the header is taller than that.
+- **Do:** `html` uses `scroll-padding-top: calc(var(--site-header-h) + 0.5rem)`. `scrollToHashTarget` offsets by `--site-header-h`. `nearHashTarget` requires the section to clear the header. Drawer hash links wait 80ms after the sheet closes so Radix scroll unlock does not fight the jump.
+- **Files:** `client/src/hooks/useHashScroll.ts`, `client/src/index.css`, `client/src/components/SiteHeader.tsx`
+- **Verify:** Phone `/` → hamburger → Filter Clock. `#clock` heading sits below the finder, not under it. Knobs 44px.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-206 — Phone header was 308px and crushed the first screen
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** On a 390px phone the sticky header stacked logo, Custom/Sign in/Cart, wrapped Shop/Brands/Clock/Contact/Measure, and the size finder (~308px). `.home-first` is `100dvh` minus `--site-header-h`, so the hero H1, lede, and CTAs clipped. Same chrome sat on every shopper page.
+- **Do NOT:** Put Shop/Brands/Clock/Contact/Measure/Custom back in the phone header bar. Do not drop `.header-cart`, `.header-menu-btn`, or the drawer Measure chip below 44px. Do not shrink Filter Clock knobs below 44px to save drum space. Do not render 16 × 44px carousel dots.
+- **Do:** Below `lg` (1024px): one slim row (hamburger, logo, account, cart) plus a visible size finder. Nav, brands, clock, measure, contact, and custom live in a left Sheet (`.header-mobile`). Desktop mega menus stay at `lg+`. Hide the extra hero “Filter Hero” lockup under 1024px. Let `.hero-copy` scroll on small screens so CTAs stay reachable. Carousels with 8+ slides use a `3 / 16` pager.
+- **Files:** `client/src/components/SiteHeader.tsx`, `client/src/index.css`, `client/src/components/CarouselDots.tsx`
+- **Verify:** `/` at 390px — header ~2 rows; hero H1 + both CTAs visible; hamburger opens/closes; header Find lands on a size page. `/sizes/20x25x1` — product in first screen; sticky Add to cart. `/#clock` — knobs 44px. 1280px — desktop mega menus; no sticky ATC leak (FH-180).
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-205 — Public API had no headers, leaked parser text, and left browser grants on Postgres
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Local and Railway origin sent `X-Powered-By: Express` and no CSP / nosniff / frame-deny / HSTS. `POST /api/identify` and `/api/track` returned raw Zod JSON. Malformed JSON dumped a body-parser HTML stack. Identify, track, and checkout had no rate limit. `X-Forwarded-For[0]` could skip limiters. Production Turnstile failed open if the secret was missing. Anon/authenticated still had table grants (RLS was the only gate). `/login?next=/account/../admin` could leave the site path.
+- **Do NOT:** Re-enable `X-Powered-By`. Do not return `err.message` or Zod text from identify, track, webhook, or session lookup. Do not parse `X-Forwarded-For` yourself. Do not skip Turnstile in production when the secret is unset (except `intent=reminder`). Do not `CREATE POLICY` on CRM/account tables. Do not `GRANT` those tables to `anon` / `authenticated`.
+- **Do:** Express (and Vite in dev) send nosniff, DENY framing, CSP, Referrer-Policy, Permissions-Policy, COOP; HSTS only on HTTPS production. JSON parse errors are `{code:invalid_json}`. Identify 20/min, track 40/min, checkout 10/15min. `req.ip` after `trust proxy 1`. Migration `0004_lock_browser_grants.sql` FORCE RLS + revoke browser grants. `safeNextPath` rejects `..`, `/admin`, `/api`, `/login`.
+- **Files:** `server/security.ts`, `server/index.ts`, `server/contact.ts`, `shared/security-headers.ts`, `shared/account-paths.ts`, `vite.config.ts`, `supabase/migrations/0004_lock_browser_grants.sql`, `scripts/verify-security.ts`, `scripts/smoke-site.ts`
+- **Verify:** `pnpm verify:security`. `pnpm verify:crm`. `pnpm verify:account`. `pnpm verify:supabase`. `pnpm smoke`. `curl.exe -sI http://127.0.0.1:3001/api/health` has nosniff and no `X-Powered-By`. Empty identify is `{"code":"identify_failed"}`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-204 — Checkout created a new Stripe Customer on every email
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** `createCheckoutSession` always passed `customer_creation: always` + `customer_email`. A repeat buyer became a second Stripe Customer, so invoices and the QBO connector could not attach to one person.
+- **Do NOT:** Pass both `customer` and `customer_email`. Do not skip `customer_update` when reusing a customer and collecting shipping.
+- **Do:** Look up `customers.list({ email })`. Reuse that id with `customer_update` name/address/shipping `auto`. First-time emails still use `customer_creation: always`.
+- **Files:** `server/stripe.ts`, `scripts/debug-stripe-checkout.ts`
+- **Verify:** `pnpm debug:stripe-checkout` — reuse session customer id matches the existing customer.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-203 — Stripe Dashboard had no fulfillment webhook
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Local and Railway Checkout both talk to sandbox `acct_1U9bqs790NnFGDLv`. `/api/stripe/webhook` is live (unsigned POST is 400). Stripe listed **zero** webhook endpoints, so `checkout.session.completed` never wrote orders or synced Klaviyo / CRM / accounts. Tax Settings are still `pending` (no head office); that is separate and already gated (FH-139).
+- **Do NOT:** Point the Dashboard endpoint at localhost. Do not put the `stripe listen` `whsec_` on Railway. Do not enable `automatic_tax` before head office exists.
+- **Do:** `pnpm setup:stripe-webhook` creates `https://filterhero.net/api/stripe/webhook` for `checkout.session.completed` + `checkout.session.expired`. Put that endpoint's signing secret on Railway. Keep the CLI secret in local `.env`. Set head office in Tax Settings before expecting a tax line.
+- **Files:** `scripts/setup-stripe-webhook.ts`, `scripts/debug-stripe-checkout.ts`, `scripts/verify-stripe-books.ts`, `scripts/verify-env.ts`, `docs/STRIPE-BOOKS.md`
+- **Verify:** `pnpm setup:stripe-webhook`. `pnpm debug:stripe-checkout`. Dashboard → Webhooks shows the Filter Hero URL enabled. Railway `STRIPE_WEBHOOK_SECRET` last4 matches the Dashboard endpoint, not `stripe listen`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-202 — Lead mail still used the Resend sandbox From
+- **Status:** fixed
+- **Area:** contact
+- **Symptom:** `filterhero.net` was verified on Resend with sending enabled, but local and Railway `RESEND_FROM` was `Filter Hero <onboarding@resend.dev>`. That sandbox identity can only deliver to the Resend account email, so quote/support alerts to `info@filterhero.net` fail or never look like Filter Hero mail.
+- **Do NOT:** Send production mail from `onboarding@resend.dev`. Do not enable Resend receiving on `@` (that steals Google MX). Do not replace the Google SPF. Do not orange-cloud `resend._domainkey`, `rsend`, or `send`.
+- **Do:** `RESEND_FROM=Filter Hero <info@filterhero.net>`. Default in code is the same if the env is unset. Contact sends use idempotency key `lead-email/{id}`. DMARC is `p=none` at `_dmarc.filterhero.net`. SDK is `resend` 6.x.
+- **Files:** `server/contact.ts`, `.env.example`, `scripts/verify-resend.ts`, `docs/CLOUDFLARE-NAMESERVERS.md`
+- **Verify:** `pnpm verify:resend` sends to `delivered@resend.dev` from `info@filterhero.net`. Railway `RESEND_FROM` matches.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-201 — Production shop had Klaviyo keys but no live routes
+- **Status:** fixed
+- **Area:** contact
+- **Symptom:** Railway already had `KLAVIYO_PRIVATE_API_KEY` / `KLAVIYO_PUBLIC_API_KEY` / `KLAVIYO_LIST_ID`. The live shop still served the pre-Klaviyo build, so `/api/klaviyo/config` and catalog 404ed and onsite never loaded. Revenue mapping and sending-domain verify were leftover UI clicks.
+- **Do NOT:** Point `send.filterhero.net` at Klaviyo. Do not write `next_change_date` from Filter Clock or `/api/identify`. Do not add an order-confirmation flow.
+- **Do:** Keep the three Klaviyo vars on Railway. Deploy the integration (`ecfd4b1d`). Map Placed Order → revenue, Ordered Product, Started Checkout, Added to Cart, Viewed Product. Sending domain `klv.filterhero.net` stays active. A later GitHub autodeploy from `main` can roll this `railway up` back until main has the same code.
+- **Files:** `server/klaviyo.ts`, `server/index.ts`, `scripts/map-klaviyo-metrics.ts`, `docs/KLAVIYO.md`
+- **Verify:** Live `/api/klaviyo/config` enabled + public site ID. Catalog 299 SKUs. `POST /api/identify` and reminder `/api/contact` 200. Bundle fetches `/api/klaviyo/config` and `static.klaviyo.com/onsite`. `pnpm map:klaviyo-metrics` all `ok`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-200 — Smoke died on a hot contact limiter, and empty checkout leaked Zod
+- **Status:** fixed
+- **Area:** contact
+- **Symptom:** After earlier quote posts, `pnpm smoke` POSTed `/api/contact` and treated `429 rate_limited_contact` as a total failure. Empty `POST /api/checkout` logged a Zod stack and returned `err.message`. Production staff magic links to `https://filterhero.net/admin` are still not on the Auth allowlist (Site URL fallback is localhost).
+- **Do NOT:** Require a successful contact send for smoke. Do not return raw Zod text from checkout. Do not treat a 429 with `rate_limited_contact` as a broken shop.
+- **Do:** Smoke proves invalid contact 400, honeypot ignore-or-429, CRM/account 401, and Stripe checkout. Empty cart is `400 checkout_failed`. Add `https://filterhero.net/admin` in Auth → URL configuration before production staff links.
+- **Files:** `scripts/smoke-site.ts`, `server/index.ts`, `scripts/verify-supabase.ts`
+- **Verify:** `pnpm smoke`. `pnpm verify:supabase`. `pnpm check`. Empty checkout is `{"code":"checkout_failed"}`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-199 — Python tooling crashed on cwd, imports, and wholesale print
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** `python .firecrawl/write_wholesale_doc.py` died with `No module named 'compare_wholesale'`. Firecrawl one-shots used `Path(".firecrawl")` so they failed unless cwd was the repo root. `count_gaps.py` counted `size(20,` calls that no longer exist and reported 0 catalog sizes. `compare_wholesale.py` matched 299 SKUs then crashed printing popular rows (`KeyError: heroQ1`). Default `python` in some shells is 3.11 without numpy/docx.
+- **Do NOT:** Import sibling `.firecrawl` modules without putting that folder on `sys.path`. Do not read scrapes from `Path(".firecrawl")`. Do not count catalog sizes with `size(\s*\d+` in `products.ts`. Do not print `heroQ1` off the raw comparison rows. Do not assume `python` is 3.12.
+- **Do:** Resolve paths from `__file__`. Put `.firecrawl` on `sys.path` before `compare_wholesale`. Count sizes from `shared/filter-catalog.json`. Print popular rows from the summary dict. Run tooling with `py -3.12` after `py -3.12 -m pip install -r scripts/requirements.txt`.
+- **Files:** `.firecrawl/write_wholesale_doc.py`, `.firecrawl/compare_wholesale.py`, `.firecrawl/count_gaps.py`, `.firecrawl/count_sitemap_urls.py`, `.firecrawl/parse_qty_blocks.py`, `scripts/_test_py.py`, `scripts/requirements.txt`
+- **Verify:** `py -3.12 scripts/_test_py.py`. `py -3.12 .firecrawl/_audit_remaining.py` — catalog missing scrape 0.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-198 — Local API 404ed size-page SSR that smoke now requires
+- **Status:** fixed
+- **Area:** seo
+- **Symptom:** `pnpm smoke` fetched `http://127.0.0.1:3001/sizes/20x25x1` for crawler JSON-LD. Express only injected SEO HTML when `NODE_ENV=production`, so local returned 404 (`size SSR 404`) even though Vite on :3000 was 200.
+- **Do NOT:** Keep document HTML behind the prod-only static block. Do not point smoke at Vite for JSON-LD — Vite does not inject `jsonld-ssr`.
+- **Do:** In dev, serve `client/index.html` through `injectSeoIntoHtml` for non-`/api` GETs. Production still serves `dist/public`.
+- **Files:** `server/index.ts`, `scripts/smoke-site.ts`
+- **Verify:** `pnpm smoke`. `curl.exe http://127.0.0.1:3001/sizes/20x25x1` includes `application/ld+json` and `OfferShippingDetails`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-197 — Custom quote honeypot and form reset were not live JS
+- **Status:** fixed
+- **Area:** contact
+- **Symptom:** The custom-quote honeypot used an undeclared or unregistered `website` input, so Vite could fail the module and bots filling "website" still created leads. After a successful contact send, `website` and `turnstileToken` stayed on the form. Turnstile `load` listeners were not removed.
+- **Do NOT:** Reference `websiteRef` without declaring it. Do not leave the honeypot as a bare `name="website"` input. Do not skip reset of `website` / `turnstileToken`.
+- **Do:** Register the honeypot and POST `website`. Reset both fields after a successful send. Remove the Turnstile script `load` listener on unmount.
+- **Files:** `client/src/components/CustomQuoteForm.tsx`, `client/src/components/ContactForm.tsx`, `client/src/components/TurnstileField.tsx`
+- **Verify:** `pnpm check`. `pnpm smoke`. POST `/api/contact` with `website` set returns `id: ignored`. Open `/custom-air-filters`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-196 — This branch had Klaviyo keys and DNS but no live integration
+- **Status:** fixed
+- **Area:** contact
+- **Symptom:** `.env` already had the Filter Hero Klaviyo site ID / list, and Cloudflare already served `klv` + DKIM + site verification. This branch had no `server/klaviyo.ts`, no onsite boot, and no events from contact / clock / cart / Stripe. Shoppers never reached the marketing list or the seven Filter Hero flows.
+- **Do NOT:** Send a second order confirmation or quote receipt from a Klaviyo flow. Do not write `next_change_date` from Filter Clock or `/api/identify`. Do not point `send.filterhero.net` at Klaviyo.
+- **Do:** Server tracks quote / support / clock / checkout / Placed Order. Marketing list join needs the checkbox. Clock save stores `clock_next_change_date` only. Replenish starts on `Placed Order`. Catalog feed is `/api/klaviyo/catalog.json`. Sending domain `klv.filterhero.net` stays the marketing host.
+- **Files:** `server/klaviyo.ts`, `server/contact.ts`, `server/stripe.ts`, `server/index.ts`, `client/src/lib/klaviyo.ts`, `docs/KLAVIYO.md`, `scripts/setup-klaviyo-account.ts`
+- **Verify:** `pnpm verify:klaviyo`. `pnpm setup:klaviyo`. Local `GET /api/klaviyo/config` returns the public site ID. Local catalog is 299 SKUs. Clock reminder posts without Turnstile and does not subscribe.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-195 — Filter King `n` size keys in live-price JSON never matched the catalog
+- **Status:** fixed
+- **Area:** pricing
+- **Symptom:** `fk-live-prices.json` had 60 rows keyed `10x30x0.5n` (Filter King nominal). `normalizeSize` only stripped a trailing `a`, so those ladders never bound to `10x30x0.5`. Estimated MERV 11 on `10x30x0.5` undercut to $48.75 instead of the scraped $49.48.
+- **Do NOT:** Drop trailing `n` from catalog slugs. Do not treat `n` rows as missing sizes. Do not prefer estimated ladders over scraped aliases.
+- **Do:** Strip a trailing `a` or `n` in `normalizeSize`. Keep the non-`n` catalog slug. Prefer scraped over estimated when both keys collapse.
+- **Files:** `shared/pricing/engine.ts`, `scripts/verify-json.ts`
+- **Verify:** `pnpm verify:json` — `prices:n-alias-scraped` is $49.48. `pnpm verify:store`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-194 — Size JSON-LD spoke as the homepage and omitted free-shipping Offer fields
+- **Status:** fixed
+- **Area:** seo
+- **Symptom:** `buildSpeakableSchema` always set `url` to `/`, so `/sizes/20x25x1`, custom quote, and the change guide told Google the speakable WebPage was the homepage. Product Offers had price but no `shippingDetails` / return policy. JSON-LD injected into HTML did not escape `<`.
+- **Do NOT:** Point speakable `WebPage.url` at `/` on inner routes. Do not ship Product Offers without $0 US shipping. Do not put raw `<` inside `<script type="application/ld+json">`.
+- **Do:** Pass `{ path, name }` into `buildSpeakableSchema`. Put `OfferShippingDetails` + `MerchantReturnPolicy` on the Offer. Escape `<` as `\u003c` in SSR and `useSeo`.
+- **Files:** `shared/seo.ts`, `client/src/hooks/useSeo.ts`, `scripts/verify-json.ts`, `scripts/smoke-site.ts`
+- **Verify:** `pnpm verify:json`. Size JSON-LD speakable URL is `https://filterhero.net/sizes/20x25x1` and includes `OfferShippingDetails`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-193 — Cart Klaviyo pack shots used an unsafe MERV cast
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Added-to-cart lines called `packShotSrc(item.merv as 8 | 11 | 13)`, so a carbon cart line sent the MERV 8 pack shot and SKU `size-8`.
+- **Do NOT:** Cast a cart `number` to `MervRating`. Do not skip `getProductById` when building Klaviyo cart lines.
+- **Do:** Resolve the live product and pass `product.merv` + `product.isCarbon` into `packShotSrc`. Carbon SKUs use the `carbon` suffix.
+- **Files:** `client/src/lib/klaviyo.ts`, `client/src/pages/SizeDetail.tsx`
+- **Verify:** `pnpm check`. Add a carbon SKU and inspect Added to Cart `ImageURL` / `SKU`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-192 — Klaviyo onsite never loaded if config fetch failed once
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** `bootKlaviyo()` set `booted = true` before `/api/klaviyo/config`. A server restart (`ECONNREFUSED` on the Vite proxy) left `publicKey` empty and never retried, so `onsite.js` stayed unloaded for that tab. A mid-merge `App.tsx` also declared `AdminBoard` twice and broke Vite babel / `tsc`.
+- **Do NOT:** Mark the boot finished before a successful config response. Do not paste admin imports or `AdminDealRoute` twice. Do not import `closeDealsOnPurchase` twice.
+- **Do:** Retry the config fetch a few times. Set `booted` only after a 200. Load `onsite.js` from `App` on mount. Keep one admin import and `/admin/login` + `/admin/deals/:id` above `/admin`.
+- **Files:** `client/src/lib/klaviyo.ts`, `client/src/App.tsx`, `server/stripe.ts`
+- **Verify:** `pnpm check`. `pnpm smoke`. Reload `/` while the API is up; Network shows `/api/klaviyo/config`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-191 — Local `.env` had no live verifier and `.env.example` omitted live keys
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Shop keys lived in `.env` (Stripe, Resend, Klaviyo, Supabase, Turnstile, Cloudflare) but nothing asserted formats or pinged the APIs in one pass. `.env.example` omitted Klaviyo list/site IDs and Turnstile/Cloudflare placeholders. A send-only Resend key looked like a domain-list failure if you called `/domains`.
+- **Do NOT:** Print secret values. Do not put service-role, Resend, Stripe `sk_`, or Cloudflare tokens in `VITE_` vars. Do not treat a Resend 401 on `/domains` as a dead key when send to `delivered@resend.dev` works.
+- **Do:** Keep `SITE_URL` / `VITE_SITE_URL=https://filterhero.net`. Run `pnpm verify:env` after changing `.env`. Local Stripe stays `sk_test_` / `pk_test_`. Klaviyo public site ID is `VnVNmQ`, list `RiTKiS`. Turnstile hostnames include localhost and filterhero.net.
+- **Files:** `scripts/verify-env.ts`, `.env.example`, `package.json`, `README.md`
+- **Verify:** `pnpm verify:env` (52 passed). `pnpm verify:supabase`. `pnpm debug:stripe-checkout`. `pnpm check`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-190 — Quote intake had no bot gate, and CRM routes imported a missing security module
+- **Status:** fixed
+- **Area:** contact
+- **Symptom:** `server/crm/routes.ts` and `pnpm verify:crm` imported `crmLimiter` / `publicError` / Turnstile helpers from `server/security.ts`, which did not exist. `/api/contact` had no rate limit or honeypot. Production Turnstile keys sat unused. Filter Clock reminders must still post without a widget (FH-131).
+- **Do NOT:** Require Turnstile on `intent=reminder`. Do not let the CRM send mail. Do not skip `requireStaff` on `/api/crm`.
+- **Do:** Keep `server/security.ts` as the public-API gate. Contact limiter is 5 per 15 minutes. Quote/support forms send a honeypot + Turnstile token. `reminder` skips Turnstile. Paid checkout still closes CRM deals fail-soft.
+- **Files:** `server/security.ts`, `shared/email-channels.ts`, `server/index.ts`, `server/contact.ts`, `client/src/components/ContactForm.tsx`, `client/src/components/CustomQuoteForm.tsx`, `client/src/components/TurnstileField.tsx`
+- **Verify:** `pnpm verify:crm`. Local `GET /api/crm/health` is 401 without a staff session. Local `GET /admin` 200.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-189 — `pnpm check` failed and Vite env was incomplete
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** `tsc --noEmit` died on top-level await in `scripts/verify-resend.ts` because `tsconfig.json` had no `target`. `.env` had no `SITE_URL` / `VITE_SITE_URL`. The HTML fallback still said carbon was quote-only. Smoke did not hit `/login`, `/account`, or `/admin`.
+- **Do NOT:** Leave `compilerOptions.target` unset. Do not put service-role keys in `VITE_` vars. Do not list `/admin` after `/admin/login` in a prefix matcher.
+- **Do:** Keep `target` at `ES2022`. Type Vite keys in `client/src/vite-env.d.ts`. Set `VITE_SITE_URL=https://filterhero.net` for production builds. Keep `/admin/login` and `/admin/deals/:id` above `/admin`.
+- **Files:** `tsconfig.json`, `client/src/vite-env.d.ts`, `client/src/App.tsx`, `client/index.html`, `.env.example`, `scripts/smoke-site.ts`
+- **Verify:** `pnpm check`. `pnpm smoke`. Open `/`, `/login`, `/admin`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-188 — Supabase CRM and accounts were half-wired on this branch
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** The live `filter-hero` project already had CRM + customer-account tables, RLS, and keys in `.env`. This branch only had `0002_customer_accounts.sql`. `/admin` 404ed, `/api/crm` was missing, contact quotes never opened a deal, and a paid Stripe webhook never attached SKUs to a profile.
+- **Do NOT:** Ship customer login without the CRM schema, staff routes, or the webhook/account attach. Do not put the service role key in a `VITE_` var. Do not add RLS policies that let the browser query Postgres.
+- **Do:** Keep deny-by-default RLS (zero policies). Express uses the service role. Shoppers use `/login` + `/api/account`. Staff use `/admin` + `/api/crm` behind `STAFF_EMAILS`. Auth redirects include localhost and filterhero.net for `/login`, `/account`, and `/admin`.
+- **Files:** `supabase/migrations/0001_crm.sql`, `server/crm/`, `server/index.ts`, `server/contact.ts`, `server/stripe.ts`, `client/src/App.tsx`, `scripts/verify-supabase.ts`
+- **Verify:** `pnpm verify:supabase` and `pnpm verify:account` and `pnpm verify:crm`. Open `/login` and `/admin`. Add `https://filterhero.net/admin` under Auth → URL configuration if staff magic links from production should land there (localhost `/admin` already works).
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-187 — Live site still showed the old main build, not the local shop
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** `https://filterhero.net` was Railway `main` (shipping-copy only). Local `design/family-section-blue` has the family-band, new life photos (`lady-asthma`, `carpet-clean`, `cat-dander`), header, and CSS. Live `/life/lady-asthma.jpg` returned the SPA HTML; `/life/girl-dog.jpg` was still the JPEG.
+- **Do NOT:** Leave production on `main` while the local shop is this branch. Do not `railway up` only the shipping cherry-pick and call the sites matched.
+- **Do:** Deploy this branch so live assets and UI match local. Keep `main` on the same commit so GitHub autodeploy does not roll the look back.
+- **Files:** `client/src/data/life-photos.ts`, `client/src/components/FamilyAirSection.tsx`, `client/src/index.css`, `client/public/life/`
+- **Verify:** Live `/life/lady-asthma.jpg` is `image/jpeg` 92301 bytes (same as local). `/life/girl-dog.jpg` is not a JPEG. Bundle `/assets/index-CEs62oYW.js` references lady-asthma, carpet-clean, cat-dander. Railway `ea335b33` SUCCESS. PR #4 merged to `main`.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-186 — Live FAQ and crawler copy still said shipping over $50
+- **Status:** fixed
+- **Area:** seo
+- **Symptom:** Shop policy is free shipping on every contiguous-US order (FH-177 / FH-178). Production `main` was still `27aac84`, so `/llms.txt`, homepage FAQ JSON-LD, and meta description said “over $50.”
+- **Do NOT:** Put a dollar minimum back on free shipping. Do not deploy the whole `design/family-section-blue` branch just to ship this copy.
+- **Do:** Keep FAQ, llms, schema, delivery, cart, and Stripe `$0` shipping on every order. Production is Railway deploy `98fd8aed` from PR #3 (`fix/live-shop-shipping` merged to `main`).
+- **Files:** `shared/seo.ts`, `client/public/llms.txt`, `client/src/components/CartDrawer.tsx`, `client/src/components/DeliverySection.tsx`, `server/stripe.ts`
+- **Verify:** `https://filterhero.net/llms.txt` has no `$50`. Homepage FAQ JSON-LD: “free shipping on every order.” `/sizes/20x25x1` meta has the same. `/custom-air-filters` has the custom-shipping FAQ.
+- **Added:** 2026-09-07
+- **Fixed:** 2026-09-07
+
+---
+
+### FH-185 — Debug 2026-09-07 02:08: apex shop is 100%; www default and live $50 FAQ are not
+- **Status:** mitigated
+- **Area:** seo
+- **Symptom:** Full resolver + route pass. Apex `https://filterhero.net` is Railway `69.46.46.70`, health ok, title Filter Hero. All 22 shop routes 200 with the SPA shell. **Not 100%:** this PC and Google DoH still cache `www` CNAME `ckury9c8.up.railway.app` (TTL 14400) so default `https://www` fails `SEC_E_WRONG_PRINCIPAL`. Live `$50` shipping copy is fixed (FH-186).
+- **Do NOT:** Attach `www` on Railway trial. Do not treat the leftover Railway CNAME as a failed NS click. Do not redeploy the design branch to production just to clear DNS cache.
+- **Do:** Share `https://filterhero.net`. Wait out the 4h `www` CNAME.
+- **Files:** `docs/CLOUDFLARE-NAMESERVERS.md`, `shared/seo.ts`
+- **Verify:** `curl.exe -sI https://www.filterhero.net/` → 301 without `--resolve`. `curl.exe -s https://filterhero.net/llms.txt` has no `$50` (done).
+- **Added:** 2026-09-07
 
 ---
 
 ### FH-184 — Recheck 2026-09-07 02:02: apex shop is live; NS and www are not unanimous
-- **Status:** open
+- **Status:** mitigated
 - **Area:** seo
-- **Symptom:** Apex `https://filterhero.net` loads Filter Hero from this PC and from Google / Cloudflare / Quad9 / OpenDNS (all A `69.46.46.70`, health ok, `Server: railway-hikari`). NS is split: `1.1.1.1` and OpenDNS already `ganz` / `marjory`; Google and Quad9 still list Squarespace `nsc1`–`nsc4` even though Google SOA primary is already `ganz`. `www` is split: Cloudflare/Quad9 return CF anycast; Google/OpenDNS still mix in Railway `69.46.46.70`. Hitting `www` on the Railway IP still fails TLS (`SEC_E_WRONG_PRINCIPAL`). Hitting `www` on `104.21.41.176` now TLS-works and **301s** to apex health `{"ok":true}`.
+- **Symptom:** Apex `https://filterhero.net` loads Filter Hero from this PC and from Google / Cloudflare / Quad9 / OpenDNS (all A `69.46.46.70`, health ok, `Server: railway-hikari`). Recheck 02:08: Google / Cloudflare / Quad9 NS are only `ganz` / `marjory`. Leftover is `www` CNAME cache (FH-185).
 - **Do NOT:** Treat Google's leftover `nsc*` NS as proof the Squarespace click failed. Do not attach `www` on Railway. Do not change apex off Railway.
 - **Do:** Wait for NS and `www` cache to die. Keep using `https://filterhero.net`. FH-181 stays the www ticket until default `https://www.filterhero.net` 301s without `--resolve`.
 - **Files:** `docs/CLOUDFLARE-NAMESERVERS.md`
@@ -59,7 +409,7 @@ Next id: **FH-185**
 ### FH-181 — www.filterhero.net does not load the shop
 - **Status:** mitigated
 - **Area:** seo
-- **Symptom:** Railway trial allows one custom domain (`filterhero.net` only). `www` cannot be attached. After the Squarespace → Cloudflare NS click, some resolvers return Cloudflare anycast for `www`; others still cache Railway `69.46.46.70`. Recheck 2026-09-07 02:02: HTTPS to `104.21.41.176` now completes and **301s** to `https://filterhero.net/api/health` (`{"ok":true}`). Default `https://www` on this PC still hits `69.46.46.70` and fails `SEC_E_WRONG_PRINCIPAL`. Apex stays 200. See FH-184.
+- **Symptom:** Railway trial allows one custom domain (`filterhero.net` only). `www` cannot be attached. After the Squarespace → Cloudflare NS click, some resolvers return Cloudflare anycast for `www`; others still cache Railway `69.46.46.70`. Recheck 2026-09-07 02:08: HTTPS to `104.21.41.176` completes and **301s** to apex (path + query kept). Default `https://www` on this PC still hits cached CNAME `ckury9c8.up.railway.app` (TTL 14400) and fails `SEC_E_WRONG_PRINCIPAL`. Apex stays 200. See FH-185.
 - **Do NOT:** Expect the www CNAME alone to serve the app. Do not delete the apex custom domain to free the slot. Do not orange-cloud mail, DKIM, or verify hosts. Do not attach `www` on Railway.
 - **Do:** Keep apex on Railway, DNS only. Keep `www` proxied. Leave the Single Redirect `www.filterhero.net/*` → `https://filterhero.net/$1` (301). Wait for Cloudflare to issue the `www` cert. Old Railway CNAME cache can take a few hours.
 - **Files:** `docs/CLOUDFLARE-NAMESERVERS.md`

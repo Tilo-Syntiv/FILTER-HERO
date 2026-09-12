@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
@@ -11,12 +12,16 @@ import CustomAirFiltersPage from "@/pages/CustomAirFilters";
 import FilterChangeGuidePage from "@/pages/FilterChangeGuide";
 import AccountPage from "@/pages/account/Account";
 import CustomerLogin from "@/pages/account/Login";
-import { Route, Switch, useRoute } from "wouter";
+import AdminBoard from "@/pages/admin/Board";
+import AdminDealDetail from "@/pages/admin/DealDetail";
+import AdminShell from "@/pages/admin/AdminShell";
+import { Redirect, Route, Switch, useRoute } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AccountProvider } from "./contexts/AccountContext";
 import { CartProvider } from "./contexts/CartContext";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
+import { bootKlaviyo } from "@/lib/klaviyo";
 
 function ThicknessRoute() {
   const [, params] = useRoute("/filters/:thickness");
@@ -37,6 +42,19 @@ function BrandRoute() {
   return <BrandDetailPage slug={slug} />;
 }
 
+function AdminLoginRoute() {
+  return (
+    <AdminShell title="Staff sign in">
+      {() => <Redirect to="/admin" />}
+    </AdminShell>
+  );
+}
+
+function AdminDealRoute() {
+  const [, params] = useRoute("/admin/deals/:id");
+  return <AdminDealDetail id={params?.id ?? ""} />;
+}
+
 function Router() {
   useScrollToTop();
   return (
@@ -53,6 +71,9 @@ function Router() {
       <Route path="/checkout/cancel" component={CheckoutCancel} />
       <Route path="/login" component={CustomerLogin} />
       <Route path="/account" component={AccountPage} />
+      <Route path="/admin/login" component={AdminLoginRoute} />
+      <Route path="/admin/deals/:id" component={AdminDealRoute} />
+      <Route path="/admin" component={AdminBoard} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
@@ -60,6 +81,9 @@ function Router() {
 }
 
 function App() {
+  useEffect(() => {
+    void bootKlaviyo();
+  }, []);
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">

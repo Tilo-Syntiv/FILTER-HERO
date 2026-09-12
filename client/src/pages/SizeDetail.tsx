@@ -22,7 +22,6 @@ import {
   packShotSrc,
   sellableMervPhrase,
   unitPriceForQty,
-  type MervRating,
   type Product,
 } from "@shared/products";
 import {
@@ -44,6 +43,7 @@ import LifeImage from "@/components/LifeImage";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
+import { trackSelectedMerv, trackViewedProduct, trackViewedSize } from "@/lib/klaviyo";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
 import { BRAND_NAME } from "@/const";
 import { brandsForSize } from "@shared/hvac-brands";
@@ -91,6 +91,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
   const pickMerv = (key: PreferredMerv) => {
     setMervKey(key);
     setPreferredMerv(key);
+    trackSelectedMerv(key);
   };
 
   const selectedType =
@@ -104,9 +105,17 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
   }, [selectedType.key, gallery.length]);
   const variant: Product | undefined = findProductVariant(
     decoded,
-    selectedType.merv as MervRating,
+    selectedType.merv,
     selectedType.isCarbon,
   );
+
+  useEffect(() => {
+    trackViewedSize(decoded);
+  }, [decoded]);
+
+  useEffect(() => {
+    if (variant) trackViewedProduct(variant);
+  }, [variant]);
 
   const unitPrice = variant ? unitPriceForQty(variant.price, qty, variant) : 0;
   const total = variant ? packTotal(variant.price, qty, variant) : 0;

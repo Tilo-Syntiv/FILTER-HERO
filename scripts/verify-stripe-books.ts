@@ -47,19 +47,17 @@ async function checkLiveTax() {
   }
 
   const stripe = new Stripe(key);
-  const settings = await stripe.tax.settings.retrieve();
-  const regs = await stripe.tax.registrations.list({ status: "active", limit: 100 });
-  console.log(`Tax Settings status: ${settings.status}`);
-  if (settings.status !== "active") {
-    const missing = settings.status_details?.pending?.missing_fields?.join(", ") || "unknown";
-    console.log(`Head office / settings incomplete (missing: ${missing}).`);
-    console.log("Dashboard: https://dashboard.stripe.com/settings/tax");
-  }
-  console.log(`Active tax registrations: ${regs.data.length}`);
-  if (regs.data.length === 0) {
-    console.log("No active registrations — Checkout will calculate $0 tax.");
-    console.log("Dashboard: https://dashboard.stripe.com/tax/registrations");
-    console.log("Do not add a state until a tax advisor says you collect there.");
+  console.log("Checkout does not enable Stripe Tax (no calculation fee).");
+  console.log("Sales tax is QuickBooks Online Automated Sales Tax + the Stripe Connector.");
+  console.log("Dashboard: turn off Tax → Integrations automatic collection if it is still on.");
+  const hooks = await stripe.webhookEndpoints.list({ limit: 20 });
+  const fulfillment = hooks.data.find((hook) => hook.url.includes("/api/stripe/webhook"));
+  if (fulfillment && fulfillment.status === "enabled") {
+    console.log(`Fulfillment webhook: ${fulfillment.url} (${fulfillment.status})`);
+  } else {
+    console.log("No enabled Dashboard webhook to /api/stripe/webhook.");
+    console.log("Paid Checkout will not write orders or sync Klaviyo / CRM / accounts.");
+    console.log("Run: pnpm setup:stripe-webhook");
   }
   console.log("See docs/STRIPE-BOOKS.md");
 }

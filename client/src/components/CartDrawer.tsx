@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Minus, Plus, ShoppingBag, Trash2, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import MarketingOptIn from "@/components/MarketingOptIn";
+import { identifyShopper, rememberedEmail } from "@/lib/klaviyo";
+import { useAccount } from "@/contexts/AccountContext";
 import {
   Drawer,
   DrawerClose,
@@ -22,10 +27,23 @@ type CartDrawerProps = {
 export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
   const { items, isOpen, closeCart, setQty, removeItem, subtotal, itemCount, cartSummaryText } =
     useCart();
+  const { email: accountEmail } = useAccount();
   const [checkingOut, setCheckingOut] = useState(false);
+  const [email, setEmail] = useState(() => rememberedEmail());
+  const [marketingConsent, setMarketingConsent] = useState(false);
+
+  useEffect(() => {
+    if (accountEmail) setEmail(accountEmail);
+  }, [accountEmail]);
 
   const handleCheckout = async () => {
     if (items.length === 0) return;
+    const trimmed = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error("Enter your email so we can save the cart if checkout is left open.");
+      return;
+    }
+    identifyShopper({ email: trimmed });
     setCheckingOut(true);
     try {
       const res = await fetch("/api/checkout", {
@@ -36,6 +54,8 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
             productId: i.productId,
             quantity: i.qty,
           })),
+          email: trimmed,
+          marketingConsent,
         }),
       });
       const data = (await res.json()) as { url?: string; error?: string };
@@ -142,6 +162,23 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
               <span className="text-muted-foreground">Shipping</span>
               <span className="font-semibold text-navy">Free</span>
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cart-email">Email</Label>
+            <Input
+              id="cart-email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@email.com"
+              className="h-11"
+            />
+            <MarketingOptIn
+              id="cart-marketing"
+              checked={marketingConsent}
+              onCheckedChange={setMarketingConsent}
+            />
           </div>
           <Button
             size="lg"

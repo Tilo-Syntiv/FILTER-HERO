@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/admin-api";
+import { markStaffAuthPending, staffMagicLinkRedirect } from "@/lib/staff-auth";
 
 const fieldLabel =
   "text-xs font-bold uppercase tracking-wider text-muted-foreground";
@@ -12,10 +13,9 @@ const fieldInput = "h-12 rounded-xl border-border bg-white text-base";
 /**
  * Magic-link sign in, with the 6-digit code as a second path.
  *
- * The link is nicer when Auth redirects are configured. The code still works
- * when they are not — which is the usual state of a brand-new Supabase
- * project, and the reason the first login used to die after "check your
- * inbox." No passwords, so nothing to leak or rotate.
+ * The link lands on /login (already on the Auth allowlist), then the matching
+ * staff email is sent to /admin. The 6-digit code still works if the link
+ * cannot. No passwords, so nothing to leak or rotate.
  *
  * The result message is identical whether or not the address is on
  * STAFF_EMAILS, so this form cannot be used to enumerate staff. A non-staff
@@ -34,10 +34,13 @@ export default function AdminLogin() {
     const supabase = authClient();
     if (!supabase) return;
     setStatus("sending");
+    const address = email.trim().toLowerCase();
+    markStaffAuthPending(address);
     const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
+      email: address,
       options: {
-        emailRedirectTo: `${window.location.origin}/admin`,
+        // /admin is not on the production Auth allowlist. /login is.
+        emailRedirectTo: staffMagicLinkRedirect(),
         shouldCreateUser: true,
       },
     });

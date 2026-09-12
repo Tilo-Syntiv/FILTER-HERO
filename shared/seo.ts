@@ -19,6 +19,15 @@ import { HVAC_BRAND_LIST, getHvacBrand } from "./hvac-brands";
 /** Canonical production origin — override with VITE_SITE_URL / CLIENT_URL. */
 export const DEFAULT_SITE_URL = "https://filterhero.net";
 
+export function siteOrigin(): string {
+  return (
+    process.env.SITE_URL ||
+    process.env.VITE_SITE_URL ||
+    process.env.CLIENT_URL ||
+    DEFAULT_SITE_URL
+  ).replace(/\/$/, "");
+}
+
 export const SITE_DEFAULTS = {
   brand: BRAND_NAME,
   tagline: BRAND_TAGLINE,
@@ -456,12 +465,16 @@ export function buildArticleSchema(
 }
 
 /** Speakable content for voice assistants (VEO). */
-export function buildSpeakableSchema(siteUrl: string, cssSelectors: string[]) {
+export function buildSpeakableSchema(
+  siteUrl: string,
+  cssSelectors: string[],
+  page: { path: string; name?: string } = { path: "/" },
+) {
   return {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: BRAND_NAME,
-    url: absoluteUrl(siteUrl, "/"),
+    name: page.name ?? BRAND_NAME,
+    url: absoluteUrl(siteUrl, page.path),
     speakable: {
       "@type": "SpeakableSpecification",
       cssSelector: cssSelectors,
@@ -526,6 +539,25 @@ export function buildProductSchema(
       availability: "https://schema.org/InStock",
       itemCondition: "https://schema.org/NewCondition",
       seller: { "@type": "Organization", name: BRAND_NAME },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 30,
+        returnMethod: "https://schema.org/ReturnByMail",
+        applicableCountry: "US",
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: "0",
+          currency: "USD",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "US",
+        },
+      },
     },
   };
 }
@@ -701,12 +733,11 @@ function homeDocument(siteUrl: string): DocumentSeo {
       buildWebSiteSchema(siteUrl),
       buildFaqSchema(SITE_FAQS),
       buildHowToMeasureSchema(siteUrl),
-      buildSpeakableSchema(siteUrl, [
-        ".seo-answer",
-        ".seo-speakable-q",
-        ".seo-speakable-a",
-        "#faq-heading",
-      ]),
+      buildSpeakableSchema(
+        siteUrl,
+        [".seo-answer", ".seo-speakable-q", ".seo-speakable-a", "#faq-heading"],
+        { path: "/", name: BRAND_NAME },
+      ),
       buildBreadcrumbSchema(siteUrl, [{ name: "Home", path: "/" }]),
     ],
   };
@@ -776,7 +807,10 @@ export function resolveDocumentSeo(pathname: string, siteUrl: string): DocumentS
           answer: `A ${decoded} filter is the nominal size. The actual dimensions are ${sizeMeta.actualWidth}×${sizeMeta.actualLength}×${sizeMeta.actualDepth} inches so it slides into a standard ${decoded} slot.`,
         },
       ]),
-      buildSpeakableSchema(siteUrl, [".seo-answer", ".seo-speakable-q", ".seo-speakable-a"]),
+      buildSpeakableSchema(siteUrl, [".seo-answer", ".seo-speakable-q", ".seo-speakable-a"], {
+        path: `/sizes/${encodeURIComponent(decoded)}`,
+        name: `${decoded} air filter`,
+      }),
     ];
     if (variant) {
       const mervType = MERV_TYPES.find((t) => t.key === (variant.isCarbon ? "carbon" : String(variant.merv))) ?? MERV_TYPES[0];
@@ -834,7 +868,10 @@ export function resolveDocumentSeo(pathname: string, siteUrl: string): DocumentS
           { name: "Custom air filters", path: "/custom-air-filters" },
         ]),
         buildFaqSchema(CUSTOM_FAQS),
-        buildSpeakableSchema(siteUrl, [".seo-answer", ".seo-speakable-q", ".seo-speakable-a"]),
+        buildSpeakableSchema(siteUrl, [".seo-answer", ".seo-speakable-q", ".seo-speakable-a"], {
+          path: "/custom-air-filters",
+          name: `Custom air filters | ${BRAND_NAME}`,
+        }),
       ],
     };
   }
@@ -851,8 +888,23 @@ export function resolveDocumentSeo(pathname: string, siteUrl: string): DocumentS
         buildArticleSchema(siteUrl, seo),
         buildHowToChangeFilterSchema(siteUrl),
         buildFaqSchema(CHANGE_GUIDE_FAQS),
-        buildSpeakableSchema(siteUrl, [".seo-answer", ".seo-speakable-q", ".seo-speakable-a"]),
+        buildSpeakableSchema(siteUrl, [".seo-answer", ".seo-speakable-q", ".seo-speakable-a"], {
+          path: CHANGE_GUIDE_PATH,
+          name: seo.title,
+        }),
       ],
+    };
+  }
+
+  if (path === "/admin" || path.startsWith("/admin/")) {
+    return {
+      title: `Staff | ${BRAND_NAME}`,
+      description: SITE_DEFAULTS.descriptionDefault,
+      path,
+      canonical: absoluteUrl(siteUrl, path),
+      type: "website",
+      noindex: true,
+      jsonLd: [],
     };
   }
 
@@ -937,7 +989,10 @@ export function injectSeoIntoHtml(html: string, seo: DocumentSeo): string {
   );
 
   if (seo.jsonLd.length > 0) {
-    const payload = JSON.stringify(seo.jsonLd.length === 1 ? seo.jsonLd[0] : seo.jsonLd);
+    const payload = JSON.stringify(seo.jsonLd.length === 1 ? seo.jsonLd[0] : seo.jsonLd).replace(
+      /</g,
+      "\\u003c",
+    );
     const script = `<script type="application/ld+json" id="jsonld-ssr">${payload}</script>`;
     out = out.replace("</head>", `    ${script}\n  </head>`);
   }

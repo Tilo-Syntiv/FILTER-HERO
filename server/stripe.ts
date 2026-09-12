@@ -3,7 +3,15 @@ import { nanoid } from "nanoid";
 import Stripe from "stripe";
 import { getProductById, unitPriceForQty } from "../shared/products";
 import { productTaxCode } from "../shared/stripe-tax";
+import { recordPurchaseOnAccount } from "./account";
+import { closeDealsOnPurchase } from "./crm/intake";
 import { dataFile } from "./data-store";
+import {
+  parseCheckoutItems,
+  syncCheckoutExpired,
+  syncPlacedOrder,
+  syncStartedCheckout,
+} from "./klaviyo";
 
 const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]+$/;
 const META_MAX = 490;
@@ -95,31 +103,6 @@ export function orderFromCheckoutSession(
   };
 }
 
-async function taxSettingsReady(stripe: Stripe): Promise<boolean> {
-  try {
-    const settings = await stripe.tax.settings.retrieve();
-    const regs = await stripe.tax.registrations.list({ status: "active", limit: 1 });
-    if (settings.status === "active") {
-      if (regs.data.length > 0) {
-        console.info("[stripe tax] head office set; active registration present");
-      } else {
-        console.warn(
-          "[stripe tax] Tax Settings are active but there is no registration — tax will calculate $0 until one is added. See docs/STRIPE-BOOKS.md",
-        );
-      }
-      return true;
-    }
-    const missing = settings.status_details?.pending?.missing_fields?.join(", ") || "none";
-    console.warn(
-      `[stripe tax] automatic_tax off until Tax Settings are active (status=${settings.status}, missing=${missing}). Checkout still runs. See docs/STRIPE-BOOKS.md`,
-    );
-    return false;
-  } catch (err) {
-    console.warn("[stripe tax] could not read Tax Settings; Checkout continues without automatic_tax", err);
-    return false;
-  }
-}
-
 function lineLabel(
   product: NonNullable<ReturnType<typeof getProductById>>,
 ): string {
@@ -128,7 +111,19 @@ function lineLabel(
     : `${product.name} — ${product.size} MERV ${product.merv}`;
 }
 
-export async function createCheckoutSession(items: CheckoutItem[], clientUrl: string) {
+export async function findCustomerIdByEmail(
+  stripe: Stripe,
+  email: string,
+): Promise<string | null> {
+  const existing = await stripe.customers.list({ email, limit: 1 });
+  return existing.data[0]?.id ?? null;
+}
+
+export async function createCheckoutSession(
+  items: CheckoutItem[],
+  clientUrl: string,
+  shopper?: { email?: string; marketingConsent?: boolean },
+) {
   const taxCode = productTaxCode();
   const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
@@ -169,9 +164,9 @@ export async function createCheckoutSession(items: CheckoutItem[], clientUrl: st
     throw new Error("Stripe is not configured. Set STRIPE_SECRET_KEY in .env");
   }
 
-  const taxEnabled = await taxSettingsReady(stripe);
-
   const itemsMeta = compactItemsMeta(items);
+  const email = shopper?.email?.trim().toLowerCase();
+  const customerId = email ? await findCustomerIdByEmail(stripe, email) : null;
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -189,14 +184,44 @@ export async function createCheckoutSession(items: CheckoutItem[], clientUrl: st
       },
     ],
     phone_number_collection: { enabled: true },
-    customer_creation: "always",
     invoice_creation: { enabled: true },
-    automatic_tax: { enabled: taxEnabled },
-    metadata: { items: itemsMeta },
+    automatic_tax: { enabled: false },
+    ...(customerId
+      ? {
+          customer: customerId,
+          customer_update: {
+            name: "auto",
+            address: "auto",
+            shipping: "auto",
+          },
+        }
+      : {
+          customer_creation: "always",
+          ...(email ? { customer_email: email } : {}),
+        }),
+    metadata: {
+      items: itemsMeta,
+      ...(email ? { email } : {}),
+      ...(shopper?.marketingConsent ? { marketingConsent: "1" } : {}),
+    },
     payment_intent_data: {
       metadata: { items: itemsMeta },
     },
   });
+
+  if (email && session.url) {
+    try {
+      await syncStartedCheckout({
+        email,
+        sessionId: session.id,
+        checkoutUrl: session.url,
+        items,
+        marketingConsent: shopper?.marketingConsent,
+      });
+    } catch (err) {
+      console.error("[checkout] klaviyo Started Checkout failed", err);
+    }
+  }
 
   return session;
 }
@@ -228,17 +253,56 @@ export async function handleStripeWebhook(
     }
     ensureOrdersFile();
     const file = ordersPath();
-    const orders = JSON.parse(fs.readFileSync(file, "utf-8")) as Array<
-      Record<string, unknown>
-    >;
-    if (orders.some((order) => order.sessionId === session.id)) {
-      return { received: true };
-    }
-    orders.push({
+    const orders = JSON.parse(fs.readFileSync(file, "utf-8")) as StoredOrder[];
+    const existing = orders.find((order) => order.sessionId === session.id);
+    const stored: StoredOrder = existing ?? {
       id: nanoid(),
       ...orderFromCheckoutSession(session),
-    });
-    fs.writeFileSync(file, JSON.stringify(orders, null, 2), "utf-8");
+    };
+    if (!existing) {
+      orders.push(stored);
+      fs.writeFileSync(file, JSON.stringify(orders, null, 2), "utf-8");
+    }
+    try {
+      await syncPlacedOrder(stored);
+    } catch (err) {
+      console.error("[stripe webhook] klaviyo Placed Order failed", err);
+    }
+    try {
+      await recordPurchaseOnAccount(stored);
+    } catch (err) {
+      console.error("[stripe webhook] account attach failed", err);
+    }
+    if (stored.customerEmail) {
+      try {
+        await closeDealsOnPurchase({
+          email: stored.customerEmail,
+          amount:
+            stored.amountTotal !== null ? stored.amountTotal / 100 : undefined,
+          stripeCustomerId: stored.customerId ?? undefined,
+        });
+      } catch (err) {
+        console.error("[stripe webhook] crm close failed", err);
+      }
+    }
+  }
+
+  if (event.type === "checkout.session.expired") {
+    const expired = event.data.object as Stripe.Checkout.Session;
+    const email =
+      expired.customer_details?.email ??
+      expired.customer_email ??
+      expired.metadata?.email ??
+      null;
+    try {
+      await syncCheckoutExpired({
+        email,
+        sessionId: expired.id,
+        items: parseCheckoutItems(expired.metadata?.items),
+      });
+    } catch (err) {
+      console.error("[stripe webhook] klaviyo Checkout Expired failed", err);
+    }
   }
 
   return { received: true };

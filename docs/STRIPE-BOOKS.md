@@ -1,34 +1,33 @@
 # Stripe + books (Filter Hero)
 
-Checkout stays on Stripe. Books sit next to it. Do not move payment into QuickBooks or an ERP.
+Checkout stays on Stripe. Books and sales tax sit in **QuickBooks Online**. Do not move payment into QuickBooks or an ERP. Do not turn on Stripe Tax — Stripe bills a calculation fee on live checkouts and invoices.
 
-Sandbox account seen 2026-09-01: Tax Settings `status=pending` (missing `head_office`), **zero** tax registrations.
+Sandbox account seen 2026-09-07: Checkout Sessions create. A Dashboard webhook to `https://filterhero.net/api/stripe/webhook` is required for fulfillment.
 
-`automatic_tax` is **off** until Tax Settings are `active`. Stripe returns 400 (`You must have a valid head office address`) if we enable it earlier — that blocks Checkout entirely. After you set a head office, the next session turns tax on automatically. Without a registration, tax still calculates **$0**.
+`automatic_tax` stays **off**. QuickBooks Online Automated Sales Tax (the Online Tax app) is the tax engine. The Stripe Connector posts the paid sale into QBO; QBO applies or records tax there. Checkout does not add a Stripe Tax line, so there is no Stripe Tax fee.
 
-## 1. Stripe Tax (Dashboard)
+## 1. Do not use Stripe Tax
 
-You must do this. The API will not invent a legal address or nexus.
+Leave [Tax settings](https://dashboard.stripe.com/settings/tax) and [Tax registrations](https://dashboard.stripe.com/tax/registrations) unused for calculation.
 
-1. [Tax settings](https://dashboard.stripe.com/settings/tax) — set the **head office** (legal business address).
-2. [Tax registrations](https://dashboard.stripe.com/tax/registrations) — add a registration only for jurisdictions a tax advisor says you already collect in. Adding a row in Stripe does **not** register you with the state.
-3. Optional: [Register for me](https://dashboard.stripe.com/tax/registrations) (US remote sellers, eligibility required).
-4. Repeat head office + registrations in **live** mode before the first real charge. Sandbox registrations do not copy.
+1. Tax → Integrations: **Use automatic tax collection** off (invoices and Payment Links).
+2. Do not add registrations just to “turn tax on” in Stripe.
+3. If Stripe already billed a Tax fee, that is from a completed Checkout or finalized invoice with `automatic_tax` on. New sessions from this app send `automatic_tax.enabled=false`.
 
-Product code in Checkout is `txcd_99999999` (General - Tangible Goods). Catalog prices are **exclusive**; tax is added on the Stripe page.
+Catalog prices stay exclusive. The hosted Checkout page will not add sales tax.
 
-Verify: `pnpm exec tsx scripts/verify-stripe-books.ts`  
-Then a test Checkout to a registered state — tax line > $0. Retrieve the session with `expand[]=line_items.data.taxes` if it is still $0.
-
-## 2. QuickBooks Online + Stripe
+## 2. QuickBooks Online + Stripe (tax + books)
 
 1. Create QBO (Simple Start is enough).
-2. Chart of accounts: **Stripe Clearing** (Bank), **Stripe fees** (Expense), **Sales tax payable** (Liability), **Filter sales** (Income), **Inventory / COGS**, **Filter King** (Accounts payable).
-3. App store: **Stripe Connector by QuickBooks** (free). Connect the same Stripe account as `STRIPE_SECRET_KEY`.
-4. Map: charges → Filter sales; fees → Stripe fees; payouts → transfer Stripe Clearing → checking. If fees/payouts don’t match the bank, switch to [Acodei](https://www.acodei.com/) (~$12/mo).
-5. Connect the **real bank** in QBO. Match Stripe payout deposits to Clearing transfers.
+2. Turn on **Automated Sales Tax** (Sales Tax / Online Tax in QBO).
+3. Chart of accounts: **Stripe Clearing** (Bank), **Stripe fees** (Expense), **Sales tax payable** (Liability), **Filter sales** (Income), **Inventory / COGS**, **Filter King** (Accounts payable).
+4. App store: **Stripe Connector by QuickBooks** (free). Connect the same Stripe account as `STRIPE_SECRET_KEY`.
+5. Map: charges → Filter sales; fees → Stripe fees; payouts → transfer Stripe Clearing → checking. If fees/payouts don’t match the bank, switch to [Acodei](https://www.acodei.com/) (~$12/mo).
+6. Connect the **real bank** in QBO. Match Stripe payout deposits to Clearing transfers.
 
-Checkout now always creates a Stripe **Customer** and a Stripe **Invoice** on payment so the connector has someone to attach the sale to.
+Checkout still creates a Stripe **Customer** and a Stripe **Invoice** on payment so the connector has someone to attach the sale to.
+
+QBO cannot inject tax onto the Stripe-hosted payment page. Tax is handled in QBO after the charge, not by Stripe at checkout. Confirm the mapping with your bookkeeper so Sales tax payable is correct.
 
 ## 3. Filter King bills (not Stripe)
 
@@ -41,8 +40,10 @@ Stripe never sees wholesale. In QBO: Supplier **Filter King LLC**, enter each de
 | Hosted Checkout | `server/stripe.ts` |
 | US shipping + phone | Checkout Session |
 | Free shipping ($0 rate) | Checkout Session `shipping_options` |
-| Stripe Tax | `automatic_tax` only when Tax Settings are `active` |
+| Stripe Tax | **Off** — no calculation fee |
 | Customer + invoice on pay | `customer_creation`, `invoice_creation` |
 | Order log for packing | `server/data/orders.json` (subtotal, tax, customer, invoice, payment intent) |
+| Reuse Stripe Customer | Lookup by email before `checkout.sessions.create` |
+| Production webhook | Dashboard → `https://filterhero.net/api/stripe/webhook` (`pnpm setup:stripe-webhook`) |
 
 Klaviyo / Resend / `orders.json` are not the ledger.

@@ -9,6 +9,7 @@ import CartDrawer from "@/components/CartDrawer";
 import { useAccount } from "@/contexts/AccountContext";
 import { authClient, isAdminConfigured } from "@/lib/admin-api";
 import { safeNextPath } from "@/lib/account-api";
+import { consumeStaffAuthPending } from "@/lib/staff-auth";
 import { BRAND_NAME } from "@/const";
 import { useSeo } from "@/hooks/useSeo";
 
@@ -65,7 +66,12 @@ export default function CustomerLogin() {
   }, [recovery]);
 
   useEffect(() => {
-    if (ready && session && !recovery && view !== "reset") setLocation(next);
+    if (!ready || !session || recovery || view === "reset") return;
+    if (consumeStaffAuthPending(session.user.email)) {
+      setLocation("/admin");
+      return;
+    }
+    setLocation(next);
   }, [ready, session, recovery, view, next, setLocation]);
 
   const redirectTo = `${window.location.origin}${next}`;

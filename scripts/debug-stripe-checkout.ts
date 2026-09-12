@@ -20,6 +20,7 @@ async function main() {
   const {
     compactItemsMeta,
     createCheckoutSession,
+    findCustomerIdByEmail,
     getCheckoutSessionStatus,
     getStripe,
     handleStripeWebhook,
@@ -160,16 +161,14 @@ async function main() {
   check(Boolean(session.id) && isCheckoutSessionId(session.id), `session id ${session.id}`);
   check(Boolean(session.url), "session has hosted url");
   check(session.mode === "payment", "mode=payment");
-  const settings = await stripe.tax.settings.retrieve();
-  if (settings.status === "active") {
-    check(session.automatic_tax?.enabled === true, "automatic_tax enabled (Tax Settings active)");
-  } else {
-    check(
-      session.automatic_tax?.enabled !== true,
-      `automatic_tax stays off until head office (status=${settings.status})`,
-    );
-  }
-  check(session.customer_creation === "always", `customer_creation=${session.customer_creation}`);
+  check(
+    session.automatic_tax?.enabled !== true,
+    "automatic_tax stays off — Stripe Tax is billed; tax is QuickBooks Online",
+  );
+  check(
+    session.customer_creation === "always" || Boolean(session.customer),
+    `customer_creation=${session.customer_creation} customer=${typeof session.customer === "string" ? session.customer : "none"}`,
+  );
   check(session.invoice_creation?.enabled === true, "invoice_creation enabled");
   check(
     session.shipping_address_collection?.allowed_countries?.includes("US") === true,
@@ -210,6 +209,55 @@ async function main() {
   await stripe.checkout.sessions.expire(session.id);
   const expired = await stripe.checkout.sessions.retrieve(session.id);
   check(expired.status === "expired", "probe session expired");
+
+  const reuseEmail = "stripe-reuse@filterhero.net";
+  const reuseCustomer = await stripe.customers.create({
+    email: reuseEmail,
+    metadata: { probe: "filter-hero-debug" },
+  });
+  const foundId = await findCustomerIdByEmail(stripe, reuseEmail);
+  check(foundId === reuseCustomer.id, "findCustomerIdByEmail returns existing customer");
+  const reuseSession = await createCheckoutSession(
+    [{ productId: product.id, quantity: 1 }],
+    process.env.CLIENT_URL || "http://localhost:3000",
+    { email: reuseEmail },
+  );
+  const reuseCustomerId =
+    typeof reuseSession.customer === "string"
+      ? reuseSession.customer
+      : reuseSession.customer?.id;
+  check(reuseCustomerId === reuseCustomer.id, "checkout reuses Stripe customer by email");
+  await stripe.checkout.sessions.expire(reuseSession.id);
+
+  try {
+    const intent = await stripe.paymentIntents.create({
+      amount: 100,
+      currency: "usd",
+      payment_method: "pm_card_visa",
+      confirm: true,
+      automatic_payment_methods: { enabled: true, allow_redirects: "never" },
+      metadata: { probe: "filter-hero-debug" },
+    });
+    check(intent.status === "succeeded", `test charge status=${intent.status}`);
+    if (typeof intent.latest_charge === "string") {
+      await stripe.refunds.create({ charge: intent.latest_charge });
+    }
+  } catch (err) {
+    check(false, `test charge failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  const hooks = await stripe.webhookEndpoints.list({ limit: 20 });
+  const fulfillment = hooks.data.find((hook) =>
+    hook.url.includes("/api/stripe/webhook"),
+  );
+  if (fulfillment && fulfillment.status === "enabled") {
+    check(true, `fulfillment webhook ${fulfillment.url}`);
+  } else {
+    check(
+      false,
+      "no enabled Dashboard webhook to /api/stripe/webhook — paid orders will not fulfill (Klaviyo / CRM / account)",
+    );
+  }
 
   if (failures.length) {
     console.error(`\n${failures.length} check(s) failed`);

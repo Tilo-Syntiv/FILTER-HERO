@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, ChevronDown, Mail, MessageSquare, Ruler, ShoppingCart, UserRound } from "lucide-react";
+import { ArrowRight, ChevronDown, Mail, Menu, MessageSquare, Ruler, ShoppingCart, UserRound } from "lucide-react";
 import BrandLockup from "@/components/BrandLockup";
 import { useAccount } from "@/contexts/AccountContext";
 import { useCart } from "@/contexts/CartContext";
@@ -16,6 +16,13 @@ import {
 } from "@shared/products";
 import { customQuotePath, shopOrQuotePath } from "@/lib/filter-size";
 import { getPreferredMerv } from "@/lib/merv-pref";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 const WIDTHS = finderWidths().map(String);
 const LENGTHS = finderLengths().map(String);
@@ -139,8 +146,9 @@ function HeaderFinder({ onFound }: { onFound?: () => void }) {
 export default function SiteHeader() {
   const { itemCount, openCart } = useCart();
   const { session } = useAccount();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [desktopMenu, setDesktopMenu] = useState<DesktopMenu>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const closeMenuTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -164,6 +172,10 @@ export default function SiteHeader() {
     };
   }, []);
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location]);
+
   const clearCloseMenuTimer = () => {
     if (closeMenuTimer.current) {
       clearTimeout(closeMenuTimer.current);
@@ -173,6 +185,7 @@ export default function SiteHeader() {
 
   const openDesktopMenu = (menu: DesktopMenu) => {
     clearCloseMenuTimer();
+    setMobileOpen(false);
     setDesktopMenu(menu);
   };
 
@@ -184,27 +197,44 @@ export default function SiteHeader() {
   const closeMenus = () => {
     clearCloseMenuTimer();
     setDesktopMenu(null);
+    setMobileOpen(false);
   };
 
   const goHomeSection = (id: string) => (event: ReactMouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    const fromDrawer = mobileOpen;
     closeMenus();
-    if (window.location.pathname === "/" || window.location.pathname === "") {
-      jumpToHashTarget(id);
+    const go = () => {
+      if (window.location.pathname === "/" || window.location.pathname === "") {
+        jumpToHashTarget(id);
+        return;
+      }
+      setLocation(`/#${id}`);
+    };
+    if (fromDrawer) {
+      window.setTimeout(go, 80);
       return;
     }
-    setLocation(`/#${id}`);
+    go();
   };
 
   const goCustomQuote = (event: ReactMouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    const fromDrawer = mobileOpen;
     closeMenus();
     const href = event.currentTarget.getAttribute("href") || customQuotePath();
-    if (window.location.pathname === "/custom-air-filters") {
-      scrollToHashTarget("custom-quote");
+    const go = () => {
+      if (window.location.pathname === "/custom-air-filters") {
+        scrollToHashTarget("custom-quote");
+        return;
+      }
+      setLocation(href);
+    };
+    if (fromDrawer) {
+      window.setTimeout(go, 80);
       return;
     }
-    setLocation(href);
+    go();
   };
 
   useEffect(() => {
@@ -235,10 +265,24 @@ export default function SiteHeader() {
     >
       <div className="site-header-bar">
       <div className="container flex flex-wrap items-center gap-x-2 gap-y-2 py-2.5 xl:flex-nowrap md:py-3">
+        <button
+          type="button"
+          className="header-menu-btn lg:hidden"
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-nav"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          onClick={() => {
+            setDesktopMenu(null);
+            setMobileOpen(true);
+          }}
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
         <BrandLockup tone="header" className="shrink-0" onClick={closeMenus} />
 
         <nav
-          className="order-last flex w-full flex-wrap items-center justify-center gap-x-0.5 gap-y-1 md:order-none xl:w-auto xl:flex-nowrap xl:justify-start xl:ml-1"
+          className="hidden lg:flex items-center justify-start gap-x-0.5 gap-y-1 xl:ml-1"
           aria-label="Primary"
         >
           {([
@@ -304,14 +348,14 @@ export default function SiteHeader() {
           </Link>
         </nav>
 
-        <div className="order-last w-full min-w-0 xl:order-none xl:flex-1 xl:max-w-3xl xl:mx-2">
+        <div className="order-last w-full min-w-0 basis-full lg:order-none lg:flex-1 lg:basis-auto xl:max-w-3xl xl:mx-2">
           <HeaderFinder onFound={closeMenus} />
         </div>
 
         <div className="ml-auto flex items-center gap-1.5 shrink-0">
           <Link
             href="/custom-air-filters#custom-quote"
-            className="header-find-btn header-custom-btn inline-flex shrink-0"
+            className="header-find-btn header-custom-btn hidden lg:inline-flex shrink-0"
             onClick={goCustomQuote}
           >
             <span className="2xl:hidden">Custom</span>
@@ -352,7 +396,7 @@ export default function SiteHeader() {
       {desktopMenu && (
         <div
           id={`${desktopMenu}-mega`}
-          className="header-mega"
+          className="header-mega hidden lg:block"
           onPointerEnter={() => openDesktopMenu(desktopMenu)}
           onPointerLeave={scheduleCloseDesktopMenu}
         >
@@ -503,6 +547,134 @@ export default function SiteHeader() {
           )}
         </div>
       )}
+
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent
+          id="mobile-nav"
+          side="left"
+          className="header-mobile"
+        >
+          <SheetHeader className="px-5 pt-5 pb-3 pr-14">
+            <SheetTitle className="text-left text-white font-extrabold tracking-tight">
+              Menu
+            </SheetTitle>
+            <SheetDescription className="sr-only">
+              Shop sizes, brands, Filter Clock, and contact Filter Hero.
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="header-mobile-body">
+            <section className="header-mobile-block">
+              <p className="header-mobile-label">Shop</p>
+              <div className="grid grid-cols-2 gap-2">
+                {THICKNESSES.map((d) => (
+                  <Link
+                    key={d}
+                    href={`/filters/${d}-inch`}
+                    className="header-mega-tile"
+                    onClick={closeMenus}
+                  >
+                    <span className="text-lg font-extrabold tracking-tight leading-none">
+                      {formatDepth(d)}
+                    </span>
+                    <span className="text-xs text-ice/80 font-medium">Exact-fit filters</span>
+                  </Link>
+                ))}
+                <Link
+                  href="/custom-air-filters#custom-quote"
+                  className="header-mega-tile"
+                  onClick={goCustomQuote}
+                >
+                  <span className="text-sm font-extrabold tracking-tight">Custom</span>
+                  <span className="text-xs text-ice/80 font-medium">Odd size? We cut it.</span>
+                </Link>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {POPULAR.map((slug) => (
+                  <Link
+                    key={slug}
+                    href={`/sizes/${slug}`}
+                    className="min-h-11 inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm font-semibold text-white"
+                    onClick={closeMenus}
+                  >
+                    {slug.replaceAll("x", " × ")}
+                  </Link>
+                ))}
+              </div>
+              <Link
+                href="/sizes"
+                className="inline-flex min-h-11 items-center gap-1.5 mt-2 text-sm font-bold text-ice"
+                onClick={closeMenus}
+              >
+                All sizes
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </section>
+
+            <section className="header-mobile-block">
+              <p className="header-mobile-label">Brands</p>
+              <BrandFamilyGrid
+                families={ALL_BRAND_FAMILIES}
+                onBrandClick={closeMenus}
+              />
+              <Link
+                href="/brands"
+                className="inline-flex min-h-11 items-center gap-1.5 mt-2 text-sm font-bold text-ice"
+                onClick={closeMenus}
+              >
+                Every brand
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </section>
+
+            <nav className="header-mobile-block grid gap-2" aria-label="More">
+              <Link
+                href="/#clock"
+                className="header-mega-tile"
+                onClick={goHomeSection("clock")}
+              >
+                <span className="text-sm font-extrabold tracking-tight">Filter Clock</span>
+                <span className="text-xs text-ice/80 font-medium">When to change your filter</span>
+              </Link>
+              <Link
+                href="/#how-to-measure"
+                className="header-measure-chip header-mobile-measure"
+                aria-label="How to measure your filter"
+                onClick={goHomeSection("how-to-measure")}
+              >
+                <Ruler className="h-3.5 w-3.5" aria-hidden />
+                Measure
+              </Link>
+              <Link
+                href="/#contact"
+                className="header-mega-tile"
+                onClick={goHomeSection("contact")}
+              >
+                <span className="inline-flex items-center gap-2 text-sm font-extrabold tracking-tight">
+                  <MessageSquare className="h-4 w-4" />
+                  Contact
+                </span>
+                <span className="text-xs text-ice/80 font-medium">Size, MERV, or order help</span>
+              </Link>
+              <a href={`mailto:${BRAND_EMAIL}`} className="header-mega-tile" onClick={closeMenus}>
+                <span className="inline-flex items-center gap-2 text-sm font-extrabold tracking-tight">
+                  <Mail className="h-4 w-4" />
+                  Email
+                </span>
+                <span className="text-xs text-ice/80 font-medium">{BRAND_EMAIL}</span>
+              </a>
+              <Link
+                href="/custom-air-filters#custom-quote"
+                className="header-find-btn header-custom-btn header-mobile-custom"
+                onClick={goCustomQuote}
+              >
+                Need a custom size
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </nav>
+          </div>
+        </SheetContent>
+      </Sheet>
     </header>
   );
 }

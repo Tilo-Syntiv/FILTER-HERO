@@ -13,6 +13,7 @@ import {
   unitPriceForQty,
   type Product,
 } from "@shared/products";
+import { trackAddedToCart } from "@/lib/klaviyo";
 
 export type CartItem = {
   productId: number;
@@ -127,10 +128,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = prev.find((i) => i.productId === product.id);
       const nextQty = Math.min(50, (existing?.qty ?? 0) + qty);
       const line = lineFromProduct(product, nextQty);
-      if (existing) {
-        return prev.map((i) => (i.productId === product.id ? line : i));
-      }
-      return [...prev, line];
+      const next = existing
+        ? prev.map((i) => (i.productId === product.id ? line : i))
+        : [...prev, line];
+      trackAddedToCart(product, qty, next);
+      return next;
     });
     setIsOpen(true);
   }, []);

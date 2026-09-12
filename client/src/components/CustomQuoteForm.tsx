@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { MERV_TYPES, mervTypesForDisplay } from "@shared/products";
 import { parseSizeSlug } from "@/lib/filter-size";
+import MarketingOptIn from "@/components/MarketingOptIn";
+import { identifyShopper } from "@/lib/klaviyo";
+import TurnstileField from "@/components/TurnstileField";
 
 const dimField = (label: string) =>
   z
@@ -35,6 +38,8 @@ const formSchema = z.object({
   email: z.string().email("Valid email required").max(200),
   phone: z.string().max(40).optional(),
   notes: z.string().max(4000).optional(),
+  marketingConsent: z.boolean().optional(),
+  website: z.string().max(200).optional(),
 });
 
 type FormInput = z.input<typeof formSchema>;
@@ -62,11 +67,13 @@ export default function CustomQuoteForm({
   cartSummary = "",
   defaultSize = "",
 }: CustomQuoteFormProps) {
+  const [turnstileToken, setTurnstileToken] = useState("");
   const {
     register,
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(formSchema),
@@ -78,6 +85,8 @@ export default function CustomQuoteForm({
       email: "",
       phone: "",
       notes: "",
+      marketingConsent: false,
+      website: "",
     },
   });
 
@@ -105,6 +114,7 @@ export default function CustomQuoteForm({
       .join("\n");
 
     try {
+      identifyShopper({ email: values.email, firstName: values.name.split(/\s+/)[0] });
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -115,7 +125,10 @@ export default function CustomQuoteForm({
           filterSize: size,
           message,
           intent: "quote",
+          marketingConsent: values.marketingConsent,
           cartSummary: cartSummary || undefined,
+          turnstileToken: turnstileToken || undefined,
+          website: values.website || undefined,
         }),
       });
       let data: { ok?: boolean; error?: string } = {};
@@ -136,14 +149,17 @@ export default function CustomQuoteForm({
         email: "",
         phone: "",
         notes: "",
+        marketingConsent: false,
+        website: "",
       });
+      setTurnstileToken("");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to send");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="relative space-y-6">
       <fieldset>
         <legend className="section-label mb-3">Your filter size</legend>
         <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
@@ -280,6 +296,23 @@ export default function CustomQuoteForm({
           Cart attached: {cartSummary}
         </p>
       ) : null}
+
+      <MarketingOptIn
+        id="custom-marketing"
+        checked={Boolean(watch("marketingConsent"))}
+        onCheckedChange={(checked) => setValue("marketingConsent", checked)}
+      />
+
+      <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden>
+        <Label htmlFor="custom-website">Website</Label>
+        <Input
+          id="custom-website"
+          tabIndex={-1}
+          autoComplete="off"
+          {...register("website")}
+        />
+      </div>
+      <TurnstileField onToken={setTurnstileToken} />
 
       <Button type="submit" size="lg" disabled={isSubmitting} className="hero-shop-btn text-white w-full sm:w-auto">
         {isSubmitting ? "Sending…" : "Request custom quote"}

@@ -127,7 +127,7 @@ function money(n: number): number {
 }
 
 function normalizeSize(size: string): string {
-  return size.toLowerCase().replace(/\s/g, "").replace(/a$/i, "");
+  return size.toLowerCase().replace(/\s/g, "").replace(/[an]$/i, "");
 }
 
 function sizeDepth(size: string): number | undefined {
