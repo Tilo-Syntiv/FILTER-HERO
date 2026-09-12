@@ -2,7 +2,7 @@
 
 Checkout stays on Stripe. Books sit next to it. Do not move payment into QuickBooks or an ERP.
 
-Sandbox account seen 2026-09-01: Tax Settings `status=pending` (missing `head_office`), **zero** tax registrations.
+Sandbox account seen 2026-09-07: Tax Settings `status=pending` (missing `head_office`), **zero** tax registrations. Checkout Sessions create. A Dashboard webhook to `https://filterhero.net/api/stripe/webhook` is required for fulfillment.
 
 `automatic_tax` is **off** until Tax Settings are `active`. Stripe returns 400 (`You must have a valid head office address`) if we enable it earlier — that blocks Checkout entirely. After you set a head office, the next session turns tax on automatically. Without a registration, tax still calculates **$0**.
 
@@ -44,5 +44,7 @@ Stripe never sees wholesale. In QBO: Supplier **Filter King LLC**, enter each de
 | Stripe Tax | `automatic_tax` only when Tax Settings are `active` |
 | Customer + invoice on pay | `customer_creation`, `invoice_creation` |
 | Order log for packing | `server/data/orders.json` (subtotal, tax, customer, invoice, payment intent) |
+| Reuse Stripe Customer | Lookup by email before `checkout.sessions.create` |
+| Production webhook | Dashboard → `https://filterhero.net/api/stripe/webhook` (`pnpm setup:stripe-webhook`) |
 
 Klaviyo / Resend / `orders.json` are not the ledger.

@@ -61,6 +61,15 @@ async function checkLiveTax() {
     console.log("Dashboard: https://dashboard.stripe.com/tax/registrations");
     console.log("Do not add a state until a tax advisor says you collect there.");
   }
+  const hooks = await stripe.webhookEndpoints.list({ limit: 20 });
+  const fulfillment = hooks.data.find((hook) => hook.url.includes("/api/stripe/webhook"));
+  if (fulfillment && fulfillment.status === "enabled") {
+    console.log(`Fulfillment webhook: ${fulfillment.url} (${fulfillment.status})`);
+  } else {
+    console.log("No enabled Dashboard webhook to /api/stripe/webhook.");
+    console.log("Paid Checkout will not write orders or sync Klaviyo / CRM / accounts.");
+    console.log("Run: pnpm setup:stripe-webhook");
+  }
   console.log("See docs/STRIPE-BOOKS.md");
 }
 

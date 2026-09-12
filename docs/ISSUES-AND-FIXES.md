@@ -14,7 +14,46 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-208**
+Next id: **FH-211**
+
+---
+
+### FH-210 — Production still ran an older main build
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Local had CRM, accounts, Klaviyo, Turnstile, and security headers. `filterhero.net` was Railway `main` without them (`X-Powered-By: Express`, no CSP). A `railway up` of this branch would be rolled back by GitHub autodeploy from `main` (FH-187). The working tree also had scrape/video scripts that are not the shop.
+- **Do NOT:** `railway up` this branch while `main` is behind. Do not commit `.firecrawl/`, Veo/cape-fly generators, or `.cursor/mcp.json` with the shop. Do not put service-role keys in `VITE_` vars.
+- **Do:** Ship only the finished shop/CRM/Klaviyo/security stack. Merge that commit to `main` so autodeploy and local are the same code. Leave scrape and video scripts uncommitted.
+- **Files:** `server/`, `client/src/`, `shared/security-headers.ts`, `supabase/migrations/`, `scripts/verify-*.ts`
+- **Verify:** `https://filterhero.net/api/health` has nosniff, DENY, CSP, and no `X-Powered-By`. `/login` and `/admin` 200. CRM 401 when signed out. `git rev-parse origin/main` matches the shipped shop commit.
+- **Added:** 2026-09-11
+- **Fixed:** 2026-09-11
+
+---
+
+### FH-209 — Local CSP blocked Klaviyo onsite identify
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Dev CSP `connect-src` allowed `https://*.klaviyo.com` only. On `http://localhost:3000` the onsite script posts to `http://a.klaviyo.com/client/profiles`, so the browser blocked identify/track. Checkout still reached Stripe; Klaviyo never saw the email on localhost.
+- **Do NOT:** Add `http://*.klaviyo.com` to the production CSP. Do not drop `https://*.klaviyo.com`.
+- **Do:** Development `connect-src` includes `http://*.klaviyo.com`. Production keeps HTTPS Klaviyo plus `upgrade-insecure-requests`.
+- **Files:** `shared/security-headers.ts`, `scripts/verify-security.ts`
+- **Verify:** `pnpm verify:security`. Local HTML `Content-Security-Policy` includes `http://*.klaviyo.com`. Console has no CSP violation on `a.klaviyo.com`. Leftover CORS on localhost HTTP is Klaviyo redirecting http→https; `/api/identify` still writes the profile.
+- **Added:** 2026-09-11
+- **Fixed:** 2026-09-11
+
+---
+
+### FH-208 — Production staff magic links could not land on /admin
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Supabase Auth allows `https://filterhero.net/login` and `/account`, but not `/admin`. Staff OTP used `emailRedirectTo` `/admin`, so the production magic link fell back to the Site URL (`http://localhost:3000`). The 6-digit code still worked.
+- **Do NOT:** Point staff `emailRedirectTo` at `/admin` until that exact URL is on the Auth allowlist and the Site URL is `https://filterhero.net`.
+- **Do:** Staff magic links land on `/login`. `sessionStorage` stores the staff email; after PKCE exchange, `/login` and `/account` send only that email to `/admin`. Shopper sessions are not redirected. Keep `safeNextPath` rejecting `/admin`.
+- **Files:** `client/src/pages/admin/Login.tsx`, `client/src/pages/account/Login.tsx`, `client/src/pages/account/Account.tsx`, `client/src/lib/staff-auth.ts`, `shared/staff-auth.ts`, `scripts/check-auth-redirects.ts`, `scripts/verify-account.ts`
+- **Verify:** `pnpm verify:account`. `pnpm exec tsx scripts/check-auth-redirects.ts` — production `/login` allowed; evil URL blocked. Staff Send link on production, open the email, land on `/admin`.
+- **Added:** 2026-09-11
+- **Fixed:** 2026-09-11
 
 ---
 
@@ -49,8 +88,8 @@ Next id: **FH-208**
 - **Area:** other
 - **Symptom:** Local and Railway origin sent `X-Powered-By: Express` and no CSP / nosniff / frame-deny / HSTS. `POST /api/identify` and `/api/track` returned raw Zod JSON. Malformed JSON dumped a body-parser HTML stack. Identify, track, and checkout had no rate limit. `X-Forwarded-For[0]` could skip limiters. Production Turnstile failed open if the secret was missing. Anon/authenticated still had table grants (RLS was the only gate). `/login?next=/account/../admin` could leave the site path.
 - **Do NOT:** Re-enable `X-Powered-By`. Do not return `err.message` or Zod text from identify, track, webhook, or session lookup. Do not parse `X-Forwarded-For` yourself. Do not skip Turnstile in production when the secret is unset (except `intent=reminder`). Do not `CREATE POLICY` on CRM/account tables. Do not `GRANT` those tables to `anon` / `authenticated`.
-- **Do:** Express (and Vite in dev) send nosniff, DENY framing, CSP, Referrer-Policy, Permissions-Policy, COOP; HSTS only on HTTPS production. JSON parse errors are `{code:invalid_json}`. Identify 20/min, track 40/min, checkout 10/15min. `req.ip` after `trust proxy 1`. Migration `0003_lock_browser_grants.sql` FORCE RLS + revoke browser grants. `safeNextPath` rejects `..`, `/admin`, `/api`, `/login`.
-- **Files:** `server/security.ts`, `server/index.ts`, `server/contact.ts`, `shared/security-headers.ts`, `shared/account-paths.ts`, `vite.config.ts`, `supabase/migrations/0003_lock_browser_grants.sql`, `scripts/verify-security.ts`, `scripts/smoke-site.ts`
+- **Do:** Express (and Vite in dev) send nosniff, DENY framing, CSP, Referrer-Policy, Permissions-Policy, COOP; HSTS only on HTTPS production. JSON parse errors are `{code:invalid_json}`. Identify 20/min, track 40/min, checkout 10/15min. `req.ip` after `trust proxy 1`. Migration `0004_lock_browser_grants.sql` FORCE RLS + revoke browser grants. `safeNextPath` rejects `..`, `/admin`, `/api`, `/login`.
+- **Files:** `server/security.ts`, `server/index.ts`, `server/contact.ts`, `shared/security-headers.ts`, `shared/account-paths.ts`, `vite.config.ts`, `supabase/migrations/0004_lock_browser_grants.sql`, `scripts/verify-security.ts`, `scripts/smoke-site.ts`
 - **Verify:** `pnpm verify:security`. `pnpm verify:crm`. `pnpm verify:account`. `pnpm verify:supabase`. `pnpm smoke`. `curl.exe -sI http://127.0.0.1:3001/api/health` has nosniff and no `X-Powered-By`. Empty identify is `{"code":"identify_failed"}`.
 - **Added:** 2026-09-07
 - **Fixed:** 2026-09-07

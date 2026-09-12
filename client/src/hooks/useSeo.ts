@@ -6,7 +6,7 @@ import {
 } from "@shared/seo";
 
 export function getSiteUrl(): string {
-  const fromEnv = import.meta.env.VITE_SITE_URL as string | undefined;
+  const fromEnv = import.meta.env.VITE_SITE_URL;
   if (fromEnv && fromEnv.trim()) return fromEnv.replace(/\/$/, "");
   if (typeof window !== "undefined" && window.location?.origin) {
     const { origin } = window.location;
@@ -48,7 +48,7 @@ function setJsonLd(id: string, data: unknown | unknown[]) {
     el.id = scriptId;
     document.head.appendChild(el);
   }
-  el.textContent = JSON.stringify(data);
+  el.textContent = JSON.stringify(data).replace(/</g, "\\u003c");
 }
 
 export type SeoProps = {

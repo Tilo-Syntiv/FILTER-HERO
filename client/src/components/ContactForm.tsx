@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import MarketingOptIn from "@/components/MarketingOptIn";
+import { identifyShopper } from "@/lib/klaviyo";
 import {
   Select,
   SelectContent,
@@ -14,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import TurnstileField from "@/components/TurnstileField";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required").max(120),
@@ -22,6 +25,9 @@ const formSchema = z.object({
   filterSize: z.string().max(40).optional(),
   message: z.string().min(1, "Message is required").max(4000),
   intent: z.enum(["quote", "support"]),
+  marketingConsent: z.boolean().optional(),
+  website: z.string().max(200).optional(),
+  turnstileToken: z.string().max(4000).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -55,6 +61,9 @@ export default function ContactForm({
       filterSize: defaultSize,
       message: defaultMessage,
       intent,
+      marketingConsent: false,
+      website: "",
+      turnstileToken: "",
     },
   });
 
@@ -72,12 +81,15 @@ export default function ContactForm({
 
   const onSubmit = async (values: FormValues) => {
     try {
+      identifyShopper({ email: values.email, firstName: values.name.split(/\s+/)[0] });
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...values,
           cartSummary: cartSummary || undefined,
+          website: values.website || undefined,
+          turnstileToken: values.turnstileToken || undefined,
         }),
       });
       const data = (await res.json()) as { ok?: boolean; error?: string };
@@ -92,6 +104,9 @@ export default function ContactForm({
         filterSize: values.filterSize,
         message: "",
         intent: values.intent,
+        marketingConsent: false,
+        website: "",
+        turnstileToken: "",
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to send");
@@ -99,7 +114,7 @@ export default function ContactForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-5">
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="name">Name</Label>
@@ -166,11 +181,28 @@ export default function ContactForm({
         )}
       </div>
 
+      <MarketingOptIn
+        id="contact-marketing"
+        checked={Boolean(watch("marketingConsent"))}
+        onCheckedChange={(checked) => setValue("marketingConsent", checked)}
+      />
+
       {cartSummary ? (
         <p className="text-xs text-muted-foreground bg-secondary/60 rounded-md p-3">
           Cart attached: {cartSummary}
         </p>
       ) : null}
+
+      <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden>
+        <Label htmlFor="website">Website</Label>
+        <Input
+          id="website"
+          tabIndex={-1}
+          autoComplete="off"
+          {...register("website")}
+        />
+      </div>
+      <TurnstileField onToken={(token) => setValue("turnstileToken", token)} />
 
       <Button type="submit" size="lg" disabled={isSubmitting} className="hero-shop-btn text-white w-full sm:w-auto">
         {isSubmitting ? "Sending…" : "Send message"}

@@ -6,9 +6,9 @@ optional.
 
 ## What this is
 
-- **Login.** Same Supabase Auth project as `/admin`. No passwords. The emailed
-  link or 6-digit code creates a session. Staff still need `STAFF_EMAILS` for
-  the CRM; a shopper session cannot open `/admin`.
+- **Login.** Same Supabase Auth project as `/admin`. Shoppers use email and
+  password on `/login`. Staff still need `STAFF_EMAILS` for the CRM; a shopper
+  session cannot open `/admin`.
 - **Profile.** Name, phone, and shipping address on `customer_profiles`.
 - **Saved filters.** SKUs the shopper pinned, plus SKUs from paid orders.
 - **Order history.** Read from `orders.json` filtered by the verified session
@@ -28,14 +28,14 @@ profile and the filter list. History is joined at read time.
 ## Security
 
 - **RLS deny-by-default.** `customer_profiles` and `customer_saved_filters`
-  have row level security on and zero policies. The browser never queries
-  Postgres.
+  have row level security on, zero policies, FORCE RLS, and no `anon` /
+  `authenticated` grants. The browser never queries Postgres.
 - **`requireCustomer`** verifies the token against Supabase, then every query
   is scoped to that `auth_user_id` / email. An unconfigured gate returns 503.
 - **Order isolation.** `ordersForCustomer` drops every row whose email does
   not match the session. An empty email returns nothing.
 - **`safeNextPath`.** Post-login redirects stay on-site. `//`, absolute URLs,
-  `/admin`, and `/api` fall back to `/account`.
+  `..`, `/admin`, `/api`, and `/login` fall back to `/account`.
 - **`/login` and `/account` are noindex** and disallowed in `robots.txt`.
 
 ## Environment
@@ -55,11 +55,15 @@ Required entries:
 
 - `http://localhost:3000/login`
 - `http://localhost:3000/account`
+- `http://localhost:3000/admin`
+- `http://localhost:3000/admin/login`
 - `https://filterhero.net/login`
 - `https://filterhero.net/account`
+- `https://filterhero.net/admin`
+- `https://filterhero.net/admin/login`
 
-`pnpm exec tsx scripts/setup-auth-redirects.ts` writes them through the
-Management API when `SUPABASE_ACCESS_TOKEN` is set.
+`pnpm setup:auth-redirects` writes them through the Management API when
+`SUPABASE_ACCESS_TOKEN` is set.
 
 `ACCOUNT_DISABLE=1`, or a missing URL or service role key, turns accounts
 off. Checkout still runs as a guest. `CRM_DISABLE` does not turn accounts
@@ -105,4 +109,5 @@ the profile exists.
 
 ```
 pnpm verify:account
+pnpm verify:supabase
 ```

@@ -20,6 +20,7 @@ import { setPowerPackQty, setPreferredMerv } from "@/lib/merv-pref";
 import { scrollToHashTarget } from "@/hooks/useHashScroll";
 import { Input } from "@/components/ui/input";
 import ClockDeck from "@/components/ClockDeck";
+import { identifyShopper } from "@/lib/klaviyo";
 
 function Chip({
   selected,
@@ -283,6 +284,14 @@ function ReminderCapture({
     }
     setStatus("sending");
     try {
+      identifyShopper({
+        email,
+        properties: {
+          house_type: result.house.id,
+          change_interval_days: result.days,
+          preferred_merv: input.merv,
+        },
+      });
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -296,6 +305,22 @@ function ReminderCapture({
             `Suggested pack: ${result.packQty}.`,
           ].join(" "),
           intent: "reminder",
+          marketingConsent: false,
+          cadence: {
+            next_change_date: result.nextIso,
+            change_interval_days: result.days,
+            house_type: result.house.id,
+            recommended_merv: result.recommendedMerv,
+            selected_merv: input.merv,
+            depth: input.depth,
+            pack_qty: result.packQty,
+            pets: input.pets,
+            occupants: input.occupants,
+            allergies: input.allergies,
+            smoking: input.smoking,
+            kids: input.kids,
+            sqft: input.sqft,
+          },
         }),
       });
       const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };

@@ -489,6 +489,16 @@ export function findProductVariant(
   );
 }
 
+/** Wholesale-sheet SKUs for the Klaviyo catalog feed (not the full archive). */
+export function sellableSheetProducts(): Product[] {
+  const products: Product[] = [];
+  for (const row of SELLABLE_ROWS) {
+    const product = findProductVariant(row.size, row.merv, false);
+    if (product) products.push(product);
+  }
+  return products;
+}
+
 /** Popular sizes shown as shortcuts — must exist in the scraped catalog. */
 export function popularSizeSlugs(limit = 12): string[] {
   const preferred = [

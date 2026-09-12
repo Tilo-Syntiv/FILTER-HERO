@@ -2,6 +2,7 @@ import { Router, type Response } from "express";
 import { ZodError } from "zod";
 import { requireCustomer, type CustomerActor } from "./auth";
 import { accountHealth } from "./db";
+import { accountLimiter } from "./security";
 import {
   getAccount,
   profileUpdateSchema,
@@ -53,7 +54,7 @@ function invalidRequest(err: unknown, log: string) {
 export function accountRouter(): Router {
   const router = Router();
 
-  router.use(requireCustomer);
+  router.use(accountLimiter, requireCustomer);
 
   router.get("/health", async (_req, res) => {
     res.json(await accountHealth());

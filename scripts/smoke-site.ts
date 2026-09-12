@@ -111,11 +111,39 @@ async function main() {
 const health = await get(`${API}/api/health`);
 assert(health.res.ok, `health ${health.res.status}`);
 assert((health.json as { ok?: boolean })?.ok === true, "health.ok");
+assert(!health.res.headers.get("x-powered-by"), "API must not send X-Powered-By");
+assert(health.res.headers.get("x-content-type-options") === "nosniff", "API nosniff");
+assert(health.res.headers.get("x-frame-options") === "DENY", "API deny framing");
+assert(
+  (health.res.headers.get("content-security-policy") || "").includes("default-src 'self'"),
+  "API must send CSP",
+);
 
 const products = await get(`${API}/api/products`);
 assert(products.res.ok, `products ${products.res.status}`);
 const meta = products.json as { sizeCount?: number };
 assert(meta.sizeCount === FILTER_SIZES.length, `API sizeCount ${meta.sizeCount} != ${FILTER_SIZES.length}`);
+
+const klaviyoConfig = await get(`${API}/api/klaviyo/config`);
+assert(klaviyoConfig.res.ok, `klaviyo config ${klaviyoConfig.res.status}`);
+assert(
+  typeof (klaviyoConfig.json as { publicKey?: unknown })?.publicKey === "string",
+  "klaviyo config must be JSON with publicKey",
+);
+
+const klaviyoCatalog = await get(`${API}/api/klaviyo/catalog.json`);
+assert(klaviyoCatalog.res.ok, `klaviyo catalog ${klaviyoCatalog.res.status}`);
+const feed = klaviyoCatalog.json as { items?: unknown[] };
+assert(Array.isArray(feed.items) && feed.items.length > 0, "klaviyo catalog.json must list items");
+
+const sizeSsr = await get(`${API}/sizes/20x25x1`);
+assert(sizeSsr.res.ok, `size SSR ${sizeSsr.res.status}`);
+assert(sizeSsr.text.includes("application/ld+json"), "size page must ship JSON-LD");
+assert(sizeSsr.text.includes("OfferShippingDetails"), "size JSON-LD must include free-shipping offer");
+assert(
+  sizeSsr.text.includes("https://filterhero.net/sizes/20x25x1"),
+  "size speakable/product JSON-LD must use the size URL",
+);
 
 const sitemap = await get(`${API}/sitemap.xml`);
 assert(sitemap.res.ok, `sitemap ${sitemap.res.status}`);
@@ -124,6 +152,9 @@ assert(sitemap.text.includes("/sizes/20x25x1"), "sitemap missing 20x25x1");
 
 const robots = await get(`${API}/robots.txt`);
 assert(robots.res.ok && robots.text.includes("Sitemap:"), "robots");
+assert(/Disallow: \/admin/.test(robots.text), "robots must disallow /admin");
+assert(/Disallow: \/login/.test(robots.text), "robots must disallow /login");
+assert(/Disallow: \/account/.test(robots.text), "robots must disallow /account");
 
 const llms = await get(`${API}/llms.txt`);
 assert(llms.res.ok && llms.text.toLowerCase().includes("filter hero"), "llms.txt");
@@ -150,6 +181,10 @@ const pages = [
   "/how-often-to-change-air-filter",
   "/checkout/success",
   "/checkout/cancel",
+  "/login",
+  "/account",
+  "/admin",
+  "/admin/login",
   "/404",
   "/this-route-does-not-exist",
 ];
@@ -162,16 +197,58 @@ for (const page of pages) {
 const badContact = await post(`${API}/api/contact`, { name: "", email: "nope", message: "" });
 assert(badContact.res.status === 400, `invalid contact should 400, got ${badContact.res.status}`);
 
-const goodContact = await post(`${API}/api/contact`, {
-  name: "Smoke Test",
-  email: "smoke-test@example.com",
-  phone: "",
-  filterSize: "20x25x1",
-  message: "Automated smoke test — ignore this lead.",
+const trapped = await post(`${API}/api/contact`, {
+  name: "Smoke Bot",
+  email: "smoke-bot@example.com",
+  message: "honeypot",
   intent: "support",
+  website: "http://spam.example",
 });
-assert(goodContact.res.ok, `contact failed ${goodContact.res.status} ${goodContact.text}`);
-assert((goodContact.json as { ok?: boolean })?.ok === true, "contact.ok");
+if (trapped.res.status === 429) {
+  const code = (trapped.json as { code?: string })?.code;
+  assert(code === "rate_limited_contact", `contact 429 should name the limiter, got ${trapped.text}`);
+} else {
+  assert(trapped.res.ok, `honeypot contact failed ${trapped.res.status} ${trapped.text}`);
+  assert((trapped.json as { id?: string })?.id === "ignored", "filled honeypot must not create a lead");
+}
+
+const crmGate = await get(`${API}/api/crm/health`);
+assert(crmGate.res.status === 401, `CRM health must require a session, got ${crmGate.res.status}`);
+const accountGate = await get(`${API}/api/account/health`);
+assert(
+  accountGate.res.status === 401,
+  `account health must require a session, got ${accountGate.res.status}`,
+);
+const detailGate = await get(`${API}/api/health/detail`);
+assert(detailGate.res.status === 401, `health detail must require staff, got ${detailGate.res.status}`);
+
+const badIdentify = await post(`${API}/api/identify`, { email: "nope" });
+assert(badIdentify.res.status === 400, `invalid identify should 400, got ${badIdentify.res.status}`);
+assert(
+  (badIdentify.json as { code?: string })?.code === "identify_failed",
+  "identify errors must use a fixed code",
+);
+assert(!/expected|invalid_type|Zod/i.test(badIdentify.text), "identify must not leak Zod");
+
+const badTrack = await post(`${API}/api/track`, {});
+assert(badTrack.res.status === 400, `invalid track should 400, got ${badTrack.res.status}`);
+assert((badTrack.json as { code?: string })?.code === "track_failed", "track errors must use a fixed code");
+assert(!/expected|invalid_type|Zod/i.test(badTrack.text), "track must not leak Zod");
+
+const badJson = await fetch(`${API}/api/identify`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: "{not-json",
+});
+const badJsonText = await badJson.text();
+assert(badJson.status === 400, `malformed JSON should 400, got ${badJson.status}`);
+assert(/invalid_json/.test(badJsonText), "malformed JSON must name invalid_json");
+assert(!/SyntaxError|body-parser/i.test(badJsonText), "malformed JSON must not dump a stack");
+
+const webhook = await post(`${API}/api/stripe/webhook`, {});
+assert(webhook.res.status === 400, `unsigned webhook should 400, got ${webhook.res.status}`);
+assert((webhook.json as { code?: string })?.code === "webhook_failed", "webhook errors must use a fixed code");
+assert(!/stripe-signature|whsec_/i.test(webhook.text), "webhook must not leak signature details");
 
 const variant = findProductVariant("20x25x1", 8);
 assert(variant, "20x25x1 MERV 8");

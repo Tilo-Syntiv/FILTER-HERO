@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useAccount } from "@/contexts/AccountContext";
 import { useCart } from "@/contexts/CartContext";
 import { authClient } from "@/lib/admin-api";
+import { consumeStaffAuthPending } from "@/lib/staff-auth";
 import {
   formatOrderTotal,
   getAccount,
@@ -33,6 +34,10 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (!ready) return;
+    if (session && consumeStaffAuthPending(session.user.email)) {
+      setLocation("/admin");
+      return;
+    }
     if (!configured || !session) {
       const next = encodeURIComponent(window.location.pathname);
       setLocation(`/login?next=${next}`);
