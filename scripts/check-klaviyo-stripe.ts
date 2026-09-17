@@ -59,6 +59,10 @@ async function main() {
     stripeWebhook: {
       nativeWebhook: stripeStatus.nativeWebhook,
       url: stripeStatus.url,
+      webhookId: stripeStatus.webhookId,
+      stripeAccountId: stripeStatus.stripeAccountId,
+      stripeAccountName: stripeStatus.stripeAccountName,
+      oauthAccountMatch: stripeStatus.oauthAccountMatch,
     },
     stripeMetrics,
     testProfile: {

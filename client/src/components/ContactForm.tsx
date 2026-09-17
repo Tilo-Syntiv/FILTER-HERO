@@ -96,7 +96,7 @@ export default function ContactForm({
       if (!res.ok || !data.ok) {
         throw new Error(data.error || "Failed to send");
       }
-      toast.success("Message sent — we'll get back to you shortly.");
+      toast.success("Message sent — check your inbox for a Filter Hero confirmation.");
       reset({
         name: "",
         email: "",

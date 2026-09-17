@@ -463,6 +463,10 @@ export const getAdminSettings = () =>
       url: string | null;
       connectUrl: string;
       companyId: string;
+      stripeAccountId: string | null;
+      stripeAccountName: string | null;
+      webhookId: string | null;
+      oauthAccountMatch: boolean;
     };
   }>("/settings");
 export const connectKlaviyoStripe = () =>

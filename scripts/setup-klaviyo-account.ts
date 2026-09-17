@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { BRAND_EMAIL, BRAND_NAME } from "../shared/const.ts";
+import { EMAIL_BRAND, emailLogoUrl } from "../shared/email-brand.ts";
 import { DEFAULT_SITE_URL } from "../shared/seo.ts";
 import {
   getKlaviyoAccount,
@@ -13,6 +14,7 @@ import {
 import { syncKlaviyoCatalog } from "./lib/catalog-sync.ts";
 
 const CATALOG_ORIGIN = DEFAULT_SITE_URL;
+const LOGO_URL = emailLogoUrl(CATALOG_ORIGIN);
 const FROM_EMAIL = process.env.CONTACT_TO?.trim() || BRAND_EMAIL;
 const TEST_EMAIL = "klaviyo-wire-check@filterhero.net";
 /** Resend already claims `send.filterhero.net` (FH-172). Do not reuse that host. */
@@ -66,19 +68,21 @@ function metricMap(metrics: Named[]): Map<string, string> {
 function htmlEmail(title: string, body: string): string {
   return `<!DOCTYPE html>
 <html>
-<body style="margin:0;background:#f6f7f9;font-family:Arial,Helvetica,sans-serif;color:#141e30">
+<body style="margin:0;background:${EMAIL_BRAND.canvas};font-family:Arial,Helvetica,sans-serif;color:${EMAIL_BRAND.deep}">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
     <tr><td align="center" style="padding:32px 16px">
-      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden">
-        <tr><td style="background:#203868;padding:20px 28px">
-          <span style="color:#8eb0d8;font-weight:800;font-size:20px">${BRAND_NAME}</span>
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:${EMAIL_BRAND.white};border-radius:12px;overflow:hidden">
+        <tr><td align="center" style="background:${EMAIL_BRAND.white};padding:24px 28px 16px;border-bottom:4px solid ${EMAIL_BRAND.navy}">
+          <a href="${CATALOG_ORIGIN}" style="text-decoration:none">
+            <img src="${LOGO_URL}" alt="${BRAND_NAME}" width="${EMAIL_BRAND.logoWidth}" height="${EMAIL_BRAND.logoHeight}" style="display:block;width:${EMAIL_BRAND.logoWidth}px;max-width:${EMAIL_BRAND.logoWidth}px;height:auto;border:0;outline:none" />
+          </a>
         </td></tr>
         <tr><td style="padding:28px">
-          <h1 style="margin:0 0 16px;font-size:22px;color:#203868">${title}</h1>
+          <h1 style="margin:0 0 16px;font-size:22px;color:${EMAIL_BRAND.navy}">${title}</h1>
           ${body}
         </td></tr>
       </table>
-      <p style="margin:16px 0 0;font-size:12px;color:#5b6475">
+      <p style="margin:16px 0 0;font-size:12px;color:${EMAIL_BRAND.muted}">
         ${BRAND_NAME} · This is a marketing email.
         <a href="{% unsubscribe_link %}">Unsubscribe</a>
       </p>
@@ -251,14 +255,211 @@ async function waitForMetrics(names: string[], timeoutMs = 60000): Promise<Map<s
   return latest;
 }
 
+async function patchTemplateHtml(id: string, name: string, html: string) {
+  const patched = await klaviyoApi<{ data?: { id?: string } }>("PATCH", `/api/templates/${id}`, {
+    data: {
+      type: "template",
+      id,
+      attributes: { html, text: name },
+    },
+  });
+  if (!patched.ok) console.error("[template]", name, id, patched.error);
+  await sleep(350);
+  return patched.ok;
+}
+
+type SendEmailMessage = {
+  template_id?: string;
+  name?: string;
+  from_email?: string;
+  from_label?: string;
+  reply_to_email?: string;
+  subject_line?: string;
+  preview_text?: string;
+  id?: string;
+  smart_sending_enabled?: boolean;
+  transactional?: boolean;
+  add_tracking_params?: boolean;
+};
+
+type FlowActionRow = {
+  id?: string;
+  attributes?: {
+    definition?: {
+      type?: string;
+      id?: string;
+      links?: { next?: string | null };
+      data?: { message?: SendEmailMessage; status?: string };
+    };
+  };
+};
+
+type FlowRow = Named & {
+  relationships?: { "flow-actions"?: { data?: FlowActionRow[] } };
+};
+
+type LiveFlowEmail = {
+  actionId: string;
+  next: string | null;
+  templateId: string;
+  messageName: string;
+  fromEmail: string;
+  fromLabel: string;
+  replyTo: string;
+  subject: string;
+  preview: string;
+  messageId: string;
+  smartSending: boolean;
+  transactional: boolean;
+  addTracking: boolean;
+  status: string;
+};
+
+const ACTION_TEMPLATE: Record<string, string> = {
+  "Welcome D0": "FH Welcome D0",
+  "Welcome D1": "FH Welcome D1",
+  "Welcome D3": "FH Welcome D3",
+  "Abandon 1h": "FH Abandon 1h",
+  "Abandon 24h": "FH Abandon 24h",
+  Install: "FH Post install",
+  Review: "FH Post review",
+  "FH Replenish T-7": "FH Replenish T-7",
+  "FH Replenish T-2": "FH Replenish T-2",
+  "FH Replenish due": "FH Replenish due",
+  "Winback D0": "FH Winback D0",
+  "Winback D14": "FH Winback D14",
+};
+
+async function collectLiveFlowEmails(): Promise<LiveFlowEmail[]> {
+  const res = await klaviyoApi<{
+    data?: FlowRow[];
+    included?: Array<{ type?: string; id?: string; attributes?: FlowActionRow["attributes"] }>;
+  }>("GET", "/api/flows?filter=equals(archived,false)&include=flow-actions");
+  const included = new Map(
+    (res.data?.included || [])
+      .filter((row) => row.type === "flow-action" && row.id)
+      .map((row) => [row.id as string, row]),
+  );
+  const emails: LiveFlowEmail[] = [];
+  for (const flow of res.data?.data || []) {
+    for (const rel of flow.relationships?.["flow-actions"]?.data || []) {
+      const action = rel.attributes ? rel : included.get((rel as { id?: string }).id || "");
+      const def = action?.attributes?.definition;
+      if (def?.type !== "send-email") continue;
+      const message = def.data?.message;
+      const actionId = action?.id || def.id;
+      if (!actionId || !message?.template_id) continue;
+      emails.push({
+        actionId,
+        next: def.links?.next ?? null,
+        templateId: message.template_id,
+        messageName: message.name || "",
+        fromEmail: message.from_email || FROM_EMAIL,
+        fromLabel: message.from_label || BRAND_NAME,
+        replyTo: message.reply_to_email || FROM_EMAIL,
+        subject: message.subject_line || "",
+        preview: message.preview_text || "",
+        messageId: message.id || "",
+        smartSending: message.smart_sending_enabled !== false,
+        transactional: Boolean(message.transactional),
+        addTracking: message.add_tracking_params !== false,
+        status: def.data?.status || "live",
+      });
+    }
+  }
+  return emails;
+}
+
+async function collectLiveFlowTemplateIds(): Promise<string[]> {
+  return [...new Set((await collectLiveFlowEmails()).map((row) => row.templateId))];
+}
+
+function htmlIsBranded(html: string): boolean {
+  if (!html.includes(LOGO_URL)) return false;
+  const ice = ["color:#8eb0d8", "font-weight:800", "font-size:20px"].join(";");
+  return !html.includes(ice);
+}
+
+async function remountLiveFlowEmails(libraryIds: Record<string, string>) {
+  for (const email of await collectLiveFlowEmails()) {
+    const current = await klaviyoApi<{ data?: { attributes?: { name?: string; html?: string } } }>(
+      "GET",
+      `/api/templates/${email.templateId}?fields[template]=name,html`,
+    );
+    const html = current.data?.data?.attributes?.html || "";
+    const templateName =
+      current.data?.data?.attributes?.name ||
+      ACTION_TEMPLATE[email.messageName] ||
+      email.messageName;
+    if (htmlIsBranded(html)) {
+      libraryIds[`flow:${templateName}`] = email.templateId;
+      continue;
+    }
+    const libraryId = libraryIds[templateName] || libraryIds[ACTION_TEMPLATE[email.messageName] || ""];
+    if (!libraryId) {
+      console.error("[flow-template] no library id for", templateName || email.actionId);
+      continue;
+    }
+    // Live clones are GET-able but PATCH /api/templates/{cloneId} 404s (FH-237).
+    // Point the send-email action at the branded library copy; Klaviyo clones it.
+    const patched = await klaviyoApi<{
+      data?: { attributes?: { definition?: { data?: { message?: { template_id?: string } } } } };
+    }>("PATCH", `/api/flow-actions/${email.actionId}`, {
+      data: {
+        type: "flow-action",
+        id: email.actionId,
+        attributes: {
+          definition: {
+            type: "send-email",
+            id: email.actionId,
+            links: { next: email.next },
+            data: {
+              status: email.status,
+              message: {
+                from_email: email.fromEmail,
+                from_label: email.fromLabel,
+                reply_to_email: email.replyTo,
+                subject_line: email.subject,
+                preview_text: email.preview,
+                template_id: libraryId,
+                smart_sending_enabled: email.smartSending,
+                transactional: email.transactional,
+                add_tracking_params: email.addTracking,
+                name: email.messageName,
+                id: email.messageId || undefined,
+              },
+            },
+          },
+        },
+      },
+    });
+    const cloneId = patched.data?.data?.attributes?.definition?.data?.message?.template_id;
+    if (!patched.ok) console.error("[flow-action]", email.messageName, email.actionId, patched.error);
+    else if (cloneId) libraryIds[`flow:${templateName}`] = cloneId;
+    await sleep(350);
+  }
+}
+
 async function ensureTemplates() {
   const existing = await collect<Named>("/api/templates?page[size]=10");
-  const byName = new Map(existing.map((row) => [row.attributes?.name || "", row.id || ""]));
+  const idsByName = new Map<string, string[]>();
+  for (const row of existing) {
+    const name = row.attributes?.name || "";
+    if (!name || !row.id) continue;
+    const list = idsByName.get(name) || [];
+    list.push(row.id);
+    idsByName.set(name, list);
+  }
   const ids: Record<string, string> = {};
   for (const tpl of TEMPLATES) {
-    const already = byName.get(tpl.name);
-    if (already) {
-      ids[tpl.name] = already;
+    const already = idsByName.get(tpl.name) || [];
+    if (already.length) {
+      for (const id of already) {
+        if (await patchTemplateHtml(id, tpl.name, tpl.html)) {
+          ids[tpl.name] = id;
+          break;
+        }
+      }
       continue;
     }
     const created = await klaviyoApi<{ data?: { id?: string } }>("POST", "/api/templates", {
@@ -275,6 +476,8 @@ async function ensureTemplates() {
     if (created.ok && created.data?.data?.id) ids[tpl.name] = created.data.data.id;
     else console.error("[template]", tpl.name, created.error);
   }
+
+  await remountLiveFlowEmails(ids);
   return ids;
 }
 
@@ -764,6 +967,12 @@ async function main() {
   if (!isKlaviyoEnabled()) {
     console.error("Set KLAVIYO_PRIVATE_API_KEY in .env");
     process.exit(1);
+  }
+
+  if (process.argv.includes("--templates-only")) {
+    const templates = await ensureTemplates();
+    console.log(JSON.stringify({ templates, logo: LOGO_URL }, null, 2));
+    return;
   }
 
   const account = await getKlaviyoAccount();

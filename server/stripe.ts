@@ -16,6 +16,7 @@ import {
   syncPlacedOrder,
   syncStartedCheckout,
 } from "./klaviyo";
+import { sendOrderConfirmation } from "./mailer";
 
 const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]+$/;
 const META_MAX = 490;
@@ -311,6 +312,11 @@ export async function handleStripeWebhook(
       await syncPlacedOrder(stored);
     } catch (err) {
       console.error("[stripe webhook] klaviyo Placed Order failed", err);
+    }
+    try {
+      await sendOrderConfirmation(stored);
+    } catch (err) {
+      console.error("[stripe webhook] resend order confirmation failed", err);
     }
     try {
       await recordPurchaseOnAccount(stored);

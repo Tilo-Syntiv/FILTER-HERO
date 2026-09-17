@@ -1,11 +1,11 @@
 import fs from "node:fs";
 import { nanoid } from "nanoid";
-import { Resend } from "resend";
 import { z } from "zod";
-import { BRAND_EMAIL, BRAND_NAME } from "../shared/const";
+import { resendSendsShopperReceipt } from "../shared/email-channels";
 import { recordLeadInCrm } from "./crm/intake";
 import { dataFile } from "./data-store";
 import { syncContactToKlaviyo } from "./klaviyo";
+import { sendContactReceipt, sendLeadAlert } from "./mailer";
 import { isHoneypotTripped, shouldEnforceTurnstile, verifyTurnstile } from "./security";
 
 const LEADS_PATH = dataFile("leads.json");
@@ -50,47 +50,15 @@ function appendLead(lead: StoredLead) {
 }
 
 async function sendLeadEmail(lead: ContactPayload & { id: string }) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.CONTACT_TO || BRAND_EMAIL;
-  const from = process.env.RESEND_FROM || `${BRAND_NAME} <${BRAND_EMAIL}>`;
-
-  if (!apiKey) {
-    console.info("[contact] RESEND_API_KEY not set — lead saved to leads.json only");
-    return { emailed: false as const };
+  const staff = await sendLeadAlert(lead);
+  if (resendSendsShopperReceipt(lead.intent)) {
+    try {
+      await sendContactReceipt(lead);
+    } catch (err) {
+      console.error("[contact] shopper receipt failed after save", err);
+    }
   }
-
-  const resend = new Resend(apiKey);
-  const intentLabel =
-    lead.intent === "quote" ? "Quote" : lead.intent === "reminder" ? "Filter Reminder" : "Support";
-  const subject = `[${BRAND_NAME}] ${intentLabel} — ${lead.name}`;
-  const text = [
-    `Lead ID: ${lead.id}`,
-    `Intent: ${lead.intent}`,
-    `Name: ${lead.name}`,
-    `Email: ${lead.email}`,
-    `Phone: ${lead.phone || "—"}`,
-    `Filter size: ${lead.filterSize || "—"}`,
-    `Cart: ${lead.cartSummary || "—"}`,
-    "",
-    lead.message,
-  ].join("\n");
-
-  const { error } = await resend.emails.send(
-    {
-      from,
-      to: [to],
-      replyTo: lead.email,
-      subject,
-      text,
-    },
-    { idempotencyKey: `lead-email/${lead.id}` },
-  );
-  if (error) {
-    console.error("[contact] resend", error);
-    return { emailed: false as const };
-  }
-
-  return { emailed: true as const };
+  return { emailed: staff.sent };
 }
 
 export async function submitContact(raw: unknown) {

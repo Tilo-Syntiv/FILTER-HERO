@@ -140,7 +140,7 @@ export default function CustomQuoteForm({
       if (!res.ok || !data.ok) {
         throw new Error(data.error || "Failed to send");
       }
-      toast.success("Quote request sent — we'll follow up with pricing and lead time.");
+      toast.success("Quote request sent — check your inbox for a Filter Hero confirmation.");
       reset({
         ...sizeDefaults(""),
         merv: "unsure",

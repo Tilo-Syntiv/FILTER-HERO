@@ -84,7 +84,7 @@ export default function CheckoutSuccess() {
       : state === "paid"
         ? {
             title: "Payment successful",
-            body: `Thank you for your order. A confirmation email will arrive from Stripe shortly. We'll get your filters on the way.`,
+            body: `Thank you for your order. Filter Hero will email a confirmation, and Stripe will send the payment receipt. We'll get your filters on the way.`,
           }
         : state === "missing"
           ? {

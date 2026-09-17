@@ -662,7 +662,7 @@ export function trackingSnapshot() {
     trackPath: "/api/track",
     catalogFeed: "/api/klaviyo/catalog.json",
     channels: {
-      resend: "Transactional receipts and staff lead alerts",
+      resend: "Branded transactional receipts and staff lead alerts",
       klaviyo: "Marketing profiles, flows, and shopper events",
       stripe: "Payment receipts",
       crm: "Staff pipeline only — never mail, never Klaviyo writes",

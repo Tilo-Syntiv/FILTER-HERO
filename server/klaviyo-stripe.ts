@@ -1,6 +1,7 @@
 import {
   KLAVIYO_STRIPE_EVENTS,
   KLAVIYO_STRIPE_INSTALL_URL,
+  KLAVIYO_STRIPE_OAUTH_ACCOUNT_ID,
   isKlaviyoStripeWebhookUrl,
   klaviyoStripeWebhookUrl,
 } from "../shared/klaviyo-stripe";
@@ -14,6 +15,10 @@ export type KlaviyoStripeStatus = {
   url: string | null;
   connectUrl: string;
   companyId: string;
+  stripeAccountId: string | null;
+  stripeAccountName: string | null;
+  webhookId: string | null;
+  oauthAccountMatch: boolean;
 };
 
 function last4(secret: string | null | undefined): string | null {
@@ -34,25 +39,40 @@ export async function resolveKlaviyoCompanyId(): Promise<string> {
   throw new Error("Set KLAVIYO_PUBLIC_API_KEY or KLAVIYO_PRIVATE_API_KEY");
 }
 
+function emptyStatus(
+  companyId: string,
+  expected: string | null,
+  extra: Partial<KlaviyoStripeStatus> = {},
+): KlaviyoStripeStatus {
+  return {
+    shopEvents: true,
+    configured: false,
+    nativeWebhook: false,
+    url: expected,
+    connectUrl: KLAVIYO_STRIPE_INSTALL_URL,
+    companyId,
+    stripeAccountId: null,
+    stripeAccountName: null,
+    webhookId: null,
+    oauthAccountMatch: false,
+    ...extra,
+  };
+}
+
 export async function klaviyoStripeStatus(): Promise<KlaviyoStripeStatus> {
   const companyId = klaviyoPublicKey();
   const expected = companyId ? klaviyoStripeWebhookUrl(companyId) : null;
   const stripe = getStripe();
-  if (!stripe) {
-    return {
-      shopEvents: true,
-      configured: false,
-      nativeWebhook: false,
-      url: expected,
-      connectUrl: KLAVIYO_STRIPE_INSTALL_URL,
-      companyId,
-    };
-  }
+  if (!stripe) return emptyStatus(companyId, expected);
   try {
-    const hooks = await stripe.webhookEndpoints.list({ limit: 100 });
+    const [hooks, account] = await Promise.all([
+      stripe.webhookEndpoints.list({ limit: 100 }),
+      stripe.accounts.retrieve(),
+    ]);
     const found = hooks.data.find(
       (hook) => isKlaviyoStripeWebhookUrl(hook.url) && hook.status === "enabled",
     );
+    const stripeAccountId = account.id || null;
     return {
       shopEvents: true,
       configured: true,
@@ -60,17 +80,14 @@ export async function klaviyoStripeStatus(): Promise<KlaviyoStripeStatus> {
       url: found?.url || expected,
       connectUrl: KLAVIYO_STRIPE_INSTALL_URL,
       companyId,
+      stripeAccountId,
+      stripeAccountName: account.settings?.dashboard?.display_name || account.business_profile?.name || null,
+      webhookId: found?.id || null,
+      oauthAccountMatch: stripeAccountId === KLAVIYO_STRIPE_OAUTH_ACCOUNT_ID,
     };
   } catch (err) {
     console.error("[klaviyo-stripe] list webhooks", err);
-    return {
-      shopEvents: true,
-      configured: true,
-      nativeWebhook: false,
-      url: expected,
-      connectUrl: KLAVIYO_STRIPE_INSTALL_URL,
-      companyId,
-    };
+    return emptyStatus(companyId, expected, { configured: true });
   }
 }
 

@@ -14,7 +14,59 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-234**
+Next id: **FH-238**
+
+---
+
+### FH-237 — Live Klaviyo flow clones reject template PATCH
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** `PATCH /api/templates/{cloneId}` returned 404 “Template with id does not exist” for live flow clones (`UasA8c`, …) even though `GET` of the same id returned the ice-wordmark HTML. `--templates-only` therefore branded the library copies only, and live sends stayed unbranded.
+- **Do NOT:** PATCH a live flow `template_id` clone as if it were a library template. Do not treat a library-only upsert as the live send.
+- **Do:** Point the live send-email flow action at the branded library template id. Klaviyo clones that HTML onto a new `template_id`. `pnpm setup:klaviyo --templates-only` remounts any live send missing `/logo.png`. `pnpm verify:klaviyo` still fails if a live flow template is missing the lockup.
+- **Files:** `scripts/setup-klaviyo-account.ts`, `scripts/verify-klaviyo.ts`, `docs/KLAVIYO.md`
+- **Verify:** `pnpm verify:klaviyo`. GET a live send-email `template_id` — HTML includes `https://filterhero.net/logo.png`.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-236 — Live Klaviyo flows still sent the ice wordmark
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Library templates (`Uqkman`, …) had `/logo.png`, but live flow messages use clones (`UasA8c`, `YbpSVp`, …). Those clones still had the navy ice “Filter Hero” text, so welcome / abandon / replenish / win-back would send unbranded mail. Email-default logo `6540539` was also sized 240×566 (stretched).
+- **Do NOT:** Treat a library template PATCH as the live send. Do not leave flow `template_id` clones on ice wordmark text. Do not render the lockup at 240×566.
+- **Do:** Remount each live send-email action onto the branded library template (FH-237). `pnpm verify:klaviyo` fails if a live flow template is missing `https://filterhero.net/logo.png`. Brand logo aspect stays ~200×141 / 240×170.
+- **Files:** `scripts/setup-klaviyo-account.ts`, `scripts/verify-klaviyo.ts`, `docs/KLAVIYO.md`
+- **Verify:** `pnpm verify:klaviyo`. GET a live flow template — HTML includes `/logo.png`.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-235 — Resend mail was unbranded plain text
+- **Status:** fixed
+- **Area:** contact
+- **Symptom:** Resend only sent a plain-text staff lead alert. Quote/support receipts and the order confirmation were documented as Filter Hero mail but never left as branded HTML, so the inbox did not match Klaviyo/Stripe (logo, navy `#203868`, burgundy `#7F2328`).
+- **Do NOT:** Send Resend mail as text-only. Do not use ice wordmark text instead of `/logo.png`. Do not send from `onboarding@resend.dev`. Do not add welcome / abandon / replenish to `server/mailer.ts`.
+- **Do:** `shared/email-brand.ts` is the kit. `server/mailer.ts` sends the staff alert, quote/support receipt, and order confirmation with the shop lockup. From is `Filter Hero <info@filterhero.net>`. Clock saves stay staff-only.
+- **Files:** `shared/email-brand.ts`, `server/mailer.ts`, `server/contact.ts`, `server/stripe.ts`, `scripts/verify-resend.ts`, `docs/RESEND.md`
+- **Verify:** `pnpm verify:resend`. HTML includes `https://filterhero.net/logo.png`, `#203868`, and `#7F2328`. Paid checkout copy mentions the Filter Hero confirmation.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-234 — Klaviyo emails used text wordmark instead of the Filter Hero logo
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Live welcome / abandon / replenish / win-back templates were navy bars with ice “Filter Hero” text. Brand library had no logo, colors, or buttons. Email defaults were generic gray Helvetica with a broken logo id, and the asset library “Primary Logo” was a leftover S-curve mark.
+- **Do NOT:** Send Klaviyo mail with ice wordmark text instead of `/logo.png`. Do not point brand defaults at a missing logo id. Do not use the generic S-curve as Filter Hero.
+- **Do:** Brand library logo is the shop lockup (`https://filterhero.net/logo.png`). Email defaults header is white with that logo; footer is navy `#203868`. Header links are live shop URLs. All twelve FH CODE templates embed the same mark. `pnpm setup:klaviyo --templates-only` upserts them.
+- **Files:** `scripts/setup-klaviyo-account.ts`, `scripts/verify-klaviyo.ts`, `scripts/inspect-klaviyo-account.ts`, `docs/KLAVIYO.md`
+- **Verify:** `pnpm verify:klaviyo`. Live Welcome D0 HTML includes `https://filterhero.net/logo.png`. Klaviyo Brand Library shows Filter Hero Logo. New drag-and-drop email uses the logo in the header.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
 
 ---
 
@@ -71,13 +123,13 @@ Next id: **FH-234**
 ---
 
 ### FH-229 — Native Klaviyo Stripe app accepts webhooks but does not record metrics
-- **Status:** open
+- **Status:** mitigated
 - **Area:** other
-- **Symptom:** Stripe Test webhook `we_1UGWbF790NnFGDLvIVtyg0bK` returns 200 for `invoice.payment_succeeded` and `charge.succeeded`. Klaviyo Stripe is **Enabled**, historical import completed, test-data sync is on, signing secret was saved, and metrics exist (`XHuURz`, `RHcdHv`, `TvC7dY`, `Vi3YJt`). Successfully Paid / Issued Invoice activity is still empty. Paid invoices `in_1UGX9c790NnFGDLv23CVeA48` (bounced `@filterhero.net` profile) and `in_1UGYt3790NnFGDLvaEE4fiss` (Mailinator, no Klaviyo profile created) did not record events.
-- **Do NOT:** Treat HTTP 200 on the Klaviyo webhook as recorded events. Do not add Checkout session events to the Klaviyo endpoint. Do not trigger replenish, abandon, or a second receipt from Successfully Paid. Do not use `@filterhero.net` as the Stripe test email — that mailbox hard-bounced after a Klaviyo flow send.
-- **Do:** Re-authenticate Klaviyo → Stripe on **FILTER HERO sandbox** (not live). Then pay a test invoice to a non-bouncing email and confirm Successfully Paid activity. Shop Placed Order stays on `/api/stripe/webhook`.
-- **Files:** `scripts/test-klaviyo-stripe.ts`, `scripts/check-klaviyo-stripe.ts`, `docs/KLAVIYO.md`
-- **Verify:** Analytics → Metrics shows the four Stripe metrics. Data tab sync 100%. Successfully Paid activity lists the $19.99 test invoice. Profile `01M2PTB9BJ9QM5XX5B5705RQQ6` exists (Placed Order already recorded).
+- **Symptom:** Sandbox webhook `we_1UGWbF790NnFGDLvIVtyg0bK` returned 200 for `invoice.payment_succeeded` / `charge.succeeded`, but Successfully Paid / Issued Invoice stayed at 0. Historical import on the Klaviyo Stripe app also recorded 0 events.
+- **Do NOT:** Treat HTTP 200 as a recorded metric. Do not OAuth Klaviyo to **FILTER HERO sandbox** (`acct_1U9bqs790NnFGDLv`) — Stripe Sandboxes cannot connect to live Klaviyo. Do not run `pnpm setup:klaviyo-stripe` / `scripts/test-klaviyo-stripe.ts` against local sandbox keys and expect native metrics. Do not add Checkout session events to the Klaviyo endpoint. Do not trigger replenish, abandon, or a second receipt from Successfully Paid. Do not use `@filterhero.net` as the Stripe test email.
+- **Do:** Klaviyo **Connect to Stripe** on **FILTER HERO** (`acct_1U9bqlQEENEs0Qmw`, created Aug 28). Native charge/invoice destination on that account’s **test mode** is `we_1UGgz8QEENEs0QmwgI31tz6f`. Paste *that* endpoint’s signing secret in Klaviyo. Pay a Mailinator $19.99 invoice on the same account (`in_1UGh9MQEENEs0QmwGHgzYhHK` is the draft). Shop Placed Order stays on `/api/stripe/webhook`. Local `STRIPE_SECRET_KEY` remaining sandbox is expected until Railway uses `sk_live_`.
+- **Files:** `server/klaviyo-stripe.ts`, `shared/klaviyo-stripe.ts`, `client/src/pages/admin/Settings.tsx`, `scripts/check-klaviyo-stripe.ts`, `docs/KLAVIYO.md`
+- **Verify:** Staff Settings shows Stripe key account name. `pnpm exec tsx scripts/check-klaviyo-stripe.ts` prints `oauthAccountMatch`. Successfully Paid activity > 0 after a paid FILTER HERO test invoice. Profile `01M2PTB9BJ9QM5XX5B5705RQQ6` exists (Placed Order already recorded).
 - **Added:** 2026-09-17
 - **Fixed:** 2026-09-17
 

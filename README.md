@@ -6,7 +6,7 @@ HVAC filter storefront: size finder, catalog, cart, Stripe Checkout, and quote/c
 
 - React 19 + Vite 7 + Tailwind 4 + wouter
 - Express API (checkout, webhook, contact, products)
-- Stripe Checkout (Customer, Invoice) + optional Resend email for leads. Sales tax is QuickBooks Online, not Stripe Tax.
+- Stripe Checkout (Customer, Invoice) + Resend branded receipts (order confirmation, quote/support, staff lead alerts). Sales tax is QuickBooks Online, not Stripe Tax.
 - Books: QuickBooks Online beside Stripe — see `docs/STRIPE-BOOKS.md`. Intuit OAuth discovery: `docs/INTUIT-OAUTH-DISCOVERY.md`. Intuit OAuth errors: `docs/INTUIT-OAUTH.md`.
 
 ## Setup
@@ -91,7 +91,7 @@ Serves the SPA and API from the Express server (`NODE_ENV=production`).
 | `pnpm setup:intuit-live` | Put Production Intuit keys on Railway |
 | `pnpm verify:intuit-oauth` | Expired access/refresh, `invalid_grant`, and CSRF handling |
 | `pnpm verify:env` | Load `.env`, check formats, live-ping Stripe / Resend / Klaviyo / Supabase / Turnstile / Cloudflare |
-| `pnpm verify:resend` | Domain + From checks, then a probe to `delivered@resend.dev` |
+| `pnpm verify:resend` | Brand kit + domain + From checks, then a branded probe to `delivered@resend.dev` |
 | `pnpm debug:stripe-checkout` | Webhook + live Checkout Session + test charge probe |
 | `pnpm setup:stripe-webhook` | Create/repair the production Checkout webhook endpoint |
 | `pnpm setup:klaviyo-stripe` | Create/repair Stripe → Klaviyo charge/invoice webhook |

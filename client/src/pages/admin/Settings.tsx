@@ -167,6 +167,10 @@ function SettingsBody() {
         <div className="space-y-2 text-sm">
           <StatusDot ok={data.klaviyoStripe.shopEvents} label="Shop events (Placed Order via Filter Hero webhook)" />
           <StatusDot ok={data.klaviyoStripe.nativeWebhook} label="Native charge and invoice webhook" />
+          <StatusDot
+            ok={data.klaviyoStripe.oauthAccountMatch}
+            label="Stripe key is FILTER HERO (Klaviyo OAuth), not sandbox"
+          />
           {data.klaviyoStripe.url ? (
             <p className="break-all text-muted-foreground">{data.klaviyoStripe.url}</p>
           ) : (
@@ -174,6 +178,13 @@ function SettingsBody() {
               Set Stripe and Klaviyo keys, then Connect. Refunds and failed payments use Klaviyo’s Stripe app.
             </p>
           )}
+          {data.klaviyoStripe.stripeAccountName || data.klaviyoStripe.stripeAccountId ? (
+            <p className="text-xs text-muted-foreground">
+              This key is {data.klaviyoStripe.stripeAccountName || "Stripe"}
+              {data.klaviyoStripe.webhookId ? ` · ${data.klaviyoStripe.webhookId}` : ""}. Klaviyo Connect to Stripe must
+              pick FILTER HERO (created Aug 28), not FILTER HERO sandbox.
+            </p>
+          ) : null}
           <p className="text-xs text-muted-foreground">
             Do not add an order-confirmation or replenish flow on Successfully Paid. Resend + Stripe already send the
             receipt. Replenish stays on Placed Order.

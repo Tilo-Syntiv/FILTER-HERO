@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { BRAND_EMAIL, BRAND_NAME } from "../shared/const.ts";
+import { renderBrandedEmail, transactionalFooterNote } from "../shared/email-brand.ts";
 import { getKlaviyoAccount, isKlaviyoEnabled, klaviyoPublicKey } from "../server/klaviyo.ts";
 import { accountDisabledReason, crmDisabledReason, resetDbClient } from "../server/db.ts";
 
@@ -232,6 +233,13 @@ async function main() {
           from: env("RESEND_FROM") || `${BRAND_NAME} <${BRAND_EMAIL}>`,
           to: ["delivered@resend.dev"],
           subject: `[${BRAND_NAME}] env verify`,
+          html: renderBrandedEmail({
+            title: "Resend env verify",
+            preview: `${BRAND_NAME} transactional mail is on-brand.`,
+            bodyHtml: `<p style="margin:0;font-size:15px;line-height:1.5">Filter Hero .env Resend probe. Safe test address delivered@resend.dev.</p>`,
+            cta: { href: "https://filterhero.net", label: "Shop filters" },
+            footerNote: transactionalFooterNote(),
+          }),
           text: "Filter Hero .env Resend probe. Safe test address delivered@resend.dev.",
         },
         { idempotencyKey: `verify-env/${Date.now()}` },

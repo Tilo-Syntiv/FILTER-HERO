@@ -8,6 +8,9 @@
 
 export const KLAVIYO_STRIPE_INSTALL_URL = "https://www.klaviyo.com/integration/stripe";
 
+/** Stripe account Klaviyo OAuth can connect. Stripe Sandboxes are ineligible. */
+export const KLAVIYO_STRIPE_OAUTH_ACCOUNT_ID = "acct_1U9bqlQEENEs0Qmw";
+
 export const KLAVIYO_STRIPE_EVENTS = [
   "charge.captured",
   "charge.expired",

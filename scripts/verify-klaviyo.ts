@@ -22,6 +22,7 @@ import {
   isClientMetric,
   getKlaviyoAccount,
   isKlaviyoEnabled,
+  klaviyoApi,
   klaviyoLineFromProduct,
   klaviyoPublicConfig,
   linesFromCheckoutItems,
@@ -34,10 +35,12 @@ import {
 } from "../server/klaviyo.ts";
 import {
   KLAVIYO_STRIPE_EVENTS,
+  KLAVIYO_STRIPE_OAUTH_ACCOUNT_ID,
   isKlaviyoStripeWebhookUrl,
   klaviyoStripeWebhookUrl,
 } from "../shared/klaviyo-stripe.ts";
 import { httpsKlaviyoClientUrl } from "../shared/klaviyo-onsite.ts";
+import { emailLogoUrl } from "../shared/email-brand.ts";
 import type { StoredOrder } from "../server/stripe.ts";
 
 function assert(cond: unknown, message: string): asserts cond {
@@ -136,6 +139,27 @@ assert(line.ProductURL.includes("/sizes/20x25x1"), "line PDP url");
 assert(line.ImageURL.includes("/products/"), "line image url");
 assert(line.Brand === "Filter Hero", "line brand");
 
+const setupSource = fs.readFileSync("scripts/setup-klaviyo-account.ts", "utf-8");
+assert(setupSource.includes("${LOGO_URL}"), "Klaviyo templates embed the logo");
+assert(setupSource.includes("emailLogoUrl"), "Klaviyo logo helper is the shop mark");
+assert(setupSource.includes("EMAIL_BRAND"), "Klaviyo templates use the shared Filter Hero kit");
+assert(
+  setupSource.includes("collectLiveFlowTemplateIds"),
+  "setup must patch live flow clones, not only library templates",
+);
+assert(
+  setupSource.includes("/api/flow-actions/"),
+  "live clones remount via flow-action PATCH because template PATCH 404s",
+);
+assert(
+  fs.readFileSync("shared/email-brand.ts", "utf-8").includes('/logo.png'),
+  "Klaviyo logo is the shop mark",
+);
+assert(
+  !setupSource.includes("color:#8eb0d8;font-weight:800;font-size:20px"),
+  "Klaviyo emails must use the logo image, not ice wordmark text",
+);
+
 const items = [{ productId: variant.id, quantity: 6 }];
 const lines = linesFromCheckoutItems(items, "https://filterhero.net");
 assert(lines.length === 1, "one checkout line");
@@ -206,6 +230,10 @@ assert(httpsKlaviyoClientUrl("/api/identify") === "/api/identify", "same-origin 
 assert(KLAVIYO_STRIPE_EVENTS.includes("charge.succeeded"), "charges sync");
 assert(KLAVIYO_STRIPE_EVENTS.includes("invoice.payment_succeeded"), "invoices sync");
 assert(
+  KLAVIYO_STRIPE_OAUTH_ACCOUNT_ID === "acct_1U9bqlQEENEs0Qmw",
+  "Klaviyo OAuth targets FILTER HERO, not sandbox",
+);
+assert(
   !(KLAVIYO_STRIPE_EVENTS as readonly string[]).includes("checkout.session.completed"),
   "Checkout stays on Filter Hero",
 );
@@ -226,7 +254,88 @@ async function livePing() {
     account = await getKlaviyoAccount();
   }
   assert(account.ok, `live Klaviyo account failed: ${account.error || "unknown"}`);
-  console.log(`Klaviyo payload checks passed. Live account ${account.accountId} ok.`);
+
+  type FlowAction = {
+    attributes?: {
+      definition?: {
+        type?: string;
+        data?: { message?: { template_id?: string; name?: string }; status?: string };
+      };
+    };
+  };
+  const flows = await klaviyoApi<{
+    data?: Array<{
+      attributes?: { name?: string; status?: string };
+      relationships?: { "flow-actions"?: { data?: Array<FlowAction & { id?: string }> } };
+    }>;
+    included?: Array<{ type?: string; id?: string; attributes?: FlowAction["attributes"] }>;
+  }>("GET", "/api/flows?filter=equals(archived,false)&include=flow-actions");
+  assert(flows.ok && (flows.data?.data?.length || 0) >= 7, "seven live Filter Hero flows");
+  const includedActions = new Map(
+    (flows.data?.included || [])
+      .filter((row) => row.type === "flow-action" && row.id)
+      .map((row) => [row.id as string, row]),
+  );
+  const logo = emailLogoUrl();
+  const missing: string[] = [];
+  const wordmark: string[] = [];
+  for (const flow of flows.data?.data || []) {
+    assert(flow.attributes?.status === "live", `${flow.attributes?.name} must stay live`);
+    for (const rel of flow.relationships?.["flow-actions"]?.data || []) {
+      const action = rel.attributes ? rel : includedActions.get(rel.id || "");
+      if (action?.attributes?.definition?.type !== "send-email") continue;
+      const templateId = action.attributes.definition.data?.message?.template_id;
+      const actionName = action.attributes.definition.data?.message?.name || templateId || "email";
+      assert(templateId, `${flow.attributes?.name} ${actionName} is missing a template`);
+      const tpl = await klaviyoApi<{ data?: { attributes?: { html?: string } } }>(
+        "GET",
+        `/api/templates/${templateId}?fields[template]=html`,
+      );
+      const html = tpl.data?.data?.attributes?.html || "";
+      if (!html.includes(logo)) missing.push(`${flow.attributes?.name} ${actionName}`);
+      if (/color:#8eb0d8;font-weight:800;font-size:20px/.test(html)) {
+        wordmark.push(`${flow.attributes?.name} ${actionName}`);
+      }
+    }
+  }
+  assert(!missing.length, `live flow templates missing ${logo}: ${missing.join(", ")}`);
+  assert(!wordmark.length, `live flow templates still use ice wordmark text: ${wordmark.join(", ")}`);
+
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
+  type EmailDefaultRow = {
+    attributes?: { header?: { links?: Array<{ url?: string }> } };
+    relationships?: { "brand-logo"?: { data?: { id?: string } | null } };
+  };
+  const key = process.env.KLAVIYO_PRIVATE_API_KEY?.trim() || "";
+  const defaultsRes = await fetch("https://a.klaviyo.com/api/brand-email-defaults?include=brand-logo", {
+    headers: {
+      Authorization: `Klaviyo-API-Key ${key}`,
+      accept: "application/vnd.api+json",
+      revision: "2026-07-15.pre",
+    },
+  });
+  const defaultsJson = (await defaultsRes.json()) as {
+    data?: EmailDefaultRow[] | EmailDefaultRow;
+    included?: Array<{ type?: string; id?: string }>;
+    errors?: Array<{ detail?: string; title?: string }>;
+  };
+  assert(
+    defaultsRes.ok,
+    `email defaults failed: ${defaultsJson.errors?.map((row) => row.detail || row.title).join("; ") || defaultsRes.status}`,
+  );
+  const emailDefault = Array.isArray(defaultsJson.data) ? defaultsJson.data[0] : defaultsJson.data;
+  const logoId =
+    emailDefault?.relationships?.["brand-logo"]?.data?.id ||
+    defaultsJson.included?.find((row) => row.type === "brand-logo")?.id;
+  assert(logoId, "email defaults have a Filter Hero logo");
+  const headerLinks = emailDefault?.attributes?.header?.links || [];
+  assert(
+    headerLinks.every((link) => !/\/shop$|\/measure$/.test(link.url || "")),
+    "email default header links must be live shop URLs",
+  );
+
+  console.log(`Klaviyo payload checks passed. Live account ${account.accountId} ok. Flow templates branded.`);
 }
 
 livePing().catch((err) => {

@@ -14,7 +14,7 @@ The CRM is a staff board — it never sends and never writes a Klaviyo profile.
 | Staff lead alert (quote / support / clock save) | Resend → `CONTACT_TO` | Klaviyo, CRM |
 | Quote / support confirmation to the shopper | Resend | Klaviyo welcome or “we got your quote” flow, CRM |
 | Filter Clock cadence save | **No shopper email** | Resend receipt, Klaviyo list, replenish (`next_change_date`), CRM deal |
-| Order confirmation | Resend (branded) + Stripe payment receipt | Klaviyo “Order confirmed” / receipt flow, CRM |
+| Order confirmation | Resend (branded HTML in `server/mailer.ts`) + Stripe payment receipt | Klaviyo “Order confirmed” / receipt flow, CRM |
 | Welcome, abandoned checkout, install/review, replenish, win-back, campaigns | Klaviyo | `server/mailer.ts`, CRM |
 | Quote follow-up board | CRM (staff only) | Resend, Klaviyo |
 
@@ -58,7 +58,17 @@ Filter Hero already sends **Placed Order** from `https://filterhero.net/api/stri
 
 Events: all `charge.*` and `invoice.*` from [Klaviyo’s Stripe guide](https://help.klaviyo.com/hc/en-us/articles/115005082267). Do **not** add Checkout session events there — those stay on the Filter Hero webhook.
 
-After the endpoint exists, finish **Connect to Stripe** in Klaviyo (`https://www.klaviyo.com/integration/stripe`) and paste the endpoint signing secret into webhook verification. Do **not** trigger welcome, abandon, replenish, or a receipt from **Successfully Paid**.
+After the endpoint exists, finish **Connect to Stripe** in Klaviyo (`https://www.klaviyo.com/integration/stripe`) on **FILTER HERO** (`acct_1U9bqlQEENEs0Qmw`, created Aug 28) — not **FILTER HERO sandbox**. Stripe Sandboxes cannot OAuth to live Klaviyo. Paste that same account’s signing secret into webhook verification.
+
+Local `STRIPE_SECRET_KEY` is the sandbox account, so `pnpm setup:klaviyo-stripe` creates `we_1UGWbF790NnFGDLvIVtyg0bK` there. Klaviyo records charge/invoice metrics from the OAuth account only. The native test-mode destination on FILTER HERO is `we_1UGgz8QEENEs0QmwgI31tz6f` (`https://a.klaviyo.com/api/webhook/integration/stripe?c=VnVNmQ`). Integration status: **Enabled** (created Sep 17, 2026); signing secret filled; historical invoices/payments last synced Sep 17 2:38 AM; **Sync Stripe test data** on.
+
+Do **not** trigger welcome, abandon, replenish, or a receipt from **Successfully Paid**.
+
+## Brand (email defaults)
+
+Klaviyo marketing mail uses the same Filter Hero kit as Stripe Branding and Resend (`shared/email-brand.ts`, [RESEND.md](./RESEND.md)). Live defaults (`VnVNmQ`): logo `6540539` (links to https://filterhero.net), primary button `6540565` Shop Now `#7F2328`, headings/links/footer navy `#203868`, body `#141E30`, canvas `#F6F7F9`, footer links ice `#8EB0D8`. New campaigns and flow emails should pull from **Media & brand** (`/brand-library`). Do not leave Klaviyo on Helvetica gray with `#0000ee` links.
+
+Existing live flows were built before this kit. If a flow template still looks generic, restyle it from the brand library — do not invent a second order-confirmation template while doing that. Do **not** click **Save** on Klaviyo’s “Review your brand” wizard; it replaces these defaults with a generic theme.
 
 ## Catalog
 
@@ -72,7 +82,9 @@ Local: `http://localhost:3001/api/klaviyo/catalog.json`
 
 Account **Filter Hero**. Public / site ID `VnVNmQ`. Marketing list is `RiTKiS` (Klaviyo name: **Email List**). From-address on draft flows: `info@filterhero.net`.
 
-`pnpm setup:klaviyo` is idempotent and now upserts/deletes catalog items so the live custom catalog matches the contractor sheet (293 SKUs). `pnpm sync:catalog` refreshes Stripe + Klaviyo + Supabase without touching flows. `pnpm inspect:klaviyo` prints the live objects.
+Brand library uses the shop lockup at `https://filterhero.net/logo.png`. Email defaults header is white with that logo; footer is navy `#203868`. Header links are `/sizes` and `/how-often-to-change-air-filter` — not `/shop` or `/measure`. CODE flow templates embed the same `/logo.png` — do not send ice wordmark text in place of the mark.
+
+`pnpm setup:klaviyo` is idempotent and now upserts/deletes catalog items so the live custom catalog matches the contractor sheet (293 SKUs). `pnpm setup:klaviyo --templates-only` refreshes the library templates **and** remounts live send-email actions onto those copies (Klaviyo clones HTML on go-live; `PATCH /api/templates/{cloneId}` 404s, so do not patch clones directly). `pnpm sync:catalog` refreshes Stripe + Klaviyo + Supabase without touching flows. `pnpm inspect:klaviyo` prints the live objects.
 
 ### Flows (Live — sending domain `klv.filterhero.net` is active)
 

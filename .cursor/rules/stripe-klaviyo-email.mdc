@@ -1,0 +1,12 @@
+---
+description: Stripe stays linked to live Klaviyo; Klaviyo sends marketing mail
+alwaysApply: true
+---
+
+# Stripe ↔ Klaviyo ↔ email
+
+Live **FILTER HERO** Stripe (`acct_1U9bqlQEENEs0Qmw`) OAuths to live Klaviyo **Filter Hero** (`VnVNmQ`). Never connect **FILTER HERO sandbox**. Native Klaviyo webhook is charge/invoice only: `https://a.klaviyo.com/api/webhook/integration/stripe?c=VnVNmQ`. Shop **Placed Order** stays on `https://filterhero.net/api/stripe/webhook`.
+
+Klaviyo sends welcome, abandoned checkout, post-purchase nurture, replenish, win-back, and campaigns (`klv.filterhero.net`). Stripe sends the payment receipt. Resend sends the branded order confirmation and quote/support receipts from `Filter Hero <info@filterhero.net>` using the shop lockup at `https://filterhero.net/logo.png`. One shopper message, one sender — see `shared/email-channels.ts`.
+
+Do not add a Klaviyo order-confirmation or quote-receipt flow. Do not trigger welcome, abandon, replenish, or a receipt from **Successfully Paid**. Filter Hero navy `#203868` / burgundy `#7F2328` belong on Stripe Branding, Klaviyo brand-library email defaults, and Resend transactional HTML (`shared/email-brand.ts`). Do not click **Save** on Klaviyo’s “Review your brand” wizard — it overwrites those defaults with a generic theme.
