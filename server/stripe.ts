@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import { nanoid } from "nanoid";
 import Stripe from "stripe";
-import { getProductById, unitPriceForQty } from "../shared/products";
+import { catalogStripeProductId, getProductById, unitPriceForQty } from "../shared/products";
+import {
+  mappedStripeProductId,
+  stripeKeyIsLive,
+} from "../shared/stripe-catalog";
 import { productTaxCode } from "../shared/stripe-tax";
 import { recordPurchaseOnAccount } from "./account";
 import { closeDealsOnPurchase } from "./crm/intake";
@@ -15,6 +19,7 @@ import {
 
 const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]+$/;
 const META_MAX = 490;
+const stripeProductCache = new Map<number, string | null>();
 
 function ordersPath() {
   return dataFile("orders.json");
@@ -55,12 +60,22 @@ export type StoredOrder = {
   paidAt: string;
 };
 
+export function listAllOrders(): StoredOrder[] {
+  ensureOrdersFile();
+  try {
+    const parsed = JSON.parse(fs.readFileSync(ordersPath(), "utf-8")) as unknown;
+    return Array.isArray(parsed) ? (parsed as StoredOrder[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 export function listOrdersForEmail(email: string): StoredOrder[] {
   const needle = email.trim().toLowerCase();
   if (!needle) return [];
-  ensureOrdersFile();
-  const orders = JSON.parse(fs.readFileSync(ordersPath(), "utf-8")) as StoredOrder[];
-  return orders.filter((order) => (order.customerEmail || "").toLowerCase() === needle);
+  return listAllOrders().filter(
+    (order) => (order.customerEmail || "").toLowerCase() === needle,
+  );
 }
 
 export function compactItemsMeta(items: CheckoutItem[]): string {
@@ -119,11 +134,40 @@ export async function findCustomerIdByEmail(
   return existing.data[0]?.id ?? null;
 }
 
+async function existingCatalogProductId(
+  stripe: Stripe,
+  productId: number,
+): Promise<string | null> {
+  if (stripeProductCache.has(productId)) return stripeProductCache.get(productId)!;
+  const candidates = [
+    catalogStripeProductId(productId),
+    mappedStripeProductId(productId, stripeKeyIsLive()),
+  ].filter((id, index, all): id is string => Boolean(id) && all.indexOf(id) === index);
+  for (const id of candidates) {
+    try {
+      const product = await stripe.products.retrieve(id);
+      if (product && product.active !== false) {
+        stripeProductCache.set(productId, product.id);
+        return product.id;
+      }
+    } catch {
+      // catalog SKU not in this Stripe account yet
+    }
+  }
+  stripeProductCache.set(productId, null);
+  return null;
+}
+
 export async function createCheckoutSession(
   items: CheckoutItem[],
   clientUrl: string,
   shopper?: { email?: string; marketingConsent?: boolean },
 ) {
+  const stripe = getStripe();
+  if (!stripe) {
+    throw new Error("Stripe is not configured. Set STRIPE_SECRET_KEY in .env");
+  }
+
   const taxCode = productTaxCode();
   const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
@@ -136,6 +180,7 @@ export async function createCheckoutSession(
     }
 
     const unit = unitPriceForQty(product.price, item.quantity, product);
+    const catalogProductId = await existingCatalogProductId(stripe, product.id);
 
     line_items.push({
       quantity: item.quantity,
@@ -143,26 +188,25 @@ export async function createCheckoutSession(
         currency: "usd",
         unit_amount: Math.round(unit * 100),
         tax_behavior: "exclusive",
-        product_data: {
-          name: lineLabel(product),
-          description: "HVAC pleated filter",
-          tax_code: taxCode,
-          metadata: {
-            productId: String(product.id),
-            size: product.size,
-            merv: String(product.merv),
-          },
-        },
+        ...(catalogProductId
+          ? { product: catalogProductId }
+          : {
+              product_data: {
+                name: lineLabel(product),
+                description: "HVAC pleated filter",
+                tax_code: taxCode,
+                metadata: {
+                  productId: String(product.id),
+                  size: product.size,
+                  merv: String(product.merv),
+                },
+              },
+            }),
       },
     });
   }
 
   if (line_items.length === 0) throw new Error("Cart is empty");
-
-  const stripe = getStripe();
-  if (!stripe) {
-    throw new Error("Stripe is not configured. Set STRIPE_SECRET_KEY in .env");
-  }
 
   const itemsMeta = compactItemsMeta(items);
   const email = shopper?.email?.trim().toLowerCase();

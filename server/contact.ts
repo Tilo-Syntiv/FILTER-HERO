@@ -30,7 +30,19 @@ function ensureLeadsFile() {
   if (!fs.existsSync(LEADS_PATH)) fs.writeFileSync(LEADS_PATH, "[]", "utf-8");
 }
 
-function appendLead(lead: ContactPayload & { id: string; createdAt: string }) {
+export type StoredLead = ContactPayload & { id: string; createdAt: string };
+
+export function listAllLeads(): StoredLead[] {
+  ensureLeadsFile();
+  try {
+    const parsed = JSON.parse(fs.readFileSync(LEADS_PATH, "utf-8")) as unknown;
+    return Array.isArray(parsed) ? (parsed as StoredLead[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function appendLead(lead: StoredLead) {
   ensureLeadsFile();
   const leads = JSON.parse(fs.readFileSync(LEADS_PATH, "utf-8")) as unknown[];
   leads.push(lead);

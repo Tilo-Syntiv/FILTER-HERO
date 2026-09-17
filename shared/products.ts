@@ -220,12 +220,12 @@ function envFlag(...keys: string[]): boolean | undefined {
 /**
  * Sell every archived Filter King size × MERV, including carbon.
  * Set VITE_FULL_CATALOG=true in .env (client + server). FULL_CATALOG=true
- * also works on the API. Set either to false to restrict to the wholesale sheet.
+ * also works on the API. Default shop is Paul's contractor sheet only.
  */
 export const FULL_CATALOG = envFlag("VITE_FULL_CATALOG", "FULL_CATALOG") === true;
 
 /**
- * When true, the shop only lists size × MERV lines on the wholesale sheet.
+ * When true, the shop only lists size × MERV lines on the contractor sheet.
  * Inverse of FULL_CATALOG. Do not delete filter-catalog.json or sellable-skus.json.
  */
 export const SELLABLE_ONLY = !FULL_CATALOG;
@@ -233,18 +233,59 @@ export const SELLABLE_ONLY = !FULL_CATALOG;
 type SellableSkuRow = {
   size: string;
   merv: 8 | 11 | 13;
+  isCarbon?: boolean;
   wholesaleSku: string;
   cost: number;
+  actualWidth?: number;
+  actualLength?: number;
+  actualDepth?: number;
 };
+
+function sellableKey(size: string, merv: MervRating, isCarbon = false): string {
+  return `${size.toLowerCase()}|${isCarbon ? "carbon" : merv}`;
+}
+
+/** Stable Stripe Product id for this catalog SKU. Unique per Stripe account. */
+export function catalogStripeProductId(productId: number): string {
+  return `prod_fh_${productId}`;
+}
+
+/** Klaviyo custom-catalog external_id. Same as the shop product id. */
+export function catalogExternalId(productId: number): string {
+  return String(productId);
+}
 
 const SELLABLE_ROWS = SELLABLE_FILE.skus as SellableSkuRow[];
 const SELLABLE_SKU_KEYS = new Set(
-  SELLABLE_ROWS.map((row) => `${row.size.toLowerCase()}|${row.merv}`),
+  SELLABLE_ROWS.map((row) => sellableKey(row.size, row.merv, Boolean(row.isCarbon))),
+);
+const WHOLESALE_SKU_BY_KEY = new Map(
+  SELLABLE_ROWS.map((row) => [
+    sellableKey(row.size, row.merv, Boolean(row.isCarbon)),
+    row.wholesaleSku,
+  ]),
 );
 const SELLABLE_SIZE_KEYS = new Set(SELLABLE_ROWS.map((row) => row.size.toLowerCase()));
 const SELLABLE_MERV_KEYS = new Set<MervTypeKey>(
-  SELLABLE_ROWS.map((row) => String(row.merv) as MervTypeKey),
+  SELLABLE_ROWS.map((row) => (row.isCarbon ? "carbon" : (String(row.merv) as MervTypeKey))),
 );
+const SIZE_ACTUALS = new Map<string, Pick<FilterSize, "actualWidth" | "actualLength" | "actualDepth">>();
+for (const row of SELLABLE_ROWS) {
+  const key = row.size.toLowerCase();
+  if (
+    SIZE_ACTUALS.has(key) ||
+    row.actualWidth == null ||
+    row.actualLength == null ||
+    row.actualDepth == null
+  ) {
+    continue;
+  }
+  SIZE_ACTUALS.set(key, {
+    actualWidth: row.actualWidth,
+    actualLength: row.actualLength,
+    actualDepth: row.actualDepth,
+  });
+}
 
 export function isSkuSellable(
   size: string,
@@ -252,8 +293,15 @@ export function isSkuSellable(
   isCarbon = false,
 ): boolean {
   if (!SELLABLE_ONLY) return true;
-  if (isCarbon) return false;
-  return SELLABLE_SKU_KEYS.has(`${size.toLowerCase()}|${merv}`);
+  return SELLABLE_SKU_KEYS.has(sellableKey(size, merv, isCarbon));
+}
+
+export function wholesaleSkuFor(
+  size: string,
+  merv: MervRating,
+  isCarbon = false,
+): string | undefined {
+  return WHOLESALE_SKU_BY_KEY.get(sellableKey(size, merv, isCarbon));
 }
 
 export function isSizeShoppable(slug: string): boolean {
@@ -266,10 +314,15 @@ export function isMervKeyOnSale(key: MervTypeKey): boolean {
   return SELLABLE_MERV_KEYS.has(key);
 }
 
+function withSheetActuals(meta: FilterSize): FilterSize {
+  const actuals = SIZE_ACTUALS.get(meta.slug.toLowerCase());
+  return actuals ? { ...meta, ...actuals } : meta;
+}
+
 /** Archived Filter King size universe. Keep this for when more wholesale lands. */
 export const ALL_FILTER_SIZES: FilterSize[] = uniqueSizes(
   (FILTER_CATALOG as Array<[number, number, number]>).map(([w, l, d]) => size(w, l, d)),
-);
+).map(withSheetActuals);
 
 /** Live shop catalog. Each slug maps to `/sizes/{slug}`. */
 export const FILTER_SIZES: FilterSize[] = SELLABLE_ONLY
@@ -326,6 +379,46 @@ export type MervTypeInfo = {
   badgeColor: string;
 };
 
+function depthFromSlug(slug: string): number {
+  const depth = Number(slug.toLowerCase().split("x")[2]);
+  return Number.isFinite(depth) ? depth : 1;
+}
+
+function listPriceFor(depth: number, merv: MervRating, isCarbon: boolean): number {
+  if (depth === 1 && isCarbon) return FILTRETE_1INCH_QTY1.carbon;
+  if (depth === 1) return FILTRETE_1INCH_QTY1[String(merv) as "8" | "11" | "13"];
+  const depthBase: Record<number, number> = {
+    0.5: 10.99,
+    1: 14.99,
+    2: 22.99,
+    4: 34.99,
+    5: 39.99,
+  };
+  let base = depthBase[depth] ?? 14.99;
+  if (merv === 11) base += 3;
+  if (merv === 13) base += 5;
+  if (isCarbon) base += 6;
+  return Math.round(base * 100) / 100;
+}
+
+function cardFromPrice(key: MervTypeKey, fallback: number): number {
+  if (!SELLABLE_ONLY) return liveFromPrice(key) ?? fallback;
+  let min: number | undefined;
+  for (const row of SELLABLE_ROWS) {
+    const isCarbon = Boolean(row.isCarbon);
+    if (key === "carbon" ? !isCarbon : isCarbon || String(row.merv) !== key) continue;
+    const list =
+      liveListPrice(row.size, row.merv, isCarbon) ??
+      listPriceFor(depthFromSlug(row.size), row.merv, isCarbon);
+    const product = { size: row.size, merv: row.merv, isCarbon };
+    for (const qty of [1, 2, 4, 6, 12]) {
+      const unit = unitPriceForQty(list, qty, product);
+      if (min === undefined || unit < min) min = unit;
+    }
+  }
+  return min ?? fallback;
+}
+
 export const MERV_TYPES: MervTypeInfo[] = [
   {
     key: "8",
@@ -334,7 +427,7 @@ export const MERV_TYPES: MervTypeInfo[] = [
     name: "MERV 8",
     shortLabel: "Standard",
     description: "Everyday dust and pollen for typical homes",
-    fromPrice: liveFromPrice("8") ?? 11.99,
+    fromPrice: cardFromPrice("8", 11.99),
     badgeColor: "#3a66a3",
   },
   {
@@ -344,7 +437,7 @@ export const MERV_TYPES: MervTypeInfo[] = [
     name: "MERV 11",
     shortLabel: "Advanced",
     description: "Enhanced protection for pets and mild allergies",
-    fromPrice: liveFromPrice("11") ?? 15.99,
+    fromPrice: cardFromPrice("11", 15.99),
     badgeColor: "#d21b22",
   },
   {
@@ -354,7 +447,7 @@ export const MERV_TYPES: MervTypeInfo[] = [
     name: "MERV 13",
     shortLabel: "Ultimate",
     description: "Superior filtration for asthma and sensitivities",
-    fromPrice: liveFromPrice("13") ?? 16.99,
+    fromPrice: cardFromPrice("13", 16.99),
     badgeColor: "#ee9e10",
   },
   {
@@ -364,7 +457,7 @@ export const MERV_TYPES: MervTypeInfo[] = [
     name: "MERV 8 Carbon",
     shortLabel: "Odor Eliminator",
     description: "Everyday filtration plus activated carbon for odors",
-    fromPrice: liveFromPrice("carbon") ?? 19.99,
+    fromPrice: cardFromPrice("carbon", 19.99),
     badgeColor: "#111111",
   },
 ];
@@ -395,23 +488,6 @@ export function sellableMervPhrase(slug: string): string {
   if (types.length === 2) return `${types[0].name} or ${types[1].name}`;
   const last = types[types.length - 1];
   return `${types.slice(0, -1).map((t) => t.name).join(", ")}, or ${last.name}`;
-}
-
-function listPriceFor(depth: number, merv: MervRating, isCarbon: boolean): number {
-  if (depth === 1 && isCarbon) return FILTRETE_1INCH_QTY1.carbon;
-  if (depth === 1) return FILTRETE_1INCH_QTY1[String(merv) as "8" | "11" | "13"];
-  const depthBase: Record<number, number> = {
-    0.5: 10.99,
-    1: 14.99,
-    2: 22.99,
-    4: 34.99,
-    5: 39.99,
-  };
-  let base = depthBase[depth] ?? 14.99;
-  if (merv === 11) base += 3;
-  if (merv === 13) base += 5;
-  if (isCarbon) base += 6;
-  return Math.round(base * 100) / 100;
 }
 
 function productName(t: MervTypeInfo): string {
@@ -489,11 +565,11 @@ export function findProductVariant(
   );
 }
 
-/** Wholesale-sheet SKUs for the Klaviyo catalog feed (not the full archive). */
+/** Contractor-sheet SKUs for the Klaviyo catalog feed (not the full archive). */
 export function sellableSheetProducts(): Product[] {
   const products: Product[] = [];
   for (const row of SELLABLE_ROWS) {
-    const product = findProductVariant(row.size, row.merv, false);
+    const product = findProductVariant(row.size, row.merv, Boolean(row.isCarbon));
     if (product) products.push(product);
   }
   return products;
