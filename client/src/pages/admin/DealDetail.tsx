@@ -84,7 +84,7 @@ function DetailBody({ id }: { id: string }) {
   return (
     <>
       <Link
-        href="/admin"
+        href="/admin/quotes"
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-navy"
       >
         <ArrowLeft className="h-4 w-4" />

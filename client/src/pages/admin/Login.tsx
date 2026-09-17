@@ -27,6 +27,7 @@ export default function AdminLogin() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "verifying" | "error">(
     "idle",
   );
+  const [codeOpen, setCodeOpen] = useState(false);
   const [message, setMessage] = useState("");
 
   const sendLink = async (event: FormEvent<HTMLFormElement>) => {
@@ -58,6 +59,7 @@ export default function AdminLogin() {
     const supabase = authClient();
     if (!supabase) return;
     setStatus("verifying");
+    markStaffAuthPending(email.trim().toLowerCase());
     const { error } = await supabase.auth.verifyOtp({
       email: email.trim().toLowerCase(),
       token: code.trim(),
@@ -83,11 +85,25 @@ export default function AdminLogin() {
           We&apos;ll email you a one-time link and a 6-digit code.
         </p>
 
-        {status === "sent" || status === "verifying" ? (
+        {status === "sent" || status === "verifying" || codeOpen ? (
           <form onSubmit={verifyCode} className="mt-8 space-y-5">
             <p className="rounded-2xl border border-ice/40 bg-secondary/70 p-4 text-sm font-semibold leading-relaxed text-navy">
-              {message}
+              {message || "Type the 6-digit code from your inbox."}
             </p>
+            <div className="space-y-2">
+              <Label htmlFor="admin-email-code" className={fieldLabel}>
+                Work email
+              </Label>
+              <Input
+                id="admin-email-code"
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className={fieldInput}
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="admin-code" className={fieldLabel}>
                 6-digit code
@@ -118,6 +134,7 @@ export default function AdminLogin() {
               className="section-link w-full justify-center !normal-case !tracking-normal"
               onClick={() => {
                 setStatus("idle");
+                setCodeOpen(false);
                 setCode("");
                 setMessage("");
               }}
@@ -151,6 +168,21 @@ export default function AdminLogin() {
               {status === "sending" ? "Sending…" : "Send link"}
               {status !== "sending" ? <ArrowRight className="h-4 w-4" /> : null}
             </Button>
+            <button
+              type="button"
+              className="section-link w-full justify-center !normal-case !tracking-normal"
+              onClick={() => {
+                if (!email.trim()) {
+                  setStatus("error");
+                  setMessage("Enter your work email first.");
+                  return;
+                }
+                setCodeOpen(true);
+                setMessage("Type the 6-digit code from your inbox.");
+              }}
+            >
+              I already have a code
+            </button>
             {status === "error" ? (
               <p className="text-xs font-semibold text-destructive">{message}</p>
             ) : null}

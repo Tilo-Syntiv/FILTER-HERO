@@ -107,6 +107,9 @@ temp/
 # Playwright MCP / local click-through screenshots
 .playwright-mcp/
 
+# Firecrawl scrape cache
+.firecrawl/
+
 # Database
 *.db
 *.sqlite
@@ -126,7 +129,9 @@ temp/
 .manus-logs/
 client/public/__manus__/
 
-# Runtime data (orders & leads)
+# Runtime data (orders, leads, Intuit tokens)
 server/data/leads.json
 server/data/orders.json
+server/data/intuit-oauth.json
+server/data/intuit-oauth-pending.json
 !server/data/.gitkeep

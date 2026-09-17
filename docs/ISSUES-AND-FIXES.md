@@ -14,7 +14,214 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-212**
+Next id: **FH-228**
+
+---
+
+### FH-227 — QuickBooks Connect was sandbox-only
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** Local OAuth reached Sandbox Company US d6fd. `filterhero.net` had no `/api/intuit` routes and no Intuit env, so live books could not connect.
+- **Do NOT:** Connect Production keys from localhost. Do not `railway up` this branch while `main` lacks the Intuit routes (FH-187). Do not put Intuit secrets in `VITE_` vars.
+- **Do:** Railway `INTUIT_CLIENT_ID` / `SECRET` are the Production keys, `INTUIT_ENVIRONMENT=production`, `INTUIT_REDIRECT_URI=https://filterhero.net/api/intuit/oauth/callback`. Persist tokens in `DATA_DIR=/data`. Staff Connect on `https://filterhero.net/admin/settings`. Local `.env` stays Development / sandbox.
+- **Files:** `scripts/setup-intuit-live.ts`, `server/intuit/`, `shared/intuit-oauth.ts`, `client/src/pages/admin/Settings.tsx`
+- **Verify:** `pnpm setup:intuit-live`. Intuit Production Redirect URIs lists `https://filterhero.net/api/intuit/oauth/callback`. Live Settings → Connect opens the real company. `GET /api/intuit/oauth/callback` is the Express route, not the SPA 404 shell.
+- **Added:** 2026-09-16
+
+---
+
+### FH-226 — Intuit rejected Filter Hero redirect_uri
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** Connect opened Intuit, then: “The redirect_uri query parameter value is invalid.” First keys were **Production**; localhost is not allowed on that set.
+- **Do NOT:** Register `localhost:3000`, `https://localhost`, a trailing slash, or put localhost on **Production** keys. Do not Connect locally with production Client ID/Secret.
+- **Do:** Local `.env` uses **Development** keys, `INTUIT_ENVIRONMENT=sandbox`, and `http://localhost:3001/api/intuit/oauth/callback` on Keys & OAuth → **Development**. Production keys stay for Railway + `https://filterhero.net/api/intuit/oauth/callback`.
+- **Files:** `server/admin/data.ts`, `client/src/pages/admin/Settings.tsx`, `client/src/lib/admin-api.ts`
+- **Verify:** Intuit Development Redirect URIs lists that line. Settings → Connect signs in instead of the red connection problem.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-225 — Settings Connect crashed with Something went wrong
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Staff `/admin/settings` showed Client ID on, then Connect printed **Something went wrong.** and never opened Intuit.
+- **Do NOT:** Remove `import { randomBytes } from "node:crypto"` from `server/intuit/oauth.ts`. Do not let Connect throw into the generic 500 handler.
+- **Do:** `defaultState()` must call imported `randomBytes`. Connect catches throws and returns `intuit_connect_failed`. `pnpm verify:intuit-oauth` asserts the import.
+- **Files:** `server/intuit/oauth.ts`, `server/admin/routes.ts`, `scripts/verify-intuit-oauth.ts`
+- **Verify:** `pnpm verify:intuit-oauth`. Staff Settings → Connect opens Intuit, not a red "Something went wrong."
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-224 — Intuit OAuth questionnaire item 6 was not implemented
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** The Intuit Developer form asks whether the app handles expired access tokens, expired refresh tokens, `invalid_grant`, and CSRF. Discovery URLs existed; none of those four cases did.
+- **Do NOT:** Exchange an authorization `code` before matching `state`. Do not retry `invalid_grant`. Do not keep using a rotated refresh token. Do not put Intuit secrets in `VITE_` vars.
+- **Do:** On QBO `401` or access expiry, refresh once and retry. On expired refresh or `invalid_grant`, clear tokens and require Connect again. Issue a one-shot `state`, reject mismatch/missing/stale/replay, and never hit the token endpoint on CSRF.
+- **Files:** `shared/intuit-oauth.ts`, `server/intuit/oauth.ts`, `server/intuit/routes.ts`, `server/intuit/store.ts`, `client/src/pages/admin/Settings.tsx`, `scripts/verify-intuit-oauth.ts`, `docs/INTUIT-OAUTH.md`
+- **Verify:** `pnpm verify:intuit-oauth`. Staff `/admin/settings` → QuickBooks Online → Connect. Bad callback `state` lands on `?intuit=csrf`.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-223 — Stripe, Klaviyo, CRM, and accounts still had the old catalog
+- **Status:** fixed
+- **Area:** catalog | pricing
+- **Symptom:** FH-217 restricted the shop to Paul’s 293 contractor SKUs, but Stripe had no Product catalog (Checkout used ad-hoc `price_data`), Klaviyo `setup:klaviyo` skipped catalog jobs when the old feed was larger, Supabase had no SKU table, and `/account` would pin off-sheet sizes.
+- **Do NOT:** Skip `pnpm sync:catalog` after a sheet rebuild. Do not put wholesale cost on Stripe Products, Klaviyo items, or `catalog_skus`. Do not let `setup:klaviyo` skip when existing catalog count ≥ sheet count.
+- **Do:** `scripts/sync-catalog.ts` upserts Stripe Products (`prod_fh_{id}`), Klaviyo custom-catalog items (create / update / delete), and `catalog_skus`. Checkout attaches the synced Product when it exists and still uses qty-tier `price_data`. Saved filters must be in-stock sheet SKUs.
+- **Files:** `scripts/sync-catalog.ts`, `scripts/lib/catalog-sync.ts`, `shared/stripe-catalog.ts`, `shared/products.ts`, `server/stripe.ts`, `server/account.ts`, `supabase/migrations/0005_catalog_skus.sql`, `scripts/setup-klaviyo-account.ts`
+- **Verify:** `pnpm sync:catalog`. `pnpm verify:store`. `pnpm verify:klaviyo`. `pnpm verify:supabase`. Admin `/admin` catalog shows 293 SKUs. Stripe Dashboard → Products is the contractor list.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-222 — Hero still rebuilt from the official character sheet
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The Seedance fly plate (even knocked out) was the wrong mascot drawing. Shoppers need the official sheet character, clearly visible, sitting in the site navy — not a white studio card.
+- **Do NOT:** Composite the sheet onto white. Do not paint a Seedance or `#203868` plate behind him. Do not scale a full-bleed 4K photo of a tiny flyer.
+- **Do:** Knock out the studio fill from `character-sheet.png`. Serve the RGBA cutout as `character-fly-still.png`. Size and place him in `.hero-sky-fill` with `object-fit: contain` so `.hero-cast-stage` chrome shows through. Cache `?v=fh165`.
+- **Files:** `client/public/hero/character-sheet.png`, `client/public/hero/character-fly-still.png`, `scripts/_compose_hero_logo_still.py`, `client/src/components/Hero.tsx`, `client/src/index.css`, `scripts/smoke-site.ts`
+- **Verify:** Homepage hero — official flying pose, no white rectangle, navy matches the header, flyer is large and readable, packs and copy still work.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-221 — Hero still was flat `#203868` over chrome navy
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Header, footer, and trust marquee are `#1b3258` → `#23406a` plus ice/red radials. FH-220 filled the fly still with flat `--navy` (`#203868`), so the hero sky looked like a different, flatter blue.
+- **Do NOT:** Paint an opaque Seedance or `#203868` plate behind the flyer. Do not try to match chrome by sampling a different navy into the PNG.
+- **Do:** Knock the still sky to transparent. `.hero-cast-stage` already uses the same gradient as `.site-header` / `.trust-marquee`. Cache `?v=fh164`.
+- **Files:** `client/public/hero/character-fly-still.png`, `scripts/_pop_hero_still.py`, `client/src/components/Hero.tsx`
+- **Verify:** Homepage — header, hero, and trust marquee are one navy. Flyer still pops. No rectangle around the plate.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-220 — Hero sky was Seedance navy, not site chrome
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Header, footer, and trust marquee use `#1b3258` → `#23406a`. The hero still was the Veo/Seedance plate (`#1a2e4e` → `#2f446e`), so the sky looked like a different blue.
+- **Do NOT:** Leave the fly still on Seedance navy. Do not hide the mismatch by darkening copy overlays.
+- **Do:** Paint the still background `--navy` (`#203868`) so zoom cannot drift off the chrome. `.hero-cast-stage` shares the header gradient. `.trust-marquee` starts on `#1b3258`. Cache `?v=fh163`.
+- **Files:** `client/public/hero/character-fly-still.png`, `scripts/_pop_hero_still.py`, `client/src/index.css`, `client/src/components/Hero.tsx`
+- **Verify:** Homepage — header, hero sky, and trust marquee read as one navy. Flyer still pops. No rectangle around the plate.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-219 — Hero still blended into the navy sky
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** `character-fly-still.png` was the same pose on Seedance navy, so the cape and pants disappeared into the stage. Zooming the plate (FH-218) made a ghost bigger, not clearer.
+- **Do NOT:** Add a halo, drop-shadow plate, or a new pose. Do not re-run `_pop_hero_still.py` on the popped file.
+- **Do:** Keep the Seedance silhouette and 3840×2160 navy. Lift cape/pants toward ice, punch the crimson, and brighten the filter grid. Cache `?v=fh161`.
+- **Files:** `client/public/hero/character-fly-still.png`, `client/src/components/Hero.tsx`, `scripts/_pop_hero_still.py`
+- **Verify:** Homepage hero — same flying pose, red body and ice cape read against the navy, grid visible, no rectangle around the plate.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-218 — Hero still was too small to read
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** After FH-216 the fly still filled the stage at 1×, so Filter Hero sat tiny in the navy and the copy wash plus packs covered him.
+- **Do NOT:** Scale `.hero-character` below 1 — that boxes the plate (FH-158). Do not add a drop-shadow or slot mask around the PNG.
+- **Do:** Keep the still full-bleed in `.hero-sky-fill` with overflow clipped. Zoom the plate above 1 and park the flyer in the open sky. Desktop: between copy and packs. Mobile: reserved sky band above the copy (`::before` spacer). Copy gradient stops before the mascot.
+- **Files:** `client/src/index.css`
+- **Verify:** Homepage hero — red flyer and filter-grid cape are obvious in the sky. Title stays readable. Packs still sit on the right. No rectangle around the plate.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-217 — Shop sold the archive instead of Paul’s contractor list
+- **Status:** fixed
+- **Area:** catalog | pricing
+- **Symptom:** Storefront listed the 9,000+ archived Filter King sizes. Paul’s new contractor commerce CSV is the product list and the wholesale cost source (293 size × MERV lines / 153 sizes, including 9 carbon SKUs).
+- **Do NOT:** Hardcode `SELLABLE_ONLY = false`. Do not drop carbon rows from `sellable-skus.json`. Do not delete `shared/filter-catalog.json`.
+- **Do:** Import `shared/pricing/fk-contractor-commerce.csv` with `scripts/build-sellable-skus.ts`. Shop = that allowlist when `VITE_FULL_CATALOG=false`. Carbon on the sheet is sellable. Off-list sizes stay in the archive and route to quote. Rebuild costs when Paul sends a new sheet.
+- **Files:** `shared/pricing/fk-contractor-commerce.csv`, `shared/sellable-skus.json`, `scripts/build-sellable-skus.ts`, `shared/products.ts`, `docs/WHOLESALE-PRICE-LISTS.md`, `.env`, `.env.example`
+- **Verify:** `pnpm verify:store`. `pnpm verify:json`. `/sizes` shows 153 contractor sizes. `/sizes/20x25x1` offers MERV 8, Carbon, 11, and 13. `/sizes/14x25x1` offers MERV 8 only.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-216 — Homepage hero looped a background flight video
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** The homepage hero sky played `character-fly-natural` webm/mp4 behind the copy and pack lineup.
+- **Do NOT:** Mount a looping `<video>` in `.hero-sky-fill`.
+- **Do:** Background plate is the still `character-fly-still.png`. Stage fallback remains `#1a2f50`.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`, `scripts/smoke-site.ts`
+- **Verify:** Homepage hero has no `<video>`. Sky fill is the still PNG. Copy, packs, and brand marks still render.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-215 — Toasts never mounted; staff OTP hidden until a second send
+- **Status:** fixed
+- **Area:** cart | other
+- **Symptom:** Checkout with an empty cart email did nothing visible. Cart toasts live inside `#root`, so the open drawer marked them inert. `sonner.tsx` also imported `next-themes` while the app uses the Vite `ThemeProvider`. Staff login hid the 6-digit field until "Send link" ran, so an already-issued OTP could not be typed.
+- **Do NOT:** Import `next-themes` in `sonner.tsx`. Do not render the toaster inside `#root`. Do not leave the OTP field behind a send-only gate.
+- **Do:** Toaster reads `useTheme` from `ThemeContext`, portals onto `document.body`, and sits above the cart drawer (`z-index: 70`). Cart email is `required`. Staff login has "I already have a code".
+- **Files:** `client/src/components/ui/sonner.tsx`, `client/src/components/CartDrawer.tsx`, `client/src/pages/admin/Login.tsx`, `scripts/verify-admin.ts`
+- **Verify:** Empty cart checkout shows the email field's native error. Invalid email shows an error inside the drawer. `toast.error` is visible over the drawer. `/admin` can open the code field without sending another link. `pnpm verify:admin`.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-214 — Admin console bugs after the first landing
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Header popular sizes could drift from `popularSizeSlugs(8)` because they sliced the carousel's 16. Analytics strokes used `hsl(var(--primary))` while `--primary` is already `#203868`. Contacts search fired two API calls per keystroke and could 429. A Klaviyo health outage blanked the whole systems card. Clearing tagline on save failed Zod `min(1)`.
+- **Do NOT:** Slice `featuredSizes(16)` down to 8 for the header. Do not wrap `#203868` in `hsl()`. Do not fetch list endpoints on every search keypress without a debounce and a stale-response guard.
+- **Do:** Header calls `featuredSizesFromConfig(slugs, 8)`. Charts use `#203868`. `useAdminLoad` debounces and ignores out-of-order responses. Health loads CRM/account/Klaviyo in parallel and keeps the page up if Klaviyo throws. Blank required copy is dropped so defaults stay.
+- **Files:** `client/src/components/SiteHeader.tsx`, `client/src/pages/admin/use-admin-load.ts`, `client/src/pages/admin/Analytics.tsx`, `server/admin/routes.ts`, `server/admin/config.ts`, `scripts/verify-admin.ts`, `scripts/smoke-admin.ts`
+- **Verify:** `pnpm verify:admin`. `pnpm smoke:admin` against the running API. Header chips match `popularSizeSlugs(8)` when featured sizes are empty.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-213 — Staff console was quotes-only
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** `/admin` was a quotes Kanban with no orders, customers, content, analytics, security, or maintenance. Staff had to use Stripe/Klaviyo/JSON files for everything else.
+- **Do NOT:** Let the browser query Postgres. Do not send mail or write Klaviyo from `server/admin/` or `server/crm/`. Do not store Stripe/Resend secrets in `site-config.json`. Do not make `/admin` indexable.
+- **Do:** Staff console modules sit behind `requireStaff` at `/api/admin/*`. Homepage copy, FAQs, featured sizes, and checkout pause live in `server/data/site-config.json`. Catalog SKUs stay in shared JSON and still ship with a deploy. STAFF_EMAILS remains the allowlist.
+- **Files:** `server/admin/`, `client/src/pages/admin/`, `shared/site-config.ts`, `client/src/contexts/SiteConfigContext.tsx`, `scripts/verify-admin.ts`
+- **Verify:** `pnpm verify:admin`. Sign in at `/admin` — overview, quotes, contacts, orders, customers, catalog, content, analytics, tracking, staff, security, settings, maintenance. Public `/api/site-config` has no secrets. Maintenance mode returns 503 from `/api/checkout`.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
+
+---
+
+### FH-212 — Local CSP still blocked Klaviyo identify after FH-209
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Dev `connect-src` listed `http://*.klaviyo.com` (FH-209) but the onsite script still posted to `http://a.klaviyo.com/client/profiles` and Chrome blocked it. `/api/identify` was 200. Production HTTPS is fine.
+- **Do NOT:** Add `http://a.klaviyo.com` or `http://*.klaviyo.com` to the production CSP. Do not drop `https://*.klaviyo.com`.
+- **Do:** Development `connect-src` includes both `http://*.klaviyo.com` and `http://a.klaviyo.com`. Restart Vite after changing `vite.config.ts` headers. Production keeps HTTPS Klaviyo plus `upgrade-insecure-requests`.
+- **Files:** `shared/security-headers.ts`, `scripts/verify-security.ts`
+- **Verify:** `pnpm verify:security`. Local HTML CSP includes `http://a.klaviyo.com`. After Vite restart, console has no CSP violation on `a.klaviyo.com`. Leftover CORS on localhost HTTP is Klaviyo redirecting http→https; `/api/identify` still writes the profile. Production HTTPS has no Klaviyo CSP error.
+- **Added:** 2026-09-11
+- **Fixed:** 2026-09-11
 
 ---
 
@@ -38,7 +245,7 @@ Next id: **FH-212**
 - **Do NOT:** `railway up` this branch while `main` is behind. Do not commit `.firecrawl/`, Veo/cape-fly generators, or `.cursor/mcp.json` with the shop. Do not put service-role keys in `VITE_` vars.
 - **Do:** Ship only the finished shop/CRM/Klaviyo/security stack. Merge that commit to `main` so autodeploy and local are the same code. Leave scrape and video scripts uncommitted.
 - **Files:** `server/`, `client/src/`, `shared/security-headers.ts`, `supabase/migrations/`, `scripts/verify-*.ts`
-- **Verify:** `https://filterhero.net/api/health` has nosniff, DENY, CSP, and no `X-Powered-By`. `/login` and `/admin` 200. CRM 401 when signed out. `git rev-parse origin/main` matches the shipped shop commit.
+- **Verify:** `https://filterhero.net/api/health` has nosniff, DENY, CSP, HSTS, and no `X-Powered-By`. `/login` and `/admin` 200. CRM and account 401 when signed out. Railway `771641a8` SUCCESS from `20c53e8` (PR #5).
 - **Added:** 2026-09-11
 - **Fixed:** 2026-09-11
 

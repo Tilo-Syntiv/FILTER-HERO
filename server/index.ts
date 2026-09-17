@@ -42,6 +42,9 @@ import {
   upsertKlaviyoProfile,
 } from "./klaviyo";
 import { createCheckoutSession, getCheckoutSessionStatus, handleStripeWebhook } from "./stripe";
+import { adminRouter } from "./admin/routes";
+import { isCheckoutPaused, publicSiteConfig } from "./admin/config";
+import { intuitRouter } from "./intuit/routes";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -224,6 +227,10 @@ Sitemap: ${absoluteUrl(siteUrl, "/sitemap.xml")}
     });
   });
 
+  app.get("/api/site-config", (_req, res) => {
+    res.json({ ok: true, data: publicSiteConfig() });
+  });
+
   app.get("/api/products", (_req, res) => {
     res.json({
       sizeCount: FILTER_SIZES.length,
@@ -252,6 +259,13 @@ Sitemap: ${absoluteUrl(siteUrl, "/sitemap.xml")}
 
   app.post("/api/checkout", checkoutLimiter, async (req, res) => {
     try {
+      if (isCheckoutPaused()) {
+        res.status(503).json({
+          error: publicSiteConfig().maintenanceMessage || "Checkout is paused for maintenance.",
+          code: "maintenance",
+        });
+        return;
+      }
       const { items, email, marketingConsent } = checkoutBodySchema.parse(req.body);
       const session = await createCheckoutSession(items, clientUrl, {
         email: email || undefined,
@@ -350,6 +364,8 @@ Sitemap: ${absoluteUrl(siteUrl, "/sitemap.xml")}
 
   app.use("/api/crm", crmRouter());
   app.use("/api/account", accountRouter());
+  app.use("/api/admin", adminRouter());
+  app.use("/api/intuit", intuitRouter());
 
   const sendDocument = (req: express.Request, res: express.Response, indexPath: string) => {
     const html = fs.readFileSync(indexPath, "utf8");

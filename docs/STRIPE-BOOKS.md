@@ -2,6 +2,8 @@
 
 Checkout stays on Stripe. Books and sales tax sit in **QuickBooks Online**. Do not move payment into QuickBooks or an ERP. Do not turn on Stripe Tax — Stripe bills a calculation fee on live checkouts and invoices.
 
+Intuit Developer OAuth/OpenID URLs: [INTUIT-OAUTH-DISCOVERY.md](./INTUIT-OAUTH-DISCOVERY.md) (`pnpm verify:intuit-discovery`). OAuth error handling (expired tokens, `invalid_grant`, CSRF): [INTUIT-OAUTH.md](./INTUIT-OAUTH.md) (`pnpm verify:intuit-oauth`). That is for a QBO app, not a replacement for the Stripe Connector.
+
 Sandbox account seen 2026-09-07: Checkout Sessions create. A Dashboard webhook to `https://filterhero.net/api/stripe/webhook` is required for fulfillment.
 
 `automatic_tax` stays **off**. QuickBooks Online Automated Sales Tax (the Online Tax app) is the tax engine. The Stripe Connector posts the paid sale into QBO; QBO applies or records tax there. Checkout does not add a Stripe Tax line, so there is no Stripe Tax fee.
@@ -45,5 +47,6 @@ Stripe never sees wholesale. In QBO: Supplier **Filter King LLC**, enter each de
 | Order log for packing | `server/data/orders.json` (subtotal, tax, customer, invoice, payment intent) |
 | Reuse Stripe Customer | Lookup by email before `checkout.sessions.create` |
 | Production webhook | Dashboard → `https://filterhero.net/api/stripe/webhook` (`pnpm setup:stripe-webhook`) |
+| Product catalog | `pnpm sync:catalog` writes 293 contractor SKUs as Stripe Products (`prod_fh_{id}`). Checkout attaches those products and still uses `price_data` for pack-qty unit prices. |
 
 Klaviyo / Resend / `orders.json` are not the ledger.

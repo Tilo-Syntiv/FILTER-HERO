@@ -233,6 +233,14 @@ export const crmLimiter = makeLimiter({
   message: "Too many requests.",
 });
 
+/** Same budget as the CRM — the admin console is the same staff session. */
+export const adminLimiter = makeLimiter({
+  windowMs: 60 * 1000,
+  max: 80,
+  code: "rate_limited_admin",
+  message: "Too many requests.",
+});
+
 export const accountLimiter = makeLimiter({
   windowMs: 60 * 1000,
   max: 60,
