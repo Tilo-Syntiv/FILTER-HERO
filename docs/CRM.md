@@ -111,6 +111,12 @@ then skips silently and the rest of the site is unaffected.
 `crm_pipelines`, `crm_stages`, `crm_companies`, `crm_contacts`, `crm_deals`,
 `crm_activities`, and `crm_audit_log`, then seeds the Quotes pipeline.
 
+[`supabase/migrations/0005_catalog_skus.sql`](../supabase/migrations/0005_catalog_skus.sql)
+adds `catalog_skus` — the 293 contractor-sheet products, with Stripe and
+Klaviyo ids, no wholesale cost. Refresh with `pnpm sync:catalog`. Quote deals
+still store `filter_size` as text on `properties`; this table is the SKU list
+the admin catalog and saved-filter joins use.
+
 Applying it to a new project:
 
 ```

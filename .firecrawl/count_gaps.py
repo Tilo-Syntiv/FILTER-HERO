@@ -1,15 +1,15 @@
+from __future__ import annotations
+
+import json
+from collections import Counter
 from pathlib import Path
 import re
-from collections import Counter
 
-root = Path(".firecrawl")
+HERE = Path(__file__).resolve().parent
+REPO = HERE.parent
 
-# Count FPF sizes
-src = Path("shared/products.ts").read_text(encoding="utf-8")
-size_calls = len(re.findall(r"size\(\s*\d+", src))
-print(f"FPF FILTER_SIZES entries: {size_calls}")
 
-def parse_jammed_sitemap(path: Path):
+def parse_jammed_sitemap(path: Path) -> list[str]:
     text = path.read_text(encoding="utf-8", errors="replace")
     urls = []
     for part in text.split("https://filterking.com")[1:]:
@@ -18,18 +18,27 @@ def parse_jammed_sitemap(path: Path):
             urls.append(m.group(1).rstrip("/"))
     return urls
 
-for name in [
-    "fk-sitemap-content.md",
-    "fk-sitemap-blog.md",
-    "fk-sitemap-brand-categories.md",
-    "fk-sitemap-belt-categories.md",
-    "fk-sitemap-content-categories.md",
-]:
-    p = root / name
-    urls = parse_jammed_sitemap(p)
-    print(f"\n{name}: {len(urls)} URLs")
-    c = Counter(u.strip("/").split("/")[0] for u in urls)
-    for k, v in c.most_common(15):
-        print(f"  {v:4d} /{k}")
-    for u in urls[:8]:
-        print(f"   sample {u}")
+
+def main() -> None:
+    catalog = json.loads((REPO / "shared" / "filter-catalog.json").read_text(encoding="utf-8"))
+    print(f"FPF FILTER_SIZES entries: {len(catalog)}")
+
+    for name in [
+        "fk-sitemap-content.md",
+        "fk-sitemap-blog.md",
+        "fk-sitemap-brand-categories.md",
+        "fk-sitemap-belt-categories.md",
+        "fk-sitemap-content-categories.md",
+    ]:
+        p = HERE / name
+        urls = parse_jammed_sitemap(p)
+        print(f"\n{name}: {len(urls)} URLs")
+        c = Counter(u.strip("/").split("/")[0] for u in urls)
+        for k, v in c.most_common(15):
+            print(f"  {v:4d} /{k}")
+        for u in urls[:8]:
+            print(f"   sample {u}")
+
+
+if __name__ == "__main__":
+    main()

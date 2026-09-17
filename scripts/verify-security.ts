@@ -19,6 +19,7 @@ import {
   REQUIRED_SECURITY_HEADERS,
   securityHeaderMap,
 } from "../shared/security-headers.ts";
+import { httpsKlaviyoClientUrl } from "../shared/klaviyo-onsite.ts";
 
 function assert(cond: unknown, message: string): asserts cond {
   if (!cond) throw new Error(message);
@@ -71,6 +72,15 @@ async function main() {
   assert(
     devHeaders["Content-Security-Policy"].includes("http://*.klaviyo.com"),
     "localhost HTTP shop must allow Klaviyo onsite identify",
+  );
+  assert(
+    devHeaders["Content-Security-Policy"].includes("http://a.klaviyo.com"),
+    "Chrome needs the explicit Klaviyo identify host on HTTP localhost",
+  );
+  assert(
+    httpsKlaviyoClientUrl("http://a.klaviyo.com/client/profiles/") ===
+      "https://a.klaviyo.com/client/profiles/",
+    "HTTP Klaviyo client URLs upgrade to HTTPS so CORS preflight is not redirected",
   );
 
   const headed = express();

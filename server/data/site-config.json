@@ -1,0 +1,65 @@
+{
+  "announcementEnabled": false,
+  "announcement": "",
+  "tagline": "Find your exact filter size in seconds.",
+  "heroKicker": "Exact-fit HVAC filters",
+  "heroHeadline": "The first line of defense for your indoor air.",
+  "heroLede": "Filter Hero's filters are exact-fit replacements for Trane, Carrier, Rheem, and 30+ major HVAC brands. Measure Width, Length, and Depth — then shop MERV 8, 11, or 13.",
+  "maintenanceMode": false,
+  "maintenanceMessage": "We're updating the shop. Checkout will be back shortly.",
+  "featuredSizeSlugs": [],
+  "faqs": [
+    {
+      "question": "What size air filter do I need?",
+      "answer": "You need the exact Width × Length × Depth printed on your current filter or measured from the filter slot. Enter those three numbers in our size finder to shop the matching HVAC filter.",
+      "category": "Sizing",
+      "action": {
+        "href": "/#finder",
+        "label": "Open the size finder"
+      }
+    },
+    {
+      "question": "How do I measure an air filter?",
+      "answer": "Measure Width (side to side), Length (top to bottom), and Depth (thickness) in inches. Use the nominal size on the frame label when present; otherwise measure the filter itself and round to the nearest standard size.",
+      "category": "Sizing",
+      "action": {
+        "href": "/#finder",
+        "label": "See how to measure"
+      }
+    },
+    {
+      "question": "What is the difference between nominal and actual filter size?",
+      "answer": "Nominal size is the labeled size (for example 20×25×1). Actual size is slightly smaller so the filter slides into the slot. Filter Hero lists both on each size page so you can verify fit.",
+      "category": "Sizing"
+    },
+    {
+      "question": "How often should I change my HVAC filter?",
+      "answer": "Most homes should change filters every 30 to 90 days. Pets, allergies, dust, and a fan that runs constantly pull you toward 30. Use Filter Clock: tell us about the house and we'll give you the date — then buy the pack that matches a year of air.",
+      "category": "Replacement",
+      "action": {
+        "href": "/how-often-to-change-air-filter",
+        "label": "Get your change date"
+      }
+    },
+    {
+      "question": "What MERV rating should I buy?",
+      "answer": "MERV 8 is standard everyday filtration. MERV 11 is better for pets and mild allergies. MERV 13 offers higher filtration for asthma and sensitivities. MERV 8 Carbon adds odor reduction. Confirm your HVAC system supports higher MERV before upgrading.",
+      "category": "MERV",
+      "action": {
+        "href": "/#merv",
+        "label": "Compare MERV ratings"
+      }
+    },
+    {
+      "question": "Do you sell filters for Carrier, Trane, Honeywell, and other HVAC brands?",
+      "answer": "Yes. Filter Hero replacement filters are made to the same Width × Length × Depth as OEM media for major HVAC brands. Shop by brand, model number, or OEM part number, then choose MERV 8, MERV 8 Carbon, 11, or 13. Sizes we do not list can be quoted.",
+      "category": "Ordering",
+      "action": {
+        "href": "/brands",
+        "label": "Shop by HVAC brand"
+      }
+    }
+  ],
+  "updatedAt": "2026-09-17T15:12:35.658Z",
+  "updatedBy": "info@filterhero.net"
+}

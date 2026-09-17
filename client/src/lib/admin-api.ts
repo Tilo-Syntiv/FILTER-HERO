@@ -456,7 +456,24 @@ export const getAdminSettings = () =>
       redirectUri: string | null;
     };
     links: Record<string, string>;
+    klaviyoStripe: {
+      shopEvents: boolean;
+      configured: boolean;
+      nativeWebhook: boolean;
+      url: string | null;
+      connectUrl: string;
+      companyId: string;
+    };
   }>("/settings");
+export const connectKlaviyoStripe = () =>
+  adminFetch<{
+    id: string;
+    url: string;
+    created: boolean;
+    secret: string | null;
+    secretLast4: string | null;
+    connectUrl: string;
+  }>("/klaviyo-stripe/connect", { method: "POST" });
 export const startIntuitConnect = () =>
   adminFetch<{ url: string }>("/intuit/connect", { method: "POST" });
 export const disconnectIntuit = () =>

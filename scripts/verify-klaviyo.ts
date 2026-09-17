@@ -8,7 +8,11 @@ import {
   klaviyoMetricForIntent,
   REPLENISH_DATE_PROPERTY,
 } from "../shared/email-channels.ts";
-import { findProductVariant } from "../shared/products.ts";
+import {
+  catalogStripeProductId,
+  findProductVariant,
+  sellableSheetProducts,
+} from "../shared/products.ts";
 import {
   buildKlaviyoCatalog,
   cadenceProperties,
@@ -28,6 +32,12 @@ import {
   splitPersonName,
   toE164,
 } from "../server/klaviyo.ts";
+import {
+  KLAVIYO_STRIPE_EVENTS,
+  isKlaviyoStripeWebhookUrl,
+  klaviyoStripeWebhookUrl,
+} from "../shared/klaviyo-stripe.ts";
+import { httpsKlaviyoClientUrl } from "../shared/klaviyo-onsite.ts";
 import type { StoredOrder } from "../server/stripe.ts";
 
 function assert(cond: unknown, message: string): asserts cond {
@@ -155,8 +165,7 @@ assert(props[REPLENISH_DATE_PROPERTY] === "2026-12-03", "purchase sets sendable 
 assert(props.change_interval_days === 90, "purchase interval from depth");
 
 const catalog = buildKlaviyoCatalog("https://filterhero.net");
-assert(catalog.items.length > 0, "catalog has SKUs");
-assert(catalog.items.length <= 400, `catalog is the wholesale sheet, not full archive (${catalog.items.length})`);
+assert(catalog.items.length === 293, `catalog should be 293 SKUs, got ${catalog.items.length}`);
 assert(
   catalog.items.every((row) => row.link.startsWith("https://filterhero.net/sizes/")),
   "catalog links are PDPs",
@@ -164,6 +173,41 @@ assert(
 assert(
   catalog.items.some((row) => row.id === String(variant.id)),
   "20x25x1 MERV 8 is in the catalog",
+);
+assert(
+  catalogStripeProductId(variant.id) === `prod_fh_${variant.id}`,
+  "Stripe product ids are stable",
+);
+assert(sellableSheetProducts().length === 293, "sheet products match Klaviyo feed");
+
+assert(
+  klaviyoStripeWebhookUrl("VnVNmQ") ===
+    "https://a.klaviyo.com/api/webhook/integration/stripe?c=VnVNmQ",
+  "native Stripe webhook URL uses the Klaviyo company id",
+);
+assert(isKlaviyoStripeWebhookUrl(klaviyoStripeWebhookUrl("VnVNmQ")), "native URL is recognized");
+assert(!isKlaviyoStripeWebhookUrl("https://filterhero.net/api/stripe/webhook"), "shop webhook is not native");
+assert(
+  httpsKlaviyoClientUrl("http://a.klaviyo.com/client/profiles/?company_id=VnVNmQ") ===
+    "https://a.klaviyo.com/client/profiles/?company_id=VnVNmQ",
+  "HTTP Klaviyo onsite identify must upgrade to HTTPS",
+);
+assert(
+  httpsKlaviyoClientUrl("https://a.klaviyo.com/client/profiles/") ===
+    "https://a.klaviyo.com/client/profiles/",
+  "HTTPS Klaviyo URLs stay HTTPS",
+);
+assert(
+  httpsKlaviyoClientUrl("http://example.com/client?host=a.klaviyo.com") ===
+    "http://example.com/client?host=a.klaviyo.com",
+  "non-Klaviyo HTTP URLs are left alone",
+);
+assert(httpsKlaviyoClientUrl("/api/identify") === "/api/identify", "same-origin identify is not rewritten");
+assert(KLAVIYO_STRIPE_EVENTS.includes("charge.succeeded"), "charges sync");
+assert(KLAVIYO_STRIPE_EVENTS.includes("invoice.payment_succeeded"), "invoices sync");
+assert(
+  !(KLAVIYO_STRIPE_EVENTS as readonly string[]).includes("checkout.session.completed"),
+  "Checkout stays on Filter Hero",
 );
 
 const config = klaviyoPublicConfig();

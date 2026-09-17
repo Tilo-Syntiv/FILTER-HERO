@@ -14,7 +14,85 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-228**
+Next id: **FH-234**
+
+---
+
+### FH-233 — Remove Filter King now-at lockup from the hero
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Desktop hero showed the Filter King / “NOW AT” / Filter Hero plate (`fh-sells-fk.png`) above the four packs.
+- **Do NOT:** Restore `.hero-filter-claim`, `.hero-build-tag`, or `/hero/fh-sells-fk.png` on the hero. Do not put “Filter King now at Filter Hero” (or FROM / SELLS) back in that slot.
+- **Do:** Hero right column is packs + brand row only. Packs sit in the former lockup space (`top: 4%` desktop, `6%` on short viewports).
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`, `client/src/lib/hero-flight.ts`, `scripts/smoke-site.ts`
+- **Verify:** `/` desktop — no Filter King lockup above the packs. Mobile hero unchanged (claim was already hidden).
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-232 — Measure diagram logged non-animatable opacity
+- **Status:** fixed
+- **Area:** measure
+- **Symptom:** Homepage console warned that Framer Motion was animating opacity from `undefined` to `1` / `0.18` / `0.22` on the tape-measure edges.
+- **Do NOT:** Animate SVG `motion.line` opacity without an `initial` value.
+- **Do:** Set `initial` to the same opacity as `animate` so the first paint is a number.
+- **Files:** `client/src/components/MeasureFilterDiagram.tsx`
+- **Verify:** Homepage console has no "value-not-animatable" opacity warning from the measure diagram.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-231 — Local Klaviyo onsite CORS failed on HTTP→HTTPS redirect
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** On `http://127.0.0.1:3000`, Klaviyo.js posted to `http://a.klaviyo.com/client/profiles`. Klaviyo 301s that to HTTPS, so Chrome blocked the CORS preflight: "Redirect is not allowed for a preflight request." `/api/identify` still wrote the profile. Production HTTPS was already fine.
+- **Do NOT:** Open plaintext Klaviyo in the production CSP. Do not drop `/api/identify` — onsite is extra, not the source of truth. Do not rewrite non-Klaviyo HTTP URLs.
+- **Do:** Before loading onsite JS on an HTTP shop, rewrite `http://*.klaviyo.com` fetch/XHR/beacon URLs to HTTPS. Keep the server identify/track fallback.
+- **Files:** `shared/klaviyo-onsite.ts`, `client/src/lib/klaviyo.ts`, `scripts/verify-klaviyo.ts`, `scripts/verify-security.ts`, `scripts/smoke-site.ts`
+- **Verify:** `pnpm verify:klaviyo`. `pnpm verify:security`. `pnpm smoke`. Homepage console has no CORS error on `a.klaviyo.com`. Network tab shows `https://a.klaviyo.com/client/profiles`.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-230 — Klaviyo Stripe checker treated metrics as missing
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** `scripts/check-klaviyo-stripe.ts` printed Successfully Paid / Failed Payment / Refunded Payment / Issued Invoice as `id: null` even though those metrics exist (`XHuURz`, `RHcdHv`, `TvC7dY`, `Vi3YJt`). The metrics list call used `page[size]`, which revision `2026-07-15` rejects (`'page_size' is not a valid field for the resource 'metric'`), and the script swallowed the 400.
+- **Do NOT:** List `/api/metrics?page[size]=…`. Do not treat an empty checker report as proof the Stripe app is missing.
+- **Do:** Filter `equals(integration.name,"Stripe")` with no `page[size]`. Fail the script if the native webhook or any of the four metric ids is missing.
+- **Files:** `scripts/check-klaviyo-stripe.ts`
+- **Verify:** `pnpm check`. `pnpm exec tsx scripts/check-klaviyo-stripe.ts` prints the four metric ids. `pnpm verify:klaviyo`.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-229 — Native Klaviyo Stripe app accepts webhooks but does not record metrics
+- **Status:** open
+- **Area:** other
+- **Symptom:** Stripe Test webhook `we_1UGWbF790NnFGDLvIVtyg0bK` returns 200 for `invoice.payment_succeeded` and `charge.succeeded`. Klaviyo Stripe is **Enabled**, historical import completed, test-data sync is on, signing secret was saved, and metrics exist (`XHuURz`, `RHcdHv`, `TvC7dY`, `Vi3YJt`). Successfully Paid / Issued Invoice activity is still empty. Paid invoices `in_1UGX9c790NnFGDLv23CVeA48` (bounced `@filterhero.net` profile) and `in_1UGYt3790NnFGDLvaEE4fiss` (Mailinator, no Klaviyo profile created) did not record events.
+- **Do NOT:** Treat HTTP 200 on the Klaviyo webhook as recorded events. Do not add Checkout session events to the Klaviyo endpoint. Do not trigger replenish, abandon, or a second receipt from Successfully Paid. Do not use `@filterhero.net` as the Stripe test email — that mailbox hard-bounced after a Klaviyo flow send.
+- **Do:** Re-authenticate Klaviyo → Stripe on **FILTER HERO sandbox** (not live). Then pay a test invoice to a non-bouncing email and confirm Successfully Paid activity. Shop Placed Order stays on `/api/stripe/webhook`.
+- **Files:** `scripts/test-klaviyo-stripe.ts`, `scripts/check-klaviyo-stripe.ts`, `docs/KLAVIYO.md`
+- **Verify:** Analytics → Metrics shows the four Stripe metrics. Data tab sync 100%. Successfully Paid activity lists the $19.99 test invoice. Profile `01M2PTB9BJ9QM5XX5B5705RQQ6` exists (Placed Order already recorded).
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-228 — Klaviyo had no native Stripe charge/invoice webhook
+- **Status:** mitigated
+- **Area:** other
+- **Symptom:** Filter Hero already posted Placed Order from `checkout.session.completed`, but Stripe had only that fulfillment endpoint. Klaviyo’s Stripe app never received charge/invoice events, so Successfully Paid / Failed Payment / Refunded Payment stayed empty.
+- **Do NOT:** Point the Filter Hero webhook at Klaviyo. Do not add Checkout session events to the Klaviyo endpoint. Do not trigger replenish, abandon, or a second receipt from Successfully Paid.
+- **Do:** `pnpm setup:klaviyo-stripe` (or staff Settings → Klaviyo + Stripe → Connect) creates `https://a.klaviyo.com/api/webhook/integration/stripe?c={company}` for charge + invoice events. Finish Connect to Stripe in the Klaviyo UI and paste the signing secret. Shop ecommerce stays on `/api/stripe/webhook`.
+- **Files:** `shared/klaviyo-stripe.ts`, `server/klaviyo-stripe.ts`, `scripts/setup-klaviyo-stripe.ts`, `server/admin/routes.ts`, `client/src/pages/admin/Settings.tsx`, `docs/KLAVIYO.md`
+- **Verify:** `pnpm setup:klaviyo-stripe`. `pnpm verify:klaviyo`. Dashboard → Webhooks lists the Klaviyo URL enabled. Settings shows Native charge and invoice webhook on.
+- **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
 
 ---
 
@@ -25,8 +103,9 @@ Next id: **FH-228**
 - **Do NOT:** Connect Production keys from localhost. Do not `railway up` this branch while `main` lacks the Intuit routes (FH-187). Do not put Intuit secrets in `VITE_` vars.
 - **Do:** Railway `INTUIT_CLIENT_ID` / `SECRET` are the Production keys, `INTUIT_ENVIRONMENT=production`, `INTUIT_REDIRECT_URI=https://filterhero.net/api/intuit/oauth/callback`. Persist tokens in `DATA_DIR=/data`. Staff Connect on `https://filterhero.net/admin/settings`. Local `.env` stays Development / sandbox.
 - **Files:** `scripts/setup-intuit-live.ts`, `server/intuit/`, `shared/intuit-oauth.ts`, `client/src/pages/admin/Settings.tsx`
-- **Verify:** `pnpm setup:intuit-live`. Intuit Production Redirect URIs lists `https://filterhero.net/api/intuit/oauth/callback`. Live Settings → Connect opens the real company. `GET /api/intuit/oauth/callback` is the Express route, not the SPA 404 shell.
+- **Verify:** Live callback `GET /api/intuit/oauth/callback` 302s to `/admin/settings?intuit=csrf` (not SPA HTML). `/api/admin/intuit/status` is 401 JSON when signed out. Intuit Production Redirect URIs lists `https://filterhero.net/api/intuit/oauth/callback`. Staff Settings → Connect authorizes the real company.
 - **Added:** 2026-09-16
+- **Fixed:** 2026-09-16
 
 ---
 

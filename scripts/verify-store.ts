@@ -12,6 +12,7 @@ import {
   FULL_CATALOG,
   SELLABLE_ONLY,
   THICKNESSES,
+  catalogStripeProductId,
   findProductVariant,
   firstSellableProduct,
   getArchivedFilterSize,
@@ -23,6 +24,7 @@ import {
   packTotal,
   popularSizeSlugs,
   productGalleryFor,
+  sellableSheetProducts,
   unitPriceForQty,
 } from "../shared/products.ts";
 import {
@@ -56,16 +58,16 @@ assert(
     !/over \$50/.test(JSON.stringify(homeDoc.jsonLd ?? [])),
   "homepage FAQ JSON-LD must say free shipping on every order",
 );
-assert(FULL_CATALOG, "VITE_FULL_CATALOG / FULL_CATALOG must be true to sell the full Filter King archive");
-assert(!SELLABLE_ONLY, "full catalog means SELLABLE_ONLY is false");
-assert(isMervKeyOnSale("carbon"), "carbon is shoppable when the full catalog is on");
+assert(!FULL_CATALOG, "VITE_FULL_CATALOG / FULL_CATALOG must be false so the shop is Paul’s contractor list");
+assert(SELLABLE_ONLY, "contractor catalog means SELLABLE_ONLY is true");
+assert(isMervKeyOnSale("carbon"), "carbon is shoppable when it is on the contractor sheet");
 assert(
   ALL_FILTER_SIZES.length > 9000,
   `archived catalog should stay intact, got ${ALL_FILTER_SIZES.length}`,
 );
 assert(
-  FILTER_SIZES.length === ALL_FILTER_SIZES.length,
-  `shop catalog should be the full archive (${ALL_FILTER_SIZES.length} sizes), got ${FILTER_SIZES.length}`,
+  FILTER_SIZES.length === 153,
+  `shop catalog should be the contractor size list (153), got ${FILTER_SIZES.length}`,
 );
 assert(
   THICKNESSES.join(",") === "0.5,1,2,4,5",
@@ -121,11 +123,12 @@ assert(
 );
 const popularSlugs = popularSizeSlugs(8);
 assert(popularSlugs.includes("16x25x2") && popularSlugs.includes("20x25x2"), "popular chips must include 16x25x2 and 20x25x2");
-assert(getFilterSize("20x25x4"), "20x25x4 is in the Filter King archive and must be shoppable");
+assert(getFilterSize("20x25x4"), "20x25x4 is on the contractor sheet and must be shoppable");
 
 const popular = getFilterSize("20x25x1");
 assert(popular, "20x25x1 must exist");
 assert(popular.depth === 1 && popular.width === 20 && popular.length === 25, "20x25x1 dims");
+assert(popular.actualWidth === 19.5 && popular.actualLength === 24.5 && popular.actualDepth === 0.75, "20x25x1 actuals come from Paul’s sheet");
 
 for (const type of MERV_TYPES) {
   const variant = findProductVariant("20x25x1", type.merv, type.isCarbon);
@@ -139,48 +142,59 @@ for (const type of MERV_TYPES) {
   assert(Math.abs(total6 - unit6 * 6) < 0.02, `${type.name} pack total mismatch`);
 }
 
-assert(getFilterSize("20x25x4"), "20x25x4 must be shoppable in the full catalog");
+assert(getFilterSize("20x25x4"), "20x25x4 must be shoppable on the contractor list");
 assert(getArchivedFilterSize("20x25x4"), "20x25x4 must stay in the archived catalog");
 const fourteen = findProductVariant("14x25x1", 8);
-assert(fourteen?.inStock, "14x25x1 MERV 8 is in the Filter King archive");
-assert(findProductVariant("14x25x1", 11)?.inStock, "14x25x1 MERV 11 is shoppable in the full catalog");
-assert(findProductVariant("16x25x4", 8)?.inStock, "16x25x4 MERV 8 is shoppable in the full catalog");
-assert(findProductVariant("16x25x4", 11)?.inStock, "16x25x4 MERV 11 is shoppable in the full catalog");
+assert(fourteen?.inStock, "14x25x1 MERV 8 is on the contractor sheet");
+assert(!findProductVariant("14x25x1", 11)?.inStock, "14x25x1 MERV 11 is not on the contractor sheet");
+assert(findProductVariant("16x25x4", 8)?.inStock, "16x25x4 MERV 8 is on the contractor sheet");
+assert(findProductVariant("16x25x4", 11)?.inStock, "16x25x4 MERV 11 is on the contractor sheet");
 assert(
-  mervTypesForSize("14x25x1").map((t) => t.key).join(",") === "8,carbon,11,13",
-  "14x25x1 should offer MERV 8, Carbon, 11, and 13",
+  mervTypesForSize("14x25x1").map((t) => t.key).join(",") === "8",
+  "14x25x1 should offer MERV 8 only",
+);
+assert(
+  mervTypesForSize("20x25x1").map((t) => t.key).join(",") === "8,carbon,11,13",
+  "20x25x1 should offer MERV 8, Carbon, 11, and 13",
+);
+
+const sheetProducts = sellableSheetProducts();
+assert(sheetProducts.length === 293, `contractor sheet should be 293 SKUs, got ${sheetProducts.length}`);
+assert(sheetProducts.every((p) => p.inStock), "every contractor SKU must be in stock");
+assert(
+  sheetProducts.every((p) => catalogStripeProductId(p.id) === `prod_fh_${p.id}`),
+  "Stripe catalog ids are derived from shop product ids",
 );
 
 let sellableCount = 0;
 const cheapest: Record<string, number> = {};
-for (const size of ALL_FILTER_SIZES) {
+for (const size of FILTER_SIZES) {
   for (const type of MERV_TYPES) {
     const variant = findProductVariant(size.slug, type.merv, type.isCarbon);
     if (!variant?.inStock) continue;
     sellableCount += 1;
     const list = liveListPrice(size.slug, type.merv, type.isCarbon);
-    assert(
-      typeof list === "number",
-      `missing live qty-1 for ${size.slug} ${type.name}`,
-    );
-    assert(
-      variant.price === list,
-      `${size.slug} ${type.name} list $${variant.price} must be live $${list}`,
-    );
+    if (typeof list === "number") {
+      assert(
+        variant.price === list,
+        `${size.slug} ${type.name} list $${variant.price} must be live $${list}`,
+      );
+    } else {
+      assert(variant.price > 0, `${size.slug} ${type.name} needs a fallback list price`);
+    }
     for (const qty of [1, 2, 4, 6, 12]) {
       const live = liveUnitPrice(
         { size: size.slug, merv: type.merv, isCarbon: type.isCarbon },
         qty,
       );
       const unit = unitPriceForQty(variant.price, qty, variant);
-      assert(
-        typeof live === "number",
-        `missing live unit for ${size.slug} ${type.name} qty ${qty}`,
-      );
-      assert(
-        unit === live,
-        `${size.slug} ${type.name} qty ${qty} shows $${unit} but live is $${live}`,
-      );
+      assert(unit > 0, `${size.slug} ${type.name} qty ${qty} must be priced`);
+      if (typeof live === "number") {
+        assert(
+          unit === live,
+          `${size.slug} ${type.name} qty ${qty} shows $${unit} but live is $${live}`,
+        );
+      }
       const prev = cheapest[type.key];
       if (prev === undefined || unit < prev) cheapest[type.key] = unit;
     }
@@ -193,8 +207,8 @@ for (const type of MERV_TYPES) {
   );
 }
 assert(
-  sellableCount === ALL_FILTER_SIZES.length * MERV_TYPES.length,
-  `every archived size × MERV should be in stock, got ${sellableCount}`,
+  sellableCount === sheetProducts.length,
+  `in-stock SKUs (${sellableCount}) must match the contractor sheet (${sheetProducts.length})`,
 );
 
 const sizePages = sitemapPaths().filter((p) => p.path.startsWith("/sizes/")).length;

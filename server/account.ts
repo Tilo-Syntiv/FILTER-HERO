@@ -256,6 +256,9 @@ export async function saveFilter(
 ): Promise<AccountResult<SavedFilter>> {
   const product = getProductById(input.productId);
   if (!product) return failure("Unknown product.", "unknown_product");
+  if (!product.inStock) {
+    return failure("That size is not on the shop catalog.", "not_for_sale");
+  }
 
   const profile = await loadProfile(actor);
   if (!profile.ok) return profile;

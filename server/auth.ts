@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { supabaseAuthConfig } from "./db";
 
 /**
- * Staff gate for /api/crm/* and the detailed health endpoints.
+ * Staff gate for /api/crm/*, /api/admin/*, and the detailed health endpoints.
  *
  * Two conditions, both required: a valid Supabase Auth session, and an email on
  * STAFF_EMAILS. The allowlist matters because Supabase signup is open by

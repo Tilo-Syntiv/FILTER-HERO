@@ -12,7 +12,7 @@ from pathlib import Path
 from google import genai
 from google.genai import types
 
-ROOT = Path(r"C:\Users\lazar\Downloads\Github\FILTER HERO")
+ROOT = Path(__file__).resolve().parent.parent
 ENV_PATH = ROOT / ".env"
 STILL = ROOT / "client" / "public" / "hero" / "character-fly-still.png"
 OUT = ROOT / "tmp" / "hero-fly-space"

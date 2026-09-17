@@ -360,6 +360,7 @@ export default function MeasureFilterDiagram({
               y2={front.tr.y}
               stroke="#8eb0d8"
               strokeWidth={widthOn ? 7 : 2}
+              initial={{ opacity: widthOn ? 1 : 0.18 }}
               animate={{ opacity: widthOn ? 1 : 0.18 }}
               transition={{ duration: 0.3 }}
             />
@@ -370,6 +371,7 @@ export default function MeasureFilterDiagram({
               y2={front.bl.y}
               stroke="#203868"
               strokeWidth={lengthOn ? 7 : 2}
+              initial={{ opacity: lengthOn ? 1 : 0.18 }}
               animate={{ opacity: lengthOn ? 1 : 0.18 }}
               transition={{ duration: 0.3 }}
             />
@@ -380,6 +382,7 @@ export default function MeasureFilterDiagram({
               y2={topBack.tr.y}
               stroke="#7f2328"
               strokeWidth={depthOn ? 7 : 2}
+              initial={{ opacity: depthOn ? 1 : 0.22 }}
               animate={{ opacity: depthOn ? 1 : 0.22 }}
               transition={{ duration: 0.3 }}
             />

@@ -17,8 +17,10 @@ export function buildContentSecurityPolicy(mode: "production" | "development"): 
       "http://localhost:3001",
       "ws://127.0.0.1:3000",
       "ws://localhost:3000",
-      // Onsite JS uses http://a.klaviyo.com when the shop is served over HTTP.
+      // Onsite JS posts to http://a.klaviyo.com on an HTTP shop. Chrome
+      // drops http://*.klaviyo.com as a source, so name the host.
       "http://*.klaviyo.com",
+      "http://a.klaviyo.com",
     );
   }
 

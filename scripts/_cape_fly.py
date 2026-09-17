@@ -8,7 +8,7 @@ import subprocess
 import numpy as np
 from PIL import Image
 
-ROOT = Path(r"C:\Users\lazar\Downloads\Github\FILTER HERO")
+ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "client" / "public" / "hero" / "character.png"
 OUT = ROOT / "client" / "public" / "hero" / "character-fly.webm"
 FRAMES = ROOT / "client" / "public" / "hero" / "_fly_frames"

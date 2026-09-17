@@ -73,6 +73,8 @@ off — the two features share a database, not a kill switch.
 
 [`supabase/migrations/0002_customer_accounts.sql`](../supabase/migrations/0002_customer_accounts.sql)
 creates `customer_profiles` and `customer_saved_filters`.
+[`0005_catalog_skus.sql`](../supabase/migrations/0005_catalog_skus.sql) is the
+contractor product list. Saving a filter requires an in-stock catalog SKU.
 
 ```
 supabase db push

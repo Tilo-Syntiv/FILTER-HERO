@@ -47,6 +47,7 @@ Stripe never sees wholesale. In QBO: Supplier **Filter King LLC**, enter each de
 | Order log for packing | `server/data/orders.json` (subtotal, tax, customer, invoice, payment intent) |
 | Reuse Stripe Customer | Lookup by email before `checkout.sessions.create` |
 | Production webhook | Dashboard → `https://filterhero.net/api/stripe/webhook` (`pnpm setup:stripe-webhook`) |
+| Klaviyo Stripe app | Dashboard → `https://a.klaviyo.com/api/webhook/integration/stripe?c=VnVNmQ` (`pnpm setup:klaviyo-stripe`). Charge/invoice only. |
 | Product catalog | `pnpm sync:catalog` writes 293 contractor SKUs as Stripe Products (`prod_fh_{id}`). Checkout attaches those products and still uses `price_data` for pack-qty unit prices. |
 
 Klaviyo / Resend / `orders.json` are not the ledger.

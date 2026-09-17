@@ -13,6 +13,7 @@ import {
 import CarouselDots from "@/components/CarouselDots";
 import { useCarouselDots } from "@/hooks/useCarouselDots";
 import { popularSizeSlugs } from "@shared/products";
+import { useSiteConfig } from "@/contexts/SiteConfigContext";
 import { cn } from "@/lib/utils";
 
 interface PopularSizesCarouselProps {
@@ -25,7 +26,8 @@ export default function PopularSizesCarousel({
 }: PopularSizesCarouselProps) {
   const [api, setApi] = useState<CarouselApi>();
   const { selected, count, scrollTo } = useCarouselDots(api);
-  const sizes = popularSizeSlugs(16);
+  const { featuredSizes } = useSiteConfig();
+  const sizes = featuredSizes.length ? featuredSizes.slice(0, 16) : popularSizeSlugs(16);
   const autoplay = useRef(
     Autoplay({
       delay: 3200,

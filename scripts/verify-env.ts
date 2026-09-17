@@ -85,8 +85,8 @@ async function main() {
   assertEquals("NODE_ENV", "development");
   assertEquals("CONTACT_TO", BRAND_EMAIL);
   assertEquals("RESEND_FROM", `${BRAND_NAME} <${BRAND_EMAIL}>`);
-  assertEquals("VITE_FULL_CATALOG", "true");
-  assertEquals("FULL_CATALOG", "true");
+  assertEquals("VITE_FULL_CATALOG", "false");
+  assertEquals("FULL_CATALOG", "false");
   assertEquals("SUPABASE_URL", "https://mayxuwlygchatgeqyhyt.supabase.co");
   assertEquals("VITE_SUPABASE_URL", "https://mayxuwlygchatgeqyhyt.supabase.co");
 
@@ -144,6 +144,20 @@ async function main() {
   assertFormat("HF_TOKEN", ["hf_"], false);
   assertFormat("GEMINI_API_KEY", ["AIza"], false);
   assertFormat("GOOGLE_CLOUD_PROJECT", [], false);
+  assertFormat("INTUIT_CLIENT_ID", [], false);
+  assertFormat("INTUIT_CLIENT_SECRET", [], false);
+  if (present("VITE_INTUIT_CLIENT_SECRET") || present("VITE_INTUIT_CLIENT_ID")) {
+    add("INTUIT_VITE", "fail", "Intuit keys must not use a VITE_ prefix");
+  } else {
+    add("INTUIT_VITE", "ok", "no VITE_ Intuit secrets");
+  }
+  if (present("INTUIT_CLIENT_ID") !== present("INTUIT_CLIENT_SECRET")) {
+    add("INTUIT_KEYS", "fail", "set both INTUIT_CLIENT_ID and INTUIT_CLIENT_SECRET");
+  } else if (present("INTUIT_CLIENT_ID")) {
+    add("INTUIT_KEYS", "ok", `set (${env("INTUIT_ENVIRONMENT") || "sandbox"})`);
+  } else {
+    add("INTUIT_KEYS", "skip", "unset — staff Settings shows Connect when keys exist");
+  }
 
   if (env("CRM_DISABLE") === "1") add("CRM_DISABLE", "fail", "CRM is forced off");
   else add("CRM_DISABLE", "ok", "unset (CRM on)");
@@ -176,6 +190,15 @@ async function main() {
         fulfillment
           ? `${fulfillment.url} ${fulfillment.status}`
           : "no Dashboard endpoint for /api/stripe/webhook",
+      );
+      const klaviyo = hooks.data.find(
+        (hook) =>
+          hook.url.includes("a.klaviyo.com/api/webhook/integration/stripe") && hook.status === "enabled",
+      );
+      add(
+        "STRIPE_KLAVIYO",
+        klaviyo ? "ok" : "fail",
+        klaviyo ? klaviyo.url : "run pnpm setup:klaviyo-stripe",
       );
     } catch (err) {
       add("STRIPE_LIVE", "fail", err instanceof Error ? err.message : "Stripe API failed");

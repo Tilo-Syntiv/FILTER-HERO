@@ -2,7 +2,6 @@ import "dotenv/config";
 import { BRAND_EMAIL, BRAND_NAME } from "../shared/const.ts";
 import { DEFAULT_SITE_URL } from "../shared/seo.ts";
 import {
-  buildKlaviyoCatalog,
   getKlaviyoAccount,
   isKlaviyoEnabled,
   klaviyoApi,
@@ -11,6 +10,7 @@ import {
   trackKlaviyoEvent,
   upsertKlaviyoProfile,
 } from "../server/klaviyo.ts";
+import { syncKlaviyoCatalog } from "./lib/catalog-sync.ts";
 
 const CATALOG_ORIGIN = DEFAULT_SITE_URL;
 const FROM_EMAIL = process.env.CONTACT_TO?.trim() || BRAND_EMAIL;
@@ -276,86 +276,6 @@ async function ensureTemplates() {
     else console.error("[template]", tpl.name, created.error);
   }
   return ids;
-}
-
-async function catalogJobSnapshot() {
-  const res = await klaviyoApi<{
-    data?: Array<{
-      id?: string;
-      attributes?: {
-        status?: string;
-        completed_count?: number;
-        failed_count?: number;
-        total_count?: number;
-      };
-    }>;
-  }>("GET", "/api/catalog-item-bulk-create-jobs");
-  return (res.data?.data || []).map((row) => ({
-    id: row.id,
-    status: row.attributes?.status || "unknown",
-    completed: row.attributes?.completed_count ?? 0,
-    failed: row.attributes?.failed_count ?? 0,
-    total: row.attributes?.total_count ?? 0,
-  }));
-}
-
-async function waitForCatalogJobs(timeoutMs = 90000) {
-  const start = Date.now();
-  let jobs = await catalogJobSnapshot();
-  while (jobs.some((job) => job.status === "processing") && Date.now() - start < timeoutMs) {
-    await sleep(5000);
-    jobs = await catalogJobSnapshot();
-  }
-  return jobs;
-}
-
-async function syncCatalog() {
-  const catalog = buildKlaviyoCatalog(CATALOG_ORIGIN);
-  const jobs = await waitForCatalogJobs();
-  const existing = await collect<{ id?: string }>("/api/catalog-items?page[size]=100");
-  if (existing.length >= catalog.items.length) {
-    return { skipped: true, count: existing.length, jobs };
-  }
-  if (jobs.some((job) => job.status === "processing" || job.status === "complete")) {
-    return { skipped: true, count: existing.length, jobs, note: "catalog jobs already submitted" };
-  }
-  const chunks: typeof catalog.items[] = [];
-  for (let i = 0; i < catalog.items.length; i += 100) {
-    chunks.push(catalog.items.slice(i, i + 100));
-  }
-  let createdJobs = 0;
-  for (const chunk of chunks) {
-    const res = await klaviyoApi("POST", "/api/catalog-item-bulk-create-jobs", {
-      data: {
-        type: "catalog-item-bulk-create-job",
-        attributes: {
-          items: {
-            data: chunk.map((item) => ({
-              type: "catalog-item",
-              attributes: {
-                external_id: item.id,
-                integration_type: "$custom",
-                title: item.title,
-                description: item.description,
-                url: item.link,
-                image_full_url: item.image_link,
-                published: true,
-                price: item.price,
-              },
-            })),
-          },
-        },
-      },
-    });
-    if (!res.ok) {
-      console.error("[catalog]", res.error);
-      return { skipped: false, count: existing.length, error: res.error, jobs: await catalogJobSnapshot() };
-    }
-    createdJobs += 1;
-  }
-  const after = await waitForCatalogJobs();
-  const count = (await collect<{ id?: string }>("/api/catalog-items?page[size]=100")).length;
-  return { skipped: false, count, createdJobs, jobs: after };
 }
 
 function delayAction(
@@ -851,7 +771,7 @@ async function main() {
   const subscribe = await subscribeMarketingEmail(TEST_EMAIL, "account-setup");
   const seeds = await seedMetrics();
   const templates = await ensureTemplates();
-  const catalog = await syncCatalog();
+  const catalog = await syncKlaviyoCatalog();
   const metrics = await waitForMetrics(SEED_METRICS.map((row) => row.metric));
   const flows = await createFlows(templates, metrics);
   const domains = await ensureSendingDomain();

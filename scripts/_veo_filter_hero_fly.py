@@ -14,7 +14,7 @@ from google import genai
 from google.genai import types
 from PIL import Image
 
-ROOT = Path(r"C:\Users\lazar\Downloads\Github\FILTER HERO")
+ROOT = Path(__file__).resolve().parent.parent
 SHEET = Path(r"E:\FILTER HEROE\OFFCIAL FILTER HERO SHEET.png")
 SOLO = Path(r"E:\FILTER HEROE\FILTER HERO CHARACTER ONLY.png")
 OUT_DIR = ROOT / "client" / "public" / "hero"

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from PIL import Image
 
-ROOT = Path(r"C:\Users\lazar\Downloads\Github\FILTER HERO")
+ROOT = Path(__file__).resolve().parent.parent
 POSES_DIR = ROOT / "client" / "public" / "hero" / "fly-poses"
 OUT = ROOT / "tmp" / "hero-fly-space"
 FRAMES = OUT / "frames"

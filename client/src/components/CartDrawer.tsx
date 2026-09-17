@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import MarketingOptIn from "@/components/MarketingOptIn";
 import { identifyShopper, rememberedEmail } from "@/lib/klaviyo";
 import { useAccount } from "@/contexts/AccountContext";
+import { useSiteConfig } from "@/contexts/SiteConfigContext";
 import {
   Drawer,
   DrawerClose,
@@ -28,9 +29,11 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
   const { items, isOpen, closeCart, setQty, removeItem, subtotal, itemCount, cartSummaryText } =
     useCart();
   const { email: accountEmail } = useAccount();
+  const { maintenanceMode, maintenanceMessage } = useSiteConfig();
   const [checkingOut, setCheckingOut] = useState(false);
   const [email, setEmail] = useState(() => rememberedEmail());
   const [marketingConsent, setMarketingConsent] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
 
   useEffect(() => {
     if (accountEmail) setEmail(accountEmail);
@@ -40,9 +43,18 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
     if (items.length === 0) return;
     const trimmed = email.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      toast.error("Enter your email so we can save the cart if checkout is left open.");
+      const message = "Enter your email so we can save the cart if checkout is left open.";
+      setCheckoutError(message);
+      toast.error(message);
       return;
     }
+    if (maintenanceMode) {
+      const message = maintenanceMessage || "Checkout is paused for maintenance.";
+      setCheckoutError(message);
+      toast.error(message);
+      return;
+    }
+    setCheckoutError("");
     identifyShopper({ email: trimmed });
     setCheckingOut(true);
     try {
@@ -79,6 +91,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
           </DrawerTitle>
           <DrawerDescription>
             Review items, then checkout securely with Stripe or request a quote.
+            {maintenanceMode ? ` ${maintenanceMessage}` : ""}
           </DrawerDescription>
         </DrawerHeader>
 
@@ -163,14 +176,24 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
               <span className="font-semibold text-navy">Free</span>
             </div>
           </div>
-          <div className="space-y-2">
+          <form
+            className="space-y-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void handleCheckout();
+            }}
+          >
             <Label htmlFor="cart-email">Email</Label>
             <Input
               id="cart-email"
               type="email"
+              required
               autoComplete="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                setCheckoutError("");
+                setEmail(event.target.value);
+              }}
               placeholder="you@email.com"
               className="h-11"
             />
@@ -179,15 +202,22 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
               checked={marketingConsent}
               onCheckedChange={setMarketingConsent}
             />
-          </div>
-          <Button
-            size="lg"
-            className="hero-shop-btn w-full text-white"
-            disabled={items.length === 0 || checkingOut}
-            onClick={handleCheckout}
-          >
-            {checkingOut ? "Redirecting…" : "Checkout with Stripe"}
-          </Button>
+            {checkoutError ? (
+              <p className="text-sm font-semibold text-destructive">{checkoutError}</p>
+            ) : null}
+            <Button
+              type="submit"
+              size="lg"
+              className="hero-shop-btn w-full text-white"
+              disabled={items.length === 0 || checkingOut || maintenanceMode}
+            >
+            {checkingOut
+              ? "Redirecting…"
+              : maintenanceMode
+                ? "Checkout paused"
+                : "Checkout with Stripe"}
+            </Button>
+          </form>
           <Button
             size="lg"
             variant="outline"

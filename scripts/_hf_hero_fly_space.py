@@ -7,7 +7,7 @@ from pathlib import Path
 
 from huggingface_hub import InferenceClient
 
-ROOT = Path(r"C:\Users\lazar\Downloads\Github\FILTER HERO")
+ROOT = Path(__file__).resolve().parent.parent
 ENV_PATH = ROOT / ".env"
 STILL = ROOT / "client" / "public" / "hero" / "character-fly-still.png"
 OUT = ROOT / "tmp" / "hero-fly-space"

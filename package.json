@@ -29,6 +29,7 @@
     "connect:intuit": "tsx scripts/connect-intuit.ts",
     "setup:intuit-live": "tsx scripts/setup-intuit-live.ts",
     "setup:stripe-webhook": "tsx scripts/setup-stripe-webhook.ts",
+    "setup:klaviyo-stripe": "tsx scripts/setup-klaviyo-stripe.ts",
     "verify:klaviyo": "tsx scripts/verify-klaviyo.ts",
     "setup:klaviyo": "tsx scripts/setup-klaviyo-account.ts",
     "inspect:klaviyo": "tsx scripts/inspect-klaviyo-account.ts",

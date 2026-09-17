@@ -59,7 +59,15 @@ async function checkLiveTax() {
     console.log("Paid Checkout will not write orders or sync Klaviyo / CRM / accounts.");
     console.log("Run: pnpm setup:stripe-webhook");
   }
-  console.log("See docs/STRIPE-BOOKS.md");
+  const klaviyo = hooks.data.find((hook) =>
+    hook.url.includes("a.klaviyo.com/api/webhook/integration/stripe"),
+  );
+  if (klaviyo && klaviyo.status === "enabled") {
+    console.log(`Klaviyo Stripe webhook: ${klaviyo.url} (${klaviyo.status})`);
+  } else {
+    console.log("No enabled Klaviyo charge/invoice webhook. Run: pnpm setup:klaviyo-stripe");
+  }
+  console.log("See docs/STRIPE-BOOKS.md and docs/KLAVIYO.md");
 }
 
 void checkLiveTax();

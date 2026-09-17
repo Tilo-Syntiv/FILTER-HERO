@@ -7,7 +7,7 @@ import shutil
 import numpy as np
 from PIL import Image
 
-ROOT = Path(r"C:\Users\lazar\Downloads\Github\FILTER HERO")
+ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "client" / "public" / "hero" / "character.png"
 OUT = ROOT / "client" / "public" / "hero" / "character-idle.webm"
 FRAMES = ROOT / "client" / "public" / "hero" / "_idle_frames"
@@ -15,7 +15,6 @@ FRAMES = ROOT / "client" / "public" / "hero" / "_idle_frames"
 WIDTH = 900
 FRAMES_N = 48
 FPS = 24
-PY = r"C:\Users\lazar\AppData\Local\Programs\Python\Python312\python.exe"
 
 
 def bilinear(arr: np.ndarray, x: np.ndarray, y: np.ndarray) -> np.ndarray:

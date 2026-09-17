@@ -22,6 +22,7 @@ const TABLES = [
   "crm_audit_log",
   "customer_profiles",
   "customer_saved_filters",
+  "catalog_skus",
 ];
 
 function assert(cond: unknown, message: string): asserts cond {
@@ -82,7 +83,7 @@ async function main() {
   );
 
   for (const table of TABLES) {
-    const { error } = await admin.from(table).select("id", { count: "exact", head: true });
+    const { error } = await admin.from(table).select("*", { count: "exact", head: true });
     assert(!error, `${table} is not readable with the service role: ${error?.message}`);
   }
 
@@ -116,6 +117,15 @@ async function main() {
     .delete()
     .eq("id", profile.id);
   assert(!deleteError, `profile cleanup failed: ${deleteError?.message}`);
+
+  const { count: skuCount, error: skuError } = await admin
+    .from("catalog_skus")
+    .select("product_id", { count: "exact", head: true });
+  assert(!skuError, `catalog_skus query failed: ${skuError?.message}`);
+  assert(
+    (skuCount ?? 0) === 293,
+    `catalog_skus should be 293 contractor SKUs, got ${skuCount ?? 0}`,
+  );
 
   const { error: authError } = await admin.auth.admin.listUsers({ page: 1, perPage: 1 });
   assert(!authError, `Auth admin API failed: ${authError?.message}`);

@@ -1,4 +1,5 @@
 import { getSiteUrl } from "@/hooks/useSeo";
+import { httpsKlaviyoClientUrl } from "@shared/klaviyo-onsite";
 import { getProductById, packShotSrc, type Product } from "@shared/products";
 import { BRAND_NAME } from "@/const";
 
@@ -30,6 +31,7 @@ declare global {
 
 let booted = false;
 let publicKey = "";
+let httpsClientPatched = false;
 
 export function getAnonymousId(): string {
   try {
@@ -124,8 +126,53 @@ async function postJson(path: string, body: Record<string, unknown>) {
   }
 }
 
+function rewriteKlaviyoRequest(input: RequestInfo | URL): RequestInfo | URL {
+  if (typeof input === "string") return httpsKlaviyoClientUrl(input);
+  if (input instanceof URL) return new URL(httpsKlaviyoClientUrl(input.href));
+  const next = httpsKlaviyoClientUrl(input.url);
+  return next === input.url ? input : new Request(next, input);
+}
+
+/** HTTP shops must talk to Klaviyo over HTTPS or CORS preflight dies on the 301. */
+export function patchKlaviyoHttpsClient() {
+  if (typeof window === "undefined" || httpsClientPatched) return;
+  if (window.location.protocol === "https:") return;
+  httpsClientPatched = true;
+
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = (input: RequestInfo | URL, init?: RequestInit) =>
+    originalFetch(rewriteKlaviyoRequest(input), init);
+
+  const xhrOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function (
+    this: XMLHttpRequest,
+    method: string,
+    url: string | URL,
+    async?: boolean,
+    username?: string | null,
+    password?: string | null,
+  ) {
+    const href = typeof url === "string" ? url : url.href;
+    return xhrOpen.call(
+      this,
+      method,
+      httpsKlaviyoClientUrl(href),
+      async ?? true,
+      username,
+      password,
+    );
+  };
+
+  if (typeof navigator.sendBeacon === "function") {
+    const beacon = navigator.sendBeacon.bind(navigator);
+    navigator.sendBeacon = (url: string | URL, data?: BodyInit | null) =>
+      beacon(httpsKlaviyoClientUrl(String(url)), data);
+  }
+}
+
 export async function bootKlaviyo() {
   if (booted || typeof window === "undefined") return;
+  patchKlaviyoHttpsClient();
   getAnonymousId();
   for (let attempt = 0; attempt < 6; attempt++) {
     try {

@@ -4,6 +4,8 @@ import { ArrowRight, ChevronDown, Mail, Menu, MessageSquare, Ruler, ShoppingCart
 import BrandLockup from "@/components/BrandLockup";
 import { useAccount } from "@/contexts/AccountContext";
 import { useCart } from "@/contexts/CartContext";
+import { useSiteConfig } from "@/contexts/SiteConfigContext";
+import { featuredSizesFromConfig } from "@shared/site-config";
 import { BRAND_EMAIL } from "@/const";
 import { jumpToHashTarget, scrollToHashTarget } from "@/hooks/useHashScroll";
 import { allBrandFamilies } from "@shared/hvac-brands";
@@ -11,7 +13,6 @@ import { BrandFamilyGrid } from "@/components/BrandDirectory";
 import {
   finderLengths,
   finderWidths,
-  popularSizeSlugs,
   THICKNESSES,
 } from "@shared/products";
 import { customQuotePath, shopOrQuotePath } from "@/lib/filter-size";
@@ -29,7 +30,6 @@ const LENGTHS = finderLengths().map(String);
 
 const DEPTHS = THICKNESSES.map(String);
 const ALL_BRAND_FAMILIES = allBrandFamilies();
-const POPULAR = popularSizeSlugs(8);
 
 type DesktopMenu = "shop" | "brands" | "contact" | null;
 
@@ -146,6 +146,8 @@ function HeaderFinder({ onFound }: { onFound?: () => void }) {
 export default function SiteHeader() {
   const { itemCount, openCart } = useCart();
   const { session } = useAccount();
+  const site = useSiteConfig();
+  const popular = featuredSizesFromConfig(site.featuredSizeSlugs, 8);
   const [location, setLocation] = useLocation();
   const [desktopMenu, setDesktopMenu] = useState<DesktopMenu>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -263,6 +265,16 @@ export default function SiteHeader() {
       onPointerEnter={clearCloseMenuTimer}
       onPointerLeave={scheduleCloseDesktopMenu}
     >
+      {site.maintenanceMode ? (
+        <div className="bg-amber-600 px-4 py-1.5 text-center text-sm font-semibold text-white">
+          {site.maintenanceMessage}
+        </div>
+      ) : null}
+      {site.announcementEnabled && site.announcement.trim() ? (
+        <div className="bg-primary px-4 py-1.5 text-center text-sm font-medium text-white">
+          {site.announcement}
+        </div>
+      ) : null}
       <div className="site-header-bar">
       <div className="container flex flex-wrap items-center gap-x-2 gap-y-2 py-2.5 xl:flex-nowrap md:py-3">
         <button
@@ -436,7 +448,7 @@ export default function SiteHeader() {
                   Popular sizes
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {POPULAR.map((slug) => (
+                  {popular.map((slug) => (
                     <Link
                       key={slug}
                       href={`/sizes/${slug}`}
@@ -590,7 +602,7 @@ export default function SiteHeader() {
                 </Link>
               </div>
               <div className="flex flex-wrap gap-2 mt-3">
-                {POPULAR.map((slug) => (
+                {popular.map((slug) => (
                   <Link
                     key={slug}
                     href={`/sizes/${slug}`}

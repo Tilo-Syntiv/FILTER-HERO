@@ -7,7 +7,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter
 
-ROOT = Path(r"C:\Users\lazar\Downloads\Github\FILTER HERO")
+ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "tmp" / "filter-hero-fly-entertaining.mp4"
 LOGO = ROOT / "client" / "public" / "logo.png"
 OUT = ROOT / "tmp" / "hero-fly-logo-end"

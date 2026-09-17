@@ -9,7 +9,7 @@ from pathlib import Path
 from huggingface_hub import InferenceClient, whoami
 from PIL import Image
 
-ROOT = Path(r"C:\Users\lazar\Downloads\Github\FILTER HERO")
+ROOT = Path(__file__).resolve().parent.parent
 
 def _load_env(path: Path) -> None:
     if not path.exists():

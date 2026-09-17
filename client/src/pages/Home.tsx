@@ -5,7 +5,6 @@ import { ArrowRight } from "lucide-react";
 import { THICKNESSES } from "@shared/products";
 import { HVAC_BRAND_LIST, featuredBrandFamilies } from "@shared/hvac-brands";
 import {
-  SITE_FAQS,
   buildBreadcrumbSchema,
   buildFaqSchema,
   buildHowToMeasureSchema,
@@ -37,6 +36,7 @@ import { LIFE } from "@/data/life-photos";
 import { useCart } from "@/contexts/CartContext";
 import { takeQuoteHandoff } from "@/lib/quote-handoff";
 import { getSiteUrl, useSeo } from "@/hooks/useSeo";
+import { useSiteConfig } from "@/contexts/SiteConfigContext";
 
 export default function Home() {
   useHashScroll();
@@ -55,6 +55,8 @@ export default function Home() {
     if (size) setQuoteSize(size);
   }, []);
 
+  const site = useSiteConfig();
+  const faqs = site.faqsForStore;
   const siteUrl = getSiteUrl();
   const seo = homeSeo(siteUrl);
   const jsonLd = useMemo(
@@ -62,7 +64,7 @@ export default function Home() {
       buildOrganizationSchema(siteUrl),
       buildOnlineStoreSchema(siteUrl),
       buildWebSiteSchema(siteUrl),
-      buildFaqSchema(SITE_FAQS),
+      buildFaqSchema(faqs),
       buildHowToMeasureSchema(siteUrl),
       buildSpeakableSchema(siteUrl, [
         ".seo-answer",
@@ -72,7 +74,7 @@ export default function Home() {
       ]),
       buildBreadcrumbSchema(siteUrl, [{ name: "Home", path: "/" }]),
     ],
-    [siteUrl],
+    [siteUrl, faqs],
   );
   useSeo({ ...seo, jsonLd });
 
@@ -172,7 +174,7 @@ export default function Home() {
         </div>
 
         <div className="sheet-section">
-          <FaqSection faqs={SITE_FAQS} />
+          <FaqSection faqs={faqs} />
         </div>
 
         <section className="brand-band cta-photo-band py-20 md:py-28 relative overflow-hidden">

@@ -72,9 +72,7 @@ for (const asset of [
   "/hero/pack-merv13.png",
   "/hero/showcase-carbon.png",
   "/hero/character-fly-still.png",
-  "/hero/character-fly-natural.webm",
-  "/hero/character-fly-natural.mp4",
-  "/hero/fh-sells-fk.png",
+  "/hero/character-sheet.png",
 ]) {
   if (!fs.existsSync(publicFile(asset))) missing.push(asset);
 }
@@ -118,6 +116,12 @@ assert(
   (health.res.headers.get("content-security-policy") || "").includes("default-src 'self'"),
   "API must send CSP",
 );
+
+const home = await get(`${BASE}/`);
+assert(home.res.ok, `home ${home.res.status}`);
+const homeCsp = home.res.headers.get("content-security-policy") || "";
+assert(homeCsp.includes("https://*.klaviyo.com"), "shop CSP allows HTTPS Klaviyo");
+assert(homeCsp.includes("http://a.klaviyo.com"), "dev shop CSP allows HTTP Klaviyo host before HTTPS upgrade");
 
 const products = await get(`${API}/api/products`);
 assert(products.res.ok, `products ${products.res.status}`);

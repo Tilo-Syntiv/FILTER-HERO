@@ -1,5 +1,4 @@
 import type { CSSProperties } from "react";
-import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -8,8 +7,9 @@ import BrandLogo from "@/components/BrandLogo";
 import { HVAC_BRAND_LIST } from "@shared/hvac-brands";
 import { MERV_TYPES, isMervKeyOnSale } from "@shared/products";
 import { setPreferredMerv, type PreferredMerv } from "@/lib/merv-pref";
+import { useSiteConfig } from "@/contexts/SiteConfigContext";
 
-const ASSET = "?v=fh160";
+const ASSET = "?v=fh165";
 
 const COMPAT = [
   { slug: "trane", name: "Trane" },
@@ -67,67 +67,17 @@ const SHOWCASE: {
 ];
 
 function HeroCharacter() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [live, setLive] = useState(true);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => setLive(!mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  useEffect(() => {
-    if (!live) return;
-    const node = videoRef.current;
-    if (!node) return;
-    node.muted = true;
-    node.defaultMuted = true;
-    const play = () => {
-      void node.play().catch(() => undefined);
-    };
-    play();
-    node.addEventListener("canplay", play);
-    return () => node.removeEventListener("canplay", play);
-  }, [live]);
-
-  const shared = {
-    className: "hero-character",
-    width: 3840,
-    height: 2160,
-  } as const;
-
-  if (!live) {
-    return (
-      <img
-        {...shared}
-        className="hero-character hero-character-still"
-        src={`/hero/character-fly-still.png${ASSET}`}
-        alt=""
-        aria-hidden
-        fetchPriority="high"
-        decoding="async"
-      />
-    );
-  }
-
   return (
-    <video
-      {...shared}
-      className="hero-character hero-character-video"
-      ref={videoRef}
-      autoPlay
-      muted
-      loop
-      playsInline
-      disablePictureInPicture
-      poster={`/hero/character-fly-still.png${ASSET}`}
+    <img
+      className="hero-character hero-character-still"
+      src={`/hero/character-fly-still.png${ASSET}`}
+      alt=""
+      width={1640}
+      height={1097}
       aria-hidden
-    >
-      <source src={`/hero/character-fly-natural.webm${ASSET}`} type="video/webm" />
-      <source src={`/hero/character-fly-natural.mp4${ASSET}`} type="video/mp4" />
-    </video>
+      fetchPriority="high"
+      decoding="async"
+    />
   );
 }
 
@@ -155,6 +105,7 @@ function BrandMarks({ compact }: { compact?: boolean }) {
 export default function Hero() {
   const [, setLocation] = useLocation();
   const brandCount = HVAC_BRAND_LIST.length;
+  const { heroKicker, heroLede } = useSiteConfig();
 
   return (
     <section className="hero-stage hero-cast-stage">
@@ -179,7 +130,7 @@ export default function Hero() {
             </p>
             <p className="hero-kicker">
               <span className="hero-live-dot" aria-hidden />
-              Exact-fit HVAC filters
+              {heroKicker}
             </p>
             <h1 className="hero-title">
               The first line
@@ -189,9 +140,7 @@ export default function Hero() {
               </span>
             </h1>
             <p className="seo-answer hero-lede">
-              Filter Hero&apos;s Filter King filters are exact-fit replacements
-              for Trane, Carrier, Rheem, and 30+ major HVAC brands. Measure
-              Width, Length, and Depth — then shop MERV 8, 11, or 13.
+              {heroLede}
             </p>
             <div className="hero-actions">
               <Button
@@ -229,19 +178,6 @@ export default function Hero() {
           <div className="hero-showcase">
             <div className="hero-lineup">
               <div className="hero-ground" aria-hidden />
-              <div className="hero-filter-claim">
-                <p className="hero-build-tag">
-                  <span className="hero-build-tag-visual">
-                    <img
-                      src={`/hero/fh-sells-fk.png${ASSET}`}
-                      alt="Filter King now at Filter Hero"
-                      width={1096}
-                      height={236}
-                      decoding="async"
-                    />
-                  </span>
-                </p>
-              </div>
               <div className="hero-pack-row">
                 {SHOWCASE.map((item) => {
                   const type = MERV_TYPES.find((t) => t.key === item.merv) ?? MERV_TYPES[0];

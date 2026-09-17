@@ -14,7 +14,7 @@ import numpy as np
 from PIL import Image, ImageFilter
 from rembg import remove
 
-ROOT = Path(r"C:\Users\lazar\Downloads\Github\FILTER HERO")
+ROOT = Path(__file__).resolve().parent.parent
 STILL = ROOT / "client" / "public" / "hero" / "character-fly-still.png"
 OUT = ROOT / "tmp" / "hero-fly-preview"
 FRAMES = OUT / "_frames"

@@ -82,6 +82,11 @@ async function main() {
       `${file} must not write Klaviyo`,
     );
   }
+  const adminRoutes = fs.readFileSync("server/admin/routes.ts", "utf-8");
+  assert(
+    adminRoutes.includes("/klaviyo-stripe/connect"),
+    "staff settings can create the Klaviyo Stripe webhook",
+  );
 
   for (const pathName of [
     "/admin",

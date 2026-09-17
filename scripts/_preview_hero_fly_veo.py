@@ -12,7 +12,7 @@ from google import genai
 from google.genai import types
 from PIL import Image
 
-ROOT = Path(r"C:\Users\lazar\Downloads\Github\FILTER HERO")
+ROOT = Path(__file__).resolve().parent.parent
 
 
 def _load_env(path: Path) -> None:

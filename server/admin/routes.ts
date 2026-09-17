@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireStaff } from "../auth";
 import { accountHealth, crmHealth } from "../db";
 import { klaviyoHealth } from "../klaviyo";
+import { ensureKlaviyoStripeWebhook, klaviyoStripeStatus } from "../klaviyo-stripe";
 import { adminLimiter, publicError } from "../security";
 import { getStripe } from "../stripe";
 import { loadSiteConfig, saveSiteConfig } from "./config";
@@ -229,8 +230,33 @@ export function adminRouter(): Router {
     sendData(res, staffSnapshot());
   });
 
-  router.get("/settings", (_req, res) => {
-    sendData(res, settingsSnapshot());
+  router.get("/settings", async (_req, res) => {
+    try {
+      sendData(res, {
+        ...settingsSnapshot(),
+        klaviyoStripe: await klaviyoStripeStatus(),
+      });
+    } catch (err) {
+      const { status, body } = publicError(
+        err,
+        { code: "settings_failed", message: "Could not load settings." },
+        "[admin] settings",
+      );
+      res.status(status).json({ ok: false, ...body });
+    }
+  });
+
+  router.post("/klaviyo-stripe/connect", async (_req, res) => {
+    try {
+      sendData(res, await ensureKlaviyoStripeWebhook());
+    } catch (err) {
+      const { status, body } = publicError(
+        err,
+        { code: "klaviyo_stripe_connect_failed", message: "Could not connect Klaviyo to Stripe." },
+        "[admin] klaviyo-stripe",
+      );
+      res.status(status).json({ ok: false, ...body });
+    }
   });
 
   router.get("/intuit/status", (_req, res) => {

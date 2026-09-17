@@ -71,7 +71,6 @@ const TARGETS: Record<string, string> = {
   merv13: ".hero-product-merv13",
   cta: ".hero-shop-btn",
   brands: ".hero-brands-row",
-  claim: ".hero-build-tag-visual",
   copy: ".hero-copy",
 };
 
@@ -83,7 +82,6 @@ const FALLBACK: Record<string, [number, number, number, number]> = {
   merv13: [0.88, 0.66, 0.08, 0.16],
   cta:    [0.08, 0.74, 0.20, 0.07],
   brands: [0.62, 0.87, 0.32, 0.07],
-  claim:  [0.62, 0.14, 0.32, 0.09],
   copy:   [0.0, 0.0, 0.54, 1.0],
 };
 

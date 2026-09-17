@@ -2,10 +2,11 @@ import "dotenv/config";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { HVAC_BRAND_LIST, catalogSizeForSlug } from "../shared/hvac-brands.ts";
+import { HVAC_BRAND_LIST } from "../shared/hvac-brands.ts";
 import {
   FILTER_SIZES,
   firstSellableProduct,
+  getArchivedFilterSize,
   getFilterSize,
   liveUnitPrice,
   unitPriceForQty,
@@ -123,7 +124,7 @@ const featuredMissing: string[] = [];
 for (const [depth, sizes] of Object.entries(featured)) {
   record(`featured:${depth}:array`, Array.isArray(sizes), `${sizes?.length ?? 0}`);
   for (const slug of sizes ?? []) {
-    if (!getFilterSize(slug)) featuredMissing.push(slug);
+    if (!getArchivedFilterSize(slug)) featuredMissing.push(slug);
   }
 }
 record(
@@ -143,10 +144,10 @@ record("brands:count", brands.length === HVAC_BRAND_LIST.length, `${brands.lengt
 const brandMissing = new Set<string>();
 for (const brand of brands) {
   for (const size of brand.sizes) {
-    if (!catalogSizeForSlug(size)) brandMissing.add(`${brand.slug}:${size}`);
+    if (!getArchivedFilterSize(size)) brandMissing.add(`${brand.slug}:${size}`);
   }
   for (const row of [...brand.models, ...brand.oemParts]) {
-    if (!catalogSizeForSlug(row.size)) brandMissing.add(`${brand.slug}:${row.size}`);
+    if (!getArchivedFilterSize(row.size)) brandMissing.add(`${brand.slug}:${row.size}`);
   }
 }
 record(
@@ -165,7 +166,7 @@ record(
   `total=${prices.counts.total} rows=${prices.products.length}`,
 );
 const nAliasRows = prices.products.filter((p) => /[an]$/i.test(p.size));
-const priceMissing = prices.products.filter((p) => !getFilterSize(aliasSize(p.size)));
+const priceMissing = prices.products.filter((p) => !getArchivedFilterSize(aliasSize(p.size)));
 record(
   "prices:sizes-in-catalog",
   priceMissing.length === 0,

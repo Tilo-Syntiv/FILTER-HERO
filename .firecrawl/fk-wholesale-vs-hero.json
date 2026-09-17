@@ -1,6 +1,6 @@
 {
   "wholesaleYear": 2025,
-  "heroSource": "2026-08-20",
+  "heroSource": "2026-08-29",
   "sheetRows": 313,
   "uniqueSizeMerv": 299,
   "matched": 299,
@@ -9,31 +9,31 @@
   "thinQ6Count": 1,
   "thinQ12Count": 2,
   "avgMarginPct": {
-    "q1": 82.9,
-    "q6": 51.0,
-    "q12": 47.3
+    "q1": 83.2,
+    "q6": 51.4,
+    "q12": 48.1
   },
   "byMerv": {
     "8": {
       "sheet": 165,
       "matched": 165,
       "underwater": 0,
-      "avgQ6Pct": 53.1,
-      "avgQ12Pct": 49.7
+      "avgQ6Pct": 52.3,
+      "avgQ12Pct": 48.3
     },
     "11": {
       "sheet": 68,
       "matched": 68,
       "underwater": 0,
-      "avgQ6Pct": 48.7,
-      "avgQ12Pct": 44.9
+      "avgQ6Pct": 50.2,
+      "avgQ12Pct": 47.6
     },
     "13": {
       "sheet": 66,
       "matched": 66,
       "underwater": 0,
-      "avgQ6Pct": 48.0,
-      "avgQ12Pct": 43.6
+      "avgQ6Pct": 50.6,
+      "avgQ12Pct": 47.9
     }
   },
   "unmatchedSample": [],
@@ -62,14 +62,6 @@
       "heroQ12": 6.18,
       "marginQ12": 1.03,
       "pctQ12": 16.7
-    },
-    {
-      "size": "20x30x1",
-      "merv": "13",
-      "cost": 6.49,
-      "heroQ12": 7.54,
-      "marginQ12": 1.05,
-      "pctQ12": 13.9
     },
     {
       "size": "20x25x1",
@@ -102,6 +94,14 @@
       "heroQ12": 5.43,
       "marginQ12": 1.22,
       "pctQ12": 22.5
+    },
+    {
+      "size": "23x23x1",
+      "merv": "8",
+      "cost": 5.31,
+      "heroQ12": 6.66,
+      "marginQ12": 1.35,
+      "pctQ12": 20.3
     },
     {
       "size": "20x24x1",
@@ -152,12 +152,12 @@
       "pctQ12": 27.2
     },
     {
-      "size": "25x25x1",
+      "size": "20x23x1",
       "merv": "8",
-      "cost": 5.19,
-      "heroQ12": 6.89,
-      "marginQ12": 1.7,
-      "pctQ12": 24.7
+      "cost": 4.76,
+      "heroQ12": 6.41,
+      "marginQ12": 1.65,
+      "pctQ12": 25.7
     }
   ],
   "popular": [
@@ -437,17 +437,17 @@
       "size": "20x25x2",
       "merv": "11",
       "cost": 7.02,
-      "fkQ1": 37.65,
-      "fkQ6": 11.17,
-      "fkQ12": 10.35,
-      "heroQ1": 33.13,
-      "heroQ6": 9.83,
-      "heroQ12": 9.11,
-      "marginQ6": 2.81,
-      "marginQ12": 2.09,
-      "pctQ6": 28.6,
-      "pctQ12": 22.9,
-      "estimated": true,
+      "fkQ1": 37.37,
+      "fkQ6": 14.35,
+      "fkQ12": 13.46,
+      "heroQ1": 33.63,
+      "heroQ6": 12.92,
+      "heroQ12": 12.11,
+      "marginQ6": 5.9,
+      "marginQ12": 5.09,
+      "pctQ6": 45.7,
+      "pctQ12": 42.0,
+      "estimated": false,
       "underwater": []
     },
     {
@@ -488,17 +488,17 @@
       "size": "12x24x1",
       "merv": "11",
       "cost": 4.01,
-      "fkQ1": 31.37,
-      "fkQ6": 8.46,
-      "fkQ12": 7.01,
-      "heroQ1": 27.61,
-      "heroQ6": 7.44,
-      "heroQ12": 6.17,
-      "marginQ6": 3.43,
-      "marginQ12": 2.16,
-      "pctQ6": 46.1,
-      "pctQ12": 35.0,
-      "estimated": true,
+      "fkQ1": 31.13,
+      "fkQ6": 7.59,
+      "fkQ12": 7.9,
+      "heroQ1": 28.02,
+      "heroQ6": 6.83,
+      "heroQ12": 7.11,
+      "marginQ6": 2.82,
+      "marginQ12": 3.1,
+      "pctQ6": 41.3,
+      "pctQ12": 43.6,
+      "estimated": false,
       "underwater": []
     },
     {
@@ -556,17 +556,17 @@
       "size": "18x24x1",
       "merv": "13",
       "cost": 5.35,
-      "fkQ1": 31.4,
-      "fkQ6": 9.38,
-      "fkQ12": 8.37,
-      "heroQ1": 27.63,
-      "heroQ6": 8.25,
-      "heroQ12": 7.37,
-      "marginQ6": 2.9,
-      "marginQ12": 2.02,
-      "pctQ6": 35.2,
-      "pctQ12": 27.4,
-      "estimated": true,
+      "fkQ1": 39.99,
+      "fkQ6": 8.36,
+      "fkQ12": 8.78,
+      "heroQ1": 35.99,
+      "heroQ6": 7.52,
+      "heroQ12": 7.9,
+      "marginQ6": 2.17,
+      "marginQ12": 2.55,
+      "pctQ6": 28.9,
+      "pctQ12": 32.3,
+      "estimated": false,
       "underwater": []
     },
     {
@@ -607,17 +607,17 @@
       "size": "20x30x1",
       "merv": "13",
       "cost": 6.49,
-      "fkQ1": 39.56,
-      "fkQ6": 9.63,
-      "fkQ12": 8.57,
-      "heroQ1": 34.81,
-      "heroQ6": 8.47,
-      "heroQ12": 7.54,
-      "marginQ6": 1.98,
-      "marginQ12": 1.05,
-      "pctQ6": 23.4,
-      "pctQ12": 13.9,
-      "estimated": true,
+      "fkQ1": 42.22,
+      "fkQ6": 10.87,
+      "fkQ12": 11.55,
+      "heroQ1": 38.0,
+      "heroQ6": 9.78,
+      "heroQ12": 10.4,
+      "marginQ6": 3.29,
+      "marginQ12": 3.91,
+      "pctQ6": 33.6,
+      "pctQ12": 37.6,
+      "estimated": false,
       "underwater": []
     },
     {

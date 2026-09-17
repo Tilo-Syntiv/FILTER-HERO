@@ -1,0 +1,8 @@
+# Filter Hero Python tooling. Install with:
+#   py -3.12 -m pip install -r scripts/requirements.txt
+Pillow>=10
+numpy>=1.26
+python-docx>=1.1
+huggingface_hub>=0.20
+google-genai>=1.0
+rembg>=2.0

@@ -94,4 +94,5 @@ Serves the SPA and API from the Express server (`NODE_ENV=production`).
 | `pnpm verify:resend` | Domain + From checks, then a probe to `delivered@resend.dev` |
 | `pnpm debug:stripe-checkout` | Webhook + live Checkout Session + test charge probe |
 | `pnpm setup:stripe-webhook` | Create/repair the production Checkout webhook endpoint |
+| `pnpm setup:klaviyo-stripe` | Create/repair Stripe → Klaviyo charge/invoice webhook |
 | `pnpm sync:catalog` | Push the contractor sheet to Stripe Products, Klaviyo catalog, and Supabase `catalog_skus` |

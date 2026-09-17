@@ -42,10 +42,23 @@ Never put the private key in a `VITE_` variable.
 | Started Checkout | `POST /api/checkout` | Requires the cart email field. Includes `CheckoutURL` |
 | Checkout Expired | Stripe `checkout.session.expired` | People who typed an email on Stripe or in the drawer |
 | Placed Order + Ordered Product | Stripe `checkout.session.completed` | Idempotent on session id. Sets `next_change_date` |
+| Successfully Paid / Failed Payment / Refunded Payment / Issued Invoice | Native Klaviyo Stripe app | Charge + invoice webhooks. **Not** a second Placed Order |
 | Requested Quote / Requested Support | Contact + custom quote | Subscribe only if the marketing box is checked |
 | Signed Up Reminder | Filter Clock save | Profile properties only, date stored as `clock_next_change_date`. **No list subscribe. Does not set `next_change_date`.** |
 
 Filter Clock does not enroll replenish. In Klaviyo, trigger replacement / restock flows on **Placed Order** only (FH-131).
+
+## Native Stripe app
+
+Filter Hero already sends **Placed Order** from `https://filterhero.net/api/stripe/webhook`. The native Klaviyo Stripe app is extra: refunds, failed charges, and invoices.
+
+`pnpm setup:klaviyo-stripe` (or staff Settings → Klaviyo + Stripe → Connect) creates a second Stripe endpoint:
+
+`https://a.klaviyo.com/api/webhook/integration/stripe?c=VnVNmQ`
+
+Events: all `charge.*` and `invoice.*` from [Klaviyo’s Stripe guide](https://help.klaviyo.com/hc/en-us/articles/115005082267). Do **not** add Checkout session events there — those stay on the Filter Hero webhook.
+
+After the endpoint exists, finish **Connect to Stripe** in Klaviyo (`https://www.klaviyo.com/integration/stripe`) and paste the endpoint signing secret into webhook verification. Do **not** trigger welcome, abandon, replenish, or a receipt from **Successfully Paid**.
 
 ## Catalog
 
@@ -59,7 +72,7 @@ Local: `http://localhost:3001/api/klaviyo/catalog.json`
 
 Account **Filter Hero**. Public / site ID `VnVNmQ`. Marketing list is `RiTKiS` (Klaviyo name: **Email List**). From-address on draft flows: `info@filterhero.net`.
 
-`pnpm setup:klaviyo` is idempotent. `pnpm inspect:klaviyo` prints the live objects.
+`pnpm setup:klaviyo` is idempotent and now upserts/deletes catalog items so the live custom catalog matches the contractor sheet (293 SKUs). `pnpm sync:catalog` refreshes Stripe + Klaviyo + Supabase without touching flows. `pnpm inspect:klaviyo` prints the live objects.
 
 ### Flows (Live — sending domain `klv.filterhero.net` is active)
 
@@ -99,6 +112,8 @@ The objects above are in the account, the sending domain is **active**, the seve
 - `GET /api/health` is a bare `{ ok: true }` liveness probe
 - `GET /api/health/detail` includes `klaviyo: true|false` — **staff only** (FH-175)
 - `GET /api/klaviyo/health` pings the account (no secrets) — **staff only**
-- `GET /api/klaviyo/catalog.json` is the 299-SKU wholesale sheet
+- `GET /api/klaviyo/catalog.json` is the contractor-sheet catalog (293 SKUs)
+- `pnpm sync:catalog` upserts that feed into the Klaviyo custom catalog (and Stripe / Supabase)
+- `pnpm setup:klaviyo-stripe` creates Stripe’s charge/invoice webhook into the native Klaviyo Stripe app
 - `pnpm verify:klaviyo` checks payloads and, when a private key is set, the live account
 - `pnpm inspect:klaviyo` lists metrics, flows, templates, catalog, sending domain

@@ -255,11 +255,15 @@ def main() -> None:
     for u in underwater:
         print(" ", u["size"], "M"+u["merv"], "cost", u["cost"], "hero6", u["hero"].get("q6"), "hero12", u["hero"].get("q12"), u["underwater"], "est" if u["estimated"] else "live")
     print("POPULAR")
-    for p in popular:
+    for p in summary["popular"]:
+        q1 = p.get("heroQ1")
+        q6 = p.get("heroQ6")
+        q12 = p.get("heroQ12")
         print(
             f"  {p['size']:10} M{p['merv']:2} cost ${p['cost']:5.2f}  "
-            f"hero1 ${p['heroQ1']:6.2f}  hero6 ${p['heroQ6']:5.2f} ({p['pctQ6']}%)  "
-            f"hero12 ${p['heroQ12']:5.2f} ({p['pctQ12']}%)  "
+            f"hero1 ${q1 if q1 is not None else 0:6.2f}  "
+            f"hero6 ${q6 if q6 is not None else 0:5.2f} ({p.get('pctQ6')}%)  "
+            f"hero12 ${q12 if q12 is not None else 0:5.2f} ({p.get('pctQ12')}%)  "
             f"{'EST' if p['estimated'] else 'LIVE'} {p['underwater'] or ''}"
         )
 
