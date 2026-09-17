@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { Link } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import {
   Check,
@@ -53,7 +53,7 @@ import { MERV_GUIDE } from "@/lib/merv-guide";
 import {
   getPreferredMerv,
   getPowerPackQty,
-  isPreferredMerv,
+  resolvePreferredMerv,
   setPreferredMerv,
   type PreferredMerv,
 } from "@/lib/merv-pref";
@@ -66,32 +66,32 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
   const decoded = decodeURIComponent(sizeSlug);
   const sizeMeta = getFilterSize(decoded);
   const { addItem } = useCart();
+  const search = useSearch();
+  const [, setLocation] = useLocation();
   const availableTypes = useMemo(() => mervTypesForSize(decoded), [decoded]);
   const mervOptions = sellableMervPhrase(decoded);
-
-  const [mervKey, setMervKey] = useState<PreferredMerv>(
-    () => (availableTypes[0]?.key as PreferredMerv) ?? "8",
+  const mervKey = useMemo(
+    () =>
+      resolvePreferredMerv(
+        availableTypes.map((t) => t.key),
+        search,
+        getPreferredMerv(),
+      ),
+    [availableTypes, search],
   );
+
   const [qty, setQty] = useState(6);
   const [shot, setShot] = useState(0);
 
   useEffect(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get("merv");
-    const preferred = isPreferredMerv(fromUrl) ? fromUrl : getPreferredMerv();
-    const keys = availableTypes.map((t) => t.key);
-    const next =
-      preferred && keys.includes(preferred)
-        ? preferred
-        : (availableTypes[0]?.key as PreferredMerv | undefined);
-    if (next) setMervKey(next);
     const pack = getPowerPackQty();
     if (pack) setQty(pack);
   }, [availableTypes]);
 
   const pickMerv = (key: PreferredMerv) => {
-    setMervKey(key);
     setPreferredMerv(key);
     trackSelectedMerv(key);
+    setLocation(`/sizes/${encodeURIComponent(decoded)}?merv=${key}`);
   };
 
   const selectedType =

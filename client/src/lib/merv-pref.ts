@@ -23,6 +23,20 @@ export function getPreferredMerv(): PreferredMerv | null {
   }
 }
 
+/** URL `?merv=` wins over the session stash so size-page chips follow the address bar. */
+export function resolvePreferredMerv(
+  available: readonly string[],
+  search: string,
+  stored: PreferredMerv | null = null,
+): PreferredMerv {
+  const query = search.startsWith("?") ? search.slice(1) : search;
+  const fromUrl = new URLSearchParams(query).get("merv");
+  const preferred = isPreferredMerv(fromUrl) ? fromUrl : stored;
+  if (preferred && available.includes(preferred)) return preferred;
+  const first = available.find((key) => isPreferredMerv(key));
+  return first ?? "8";
+}
+
 const PACK_KEY = "fh-power-pack";
 const PACK_QTYS = new Set([1, 2, 4, 6, 12]);
 
