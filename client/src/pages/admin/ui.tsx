@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Link } from "wouter";
 import { cn } from "@/lib/utils";
 
 export function AdminPanel({
@@ -148,23 +147,5 @@ export function AdminTable({
         <tbody>{children}</tbody>
       </table>
     </div>
-  );
-}
-
-export function AdminRowLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: ReactNode;
-}) {
-  return (
-    <tr className="border-b last:border-0 hover:bg-muted/40">
-      <td colSpan={100} className="p-0">
-        <Link href={href} className="grid grid-cols-subgrid">
-          {children}
-        </Link>
-      </td>
-    </tr>
   );
 }

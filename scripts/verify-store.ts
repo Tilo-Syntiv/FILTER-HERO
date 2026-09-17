@@ -100,7 +100,12 @@ assert(
   !productGalleryFor(13).some((shot) => shot.src.includes("6pack") || shot.src.includes("thin-rectangle")),
   "MERV 13 gallery must not use the stamped 6-pack",
 );
-assert(packShotSrc(8, true).includes("carbon"), "carbon must use its own pack shot");
+assert(packShotSrc(8, true).includes("merv-carbon-packshot"), "every carbon pack uses the official single-filter pack shot");
+assert(productGalleryFor(8, true)[0].src === packShotSrc(8, true), "carbon gallery hero is the official pack shot");
+assert(
+  !productGalleryFor(8, true).some((shot) => shot.src.includes("6pack") || shot.src.includes("thin-rectangle")),
+  "carbon gallery must not use the stamped 6-pack",
+);
 const productsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../client/public/products");
 for (const key of ["8", "11", "13", "carbon"] as const) {
   for (const suffix of ["thin-rectangle-6pack", "thin-rectangle-no-labels", "layers"] as const) {
@@ -109,7 +114,7 @@ for (const key of ["8", "11", "13", "carbon"] as const) {
   }
 }
 assert(fs.existsSync(path.join(productsDir, "merv-8-macro.png")), "shared macro shot missing");
-for (const key of ["8", "11", "13"] as const) {
+for (const key of ["8", "11", "13", "carbon"] as const) {
   assert(fs.existsSync(path.join(productsDir, `merv-${key}-packshot.png`)), `official MERV ${key} pack shot missing`);
   assert(
     fs.existsSync(path.join(productsDir, "source", `merv-${key}-packshot.png`)),

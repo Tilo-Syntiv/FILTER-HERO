@@ -103,6 +103,7 @@ def main() -> int:
         "merv-8-packshot.png",
         "merv-11-packshot.png",
         "merv-13-packshot.png",
+        "merv-carbon-packshot.png",
         "merv-carbon-layers.png",
         "merv-carbon-thin-rectangle-6pack.png",
     ):

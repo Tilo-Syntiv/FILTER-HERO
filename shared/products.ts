@@ -26,7 +26,7 @@ export {
 export type MervRating = 8 | 11 | 13;
 
 /** Bump when pack-shot files change so browsers do not keep a stale photo. */
-const PACK_SHOT_REV = "fh089";
+const PACK_SHOT_REV = "fh095";
 
 function productMedia(path: string): string {
   return `${path}?v=${PACK_SHOT_REV}`;
@@ -36,7 +36,7 @@ export function mervMediaKey(merv: MervRating, isCarbon = false): "8" | "11" | "
   return isCarbon ? "carbon" : (String(merv) as "8" | "11" | "13");
 }
 
-const OFFICIAL_PACKSHOT: ReadonlySet<string> = new Set(["8", "11", "13"]);
+const OFFICIAL_PACKSHOT: ReadonlySet<string> = new Set(["8", "11", "13", "carbon"]);
 
 export function packShotSrc(merv: MervRating, isCarbon = false): string {
   const key = mervMediaKey(merv, isCarbon);

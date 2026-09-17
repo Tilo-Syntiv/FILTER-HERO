@@ -4,9 +4,9 @@ Reads originals from client/public/products/source/. Shop files in
 client/public/products/ are generated for ratings that still need stamps.
 Never stamp a vertical MERV badge on pack-shot sides (FH-045).
 
-Do not overwrite merv-8-packshot.png, merv-11-packshot.png, or
-merv-13-packshot.png — those are the official heroes for every size and
-pack quantity (FH-047, FH-049, FH-048).
+Do not overwrite merv-8-packshot.png, merv-11-packshot.png,
+merv-13-packshot.png, or merv-carbon-packshot.png — those are the official
+heroes for every size and pack quantity (FH-047, FH-049, FH-048, FH-240).
 """
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "client" / "public" / "products"
 SOURCE = SRC / "source"
 
-OFFICIAL_PACKSHOTS = frozenset({"8", "11", "13"})
+OFFICIAL_PACKSHOTS = frozenset({"8", "11", "13", "carbon"})
 
 VARIANTS = [
     {

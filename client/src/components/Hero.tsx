@@ -9,7 +9,7 @@ import { MERV_TYPES, isMervKeyOnSale } from "@shared/products";
 import { setPreferredMerv, type PreferredMerv } from "@/lib/merv-pref";
 import { useSiteConfig } from "@/contexts/SiteConfigContext";
 
-const ASSET = "?v=fh165";
+const ASSET = "?v=fh170";
 
 const COMPAT = [
   { slug: "trane", name: "Trane" },
@@ -35,7 +35,7 @@ const SHOWCASE: {
     kicker: "MERV",
     use: "Dust",
     className: "hero-product hero-product-merv8",
-    alt: "Filter King MERV 8 standard air filter",
+    alt: "Filter Hero MERV 8 standard air filter",
   },
   {
     src: `/hero/showcase-carbon.png${ASSET}`,
@@ -44,7 +44,7 @@ const SHOWCASE: {
     kicker: "Carbon",
     use: "Odors",
     className: "hero-product hero-product-carbon",
-    alt: "Filter King carbon odor-eliminator air filter",
+    alt: "Filter Hero carbon odor-eliminator air filter",
   },
   {
     src: `/hero/pack-merv11.png${ASSET}`,
@@ -53,7 +53,7 @@ const SHOWCASE: {
     kicker: "MERV",
     use: "Pets",
     className: "hero-product hero-product-merv11",
-    alt: "Filter King MERV 11 advanced air filter",
+    alt: "Filter Hero MERV 11 advanced air filter",
   },
   {
     src: `/hero/pack-merv13.png${ASSET}`,
@@ -62,7 +62,7 @@ const SHOWCASE: {
     kicker: "MERV",
     use: "Allergies",
     className: "hero-product hero-product-merv13",
-    alt: "Filter King MERV 13 superior air filter",
+    alt: "Filter Hero MERV 13 superior air filter",
   },
 ];
 

@@ -14,7 +14,85 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-238**
+Next id: **FH-244**
+
+---
+
+### FH-243 — MERV 8 pack shots still used the branded Filter Hero lockup
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** After FH-239, MERV 8 hero / packshot / 6-pack / 3/4 / mesh close-up still showed FILTER HERO plus cape marks on the lattice. The shopper-supplied unlabeled MERV 8 STANDARD shot belongs in those slots.
+- **Do NOT:** Restore Filter King or the FILTER HERO lockup on `pack-merv8.png` or `merv-8-packshot.png`. Do not leave `PACK_SHOT_REV` / hero `ASSET` unbumped after swapping the files. Do not flood-fill the hero cutout so the white cardboard frame disappears (FH-060). Do not overwrite `products/source/merv-8-thin-rectangle-*.png`.
+- **Do:** Official MERV 8 pack is the unlabeled isolated MERV 8 STANDARD shot. `packShotSrc(8)`, hero `pack-merv8.png` (RGBA cutout on the 508×833 canvas), `source/merv-8-packshot.png`, shop 6-pack / 3/4, and `merv-8-macro.png` (clean mesh crop) all come from that photo. Cache `?v=fh095` / `?v=fh170`. Layers exploded diagram stays — it has no lockup.
+- **Files:** `client/public/hero/pack-merv8.png`, `client/public/products/merv-8-packshot.png`, `client/public/products/source/merv-8-packshot.png`, `client/public/products/merv-8-thin-rectangle-6pack.png`, `client/public/products/merv-8-thin-rectangle-no-labels.png`, `client/public/products/merv-8-macro.png`, `client/src/components/Hero.tsx`, `shared/products.ts`
+- **Verify:** `/` hero MERV 8 has no Filter King and no FILTER HERO lockup. `/sizes/20x25x1` gallery hero matches. Cart thumbnail matches.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-242 — MERV 13 pack shots still said Filter King
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage hero, size-page gallery, cart, emails, and schema used the Filter King branded MERV 13 pack shot (`pack-merv13.png` / `merv-13-packshot.png`). The leftover 6-pack and three-quarter files still showed the lion lockup.
+- **Do NOT:** Restore Filter King on `pack-merv13.png` or `merv-13-packshot.png`. Do not leave `PACK_SHOT_REV` / hero `ASSET` unbumped after swapping the files. Do not point MERV 13 hero, cart, or schema at `merv-13-thin-rectangle-6pack.png`. Do not let `scripts/label-pack-shots.py` overwrite `merv-13-packshot.png`. Do not flood-fill the hero cutout so the white cardboard frame disappears (FH-060).
+- **Do:** Official MERV 13 pack is the uploaded isolated MERV 13 SUPERIOR shot (no Filter King lockup). `packShotSrc(13)`, hero `pack-merv13.png` (RGBA cutout on the 508×833 canvas), `source/merv-13-packshot.png`, and shop 6-pack / 3/4 all come from that photo. Cache `?v=fh094` / `?v=fh169`. Layers exploded diagram stays — it has no lockup.
+- **Files:** `client/public/hero/pack-merv13.png`, `client/public/products/merv-13-packshot.png`, `client/public/products/source/merv-13-packshot.png`, `client/public/products/merv-13-thin-rectangle-6pack.png`, `client/public/products/merv-13-thin-rectangle-no-labels.png`, `client/src/components/Hero.tsx`, `shared/products.ts`
+- **Verify:** `/` hero MERV 13 has no Filter King. `/sizes/20x25x1?merv=13` gallery hero matches. Cart thumbnail matches.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-241 — MERV 11 pack shots still said Filter King
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage hero, size-page gallery, cart, emails, and schema used the Filter King branded MERV 11 pack shot (`pack-merv11.png` / `merv-11-packshot.png`). The leftover 6-pack and three-quarter files still showed the lion lockup.
+- **Do NOT:** Restore Filter King on `pack-merv11.png` or `merv-11-packshot.png`. Do not leave `PACK_SHOT_REV` / hero `ASSET` unbumped after swapping the files. Do not point MERV 11 hero, cart, or schema at `merv-11-thin-rectangle-6pack.png`. Do not let `scripts/label-pack-shots.py` overwrite `merv-11-packshot.png`.
+- **Do:** Official MERV 11 pack is the isolated red MERV 11 ADVANCED shot (no Filter King lockup). `packShotSrc(11)`, hero `pack-merv11.png` (RGBA cutout), `source/merv-11-packshot.png`, and shop 6-pack / 3/4 all come from that photo. Cache `?v=fh095` / `?v=fh170`. Layers exploded diagram stays — it has no lockup. Do not flood-fill the hero cutout so the white cardboard frame disappears (FH-060).
+- **Files:** `client/public/hero/pack-merv11.png`, `client/public/products/merv-11-packshot.png`, `client/public/products/source/merv-11-packshot.png`, `client/public/products/merv-11-thin-rectangle-6pack.png`, `client/public/products/merv-11-thin-rectangle-no-labels.png`, `client/src/components/Hero.tsx`, `shared/products.ts`
+- **Verify:** `/` hero MERV 11 has no Filter King. `/sizes/20x25x1?merv=11` gallery hero matches. Cart thumbnail matches.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-240 — Carbon pack shots still said Filter King
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage hero, size-page gallery, cart, emails, and schema used the Filter King branded carbon 6-pack (`showcase-carbon.png` / `merv-carbon-thin-rectangle-6pack.png`) with a stamped MERV 8 Carbon plate.
+- **Do NOT:** Point carbon at the stamped 6-pack. Do not let `scripts/label-pack-shots.py` overwrite `merv-carbon-packshot.png`. Do not leave `PACK_SHOT_REV` / hero `ASSET` unbumped after swapping the files. Do not overwrite `products/source/merv-8-thin-rectangle-*.png`.
+- **Do:** Official carbon pack is the Filter Hero odor-eliminator isolated shot. `packShotSrc(8, true)`, hero `showcase-carbon.png` (RGBA cutout), `source/merv-carbon-packshot.png`, and shop 6-pack / 3/4 all come from that photo. Cache `?v=fh092` / `?v=fh167`. Layers exploded diagram stays — it has no lockup.
+- **Files:** `client/public/hero/showcase-carbon.png`, `client/public/products/merv-carbon-packshot.png`, `client/public/products/source/merv-carbon-packshot.png`, `client/public/products/merv-carbon-thin-rectangle-6pack.png`, `client/public/products/merv-carbon-thin-rectangle-no-labels.png`, `client/src/components/Hero.tsx`, `shared/products.ts`, `scripts/label-pack-shots.py`, `scripts/verify-store.ts`
+- **Verify:** `/` hero carbon says ODOR ELIMINATOR, no Filter King. `/sizes/20x25x1` carbon gallery hero matches. Cart thumbnail matches. `pnpm exec tsx scripts/verify-store.ts`.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-239 — MERV 8 pack shots still said Filter King
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage hero, size-page gallery, cart, emails, and schema used the Filter King branded MERV 8 pack shot (`pack-merv8.png` / `merv-8-packshot.png`). The 6-pack, three-quarter, and shared mesh close-up also still showed the lion lockup.
+- **Do NOT:** Restore Filter King on `pack-merv8.png` or `merv-8-packshot.png`. Do not leave `PACK_SHOT_REV` / hero `ASSET` unbumped after swapping the files. Do not overwrite `products/source/merv-8-thin-rectangle-*.png` — those stay the generation templates for carbon stamps.
+- **Do:** Official MERV 8 pack is the Filter Hero branded isolated shot. `packShotSrc(8)`, hero `pack-merv8.png` (RGBA cutout), `source/merv-8-packshot.png`, shop 6-pack / 3/4, and `merv-8-macro.png` (mesh crop with Filter Hero marks) all come from that photo. Cache `?v=fh091` / `?v=fh166`. Layers exploded diagram stays — it has no lockup.
+- **Files:** `client/public/hero/pack-merv8.png`, `client/public/products/merv-8-packshot.png`, `client/public/products/source/merv-8-packshot.png`, `client/public/products/merv-8-thin-rectangle-6pack.png`, `client/public/products/merv-8-thin-rectangle-no-labels.png`, `client/public/products/merv-8-macro.png`, `client/src/components/Hero.tsx`, `shared/products.ts`
+- **Verify:** `/` hero MERV 8 says FILTER HERO. `/sizes/20x25x1` MERV 8 gallery hero matches. Cart thumbnail matches.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-238 — Retired hero flight stacks and unused shadcn kit still shipped
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Two unused hero animation stacks (`HeroFlight`, `HeroSkyFlight`), their pose/frame assets, old banner composites, and 38 unused shadcn/ui components sat in the repo after the live hero became a still plus pack row.
+- **Do NOT:** Remount `HeroFlight` or `HeroSkyFlight`. Do not restore `hero-banner.webp`, `showcase-merv*.png`, `stack-3.png`, or `/hero/flight` on the homepage. Do not reinstall unused Radix/shadcn primitives as if they were live shop UI.
+- **Do:** Homepage hero is `character-fly-still.png` plus the four pack shots. Keep `/logo.png`, `/hero/pack-merv*.png`, `/hero/showcase-carbon.png`, and source sheets. Python generate scripts stay for rebuilds.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`, `package.json`, `client/src/components/ui/`
+- **Verify:** `pnpm check`. `/` still shows the still character and four packs. Header still uses `/logo.png`.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
 
 ---
 

@@ -685,58 +685,6 @@ h1.hero-title em,
   filter: drop-shadow(0 18px 24px rgba(8, 16, 32, 0.34));
 }
 
-.hero-sky-flight {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.hero-sky-rig {
-  position: absolute;
-  left: 28%;
-  top: 16%;
-  width: max-content;
-  height: max-content;
-  transform-origin: 56% 48%;
-  opacity: 0.66;
-  pointer-events: none;
-}
-
-.hero-sky-flyer {
-  display: block;
-  width: auto;
-  height: 9.25rem;
-  object-fit: contain;
-  user-select: none;
-  pointer-events: none;
-  filter:
-    saturate(0.9)
-    brightness(0.92)
-    drop-shadow(0 10px 16px rgba(8, 16, 32, 0.32));
-}
-
-.hero-sky-flyer + .hero-sky-flyer {
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-}
-
-.hero-sky-flight[data-mode="still"] .hero-sky-rig {
-  left: 30%;
-  top: 18%;
-  opacity: 0.5;
-}
-
-.hero-sky-flight[data-mode="still"] .hero-sky-flyer + .hero-sky-flyer {
-  display: none;
-}
-
-.hero-character-motion {
-  display: none;
-}
-
 @media (min-width: 640px) {
   .hero-copy {
     padding: 1.5rem max(1.75rem, env(safe-area-inset-left)) 1.5rem;
@@ -853,20 +801,6 @@ h1.hero-title em,
     max-width: 50%;
     object-fit: contain;
     object-position: center;
-  }
-
-  .hero-sky-flyer {
-    height: 10.5rem;
-    filter:
-      saturate(0.86)
-      brightness(0.82)
-      drop-shadow(0 12px 18px rgba(8, 16, 32, 0.3));
-  }
-
-  .hero-sky-flight[data-mode="still"] .hero-sky-rig {
-    top: 18%;
-    left: 30%;
-    opacity: 0.3;
   }
 
   .hero-pack-row {
@@ -1117,10 +1051,6 @@ h1.hero-title em,
     top: 6%;
     bottom: 25%;
     gap: 1rem;
-  }
-
-  .hero-sky-flyer {
-    height: 9.25rem;
   }
 }
 
