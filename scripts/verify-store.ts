@@ -33,6 +33,7 @@ import {
   liveUnitPrice,
 } from "../shared/pricing/engine.ts";
 import { SITE_FAQS, resolveDocumentSeo, sitemapPaths } from "../shared/seo.ts";
+import { resolvePreferredMerv } from "../client/src/lib/merv-pref.ts";
 
 function assert(cond: unknown, message: string): asserts cond {
   if (!cond) throw new Error(message);
@@ -126,6 +127,12 @@ assert(
   !productGalleryFor(13).some((shot) => shot.src.includes("merv-8-thin")),
   "MERV 13 gallery must not reuse MERV 8 pack photos",
 );
+const keys = ["8", "carbon", "11", "13"];
+assert(resolvePreferredMerv(keys, "merv=13", "11") === "13", "?merv=13 must win over a stored MERV 11");
+assert(resolvePreferredMerv(keys, "?merv=13", "8") === "13", "?merv=13 with a leading question mark still selects 13");
+assert(resolvePreferredMerv(keys, "merv=11", "13") === "11", "?merv=11 must win over a stored MERV 13");
+assert(resolvePreferredMerv(keys, "", "13") === "13", "stored MERV 13 applies when the URL has no merv query");
+assert(resolvePreferredMerv(["8", "11"], "merv=13", "13") === "8", "URL MERV 13 falls back when that rating is not sellable");
 const popularSlugs = popularSizeSlugs(8);
 assert(popularSlugs.includes("16x25x2") && popularSlugs.includes("20x25x2"), "popular chips must include 16x25x2 and 20x25x2");
 assert(getFilterSize("20x25x4"), "20x25x4 is on the contractor sheet and must be shoppable");

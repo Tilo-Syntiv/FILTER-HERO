@@ -26,7 +26,7 @@ export {
 export type MervRating = 8 | 11 | 13;
 
 /** Bump when pack-shot files change so browsers do not keep a stale photo. */
-const PACK_SHOT_REV = "fh095";
+const PACK_SHOT_REV = "fh096";
 
 function productMedia(path: string): string {
   return `${path}?v=${PACK_SHOT_REV}`;

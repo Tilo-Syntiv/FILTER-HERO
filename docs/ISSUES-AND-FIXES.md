@@ -14,7 +14,20 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-244**
+Next id: **FH-245**
+
+---
+
+### FH-244 — Size page ignored `?merv=13` after another rating
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** `/sizes/20x25x1?merv=13` could stay on MERV 11 (and the MERV 11 pack shot) when the size page was already mounted or sessionStorage had another rating. The MERV effect only re-ran when the size list changed, so hero / chip / address-bar MERV 13 did not swap the gallery.
+- **Do NOT:** Keep MERV in `useState` updated only from `[availableTypes]`. Do not let the session stash beat a valid `?merv=` query.
+- **Do:** Derive the selected MERV from `useSearch()` with `resolvePreferredMerv`. URL wins over the session stash. Chip clicks write `?merv=`. Qty 1 / 12 still use `packShotSrc(13)`.
+- **Files:** `client/src/pages/SizeDetail.tsx`, `client/src/lib/merv-pref.ts`, `scripts/verify-store.ts`, `scripts/click-ui.ts`
+- **Verify:** `/sizes/20x25x1?merv=11` then `/sizes/20x25x1?merv=13` — MERV 13 chip pressed, gallery is `merv-13-packshot`. Homepage MERV 13 pack opens the same. `pnpm exec tsx scripts/verify-store.ts`.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
 
 ---
 
@@ -49,7 +62,7 @@ Next id: **FH-244**
 - **Area:** photos
 - **Symptom:** Homepage hero, size-page gallery, cart, emails, and schema used the Filter King branded MERV 11 pack shot (`pack-merv11.png` / `merv-11-packshot.png`). The leftover 6-pack and three-quarter files still showed the lion lockup.
 - **Do NOT:** Restore Filter King on `pack-merv11.png` or `merv-11-packshot.png`. Do not leave `PACK_SHOT_REV` / hero `ASSET` unbumped after swapping the files. Do not point MERV 11 hero, cart, or schema at `merv-11-thin-rectangle-6pack.png`. Do not let `scripts/label-pack-shots.py` overwrite `merv-11-packshot.png`.
-- **Do:** Official MERV 11 pack is the isolated red MERV 11 ADVANCED shot (no Filter King lockup). `packShotSrc(11)`, hero `pack-merv11.png` (RGBA cutout), `source/merv-11-packshot.png`, and shop 6-pack / 3/4 all come from that photo. Cache `?v=fh095` / `?v=fh170`. Layers exploded diagram stays — it has no lockup. Do not flood-fill the hero cutout so the white cardboard frame disappears (FH-060).
+- **Do:** Official MERV 11 pack is the isolated red MERV 11 ADVANCED shot (no Filter King lockup). `packShotSrc(11)`, hero `pack-merv11.png` (RGBA cutout on the 508×833 canvas), `source/merv-11-packshot.png`, and shop 6-pack / 3/4 all come from that photo. Cache `?v=fh096` / `?v=fh171`. Layers exploded diagram stays — it has no lockup. Do not flood-fill the hero cutout so the white cardboard frame disappears (FH-060).
 - **Files:** `client/public/hero/pack-merv11.png`, `client/public/products/merv-11-packshot.png`, `client/public/products/source/merv-11-packshot.png`, `client/public/products/merv-11-thin-rectangle-6pack.png`, `client/public/products/merv-11-thin-rectangle-no-labels.png`, `client/src/components/Hero.tsx`, `shared/products.ts`
 - **Verify:** `/` hero MERV 11 has no Filter King. `/sizes/20x25x1?merv=11` gallery hero matches. Cart thumbnail matches.
 - **Added:** 2026-09-17

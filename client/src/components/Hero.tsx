@@ -9,7 +9,7 @@ import { MERV_TYPES, isMervKeyOnSale } from "@shared/products";
 import { setPreferredMerv, type PreferredMerv } from "@/lib/merv-pref";
 import { useSiteConfig } from "@/contexts/SiteConfigContext";
 
-const ASSET = "?v=fh170";
+const ASSET = "?v=fh171";
 
 const COMPAT = [
   { slug: "trane", name: "Trane" },
