@@ -30,9 +30,13 @@ async function main() {
 
   await page.goto(BASE, { waitUntil: "domcontentloaded" });
   await page.getByText("Filter Hero", { exact: false }).first().waitFor({ timeout: 20000 });
+  const homeMerv11 = await page.locator('img[alt="Filter Hero MERV 11 advanced air filter"]').getAttribute("src");
+  if (!homeMerv11?.includes("/hero/pack-merv11.png")) {
+    throw new Error(`home MERV 11 hero must use pack-merv11.png, got ${homeMerv11}`);
+  }
   await record("home");
 
-  await page.getByRole("link", { name: /MERV 13 superior/i }).click();
+  await page.getByRole("link", { name: /MERV 13 superior/i }).click({ force: true });
   await page.waitForURL(/\/sizes\/20x25x1\?merv=13/, { timeout: 15000 });
   await page.locator('button[aria-pressed="true"]', { hasText: "MERV 13" }).first().waitFor();
   const merv13Src = await page.locator("img.product-shot").getAttribute("src");
@@ -48,9 +52,30 @@ async function main() {
 
   await page.getByRole("button", { name: /MERV 11 Pets/i }).click();
   await page.waitForURL(/merv=11/, { timeout: 8000 });
-  await page.getByRole("link", { name: "Filter Hero home" }).click();
+  await page.locator('button[aria-pressed="true"]', { hasText: "MERV 11" }).first().waitFor();
+  const merv11Src = await page.locator("img.product-shot").getAttribute("src");
+  if (!merv11Src?.includes("merv-11-packshot")) {
+    throw new Error(`MERV 11 gallery must use the official pack shot, got ${merv11Src}`);
+  }
+  await page.getByRole("button", { name: /^1 filter/i }).click();
+  const merv11Qty1 = await page.locator("img.product-shot").getAttribute("src");
+  if (merv11Qty1 !== merv11Src) {
+    throw new Error(`MERV 11 qty 1 must keep the same pack shot, got ${merv11Qty1}`);
+  }
+  await page.getByRole("button", { name: /^12\+ filters/i }).click();
+  const merv11Qty12 = await page.locator("img.product-shot").getAttribute("src");
+  if (merv11Qty12 !== merv11Src) {
+    throw new Error(`MERV 11 qty 12 must keep the same pack shot, got ${merv11Qty12}`);
+  }
+  await page.getByRole("button", { name: /add \d+ to cart/i }).first().click();
+  await page.getByText(/Added /i).first().waitFor({ timeout: 8_000 });
+  await page.locator("button.header-cart").click({ force: true });
+  const cartThumb = page.locator('img[src*="merv-11-packshot"]');
+  await cartThumb.first().waitFor({ timeout: 8000 });
+  await record("merv-11");
+  await page.goto(BASE, { waitUntil: "domcontentloaded" });
   await page.waitForURL((url) => url.pathname === "/", { timeout: 8000 });
-  await page.getByRole("link", { name: /MERV 13 superior/i }).click();
+  await page.getByRole("link", { name: /MERV 13 superior/i }).click({ force: true });
   await page.waitForURL(/\/sizes\/20x25x1\?merv=13/, { timeout: 15000 });
   await page.locator('button[aria-pressed="true"]', { hasText: "MERV 13" }).first().waitFor();
   const merv13Again = await page.locator("img.product-shot").getAttribute("src");

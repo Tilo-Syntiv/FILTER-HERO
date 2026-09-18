@@ -101,8 +101,8 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
   const guide = MERV_GUIDE[selectedType.key];
 
   useEffect(() => {
-    setShot((n) => Math.min(n, Math.max(0, gallery.length - 1)));
-  }, [selectedType.key, gallery.length]);
+    setShot(0);
+  }, [selectedType.key]);
   const variant: Product | undefined = findProductVariant(
     decoded,
     selectedType.merv,

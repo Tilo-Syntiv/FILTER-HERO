@@ -201,6 +201,18 @@ for (const page of pages) {
 const badContact = await post(`${API}/api/contact`, { name: "", email: "nope", message: "" });
 assert(badContact.res.status === 400, `invalid contact should 400, got ${badContact.res.status}`);
 
+const noToken = await post(`${API}/api/contact`, {
+  name: "Smoke Human",
+  email: "smoke-human@example.com",
+  message: "turnstile missing",
+  intent: "support",
+});
+assert(noToken.res.status === 400, `contact without Turnstile should 400, got ${noToken.res.status}`);
+assert(
+  (noToken.json as { code?: string })?.code === "bot_check_failed",
+  "a configured Turnstile must reject a missing token",
+);
+
 const trapped = await post(`${API}/api/contact`, {
   name: "Smoke Bot",
   email: "smoke-bot@example.com",

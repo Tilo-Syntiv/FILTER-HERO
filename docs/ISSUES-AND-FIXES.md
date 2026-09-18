@@ -14,7 +14,46 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-245**
+Next id: **FH-248**
+
+---
+
+### FH-247 — Turnstile loaded on every homepage view and skipped a missing token
+- **Status:** fixed
+- **Area:** contact
+- **Symptom:** Contact and quote forms mounted Cloudflare Turnstile immediately, so `/` logged hidden `challenges.cloudflare.com` `NaN` errors before the shopper reached the form. Local `/api/contact` with a configured secret still accepted a missing token. After a successful send the widget was not reset, so the next submit reused a spent token.
+- **Do NOT:** Call `render` before the field is near the viewport. Do not skip `shouldEnforceTurnstile` when a secret is set just because the body omitted `turnstileToken`. Do not require Turnstile on `intent=reminder`. Do not leave `error-callback` unset.
+- **Do:** Mount the explicit widget only when the host is near the viewport. Always-visible flexible light widget, expire/timeout reset, handled `error-callback`. Do not call `turnstile.ready()` with `api.js?render=explicit` + `async`. Client blocks send without a token when the site key is set, and reads `turnstile.getResponse()` on submit. Server verifies whenever a secret is configured (or production) and sends `remoteip`. Reset the widget after a successful send.
+- **Files:** `client/src/components/TurnstileField.tsx`, `client/src/components/ContactForm.tsx`, `client/src/components/CustomQuoteForm.tsx`, `server/security.ts`, `server/contact.ts`, `server/index.ts`, `scripts/verify-security.ts`, `scripts/smoke-site.ts`
+- **Verify:** `/` — no Turnstile script until `#contact` is near. `/#contact` and `/custom-air-filters` show the widget and mint a token. POST `/api/contact` without a token is `400 bot_check_failed`. Filter Clock reminder still posts. `pnpm verify:security`. `pnpm smoke`.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-246 — Resend verify never sent the real templates
+- **Status:** fixed
+- **Area:** contact
+- **Symptom:** `pnpm verify:resend` only probed a generic HTML email. A broken quote receipt, support receipt, or order confirmation could still pass. A sending-only API key 401ed on `emails.get` and looked like a failure.
+- **Do NOT:** Treat a probe-only send as proof the mailer works. Do not call `emails.get` with a send-only key. Do not email `info@filterhero.net` from verify.
+- **Do:** Send staff alert, quote receipt, support receipt, and order confirmation to `delivered@resend.dev`. `submitContact` honeypot / quote / clock runs with CRM and Klaviyo off. Skip GET when `/domains` is 401. Markup in names/messages is escaped. $0 tax is omitted; recorded tax is shown.
+- **Files:** `scripts/verify-resend.ts`, `server/mailer.ts`
+- **Verify:** `pnpm verify:resend`. Output includes send ids for staff, quote, support, and order.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-245 — Switching MERV left the gallery on the previous rating's thumb
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** On a size page, opening the mesh or layers thumb then choosing another MERV kept `shot` at 1 or 2. The new rating's pack shot never became the hero — shoppers still saw the shared close-up or the other rating's exploded view.
+- **Do NOT:** Only clamp `shot` to `gallery.length - 1` when the MERV key changes. Do not keep the previous thumb index across ratings.
+- **Do:** Reset `shot` to 0 whenever `selectedType.key` changes so the official pack shot is the hero for that MERV.
+- **Files:** `client/src/pages/SizeDetail.tsx`
+- **Verify:** `/sizes/20x25x1?merv=8` — click the mesh thumb, then MERV 13. Main image is `merv-13-packshot.png`.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
 
 ---
 
@@ -63,7 +102,7 @@ Next id: **FH-245**
 - **Symptom:** Homepage hero, size-page gallery, cart, emails, and schema used the Filter King branded MERV 11 pack shot (`pack-merv11.png` / `merv-11-packshot.png`). The leftover 6-pack and three-quarter files still showed the lion lockup.
 - **Do NOT:** Restore Filter King on `pack-merv11.png` or `merv-11-packshot.png`. Do not leave `PACK_SHOT_REV` / hero `ASSET` unbumped after swapping the files. Do not point MERV 11 hero, cart, or schema at `merv-11-thin-rectangle-6pack.png`. Do not let `scripts/label-pack-shots.py` overwrite `merv-11-packshot.png`.
 - **Do:** Official MERV 11 pack is the isolated red MERV 11 ADVANCED shot (no Filter King lockup). `packShotSrc(11)`, hero `pack-merv11.png` (RGBA cutout on the 508×833 canvas), `source/merv-11-packshot.png`, and shop 6-pack / 3/4 all come from that photo. Cache `?v=fh096` / `?v=fh171`. Layers exploded diagram stays — it has no lockup. Do not flood-fill the hero cutout so the white cardboard frame disappears (FH-060).
-- **Files:** `client/public/hero/pack-merv11.png`, `client/public/products/merv-11-packshot.png`, `client/public/products/source/merv-11-packshot.png`, `client/public/products/merv-11-thin-rectangle-6pack.png`, `client/public/products/merv-11-thin-rectangle-no-labels.png`, `client/src/components/Hero.tsx`, `shared/products.ts`
+- **Files:** `client/public/hero/pack-merv11.png`, `client/public/products/merv-11-packshot.png`, `client/public/products/source/merv-11-packshot.png`, `client/public/products/merv-11-thin-rectangle-6pack.png`, `client/public/products/merv-11-thin-rectangle-no-labels.png`, `client/src/components/Hero.tsx`, `shared/products.ts`, `scripts/click-ui.ts`
 - **Verify:** `/` hero MERV 11 has no Filter King. `/sizes/20x25x1?merv=11` gallery hero matches. Cart thumbnail matches.
 - **Added:** 2026-09-17
 - **Fixed:** 2026-09-17

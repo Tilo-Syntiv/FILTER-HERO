@@ -48,7 +48,7 @@ export type OrderMail = {
   } | null;
 };
 
-export type MailResult = { sent: boolean };
+export type MailResult = { sent: boolean; id?: string };
 
 type BuiltMail = {
   subject: string;
@@ -295,7 +295,7 @@ export function buildOrderConfirmation(order: OrderMail): BuiltMail | null {
           <p style="margin:0 0 16px;font-size:15px;line-height:1.5">Thanks for the order. ${BRAND_NAME} is getting your filters ready. Stripe will email the payment receipt separately — this is not a marketing message.</p>
           ${linesHtml}
           <p style="margin:0 0 4px;font-size:13px;color:${EMAIL_BRAND.muted}">Subtotal ${money(order.amountSubtotal, currency)}</p>
-          ${order.amountTax ? `<p style="margin:0 0 4px;font-size:13px;color:${EMAIL_BRAND.muted}">Tax ${money(order.amountTax, currency)}</p>` : ""}
+          ${typeof order.amountTax === "number" && order.amountTax > 0 ? `<p style="margin:0 0 4px;font-size:13px;color:${EMAIL_BRAND.muted}">Tax ${money(order.amountTax, currency)}</p>` : ""}
           <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:${EMAIL_BRAND.navy}">Total ${money(order.amountTotal, currency)}</p>
           ${ship.html}
           <p style="margin:0;font-size:13px;color:${EMAIL_BRAND.muted}">Order ${escapeEmailHtml(order.id)}</p>`,
@@ -332,7 +332,7 @@ async function sendBuilt(
     console.info("[mailer] RESEND_API_KEY not set — skip send", mail.subject);
     return { sent: false };
   }
-  const { error } = await resend.emails.send(
+  const { data, error } = await resend.emails.send(
     {
       from: emailFromAddress(),
       to: [mail.to],
@@ -347,7 +347,7 @@ async function sendBuilt(
     console.error("[mailer] resend", error);
     return { sent: false };
   }
-  return { sent: true };
+  return { sent: true, id: data?.id };
 }
 
 /** Staff inbox only. Clock saves still alert staff; they never email the shopper. */

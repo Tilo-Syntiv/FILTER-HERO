@@ -1,5 +1,7 @@
 import "dotenv/config";
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { Resend } from "resend";
 import { BRAND_EMAIL, BRAND_NAME } from "../shared/const.ts";
 import {
@@ -15,6 +17,9 @@ import {
   buildContactReceipt,
   buildLeadAlert,
   buildOrderConfirmation,
+  sendContactReceipt,
+  sendLeadAlert,
+  sendOrderConfirmation,
 } from "../server/mailer.ts";
 
 function assert(cond: unknown, message: string): asserts cond {
@@ -117,6 +122,64 @@ assertBranded(orderMail.html, "order confirmation");
 assert(orderMail.html.includes("20x25x1"), "order confirmation lists the size");
 assert(orderMail.html.includes("/products/merv-8-packshot.png"), "order confirmation uses the pack shot");
 assert(orderMail.subject.includes(BRAND_NAME), "order subject is Filter Hero");
+assert(orderMail.html.includes("1 Market St"), "order confirmation includes the ship-to street");
+assert(!orderMail.html.includes(">Tax "), "zero tax is omitted");
+
+const xssLead = {
+  ...quoteLead,
+  id: "verify-xss",
+  name: `Ada <img src=x onerror=alert(1)>`,
+  message: `<script>alert("xss")</script>`,
+};
+const xssAlert = buildLeadAlert(xssLead);
+assert(xssAlert.html.includes("&lt;script&gt;"), "staff HTML escapes the message");
+assert(!xssAlert.html.includes("<script>"), "staff HTML must not execute message markup");
+assert(xssAlert.html.includes("&lt;img"), "staff HTML escapes the name");
+
+const supportReceipt = buildContactReceipt({ ...quoteLead, intent: "support" });
+assert(supportReceipt, "support builds a shopper receipt");
+assertBranded(supportReceipt.html, "support receipt");
+assert(supportReceipt.subject.includes("message"), "support subject is not a quote");
+
+const taxed = buildOrderConfirmation({
+  id: "ord_tax",
+  sessionId: "cs_test_tax",
+  customerEmail: "ada@example.com",
+  amountSubtotal: 4594,
+  amountTax: 367,
+  amountTotal: 4961,
+  currency: "usd",
+  items: JSON.stringify([{ productId: variant.id, quantity: 6 }]),
+  shipping: null,
+});
+assert(taxed, "taxed order builds");
+assert(taxed.html.includes("Tax "), "tax line shows when Stripe recorded tax");
+assert(
+  !buildOrderConfirmation({
+    id: "ord_none",
+    sessionId: "cs_test_none",
+    customerEmail: null,
+    amountSubtotal: 100,
+    amountTax: 0,
+    amountTotal: 100,
+    currency: "usd",
+    items: "[]",
+  }),
+  "no email means no confirmation",
+);
+assert(
+  !buildOrderConfirmation({
+    id: "ord_blank",
+    sessionId: "cs_test_blank",
+    customerEmail: "  ",
+    amountSubtotal: 100,
+    amountTax: 0,
+    amountTotal: 100,
+    currency: "usd",
+    items: "[]",
+  }),
+  "blank email means no confirmation",
+);
 
 async function resendGet(path: string): Promise<{ status: number; body: Json }> {
   const res = await fetch(`https://api.resend.com${path}`, {
@@ -142,6 +205,8 @@ if (domainStatus === 200) {
 } else {
   throw new Error(`/domains returned ${domainStatus}: ${JSON.stringify(domainsBody)}`);
 }
+
+const sendingOnly = domainStatus === 401 || domainStatus === 403;
 
 console.log(`API key: ${redactKey(apiKey)}`);
 console.log(`RESEND_FROM: ${from}`);
@@ -174,4 +239,110 @@ if (error) {
 }
 assert(data?.id, "send returned no email id");
 console.log(`Branded probe sent to delivered@resend.dev id=${data.id}`);
+
+const savedTo = process.env.CONTACT_TO;
+process.env.CONTACT_TO = "delivered@resend.dev";
+const stamp = Date.now();
+const liveLead = {
+  ...quoteLead,
+  id: `qa-quote-${stamp}`,
+  email: "delivered@resend.dev",
+  name: "Resend QA",
+  message: "Ignore — local Resend brand QA.",
+};
+const staffSend = await sendLeadAlert(liveLead);
+assert(staffSend.sent, `staff alert send failed${staffSend.id ? ` id=${staffSend.id}` : ""}`);
+const quoteSend = await sendContactReceipt(liveLead);
+assert(quoteSend.sent, "quote receipt send failed");
+const supportSend = await sendContactReceipt({ ...liveLead, id: `qa-support-${stamp}`, intent: "support" });
+assert(supportSend.sent, "support receipt send failed");
+const reminderSend = await sendContactReceipt({ ...liveLead, id: `qa-clock-${stamp}`, intent: "reminder" });
+assert(!reminderSend.sent, "Filter Clock must not send a shopper receipt");
+const orderSend = await sendOrderConfirmation({
+  id: `ord_qa_${stamp}`,
+  sessionId: `cs_test_qa_${stamp}`,
+  customerEmail: "delivered@resend.dev",
+  amountSubtotal: 4594,
+  amountTax: 0,
+  amountTotal: 4594,
+  currency: "usd",
+  items: JSON.stringify([{ productId: variant.id, quantity: 6 }]),
+  shipping: {
+    name: "Resend QA",
+    address: { line1: "1 Market St", city: "San Francisco", state: "CA", postal_code: "94105" },
+  },
+});
+assert(orderSend.sent, "order confirmation send failed");
+if (savedTo) process.env.CONTACT_TO = savedTo;
+else delete process.env.CONTACT_TO;
+
+if (!sendingOnly) {
+  for (const [label, id] of [
+    ["probe", data.id],
+    ["staff", staffSend.id],
+    ["quote", quoteSend.id],
+    ["support", supportSend.id],
+    ["order", orderSend.id],
+  ] as const) {
+    if (!id) continue;
+    const got = await resend.emails.get(id);
+    if (got.error) throw new Error(`GET ${label} failed: ${got.error.message}`);
+    assert(got.data?.id === id, `${label} GET id mismatch`);
+    const fromField = Array.isArray(got.data.from) ? got.data.from.join(" ") : String(got.data.from || "");
+    assert(
+      fromField.toLowerCase().includes("filterhero.net"),
+      `${label} From must be filterhero.net, got ${fromField || "(empty)"}`,
+    );
+    console.log(`${label} accepted id=${id} last_event=${got.data.last_event ?? "n/a"}`);
+  }
+} else {
+  console.log("Skip email GET (sending-only key). Send ids:");
+  console.log(`  staff=${staffSend.id} quote=${quoteSend.id} support=${supportSend.id} order=${orderSend.id}`);
+}
+
+const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "fh-resend-"));
+const prevDataDir = process.env.DATA_DIR;
+const prevCrm = process.env.CRM_DISABLE;
+const prevKlaviyo = process.env.KLAVIYO_DISABLE;
+process.env.DATA_DIR = dataDir;
+process.env.CRM_DISABLE = "1";
+process.env.KLAVIYO_DISABLE = "1";
+process.env.CONTACT_TO = "delivered@resend.dev";
+const { submitContact } = await import("../server/contact.ts");
+const trapped = await submitContact({
+  name: "Smoke Bot",
+  email: "smoke-bot@example.com",
+  message: "honeypot",
+  intent: "support",
+  website: "http://spam.example",
+});
+assert(trapped.ok && trapped.id === "ignored" && trapped.emailed === false, "honeypot must not mail");
+const quotePosted = await submitContact({
+  name: "Resend QA",
+  email: "delivered@resend.dev",
+  message: "Ignore — submitContact brand QA.",
+  intent: "quote",
+  filterSize: "20x25x1",
+});
+assert(quotePosted.ok && quotePosted.emailed, "quote submitContact must send the staff alert");
+const clockPosted = await submitContact({
+  name: "Filter Clock reminder",
+  email: "delivered@resend.dev",
+  message: "Clock cadence saved (no shopper email).",
+  intent: "reminder",
+  marketingConsent: false,
+  cadence: { next_change_date: "2026-12-16", change_interval_days: 90, house_type: "pet" },
+});
+assert(clockPosted.ok && clockPosted.emailed, "clock save still alerts staff");
+if (prevDataDir) process.env.DATA_DIR = prevDataDir;
+else delete process.env.DATA_DIR;
+if (prevCrm) process.env.CRM_DISABLE = prevCrm;
+else delete process.env.CRM_DISABLE;
+if (prevKlaviyo) process.env.KLAVIYO_DISABLE = prevKlaviyo;
+else delete process.env.KLAVIYO_DISABLE;
+if (savedTo) process.env.CONTACT_TO = savedTo;
+else delete process.env.CONTACT_TO;
+fs.rmSync(dataDir, { recursive: true, force: true });
+console.log(`submitContact quote id=${quotePosted.id} clock id=${clockPosted.id}`);
+
 console.log("Resend checks passed.");

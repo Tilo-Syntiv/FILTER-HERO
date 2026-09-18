@@ -29,6 +29,7 @@ export function isHoneypotTripped(value: string | undefined | null): boolean {
 
 export async function verifyTurnstile(
   token: string | undefined,
+  ip?: string,
 ): Promise<{ ok: boolean }> {
   const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
   if (!secret) {
@@ -37,10 +38,12 @@ export async function verifyTurnstile(
   }
   if (!token?.trim()) return { ok: false };
   try {
+    const body = new URLSearchParams({ secret, response: token.trim() });
+    if (ip?.trim()) body.set("remoteip", ip.trim());
     const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ secret, response: token.trim() }),
+      body,
     });
     const data = (await res.json()) as { success?: boolean };
     return { ok: Boolean(data.success) };
@@ -50,14 +53,11 @@ export async function verifyTurnstile(
   }
 }
 
-export function shouldEnforceTurnstile(
-  intent: string,
-  token: string | undefined,
-): boolean {
+/** Clock reminders stay widget-free. Everywhere else, a configured secret (or production) must check. */
+export function shouldEnforceTurnstile(intent: string): boolean {
   if (intent === "reminder") return false;
-  const secret = Boolean(process.env.TURNSTILE_SECRET_KEY?.trim());
-  const isProd = process.env.NODE_ENV === "production";
-  return isProd || (secret && Boolean(token?.trim()));
+  if (process.env.NODE_ENV === "production") return true;
+  return Boolean(process.env.TURNSTILE_SECRET_KEY?.trim());
 }
 
 export function sanitizeIdentifyProperties(

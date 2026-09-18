@@ -61,13 +61,13 @@ async function sendLeadEmail(lead: ContactPayload & { id: string }) {
   return { emailed: staff.sent };
 }
 
-export async function submitContact(raw: unknown) {
+export async function submitContact(raw: unknown, ip?: string) {
   const parsed = contactSchema.parse(raw);
   if (isHoneypotTripped(parsed.website)) {
     return { ok: true as const, id: "ignored", emailed: false as const };
   }
-  if (shouldEnforceTurnstile(parsed.intent, parsed.turnstileToken || undefined)) {
-    const human = await verifyTurnstile(parsed.turnstileToken || undefined);
+  if (shouldEnforceTurnstile(parsed.intent)) {
+    const human = await verifyTurnstile(parsed.turnstileToken || undefined, ip);
     if (!human.ok) {
       throw new Error("Could not verify that form.");
     }

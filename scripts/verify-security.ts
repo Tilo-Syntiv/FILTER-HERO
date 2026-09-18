@@ -66,6 +66,16 @@ async function main() {
     "production allows HTTPS Klaviyo",
   );
   assert(
+    prodHeaders["Content-Security-Policy"].includes(
+      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+    ),
+    "production CSP allows the Turnstile script",
+  );
+  assert(
+    prodHeaders["Content-Security-Policy"].includes("frame-src https://challenges.cloudflare.com"),
+    "production CSP allows the Turnstile iframe",
+  );
+  assert(
     !prodHeaders["Content-Security-Policy"].includes("http://*.klaviyo.com"),
     "production must not allow plaintext Klaviyo",
   );
@@ -150,28 +160,17 @@ async function main() {
   delete process.env.TURNSTILE_SECRET_KEY;
   process.env.NODE_ENV = "development";
   assert((await verifyTurnstile(undefined)).ok, "local Turnstile can be skipped");
-  assert(
-    !shouldEnforceTurnstile("quote", undefined),
-    "local quotes without a token skip the widget",
-  );
-  assert(
-    !shouldEnforceTurnstile("reminder", "token"),
-    "Filter Clock reminders never need Turnstile",
-  );
+  assert(!shouldEnforceTurnstile("quote"), "local quotes without a secret skip the widget");
+  assert(!shouldEnforceTurnstile("reminder"), "Filter Clock reminders never need Turnstile");
 
   process.env.NODE_ENV = "production";
   assert(!(await verifyTurnstile(undefined)).ok, "production without a secret fails closed");
-  assert(shouldEnforceTurnstile("quote", undefined), "production quotes always check Turnstile");
-  assert(
-    !shouldEnforceTurnstile("reminder", undefined),
-    "reminders stay widget-free in production",
-  );
+  assert(shouldEnforceTurnstile("quote"), "production quotes always check Turnstile");
+  assert(!shouldEnforceTurnstile("reminder"), "reminders stay widget-free in production");
   process.env.TURNSTILE_SECRET_KEY = "0x_test_secret";
   assert(!(await verifyTurnstile(undefined)).ok, "a configured Turnstile rejects a missing token");
-  assert(
-    shouldEnforceTurnstile("quote", "tok"),
-    "dev with a secret and token enforces Turnstile",
-  );
+  process.env.NODE_ENV = "development";
+  assert(shouldEnforceTurnstile("quote"), "dev with a secret always checks Turnstile");
 
   process.env.NODE_ENV = savedNodeEnv;
   if (savedTurnstile === undefined) delete process.env.TURNSTILE_SECRET_KEY;

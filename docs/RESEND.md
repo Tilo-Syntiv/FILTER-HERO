@@ -39,4 +39,4 @@ Sending domain is `filterhero.net` / `send.filterhero.net`. Klaviyo already uses
 
 ## Verify
 
-`pnpm verify:resend` checks the From address, domain, branded HTML (logo + navy + burgundy), then sends a probe to `delivered@resend.dev`.
+`pnpm verify:resend` checks the From address, domain, branded HTML (logo + navy + burgundy), sends staff / quote / support / order templates to `delivered@resend.dev`, then runs `submitContact` (honeypot, quote, Filter Clock) with CRM and Klaviyo off.
