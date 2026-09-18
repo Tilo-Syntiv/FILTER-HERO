@@ -4,8 +4,9 @@ import { requireStaff } from "../auth";
 import { accountHealth, crmHealth } from "../db";
 import { klaviyoHealth } from "../klaviyo";
 import { ensureKlaviyoStripeWebhook, klaviyoStripeStatus } from "../klaviyo-stripe";
-import { adminLimiter, publicError } from "../security";
 import { getStripe } from "../stripe";
+import { readStripeTaxReadiness } from "../../shared/stripe-tax";
+import { adminLimiter, publicError } from "../security";
 import { loadSiteConfig, saveSiteConfig } from "./config";
 import { intuitOAuth } from "../intuit/oauth";
 import {
@@ -235,6 +236,7 @@ export function adminRouter(): Router {
       sendData(res, {
         ...settingsSnapshot(),
         klaviyoStripe: await klaviyoStripeStatus(),
+        stripeTax: await readStripeTaxReadiness(getStripe()),
       });
     } catch (err) {
       const { status, body } = publicError(

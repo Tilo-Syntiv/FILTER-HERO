@@ -14,7 +14,169 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-248**
+Next id: **FH-260**
+
+---
+
+### FH-259 — Hero MERV packs needed another quarter-inch drop
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** After FH-257 the four packs still sat a tad high over the 30+ brand strip.
+- **Do NOT:** Use `bottom: calc(25% + 0.75in)` or `bottom: 25%`. Do not move the brand row with the packs.
+- **Do:** Keep the lineup a half inch above the old floor (`bottom: calc(25% + 0.5in)`).
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — four packs sit a quarter inch lower than FH-257, still above the 30+ brand row.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+- **Supersedes:** FH-257
+
+---
+
+### FH-258 — Hero 30+ brand strip sat a quarter inch too low
+- **Status:** fixed
+- **Area:** brands
+- **Symptom:** The “Guaranteed to fit 30+ major brands” row sat a tad low under the four packs.
+- **Do NOT:** Park `.hero-brands` at `bottom: 6%` or `bottom: 2.5%`. Do not move the MERV packs with this strip.
+- **Do:** Keep the strip a quarter inch higher (`bottom: calc(6% + 0.25in)`). Packs stay above; marquee stays below.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — brand row sits a quarter inch closer to the packs, still showing five logos.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+- **Supersedes:** FH-110
+
+---
+
+### FH-257 — Hero MERV packs needed a quarter-inch drop after FH-256
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** After raising the four packs a full inch, they sat a tad high.
+- **Do NOT:** Use `bottom: calc(25% + 1in)` or drop back to `bottom: 25%`. Do not move the brand row with the packs.
+- **Do:** Keep the lineup three-quarters of an inch above the old floor (`bottom: calc(25% + 0.75in)`).
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — four packs sit a quarter inch lower than FH-256, still above the 30+ brand row.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+- **Supersedes:** FH-256
+
+---
+
+### FH-256 — Hero MERV packs sat about an inch too low
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The four home-hero packs (MERV 8, Carbon, 11, 13) sat low in the right column.
+- **Do NOT:** Drop `.hero-pack-row` back to `bottom: 25%` (or the short-desktop copy of that). Do not raise the brand row with the packs.
+- **Do:** Keep the lineup one inch higher (`bottom: calc(25% + 1in)`). Claim stays above, brands stay below.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — four packs sit about an inch higher, with clear space above the 30+ brand row.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+- **Superseded by:** FH-257
+
+---
+
+### FH-255 — Header custom tab shortened to Custom below 2xl
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** The burgundy header tab next to FIND said **CUSTOM** on laptop widths. Full copy **NEED A CUSTOM SIZE** only appeared at `2xl`.
+- **Do NOT:** Split the label with `2xl:hidden` / `hidden 2xl:inline`. Do not use Custom, Custom size, or a second finder.
+- **Do:** One button, **Need a custom size** (uppercase via `.header-find-btn`), to `/custom-air-filters#custom-quote` at every desktop width.
+- **Files:** `client/src/components/SiteHeader.tsx`, `client/src/index.css`
+- **Verify:** Header at ~1280px and 1536px reads NEED A CUSTOM SIZE. Click opens the quote form. Mobile sheet already used the full phrase.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+- **Supersedes:** FH-034
+
+---
+
+### FH-254 — Stripe Checkout still prints Free next to a $0 shipping option
+- **Status:** open
+- **Area:** cart
+- **Symptom:** Shop copy no longer says free shipping (FH-253). Hosted Checkout still shows the rate as **Shipping** with price **Free**, because `shipping_options` is a `$0` fixed amount. Stripe labels a zero-dollar shipping rate Free.
+- **Do NOT:** Put “Free shipping” back in `display_name`. Do not invent a freight charge. Do not drop `shipping_options` while `shipping_address_collection` is on — Checkout requires a rate.
+- **Do:** Keep the option labeled Shipping. To stop Stripe from printing Free, set a paid `fixed_amount` once freight is known.
+- **Files:** `server/stripe.ts`, `scripts/debug-stripe-checkout.ts`, `scripts/click-ui.ts`
+- **Verify:** Start checkout from the cart. Order summary: Shipping / Free. Cart drawer: Shipping At checkout. `pnpm check`. `pnpm browse`.
+- **Added:** 2026-09-18
+
+---
+
+### FH-253 — Free shipping was still promised on the shop
+- **Status:** fixed
+- **Area:** cart
+- **Symptom:** Marquee, trust tiles, delivery copy, size-page chips, footer, cart, Stripe Checkout, FAQ, meta, JSON-LD, and `/llms.txt` all said free shipping.
+- **Do NOT:** Put “free shipping” back on any shopper surface, including Stripe `display_name`, OfferShippingDetails `$0`, FAQ, or the FREE DELIVERY truck graphic.
+- **Do:** Talk about 2-day delivery and contiguous-US fulfillment only. Cart says Shipping at checkout. Checkout shipping option is labeled Shipping. Size Offers keep the 30-day return policy and omit a `$0` shipping rate.
+- **Files:** `shared/seo.ts`, `client/index.html`, `client/src/components/TrustMarquee.tsx`, `client/src/components/TrustSection.tsx`, `client/src/components/DeliverySection.tsx`, `client/src/components/CartDrawer.tsx`, `client/src/pages/Home.tsx`, `client/src/pages/SizeDetail.tsx`, `server/stripe.ts`, `server/data/site-config.json`, `docs/STRIPE-BOOKS.md`
+- **Verify:** Homepage, `/#delivery`, `/sizes/20x25x1`, cart, `/custom-air-filters` FAQ. `pnpm verify:store`. `pnpm verify:json`. Stripe Checkout lists Shipping, not Free shipping.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+- **Supersedes:** FH-177, FH-178, FH-186
+
+---
+
+### FH-252 — Size page only sold 1, 2, 4, 6, or 12 filters
+- **Status:** fixed
+- **Area:** catalog
+- **Symptom:** `/sizes/…` Select quantity only offered pack breaks 1, 2, 4, 6, and 12. Shoppers who needed 3, 5, or 7–11 could not pick those counts.
+- **Do NOT:** Replace the volume ladder with a 12-chip grid. Do not squeeze the original pack cards beside the stepper in the buy column — they wrap and clip.
+- **Do:** One qty card: − / 1–12 / + on the left, Qty / Each / Savings ladder (1, 2, 4, 6+, 12+) on the right. Live ladder unit prices still apply (3 uses the 2-filter rung, 5 uses 4, 7–11 use 6, 12 uses 12). Default and “Most popular” stay 6; “Best value” stays 12. Pack stepper aria-labels are “Decrease/Increase pack quantity” so they do not collide with cart ±.
+- **Files:** `shared/products.ts`, `client/src/pages/SizeDetail.tsx`, `client/src/index.css`, `client/src/lib/merv-pref.ts`, `scripts/click-ui.ts`, `scripts/verify-store.ts`
+- **Verify:** `/sizes/20x25x1` — stepper 1–12 beside the 5-rung table. Pack total follows the matching rung. `pnpm verify:store`. `pnpm browse`.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+### FH-251 — Checkout collected no sales tax (Stripe Tax was off)
+- **Status:** fixed
+- **Area:** cart
+- **Symptom:** Hosted Checkout charged the exclusive catalog price. `automatic_tax` was hard-off (FH-211) so QuickBooks could only book tax after the charge. Shoppers never paid sales tax.
+- **Do NOT:** Hard-code `automatic_tax.enabled=false`. Do not force it on while Tax Settings are `pending` (FH-139 400). Do not let QBO Automated Sales Tax recalculate a sale Stripe already taxed. Do not invent a `txcd_` — filters stay `txcd_99999999`, shipping `txcd_92010001`.
+- **Do:** Enable `automatic_tax` when Tax Settings are `active`. Keep Customer + Invoice + exclusive prices. Add Dashboard registrations for each state already registered to collect. Staff `/admin/settings` shows head office, automatic tax, and collecting registrations.
+- **Files:** `server/stripe.ts`, `shared/stripe-tax.ts`, `server/admin/routes.ts`, `client/src/pages/admin/Settings.tsx`, `scripts/debug-stripe-checkout.ts`, `scripts/verify-stripe-books.ts`, `docs/STRIPE-BOOKS.md`, `README.md`
+- **Verify:** `pnpm verify:stripe-books`. `pnpm debug:stripe-checkout` — session `automatic_tax.enabled` is true once Tax Settings are active. Start checkout, enter a ship-to in a registered state, confirm the Tax line before pay.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+- **Supersedes:** FH-211
+
+---
+
+### FH-250 — One-rating size pages left the MERV chip in a four-column hole
+- **Status:** fixed
+- **Area:** catalog
+- **Symptom:** `/sizes/14x25x1` only sells MERV 8, but `.pdp-merv-row` was `repeat(4)`. The chip sat at ~125px on a 522px row.
+- **Do NOT:** Hard-code four columns on Choose MERV. Do not use `auto-fit` + `minmax(8rem)` — four chips wrap on the buy column.
+- **Do:** Set `--merv-cols` from `availableTypes.length`. Desktop uses that count. Mobile uses `min(2, var(--merv-cols))`.
+- **Files:** `client/src/pages/SizeDetail.tsx`, `client/src/index.css`, `scripts/click-ui.ts`
+- **Verify:** `/sizes/14x25x1` chip fills the row. `/sizes/20x25x1` stays 4-across desktop / 2×2 mobile. `pnpm browse`.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-249 — Capture note stayed gray after a MERV chip was chosen
+- **Status:** fixed
+- **Area:** catalog
+- **Symptom:** On a size page, the Capture box under Choose MERV stayed the same cool gray no matter which rating was pressed. The chips already washed to navy / charcoal / red / gold.
+- **Do NOT:** Hard-code `.pdp-merv-note` to `rgba(232, 237, 244, 0.7)`. Do not leave the Capture label on `--mesh` when the selected rating has a badge color.
+- **Do:** Pass `--merv-wash` from `selectedType.badgeColor` and tint the note at the same ~20% wash as the chips. Color the Capture label with that wash. PDP dots use the badge color so Carbon is charcoal, not ice.
+- **Files:** `client/src/pages/SizeDetail.tsx`, `client/src/index.css`, `client/src/components/CaptureDots.tsx`
+- **Verify:** `/sizes/20x25x1` — click MERV 8, Carbon, 11, 13. Capture box and CAPTURE label follow the pressed chip.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
+
+---
+
+### FH-248 — MERV picker chips sat on white instead of their rating color
+- **Status:** fixed
+- **Area:** catalog
+- **Symptom:** On a size page, Choose MERV showed a white row under the colored MERV 8 / Carbon / 11 / 13 badges. Shoppers could not tell the ratings apart from the card body.
+- **Do NOT:** Leave `.pdp-merv` on a shared white row. Do not fill the card with solid `badgeColor` — the wash is too heavy and white type fails on MERV 13 gold.
+- **Do:** Tint each chip with a translucent `--merv-wash` (`badgeColor` at ~20%, a bit stronger on hover/active). Keep name and best-for on `--deep` / muted. Active chip rings with the rating color.
+- **Files:** `client/src/index.css`
+- **Verify:** `/sizes/20x25x1` — MERV 8 navy, Carbon black, MERV 11 red, MERV 13 gold. Click each rating; pressed chip keeps its color and shows the ring.
+- **Added:** 2026-09-17
+- **Fixed:** 2026-09-17
 
 ---
 
@@ -1750,6 +1912,7 @@ Next id: **FH-248**
 
 ### FH-110 — Hero brand row sat low and only showed three marks
 - **Status:** mitigated
+- **Superseded by:** FH-258 (quarter-inch raise of the 30+ brand strip)
 - **Area:** brands
 - **Symptom:** The “Filter King also fits 30+ major brands” strip sat too close to the marquee and only showed Trane, Carrier, and Rheem.
 - **Do NOT:** Park `.hero-brands` at `bottom: 2.5%`. Do not drop Goodman or Lennox from the hero marks.
@@ -2667,7 +2830,8 @@ Next id: **FH-248**
 - **Added:** 2026-08-20
 
 ### FH-034 — Custom CTA should read Need a custom size
-- **Status:** mitigated
+- **Status:** fixed
+- **Superseded by:** FH-255 (short Custom label at laptop widths)
 - **Area:** header
 - **Symptom:** Button says `Custom size`.
 - **Do NOT:** Use Custom size or a second finder.

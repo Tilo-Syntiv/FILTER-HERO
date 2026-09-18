@@ -108,7 +108,7 @@ function ContentForm({
           className="mt-3"
           value={announcement}
           onChange={(event) => setAnnouncement(event.target.value)}
-          placeholder="Free shipping on every order"
+          placeholder="New sizes just added"
           rows={2}
         />
       </AdminPanel>

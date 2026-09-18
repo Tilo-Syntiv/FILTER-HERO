@@ -21,10 +21,9 @@ export default function TrustSection() {
   }[] = [
     {
       icon: Truck,
-      title: "FREE SHIPPING",
-      description: "Every order in the contiguous US — clean air shouldn't wait",
-      photo: LIFE.freeShipping,
-      graphic: true,
+      title: "2-day delivery",
+      description: "Four US fulfillment centers — about 80% of the country in two days",
+      photo: LIFE.installWall,
     },
     {
       icon: ShieldCheck,
@@ -55,9 +54,9 @@ export default function TrustSection() {
             Built for an exact-fit buy — and the people at home
           </h2>
           <p className="mt-3 max-w-xl text-muted-foreground leading-relaxed">
-            Free shipping, a 30-day fit guarantee, and real humans if the
-            label is unreadable. The point is cleaner air for kids, pets, and
-            anyone who sleeps in the house.
+            A 30-day fit guarantee and real humans if the label is
+            unreadable. The point is cleaner air for kids, pets, and anyone
+            who sleeps in the house.
           </p>
         </div>
 

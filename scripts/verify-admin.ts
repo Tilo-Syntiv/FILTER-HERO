@@ -87,6 +87,7 @@ async function main() {
     adminRoutes.includes("/klaviyo-stripe/connect"),
     "staff settings can create the Klaviyo Stripe webhook",
   );
+  assert(adminRoutes.includes("stripeTax:"), "staff settings expose Stripe Tax readiness");
 
   for (const pathName of [
     "/admin",

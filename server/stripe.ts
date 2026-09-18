@@ -6,7 +6,11 @@ import {
   mappedStripeProductId,
   stripeKeyIsLive,
 } from "../shared/stripe-catalog";
-import { productTaxCode } from "../shared/stripe-tax";
+import {
+  productTaxCode,
+  readStripeTaxReadiness,
+  SHIPPING_TAX_CODE,
+} from "../shared/stripe-tax";
 import { recordPurchaseOnAccount } from "./account";
 import { closeDealsOnPurchase } from "./crm/intake";
 import { dataFile } from "./data-store";
@@ -212,6 +216,12 @@ export async function createCheckoutSession(
   const itemsMeta = compactItemsMeta(items);
   const email = shopper?.email?.trim().toLowerCase();
   const customerId = email ? await findCustomerIdByEmail(stripe, email) : null;
+  const tax = await readStripeTaxReadiness(stripe);
+  if (tax.automaticTax && !tax.collecting) {
+    console.warn(
+      "[checkout] Stripe Tax is on, but there is no active registration. Checkout will charge $0 tax until one is added.",
+    );
+  }
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -224,13 +234,15 @@ export async function createCheckoutSession(
         shipping_rate_data: {
           type: "fixed_amount",
           fixed_amount: { amount: 0, currency: "usd" },
-          display_name: "Free shipping",
+          display_name: "Shipping",
+          tax_behavior: "exclusive",
+          tax_code: SHIPPING_TAX_CODE,
         },
       },
     ],
     phone_number_collection: { enabled: true },
     invoice_creation: { enabled: true },
-    automatic_tax: { enabled: false },
+    automatic_tax: { enabled: tax.automaticTax },
     ...(customerId
       ? {
           customer: customerId,

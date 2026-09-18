@@ -1,6 +1,14 @@
 import "dotenv/config";
 import Stripe from "stripe";
-import { TANGIBLE_GOODS_TAX_CODE, productTaxCode } from "../shared/stripe-tax.ts";
+import {
+  SHIPPING_TAX_CODE,
+  TANGIBLE_GOODS_TAX_CODE,
+  ensureStripeTaxDefaults,
+  productTaxCode,
+  readStripeTaxReadiness,
+  shouldEnableAutomaticTax,
+  taxRegistrationsCollecting,
+} from "../shared/stripe-tax.ts";
 import { compactItemsMeta, orderFromCheckoutSession } from "../server/stripe.ts";
 
 function assert(cond: unknown, message: string): asserts cond {
@@ -9,6 +17,15 @@ function assert(cond: unknown, message: string): asserts cond {
 
 assert(productTaxCode() === TANGIBLE_GOODS_TAX_CODE, "default tax code must be tangible goods");
 assert(TANGIBLE_GOODS_TAX_CODE === "txcd_99999999", "canonical Stripe General - Tangible Goods");
+assert(SHIPPING_TAX_CODE === "txcd_92010001", "canonical Stripe Shipping tax code");
+assert(shouldEnableAutomaticTax("active") === true, "active Tax Settings enable automatic_tax");
+assert(shouldEnableAutomaticTax("pending") === false, "pending Tax Settings leave automatic_tax off");
+assert(shouldEnableAutomaticTax(null) === false, "missing Tax Settings leave automatic_tax off");
+assert(taxRegistrationsCollecting([{ status: "active" }]) === true, "active registration collects");
+assert(
+  taxRegistrationsCollecting([{ status: "expired" }, { status: "scheduled" }]) === false,
+  "expired or scheduled registrations do not collect",
+);
 
 const compact = compactItemsMeta(
   Array.from({ length: 40 }, (_, i) => ({ productId: i + 1, quantity: 1 })),
@@ -47,9 +64,25 @@ async function checkLiveTax() {
   }
 
   const stripe = new Stripe(key);
-  console.log("Checkout does not enable Stripe Tax (no calculation fee).");
-  console.log("Sales tax is QuickBooks Online Automated Sales Tax + the Stripe Connector.");
-  console.log("Dashboard: turn off Tax → Integrations automatic collection if it is still on.");
+  await ensureStripeTaxDefaults(stripe);
+  const tax = await readStripeTaxReadiness(stripe);
+  console.log(
+    `Tax Settings ${tax.settingsStatus ?? "unknown"} · automatic_tax ${tax.automaticTax ? "on" : "off"} · collecting ${tax.collecting ? "yes" : "no"}`,
+  );
+  if (tax.registrations.length) {
+    console.log(
+      `Registrations: ${tax.registrations
+        .map((row) => `${row.country}${row.state ? `-${row.state}` : ""} (${row.status})`)
+        .join(", ")}`,
+    );
+  }
+  assert(tax.headOfficeReady && tax.settingsStatus === "active", "set a head office in Tax Settings");
+  assert(tax.automaticTax, "Checkout must enable automatic_tax when Tax Settings are active");
+  assert(
+    tax.collecting,
+    "add at least one active Tax registration or Checkout charges $0 tax",
+  );
+
   const hooks = await stripe.webhookEndpoints.list({ limit: 20 });
   const fulfillment = hooks.data.find((hook) => hook.url.includes("/api/stripe/webhook"));
   if (fulfillment && fulfillment.status === "enabled") {

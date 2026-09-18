@@ -22,6 +22,7 @@ import {
   mervTypesForSize,
   packShotSrc,
   packTotal,
+  PACK_QTYS,
   popularSizeSlugs,
   productGalleryFor,
   sellableSheetProducts,
@@ -40,24 +41,25 @@ function assert(cond: unknown, message: string): asserts cond {
 }
 
 assert(BRAND_EMAIL === "info@filterhero.net", `brand email should be info@, got ${BRAND_EMAIL}`);
-const shippingFaq = SITE_FAQS.find((f) => f.question.toLowerCase().includes("free shipping"));
-assert(shippingFaq, "homepage FAQ must ask about free shipping");
+const shippingFaq = SITE_FAQS.find((f) => f.question.toLowerCase().includes("where do you ship"));
+assert(shippingFaq, "homepage FAQ must ask where Filter Hero ships");
 assert(
-  /every order/i.test(shippingFaq.answer) && !/\$50/.test(shippingFaq.answer),
-  `shipping FAQ must be free on every order, got: ${shippingFaq.answer}`,
+  /contiguous United States/i.test(shippingFaq.answer) && !/free shipping/i.test(shippingFaq.answer),
+  `shipping FAQ must not promise free shipping, got: ${shippingFaq.answer}`,
 );
 const sizeDoc = resolveDocumentSeo("/sizes/20x25x1", "https://filterhero.net");
 assert(
-  /free shipping on every order/i.test(sizeDoc.description),
-  `size SEO must mention free shipping, got: ${sizeDoc.description}`,
+  !/free shipping/i.test(sizeDoc.description),
+  `size SEO must not promise free shipping, got: ${sizeDoc.description}`,
 );
 const sizeJson = JSON.stringify(sizeDoc.jsonLd ?? []);
 assert(sizeJson.includes("9.99"), "20x25x1 JSON-LD must use live qty-1 $9.99");
+assert(!sizeJson.includes("OfferShippingDetails"), "size JSON-LD must not advertise a $0 shipping offer");
 const homeDoc = resolveDocumentSeo("/", "https://filterhero.net");
 assert(
-  /every order/i.test(JSON.stringify(homeDoc.jsonLd ?? [])) &&
-    !/over \$50/.test(JSON.stringify(homeDoc.jsonLd ?? [])),
-  "homepage FAQ JSON-LD must say free shipping on every order",
+  /contiguous United States/i.test(JSON.stringify(homeDoc.jsonLd ?? [])) &&
+    !/free shipping/i.test(JSON.stringify(homeDoc.jsonLd ?? [])),
+  "homepage FAQ JSON-LD must not promise free shipping",
 );
 assert(!FULL_CATALOG, "VITE_FULL_CATALOG / FULL_CATALOG must be false so the shop is Paul’s contractor list");
 assert(SELLABLE_ONLY, "contractor catalog means SELLABLE_ONLY is true");
@@ -266,6 +268,26 @@ assert(liveUnitPrice({ size: "20x25x1", merv: 13 }, 2) === 17.76, "20x25x1 MERV 
 assert(liveUnitPrice({ size: "20x20x1", merv: 8 }, 12) === 5.18, "20x20x1 MERV 8 qty 12 must match Filtrete Walmart $5.18");
 assert(liveUnitPrice({ size: "16x25x1", merv: 8 }, 12) === 5.83, "16x25x1 MERV 8 qty 12 must match cheaper Filtrete $5.83");
 assert(liveUnitPrice({ size: "20x25x1", merv: 8 }, 6) === 7.49, "20x25x1 MERV 8 qty 6 must match cheaper Filter King $7.49");
+assert(
+  PACK_QTYS.length === 12 && PACK_QTYS[0] === 1 && PACK_QTYS[11] === 12,
+  "size page pack picker must offer 1 through 12",
+);
+assert(
+  liveUnitPrice({ size: "20x25x1", merv: 8 }, 3) === liveUnitPrice({ size: "20x25x1", merv: 8 }, 2),
+  "qty 3 must use the 2-filter price rung",
+);
+assert(
+  liveUnitPrice({ size: "20x25x1", merv: 8 }, 7) === liveUnitPrice({ size: "20x25x1", merv: 8 }, 6),
+  "qty 7 must use the 6-filter price rung",
+);
+for (let qty = 1; qty <= 12; qty++) {
+  const rung = qty >= 12 ? 12 : qty >= 6 ? 6 : qty >= 4 ? 4 : qty >= 2 ? 2 : 1;
+  assert(
+    liveUnitPrice({ size: "20x25x1", merv: 8 }, qty) ===
+      liveUnitPrice({ size: "20x25x1", merv: 8 }, rung),
+    `qty ${qty} must use the ${rung}-filter price rung`,
+  );
+}
 assert(liveUnitPrice({ size: "16x25x1", merv: 8 }, 4) === 8.57, "16x25x1 MERV 8 qty 4 must match cheaper Filter King $8.57");
 assert(liveUnitPrice({ size: "20x20x1", merv: 8 }, 4) === 7.34, "20x20x1 MERV 8 qty 4 must match cheaper Filter King $7.34");
 assert(liveUnitPrice({ size: "16x25x1", merv: 11 }, 6) === 7.55, "16x25x1 MERV 11 qty 6 must match cheaper Filter King $7.55");

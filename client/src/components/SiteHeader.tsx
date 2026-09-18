@@ -370,8 +370,7 @@ export default function SiteHeader() {
             className="header-find-btn header-custom-btn hidden lg:inline-flex shrink-0"
             onClick={goCustomQuote}
           >
-            <span className="2xl:hidden">Custom</span>
-            <span className="hidden 2xl:inline">Need a custom size</span>
+            Need a custom size
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
           <Link

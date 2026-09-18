@@ -304,7 +304,7 @@ export default function Home() {
                 </li>
                 <li>
                   <a href="#delivery" className="hover:text-ice transition-colors">
-                    Free shipping
+                    Delivery
                   </a>
                 </li>
                 <li>

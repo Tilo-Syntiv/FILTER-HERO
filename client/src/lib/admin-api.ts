@@ -456,6 +456,14 @@ export const getAdminSettings = () =>
       redirectUri: string | null;
     };
     links: Record<string, string>;
+    stripeTax?: {
+      configured: boolean;
+      settingsStatus: "active" | "pending" | null;
+      automaticTax: boolean;
+      collecting: boolean;
+      headOfficeReady: boolean;
+      registrations: { country: string; state: string | null; status: string }[];
+    };
     klaviyoStripe: {
       shopEvents: boolean;
       configured: boolean;

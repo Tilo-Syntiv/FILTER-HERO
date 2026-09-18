@@ -48,6 +48,15 @@ function SettingsBody() {
   if (error) return <AdminError>{error}</AdminError>;
   if (!data) return null;
 
+  const stripeTax = data.stripeTax ?? {
+    configured: false,
+    settingsStatus: null,
+    automaticTax: false,
+    collecting: false,
+    headOfficeReady: false,
+    registrations: [],
+  };
+
   const integrations = [
     ["Stripe secret", data.integrations.stripe],
     ["Stripe publishable", data.integrations.stripePublishable],
@@ -192,6 +201,35 @@ function SettingsBody() {
         </div>
       </AdminPanel>
 
+      <AdminPanel title="Stripe Tax">
+        <div className="space-y-2 text-sm">
+          <StatusDot ok={stripeTax.headOfficeReady} label="Head office set (Tax Settings active)" />
+          <StatusDot ok={stripeTax.automaticTax} label="Checkout automatic tax" />
+          <StatusDot
+            ok={stripeTax.collecting}
+            label="At least one collecting registration"
+          />
+          {stripeTax.registrations.length ? (
+            <p className="text-muted-foreground">
+              Collecting:{" "}
+              {stripeTax.registrations
+                .filter((row) => row.status === "active")
+                .map((row) => (row.state ? `${row.country}-${row.state}` : row.country))
+                .join(", ") || "none"}
+            </p>
+          ) : (
+            <p className="text-muted-foreground">
+              Add each state where you are already registered. Stripe Tax charges $0 until a
+              registration matches the ship-to address.
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground">
+            QuickBooks should record the tax Stripe already collected. Do not let Automated Sales Tax
+            recalculate the same sale.
+          </p>
+        </div>
+      </AdminPanel>
+
       <AdminPanel
         title="QuickBooks Online"
         action={
@@ -284,6 +322,26 @@ function SettingsBody() {
           <li>
             <a className="font-semibold text-primary" href={data.links.stripe} target="_blank" rel="noreferrer">
               Stripe Dashboard
+            </a>
+          </li>
+          <li>
+            <a
+              className="font-semibold text-primary"
+              href={data.links.stripeTaxSettings}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Stripe Tax settings
+            </a>
+          </li>
+          <li>
+            <a
+              className="font-semibold text-primary"
+              href={data.links.stripeTax}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Stripe Tax registrations
             </a>
           </li>
           <li>

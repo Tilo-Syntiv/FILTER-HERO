@@ -143,7 +143,8 @@ assert(Array.isArray(feed.items) && feed.items.length > 0, "klaviyo catalog.json
 const sizeSsr = await get(`${API}/sizes/20x25x1`);
 assert(sizeSsr.res.ok, `size SSR ${sizeSsr.res.status}`);
 assert(sizeSsr.text.includes("application/ld+json"), "size page must ship JSON-LD");
-assert(sizeSsr.text.includes("OfferShippingDetails"), "size JSON-LD must include free-shipping offer");
+assert(!sizeSsr.text.includes("OfferShippingDetails"), "size JSON-LD must not advertise a $0 shipping offer");
+assert(!/free shipping/i.test(sizeSsr.text), "size SSR must not promise free shipping");
 assert(
   sizeSsr.text.includes("https://filterhero.net/sizes/20x25x1"),
   "size speakable/product JSON-LD must use the size URL",
@@ -162,7 +163,7 @@ assert(/Disallow: \/account/.test(robots.text), "robots must disallow /account")
 
 const llms = await get(`${API}/llms.txt`);
 assert(llms.res.ok && llms.text.toLowerCase().includes("filter hero"), "llms.txt");
-assert(/every order/i.test(llms.text) && !/over \$50/.test(llms.text), "llms.txt must say free shipping on every order");
+assert(/contiguous United States/i.test(llms.text) && !/free shipping/i.test(llms.text), "llms.txt must not promise free shipping");
 
 const pages = [
   "/",
@@ -196,6 +197,9 @@ for (const page of pages) {
   const hit = await get(`${BASE}${page}`);
   assert(hit.res.ok, `${page} returned ${hit.res.status}`);
   assert(hit.text.includes("<div id=\"root\">") || hit.text.includes("id=\"root\""), `${page} is not the SPA shell`);
+  if (page === "/" || page === "/sizes/20x25x1" || page === "/custom-air-filters") {
+    assert(!/free shipping/i.test(hit.text), `${page} must not promise free shipping`);
+  }
 }
 
 const badContact = await post(`${API}/api/contact`, { name: "", email: "nope", message: "" });

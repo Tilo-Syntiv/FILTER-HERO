@@ -6,7 +6,7 @@ HVAC filter storefront: size finder, catalog, cart, Stripe Checkout, and quote/c
 
 - React 19 + Vite 7 + Tailwind 4 + wouter
 - Express API (checkout, webhook, contact, products)
-- Stripe Checkout (Customer, Invoice) + Resend branded receipts (order confirmation, quote/support, staff lead alerts). Sales tax is QuickBooks Online, not Stripe Tax.
+- Stripe Checkout (Customer, Invoice) + Resend branded receipts (order confirmation, quote/support, staff lead alerts). Sales tax is Stripe Tax at checkout; QuickBooks Online records what Stripe collected.
 - Books: QuickBooks Online beside Stripe — see `docs/STRIPE-BOOKS.md`. Intuit OAuth discovery: `docs/INTUIT-OAUTH-DISCOVERY.md`. Intuit OAuth errors: `docs/INTUIT-OAUTH.md`.
 
 ## Setup

@@ -38,7 +38,6 @@ export function resolvePreferredMerv(
 }
 
 const PACK_KEY = "fh-power-pack";
-const PACK_QTYS = new Set([1, 2, 4, 6, 12]);
 
 export function setPowerPackQty(qty: number) {
   try {
@@ -51,7 +50,7 @@ export function setPowerPackQty(qty: number) {
 export function getPowerPackQty(): number | null {
   try {
     const n = Number(sessionStorage.getItem(PACK_KEY));
-    return PACK_QTYS.has(n) ? n : null;
+    return Number.isInteger(n) && n >= 1 && n <= 12 ? n : null;
   } catch {
     return null;
   }

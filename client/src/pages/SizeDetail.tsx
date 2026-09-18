@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import {
-  Check,
   Crosshair,
   Layers,
+  Minus,
+  Plus,
   Ruler,
   ShieldCheck,
   ShoppingCart,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import {
   MERV_TYPES,
+  PACK_QTYS,
   PACK_TIERS,
   findProductVariant,
   getFilterSize,
@@ -80,8 +82,11 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
     [availableTypes, search],
   );
 
-  const [qty, setQty] = useState(6);
+  const qtyMin = PACK_QTYS[0];
+  const qtyMax = PACK_QTYS[PACK_QTYS.length - 1];
+  const [qty, setQty] = useState<number>(6);
   const [shot, setShot] = useState(0);
+  const pickQty = (n: number) => setQty(Math.min(qtyMax, Math.max(qtyMin, n)));
 
   useEffect(() => {
     const pack = getPowerPackQty();
@@ -119,6 +124,12 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
   const unitPrice = variant ? unitPriceForQty(variant.price, qty, variant) : 0;
   const total = variant ? packTotal(variant.price, qty, variant) : 0;
+  const savePct =
+    variant && variant.price > 0 ? Math.round((1 - unitPrice / variant.price) * 100) : 0;
+  const packRung = PACK_TIERS.reduce(
+    (current, next) => (qty >= next.minQty ? next.minQty : current),
+    PACK_TIERS[0].minQty,
+  );
   const saveVsSingle =
     variant && qty > 1
       ? Math.max(0, Math.round((variant.price * qty - total) * 100) / 100)
@@ -347,7 +358,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                     <Crosshair className="h-4 w-4" /> Guaranteed fit
                   </li>
                   <li>
-                    <Truck className="h-4 w-4" /> Free shipping
+                    <Truck className="h-4 w-4" /> 2-day delivery
                   </li>
                   <li>
                     <ShieldCheck className="h-4 w-4" /> 30-day guarantee
@@ -374,7 +385,10 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
                 <div className="mb-7">
                   <h2 className="section-label !text-mesh">1 · Choose MERV</h2>
-                  <div className="pdp-merv-row">
+                  <div
+                    className="pdp-merv-row"
+                    style={{ "--merv-cols": availableTypes.length } as CSSProperties}
+                  >
                     {availableTypes.map((t) => {
                       const active = t.key === mervKey;
                       const g = MERV_GUIDE[t.key];
@@ -406,9 +420,12 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                       );
                     })}
                   </div>
-                  <div className="pdp-merv-note">
+                  <div
+                    className="pdp-merv-note"
+                    style={{ "--merv-wash": selectedType.badgeColor } as CSSProperties}
+                  >
                     <p className="pdp-merv-capture-label">Capture</p>
-                    <CaptureDots merv={selectedType.key} />
+                    <CaptureDots merv={selectedType.key} color={selectedType.badgeColor} />
                     <p className="pdp-merv-efficiency">{guide.efficiency}</p>
                     <p className="pdp-merv-copy">
                       <span>{guide.bestFor}.</span> {guide.note} Catches{" "}
@@ -419,53 +436,65 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
 
                 <div className="mb-7">
                   <h2 className="section-label !text-mesh">2 · Select quantity</h2>
-                  <div className="space-y-2">
-                    {PACK_TIERS.map((tier) => {
-                      if (!variant) return null;
-                      const price = unitPriceForQty(variant.price, tier.minQty, variant);
-                      const pct = Math.round((1 - price / variant.price) * 100);
-                      const active = qty === tier.minQty;
-                      const popular = tier.minQty === 6;
-                      const best = tier.minQty === 12;
-                      return (
+                  <div className="pdp-qty-card">
+                    <div className="pdp-stepper">
+                      <div className="pdp-stepper-ctrl">
                         <button
-                          key={tier.minQty}
                           type="button"
-                          onClick={() => setQty(tier.minQty)}
-                          aria-pressed={active}
-                          className={cn("pdp-pack", active && "pdp-pack-active")}
+                          aria-label="Decrease pack quantity"
+                          disabled={qty <= qtyMin}
+                          onClick={() => pickQty(qty - 1)}
                         >
-                          <span className={cn("pdp-pack-dot", active && "pdp-pack-dot-on")}>
-                            {active ? <Check className="h-3 w-3" strokeWidth={3} /> : null}
-                          </span>
-                          <span className="min-w-0 flex-1 text-left">
-                            <span className="flex flex-wrap items-center gap-2">
-                              <span className="font-extrabold text-deep">
-                                {tier.label} {tier.minQty === 1 ? "filter" : "filters"}
-                              </span>
-                              {popular && <span className="pdp-pack-tag">Most popular</span>}
-                              {best && <span className="pdp-pack-tag pdp-pack-tag-hero">Best value</span>}
-                            </span>
-                            {pct > 0 && (
-                              <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-navy/10">
-                                <span
-                                  className="block h-full rounded-full bg-navy"
-                                  style={{ width: `${Math.min(100, pct)}%` }}
-                                />
-                              </span>
-                            )}
-                          </span>
-                          <span className="flex flex-col items-end gap-1">
-                            {pct > 0 && (
-                              <span className="pdp-save">−{pct}%</span>
-                            )}
-                            <span className="text-sm font-extrabold text-deep">
-                              ${price.toFixed(2)} <span className="text-xs font-bold text-muted-foreground">ea</span>
-                            </span>
-                          </span>
+                          <Minus className="h-4 w-4" strokeWidth={2.5} />
                         </button>
-                      );
-                    })}
+                        <span className="pdp-stepper-count" aria-live="polite">
+                          {qty}
+                        </span>
+                        <button
+                          type="button"
+                          aria-label="Increase pack quantity"
+                          disabled={qty >= qtyMax}
+                          onClick={() => pickQty(qty + 1)}
+                        >
+                          <Plus className="h-4 w-4" strokeWidth={2.5} />
+                        </button>
+                      </div>
+                      <div className="pdp-stepper-price-block">
+                        {savePct > 0 && <span className="pdp-save">−{savePct}%</span>}
+                        <p className="pdp-stepper-price">${unitPrice.toFixed(2)}</p>
+                        <p className="pdp-stepper-each">per filter</p>
+                      </div>
+                    </div>
+                    <div className="pdp-qty-ladder">
+                      <div className="pdp-qty-ladder-head" aria-hidden>
+                        <span>Qty</span>
+                        <span>Each</span>
+                        <span>Savings</span>
+                      </div>
+                      {PACK_TIERS.map((tier) => {
+                        if (!variant) return null;
+                        const price = unitPriceForQty(variant.price, tier.minQty, variant);
+                        const pct = Math.max(0, Math.round((1 - price / variant.price) * 100));
+                        const active = packRung === tier.minQty;
+                        const label = `${tier.label} ${tier.minQty === 1 ? "filter" : "filters"}`;
+                        return (
+                          <button
+                            key={tier.minQty}
+                            type="button"
+                            onClick={() => pickQty(tier.minQty)}
+                            aria-label={label}
+                            aria-pressed={active}
+                            className={cn("pdp-qty-ladder-row", active && "pdp-qty-ladder-row-active")}
+                          >
+                            <span className="pdp-qty-ladder-qty">{tier.label}</span>
+                            <span>${price.toFixed(2)}</span>
+                            <span className={cn("pdp-qty-ladder-save", pct > 0 && "pdp-qty-ladder-save-on")}>
+                              {pct}%
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
 

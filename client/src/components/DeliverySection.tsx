@@ -197,7 +197,7 @@ export default function DeliverySection() {
             2-day delivery for 80% of the US
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-navy/70 md:text-lg">
-            Free shipping on every order.
+            Ships from 4 fulfillment centers across the USA.
           </p>
         </motion.div>
 
@@ -223,8 +223,8 @@ export default function DeliverySection() {
               Shipped from the USA
             </h3>
             <p className="text-base leading-relaxed text-navy/80 md:text-lg">
-              Free shipping from 4 fulfillment centers across the USA — rapid
-              delivery with superior customer service.
+              Orders leave from Nevada, Texas, Pennsylvania, and Florida —
+              rapid delivery with real humans if you need help.
             </p>
           </motion.div>
         </div>

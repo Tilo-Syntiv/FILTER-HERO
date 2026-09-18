@@ -34,7 +34,7 @@ export const SITE_DEFAULTS = {
   email: BRAND_EMAIL,
   titleDefault: `${BRAND_NAME} | Exact-Fit HVAC & Furnace Air Filters`,
     descriptionDefault:
-    "Find your exact HVAC filter size in seconds. Shop MERV 8, MERV 8 Carbon, 11, and 13 air filters by Width × Length × Depth with bulk pricing, free shipping on every order, and a 30-day fit guarantee.",
+    "Find your exact HVAC filter size in seconds. Shop MERV 8, MERV 8 Carbon, 11, and 13 air filters by Width × Length × Depth with bulk pricing and a 30-day fit guarantee.",
   locale: "en_US",
   twitterHandle: "",
 } as const;
@@ -99,10 +99,11 @@ export const SITE_FAQS: FaqItem[] = [
     action: { href: "/brands", label: "Shop by HVAC brand" },
   },
   {
-    question: "Do you offer free shipping?",
+    question: "Where do you ship?",
     category: "Ordering",
     answer:
-      `Yes. ${BRAND_NAME} offers free shipping on every order within the contiguous United States, with a 30-day fit guarantee on standard catalog sizes.`,
+      `${BRAND_NAME} ships HVAC filters within the contiguous United States from four fulfillment centers. About 80% of the country can receive 2-day delivery. Standard catalog sizes also carry a 30-day fit guarantee.`,
+    action: { href: "/#delivery", label: "See delivery times" },
   },
 ];
 
@@ -176,10 +177,10 @@ export const CUSTOM_FAQS: FaqItem[] = [
     action: { href: "#custom-quote", label: "Jump to the quote form" },
   },
   {
-    question: "Is shipping free on custom filters?",
+    question: "How do custom filters ship?",
     category: "Ordering",
     answer:
-      `Yes. Quoted custom orders ship free within the contiguous United States, same as catalog sizes.`,
+      `Quoted custom orders ship within the contiguous United States. Delivery timing is confirmed on the quote.`,
   },
 ];
 
@@ -231,7 +232,7 @@ export function sizeSeo(siteUrl: string, size: FilterSize | string) {
     : "";
   return {
     title: `${slug} Air Filter | HVAC & Furnace | ${BRAND_NAME}`,
-    description: `Buy ${slug} air filters for HVAC and furnace systems. Choose ${sellableMervPhrase(slug)}.${actual} Bulk packs, free shipping on every order, fit guarantee, and fast checkout.`,
+    description: `Buy ${slug} air filters for HVAC and furnace systems. Choose ${sellableMervPhrase(slug)}.${actual} Bulk packs, a 30-day fit guarantee, and fast checkout.`,
     path,
     canonical: absoluteUrl(siteUrl, path),
     type: "product" as const,
@@ -546,18 +547,6 @@ export function buildProductSchema(
         returnMethod: "https://schema.org/ReturnByMail",
         applicableCountry: "US",
       },
-      shippingDetails: {
-        "@type": "OfferShippingDetails",
-        shippingRate: {
-          "@type": "MonetaryAmount",
-          value: "0",
-          currency: "USD",
-        },
-        shippingDestination: {
-          "@type": "DefinedRegion",
-          addressCountry: "US",
-        },
-      },
     },
   };
 }
@@ -637,7 +626,7 @@ export function buildLlmsTxt(siteUrl: string): string {
 - Sizing model: Width × Length × Depth (nominal + actual listed)
 - MERV options: ${mervList}
 - Thicknesses: ${THICKNESSES.map((d) => `${d}"`).join(", ")}
-- Shipping: Free shipping on every order (contiguous US)
+- Shipping: Contiguous United States from 4 fulfillment centers; 2-day delivery for about 80% of the US
 
 ## Key pages
 - Home / size finder: ${absoluteUrl(siteUrl, "/")}

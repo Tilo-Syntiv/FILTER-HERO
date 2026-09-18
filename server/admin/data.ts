@@ -627,6 +627,8 @@ export function settingsSnapshot() {
     },
     links: {
       stripe: "https://dashboard.stripe.com",
+      stripeTax: "https://dashboard.stripe.com/tax/registrations",
+      stripeTaxSettings: "https://dashboard.stripe.com/settings/tax",
       klaviyo: "https://www.klaviyo.com/dashboard",
       resend: "https://resend.com/emails",
       supabase: (process.env.SUPABASE_URL || "").replace(/\/$/, "") + "/project/default",

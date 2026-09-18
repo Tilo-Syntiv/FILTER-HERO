@@ -230,7 +230,7 @@ for (const route of routes) {
   if (route === "/") {
     record("jsonld:home:types", ["Organization", "OnlineStore", "WebSite", "FAQPage", "HowTo", "WebPage", "BreadcrumbList"].every((t) => types.has(t)), [...types].join(","));
     const blob = JSON.stringify(extracted);
-    record("jsonld:home:shipping", /every order/i.test(blob) && !/over \$50/.test(blob), "free shipping");
+    record("jsonld:home:shipping", /contiguous/i.test(blob) && !/free shipping/i.test(blob), "no free-shipping claim");
   }
 
   if (route === "/sizes/20x25x1") {
@@ -249,7 +249,7 @@ for (const route of routes) {
       speakableUrl === `${SITE}/sizes/20x25x1`,
       speakableUrl || "missing",
     );
-    record("jsonld:size:shipping-offer", JSON.stringify(extracted).includes("OfferShippingDetails"), "shippingDetails");
+    record("jsonld:size:shipping-offer", !JSON.stringify(extracted).includes("OfferShippingDetails"), "no $0 shippingDetails");
   }
 
   if (route === CHANGE_GUIDE_PATH) {
@@ -280,7 +280,7 @@ for (const route of routes) {
 }
 
 const faqBlob = JSON.stringify([...SITE_FAQS, ...CUSTOM_FAQS]);
-record("faqs:no-50-minimum", !/\$50/.test(faqBlob) && /every order|contiguous/i.test(faqBlob), "copy");
+record("faqs:no-free-shipping", !/free shipping/i.test(faqBlob) && /contiguous/i.test(faqBlob), "copy");
 
 const catalogFeed = buildKlaviyoCatalog(SITE);
 record("klaviyo:schema", catalogFeed.$schema.includes("json-schema"), catalogFeed.$schema);

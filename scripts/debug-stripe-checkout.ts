@@ -4,7 +4,12 @@ import os from "node:os";
 import path from "node:path";
 import Stripe from "stripe";
 import { firstSellableProduct } from "../shared/products.ts";
-import { TANGIBLE_GOODS_TAX_CODE } from "../shared/stripe-tax.ts";
+import {
+  SHIPPING_TAX_CODE,
+  TANGIBLE_GOODS_TAX_CODE,
+  ensureStripeTaxDefaults,
+  readStripeTaxReadiness,
+} from "../shared/stripe-tax.ts";
 
 function assert(cond: unknown, message: string): asserts cond {
   if (!cond) throw new Error(message);
@@ -68,6 +73,16 @@ async function main() {
 
   const stripe = getStripe();
   assert(stripe, "STRIPE_SECRET_KEY must be set to debug Checkout");
+  await ensureStripeTaxDefaults(stripe);
+  const tax = await readStripeTaxReadiness(stripe);
+  check(
+    tax.settingsStatus === "active" && tax.headOfficeReady,
+    `Tax Settings ${tax.settingsStatus ?? "unknown"} (head office required)`,
+  );
+  check(
+    tax.collecting,
+    "at least one active Tax registration (otherwise Checkout charges $0 tax)",
+  );
 
   const payloadObj = {
     id: "evt_debug_1",
@@ -162,8 +177,12 @@ async function main() {
   check(Boolean(session.url), "session has hosted url");
   check(session.mode === "payment", "mode=payment");
   check(
-    session.automatic_tax?.enabled !== true,
-    "automatic_tax stays off — Stripe Tax is billed; tax is QuickBooks Online",
+    session.automatic_tax?.enabled === tax.automaticTax,
+    `automatic_tax.enabled=${String(session.automatic_tax?.enabled)} matches Tax Settings`,
+  );
+  check(
+    tax.automaticTax === true,
+    "automatic_tax is on because Tax Settings are active",
   );
   check(
     session.customer_creation === "always" || Boolean(session.customer),
@@ -178,8 +197,20 @@ async function main() {
     session.shipping_options?.some(
       (opt) => opt.shipping_amount === 0 && opt.shipping_rate,
     ) === true,
-    "checkout offers free shipping",
+    "checkout includes a shipping option",
   );
+  const shippingRateId =
+    typeof session.shipping_options?.[0]?.shipping_rate === "string"
+      ? session.shipping_options[0].shipping_rate
+      : session.shipping_options?.[0]?.shipping_rate?.id;
+  if (shippingRateId) {
+    const rate = await stripe.shippingRates.retrieve(shippingRateId);
+    check(rate.tax_behavior === "exclusive", `shipping tax_behavior=${rate.tax_behavior}`);
+    check(rate.tax_code === SHIPPING_TAX_CODE, `shipping tax_code=${rate.tax_code}`);
+    check(!/free/i.test(rate.display_name ?? ""), `shipping display_name=${rate.display_name}`);
+  } else {
+    check(false, "shipping rate id missing");
+  }
   check(session.phone_number_collection?.enabled === true, "phone collected");
   check(session.metadata?.items?.includes(String(product.id)) === true, "items metadata on session");
 

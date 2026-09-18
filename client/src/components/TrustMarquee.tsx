@@ -2,8 +2,8 @@ import { Truck, ShieldCheck, Crosshair, MessageCircle, Sparkles, Hammer, type Lu
 
 const FEATURED = {
   icon: Truck,
-  label: "FREE SHIPPING",
-  hint: "Contiguous US",
+  label: "2-DAY DELIVERY",
+  hint: "Most of the US",
 };
 
 const ITEMS = [
@@ -67,7 +67,7 @@ export default function TrustMarquee() {
   return (
     <div className="trust-marquee" aria-label="Trust highlights">
       <p className="sr-only">
-        {FEATURED.label} in the {FEATURED.hint}. {ITEMS.map((item) => item.label).join(". ")}.
+        {FEATURED.label}. {FEATURED.hint}. {ITEMS.map((item) => item.label).join(". ")}.
       </p>
 
       <div

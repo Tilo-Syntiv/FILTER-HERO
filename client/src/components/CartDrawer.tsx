@@ -173,7 +173,7 @@ export default function CartDrawer({ onRequestQuote }: CartDrawerProps) {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Shipping</span>
-              <span className="font-semibold text-navy">Free</span>
+              <span className="font-semibold text-navy">At checkout</span>
             </div>
           </div>
           <form
