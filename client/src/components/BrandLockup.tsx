@@ -83,9 +83,9 @@ const sizes: Record<
   { mark: string; type: string; gap: string }
 > = {
   header: {
-    mark: "h-8 w-[3rem] sm:h-9 sm:w-[3.4rem] md:h-12 md:w-[4.6rem]",
-    type: "text-base sm:text-lg md:text-[1.35rem]",
-    gap: "gap-1.5 sm:gap-2 md:gap-2.5",
+    mark: "h-7 w-[2.7rem] sm:h-8 sm:w-[3.1rem] md:h-9 md:w-[3.5rem]",
+    type: "text-[0.95rem] sm:text-base md:text-[1.05rem]",
+    gap: "gap-1.5 sm:gap-2 md:gap-2",
   },
   footer: {
     mark: "h-10 w-[3.8rem] sm:h-12 sm:w-[4.6rem]",

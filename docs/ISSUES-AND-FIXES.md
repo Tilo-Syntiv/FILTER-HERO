@@ -14,7 +14,292 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-260**
+Next id: **FH-281**
+
+---
+
+### FH-280 — Lockup mascot sat a hair high
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The flyer next to HERO sat a touch high vs the FILTER HERO sign.
+- **Do NOT:** Change mascot size or move packs/type to nudge it. Do not restore `translate(0.18em, -50%)`.
+- **Do:** Keep the mascot hung off HERO at `height: 100%` and `translate(0.18em, calc(-50% + 0.07em))`.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — mascot is a hair lower; still sign height; headline and packs stay put.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+
+### FH-279 — Revert lockup mascot back to sign height
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** FH-278 made the flyer `height: 92%` and it read too small next to FILTER HERO.
+- **Do NOT:** Size `.hero-character-lockup` to `92%` again.
+- **Do:** Keep the mascot hung off HERO at `height: 100%` of the sign. Lockup type, headline, and packs stay put.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — mascot matches FILTER HERO height again.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+### FH-278 — Lockup mascot needed a hair smaller
+- **Status:** superseded
+- **Area:** photos
+- **Symptom:** The flyer next to HERO sat at full sign height and read a touch large.
+- **Do NOT:** Drop `.hero-character-lockup` back to `height: 100%`. Do not shrink FILTER HERO type or move packs.
+- **Do:** Keep the mascot hung off HERO at `height: 92%`. Lockup type, headline, and packs stay put.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — mascot is a hair smaller than FILTER HERO; type and packs stay put.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+
+### FH-277 — Header needed one more tad shorter
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** After FH-276 the hero lockup still sat tight under the bar.
+- **Do NOT:** Restore `md:py-2` / `md:h-10` if this extra sliver is wanted.
+- **Do:** Keep the header one more hair tighter (`py-1 md:py-1.5`, header lockup `md:h-9` / `md:text-[1.05rem]`). Footer lockup stays. Hero packs and headline stay put.
+- **Files:** `client/src/components/SiteHeader.tsx`, `client/src/components/BrandLockup.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — header still reads the same, just a tad shorter than FH-276.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+
+### FH-276 — Header needed another tad shorter
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** After FH-275 the hero lockup still sat tight under the bar.
+- **Do NOT:** Restore `md:py-2.5` / `md:h-11` if the bar needs this extra sliver.
+- **Do:** Keep the header one more hair tighter (`py-1.5 md:py-2`, header lockup `md:h-10` / `md:text-[1.15rem]`). Footer lockup stays. Hero packs and headline stay put.
+- **Files:** `client/src/components/SiteHeader.tsx`, `client/src/components/BrandLockup.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — header still reads the same, just a tad shorter than FH-275.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+### FH-275 — Header bar was crowding the hero lockup
+- **Status:** fixed
+- **Area:** header
+- **Symptom:** FILTER HERO and the mascot in the hero still clipped under the header. The header bar itself sat a bit tall.
+- **Do NOT:** Pad the hero copy column or shrink the hero lockup to make room. Do not restore `md:py-3` / `md:h-12` on the header bar.
+- **Do:** Keep the header tighter than the original bar. Current step is FH-276.
+- **Files:** `client/src/components/SiteHeader.tsx`, `client/src/components/BrandLockup.tsx`
+- **Verify:** `/` desktop — header looks almost the same, just slightly shorter; FILTER HERO and the flyer have a sliver more air under the bar.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+
+### FH-274 — Copy-column padding made the hero navy feel bigger
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Padding on `.hero-copy-col` made the centered copy taller, so FILTER HERO rode into the header, Start your clock dropped off, and the navy band looked bigger.
+- **Do NOT:** Add padding to `.hero-copy-col` to unclip the lockup. Do not change hero stage height.
+- **Do:** Keep `.hero-copy-col` at `overflow: visible` only. Clip fix stays the removed motion `filter`, not extra box size. Lockup, headline, and packs stay put.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — navy band matches the prior size; both CTAs show; lockup is not under the header.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+### FH-273 — FILTER HERO lockup clip was a filter box, not type size
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The tops of FILTER HERO and the mascot cape were sheared off. Shrinking the lockup (FH-272) did not unclip them.
+- **Do NOT:** Shrink `.hero-lockup` to hide the clip. Do not leave `filter: blur(...)` on the hero copy motion wrapper. Do not pad `.hero-copy-col` (see FH-274).
+- **Do:** Keep the lockup at `clamp(3.4rem, 6.6vw, 5.4rem)`. Animate copy with opacity/y only. `.hero-copy-col` is `overflow: visible` only. Mascot stays `height: 100%` of the sign.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — F, H, and the cape are whole; headline and packs stay put.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+### FH-272 — FILTER HERO lockup and mascot were clipped
+- **Status:** superseded
+- **Area:** photos
+- **Symptom:** The home lockup and flyer sat a tad large, so italic tops and the cape clipped at the hero edge.
+- **Do NOT:** Treat a smaller lockup as the clip fix. See FH-273.
+- **Do:** Keep the lockup at `clamp(3.4rem, 6.6vw, 5.4rem)` and unclip via the copy-column filter/overflow fix.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — FILTER HERO and the mascot are fully visible, still matched in height; headline and packs stay put.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+
+### FH-271 — Lockup mascot was not the same size as FILTER HERO
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The flyer next to **HERO** sat at `1.05em` and read smaller than the FILTER HERO sign.
+- **Do NOT:** Size `.hero-character-lockup` to `1.05em` or `1.2em`. Do not move packs or the lockup type.
+- **Do:** Keep the mascot hung off **HERO** at `height: 100%` of `.hero-lockup` so it matches the sign height.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — mascot is the same height as FILTER HERO; type and packs stay put.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+
+### FH-270 — Hero stage used a different navy than the brand bands
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The home hero sat on a vertical `#1b3258`–`#23406a` wash with ice/red orbs, so it did not match Who you’re protecting / Most requested.
+- **Do NOT:** Keep the old hero gradient, orbs, copy scrim, or `.hero-glow` plate. Do not move packs or the lockup mascot to “fix” the color.
+- **Do:** Use the `.brand-band` fill on `.hero-cast-stage` (ice radials + `linear-gradient(90deg, #1a3058 0%, #2a4d82 48%, #3a66a3 100%)`). Hide atmosphere and glow. Copy overlay stays transparent.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — hero navy matches the Who you’re protecting and Popular sizes bands; FILTER HERO, mascot, and packs stay put.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+### FH-269 — Putting the mascot back in the sky shifted the hero
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** After FH-268 the giant sky still sat at `top: 50%` / `height: 56%` and the stage looked like the whole hero moved.
+- **Do NOT:** Turn the lockup mascot back into a full-stage sky still to “revert.” Do not change pack or copy offsets.
+- **Do:** Keep the official sheet hung off **HERO** (`left: 100%`, `height: 1.05em`). Hide the sky still at `1024px+`. Packs stay at `bottom: calc(25% + 0.5in)`.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — FILTER HERO type and MERV packs match the pre-FH-268 layout; mascot sits right of HERO only.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+### FH-268 — Revert the mascot off the HERO lockup
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The mascot still sat on the word **HERO** after FH-267, so the “revert” did not look like a change.
+- **Do NOT:** Hang `.hero-character` off `.hero-lockup-hero`. Do not keep a lockup copy and a hidden sky copy.
+- **Do:** One sky still (`character-fly-still.png`) at `left: calc(52% - 0.5in)` / `top: 50%`. Lockup is type only.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — mascot is back in the gap under FILTER HERO, left of MERV 8, not beside the word HERO.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+- **Supersedes:** FH-265
+
+---
+
+### FH-267 — Revert the brighter FILTER HERO lockup glow
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** FH-266 made **FILTER HERO** and the mascot too loud (ice glow, `#f24b52`, `1.2em`).
+- **Do NOT:** Put `#f24b52` or ice text-shadows on `.hero-lockup-filter` / `.hero-lockup-hero`. Do not bump the lockup mascot to `1.2em`.
+- **Do:** Keep the pre-FH-266 lockup: **FILTER** `#fff`, **HERO** `var(--hero)`, mascot `1.05em` still to the right of **HERO**.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — lockup matches the look before the visibility boost; mascot still sits right of HERO.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+- **Supersedes:** FH-266
+
+---
+
+### FH-266 — Hero FILTER HERO lockup and mascot were hard to read
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The home lockup sat in navy burgundy `#7f2328` with a quiet mascot glow, so **FILTER HERO** and the flyer faded into the stage.
+- **Do NOT:** Leave `.hero-lockup-hero` on `var(--hero)` without a glow. Do not restyle the headline or packs to “fix” contrast.
+- **Do:** Match the header lockup: **FILTER** white ice glow, **HERO** `#f24b52` with the brand-wordmark glow, mascot `1.2em` with the icy white edge.
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — FILTER HERO and the mascot read as clearly as the header lockup; headline and packs unchanged.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+- **Superseded by:** FH-267
+
+---
+
+### FH-265 — Hero mascot sat in the headline gap instead of right of HERO
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The lockup mascot floated in the gap beside the headline, not next to the word **HERO**.
+- **Do NOT:** Park `.hero-character` at `left: calc(52% - 0.5in)` / `top: 50%` on desktop. Do not move packs or the lockup type.
+- **Do:** Hang the official sheet off `.hero-lockup` (`left: 100%`, `height: 1.05em`) so it sits to the right of **HERO**. Hide the sky still at `1024px+`.
+- **Files:** `client/src/components/Hero.tsx`, `client/src/index.css`
+- **Verify:** `/` desktop — mascot sits immediately right of **HERO**; FILTER HERO type and MERV packs stay put.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+- **Superseded by:** FH-268
+
+---
+
+### FH-264 — Hero mascot needed another quarter-inch left nudge
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** After FH-263 the mascot still sat a tad right of the gap under **HERO**.
+- **Do NOT:** Park desktop `.hero-character` at `left: calc(52% - 0.25in)` or `left: 52%`. Do not move the packs or copy with it.
+- **Do:** Keep the mascot a half inch left of the old center (`left: calc(52% - 0.5in)` desktop, `calc(54% - 0.5in)` mobile).
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — mascot sits a quarter inch left of FH-263, still under HERO and left of MERV 8.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+- **Supersedes:** FH-263
+
+---
+
+### FH-263 — Hero mascot sat a quarter inch too far right
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The lockup mascot sat a tad right of the gap under **HERO**.
+- **Do NOT:** Park desktop `.hero-character` at `left: 52%` or mobile at `left: 54%`. Do not move the packs or copy with it.
+- **Do:** Nudge only the mascot a quarter inch left (`left: calc(52% - 0.25in)` desktop, `calc(54% - 0.25in)` mobile).
+- **Files:** `client/src/index.css`
+- **Verify:** `/` desktop — mascot sits a quarter inch left of the FH-262 spot, still under HERO and left of MERV 8.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+- **Superseded by:** FH-264
+
+---
+
+### FH-262 — Hero mascot did not match the header lockup
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The hero flyer was a processed sheet, not the header emblem. It missed the official `logo.png` knockout and the icy white edge/glow.
+- **Do NOT:** Invent a new outline, or use a different mascot than `/logo.png`. Do not restyle packs or copy to “fix” the look.
+- **Do:** Cut the character from `client/public/logo.png` with the same `r,g,b > 242` knockout as `BrandLockup`, keep it on the 1640×1097 still, and use the header emblem filter (`0.6px` white edge + `8px` ice glow).
+- **Files:** `client/public/hero/character-fly-still.png`, `client/public/hero/character-sheet.png`, `client/src/index.css`, `client/src/components/Hero.tsx`
+- **Verify:** `/` desktop — hero mascot matches the header F-mark: same figure, white edge, soft ice glow, navy showing through.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+### FH-261 — Hero mascot lost its white outline on navy
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** After knocking out the plate, the mascot’s navy legs vanished into the hero and the figure looked washed out next to the lockup.
+- **Do NOT:** Strip the logo’s white silhouette stroke, or scale the figure to fill the 1640×1097 canvas.
+- **Do:** Keep a transparent still with the white outline intact (and a 1px white drop-shadow ring) so the figure reads on `#203868` like the wordmark lockup.
+- **Files:** `client/public/hero/character-fly-still.png`, `client/public/hero/character-sheet.png`, `client/src/index.css`, `client/src/components/Hero.tsx`
+- **Verify:** `/` desktop — mascot has a crisp white edge, burgundy torso and filter cape stay visible, no white/black box.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+### FH-260 — Hero mascot still had an opaque plate
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The flying mascot sat on a white or black rectangle instead of the navy hero.
+- **Do NOT:** Restyle the hero to “fix” the plate (do not shrink, fade, or reposition `.hero-character`). Do not scale the vector to fill the 1640×1097 canvas — that makes the figure look huge in the same CSS box.
+- **Do:** Keep the existing hero layout. Serve a transparent vector still on that same canvas, with the figure at ~42% of the canvas so it sits under HERO and left of MERV 8.
+- **Files:** `client/public/hero/character-fly-still.png`, `client/public/hero/character-sheet.png`, `client/src/components/Hero.tsx`
+- **Verify:** `/` desktop — copy, packs, and mascot size/placement match the previous hero; no white/black box around the figure.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
 
 ---
 

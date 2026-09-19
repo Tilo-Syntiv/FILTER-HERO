@@ -9,7 +9,7 @@ import { MERV_TYPES, isMervKeyOnSale } from "@shared/products";
 import { setPreferredMerv, type PreferredMerv } from "@/lib/merv-pref";
 import { useSiteConfig } from "@/contexts/SiteConfigContext";
 
-const ASSET = "?v=fh171";
+const ASSET = "?v=fh178";
 
 const COMPAT = [
   { slug: "trane", name: "Trane" },
@@ -66,14 +66,14 @@ const SHOWCASE: {
   },
 ];
 
-function HeroCharacter() {
+function HeroCharacter({ className = "" }: { className?: string }) {
   return (
     <img
-      className="hero-character hero-character-still"
-      src={`/hero/character-fly-still.png${ASSET}`}
+      className={`hero-character hero-character-still ${className}`.trim()}
+      src={`/hero/character-sheet.png${ASSET}`}
       alt=""
-      width={1640}
-      height={1097}
+      width={571}
+      height={381}
       aria-hidden
       fetchPriority="high"
       decoding="async"
@@ -110,7 +110,7 @@ export default function Hero() {
   return (
     <section className="hero-stage hero-cast-stage">
       <div className="hero-sky-fill" aria-hidden>
-        <HeroCharacter />
+        <HeroCharacter className="hero-character-sky" />
       </div>
       <div className="hero-atmosphere" aria-hidden>
         <div className="hero-orb hero-orb-ice" />
@@ -120,13 +120,17 @@ export default function Hero() {
       <div className="hero-cast">
         <div className="hero-copy">
           <motion.div
-            initial={{ opacity: 0, y: 22, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            className="hero-copy-col"
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
             <p className="hero-lockup" aria-hidden>
               <span className="hero-lockup-filter">Filter</span>
-              <span className="hero-lockup-hero">Hero</span>
+              <span className="hero-lockup-hero">
+                Hero
+                <HeroCharacter className="hero-character-lockup" />
+              </span>
             </p>
             <p className="hero-kicker">
               <span className="hero-live-dot" aria-hidden />

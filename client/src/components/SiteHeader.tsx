@@ -276,7 +276,7 @@ export default function SiteHeader() {
         </div>
       ) : null}
       <div className="site-header-bar">
-      <div className="container flex flex-wrap items-center gap-x-2 gap-y-2 py-2.5 xl:flex-nowrap md:py-3">
+      <div className="container flex flex-wrap items-center gap-x-2 gap-y-2 py-1 xl:flex-nowrap md:py-1.5">
         <button
           type="button"
           className="header-menu-btn lg:hidden"
