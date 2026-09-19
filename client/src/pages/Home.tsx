@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import FilterFinder from "@/components/FilterFinder";
 import TrustSection from "@/components/TrustSection";
 import TrustMarquee from "@/components/TrustMarquee";
-import PopularSizesCarousel from "@/components/PopularSizesCarousel";
+import OverdueCostsBand from "@/components/OverdueCostsBand";
 import SizeDirectory from "@/components/SizeDirectory";
 import MervCarousel from "@/components/MervCarousel";
 import DeliverySection from "@/components/DeliverySection";
@@ -130,7 +130,7 @@ export default function Home() {
           </div>
         </section>
 
-        <PopularSizesCarousel />
+        <OverdueCostsBand />
 
         <div className="sheet-section">
           <SizeDirectory />

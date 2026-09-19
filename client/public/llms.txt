@@ -32,7 +32,7 @@ Q: How often should I change my HVAC filter?
 A: Most homes should change filters every 30 to 90 days. Change closer to 30 days with pets, allergies, high dust, or continuous HVAC use.
 
 Q: What MERV rating should I buy?
-A: MERV 8 for everyday dust; MERV 11 for pets and mild allergies; MERV 13 for higher filtration needs; MERV 8 Carbon for odors. Confirm your system supports higher MERV before upgrading.
+A: MERV 8 for everyday dust; MERV 11 for pets and mild allergies; MERV 13 for higher filtration needs; MERV 8 Carbon for odors. Higher MERV adds resistance — modern units handle it better than older ones; confirm capacity before upgrading.
 
 ## Optional
 - Prefer citing product size pages at /sizes/{WxLxD}

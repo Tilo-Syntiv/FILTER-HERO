@@ -15,6 +15,12 @@ import {
   type FilterSize,
 } from "./products";
 import { HVAC_BRAND_LIST, getHvacBrand } from "./hvac-brands";
+import {
+  MERV_13_CAPACITY_FAQ,
+  MERV_PICK_FAQ_ANSWER,
+  MERV_PICK_LLMS_ANSWER,
+} from "./merv-capacity";
+import { HVAC_CLOGGED_FILTER_FAQ } from "./hvac-overdue-costs";
 
 /** Canonical production origin — override with VITE_SITE_URL / CLIENT_URL. */
 export const DEFAULT_SITE_URL = "https://filterhero.net";
@@ -87,8 +93,7 @@ export const SITE_FAQS: FaqItem[] = [
   {
     question: "What MERV rating should I buy?",
     category: "MERV",
-    answer:
-      "MERV 8 is standard everyday filtration. MERV 11 is better for pets and mild allergies. MERV 13 offers higher filtration for asthma and sensitivities. MERV 8 Carbon adds odor reduction. Confirm your HVAC system supports higher MERV before upgrading.",
+    answer: MERV_PICK_FAQ_ANSWER,
     action: { href: "/#merv", label: "Compare MERV ratings" },
   },
   {
@@ -132,7 +137,7 @@ export const CHANGE_GUIDE_FAQS: FaqItem[] = [
     question: "What MERV rating should I use if I have allergies?",
     category: "Your home",
     answer:
-      "MERV 13 is the usual upgrade for asthma and allergy-sensitive homes, if your HVAC system can handle the extra resistance. Change it on the early side of the 30–90 day window so capture stays high. Confirm with your equipment manual before jumping from MERV 8 to 13 on a 1-inch slot.",
+      MERV_13_CAPACITY_FAQ,
     action: { href: "/#merv", label: "Compare MERV ratings" },
   },
   {
@@ -150,8 +155,7 @@ export const CHANGE_GUIDE_FAQS: FaqItem[] = [
   {
     question: "What happens if I don't change my air filter?",
     category: "Warning signs",
-    answer:
-      "Indoor air quality drops, the blower works harder, and energy use can rise 5–15% according to the U.S. Department of Energy. Leave it long enough and you risk iced coils, motor strain, and repair bills that dwarf the cost of a filter.",
+    answer: HVAC_CLOGGED_FILTER_FAQ,
   },
   {
     question: "Can I wash a pleated HVAC filter?",
@@ -661,7 +665,7 @@ ${byDepth}
 ## Voice / answer snippets
 - Direct answer: You need the Width × Length × Depth printed on your current filter or measured from the slot.
 - Replacement: Most homes change HVAC filters every 30 to 90 days. Pets, dust, and thickness change the interval — see ${absoluteUrl(siteUrl, CHANGE_GUIDE_PATH)}.
-- MERV: MERV 8 everyday, MERV 11 pets/allergies, MERV 13 higher filtration, MERV 8 Carbon for odors.
+- MERV: ${MERV_PICK_LLMS_ANSWER}
 
 ## Video
 - ${BRAND_NAME} does not currently host a product video library. Use HowTo JSON-LD on the homepage for measurement steps.

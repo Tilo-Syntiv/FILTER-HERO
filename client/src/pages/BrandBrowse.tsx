@@ -4,6 +4,7 @@ import {
   getHvacBrand,
   HVAC_BRAND_LIST,
 } from "@shared/hvac-brands";
+import { MERV_CAPACITY_SHORT } from "@shared/merv-capacity";
 import { shopOrQuotePath } from "@/lib/filter-size";
 import BrandLogo from "@/components/BrandLogo";
 import {
@@ -155,7 +156,7 @@ export function BrandDetailPage({ slug }: { slug: string }) {
           >
             Shop {BRAND_NAME} replacement filters for {brand.name} systems.
             Same slot size as the OEM media. Choose MERV 8, 11, or 13
-            on the size page when that rating is in stock.
+            on the size page when that rating is in stock. {MERV_CAPACITY_SHORT}
           </PageHero>
           <main className="sheet-section">
             <div className="container py-10 md:py-14">

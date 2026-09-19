@@ -43,7 +43,7 @@
     },
     {
       "question": "What MERV rating should I buy?",
-      "answer": "MERV 8 is standard everyday filtration. MERV 11 is better for pets and mild allergies. MERV 13 offers higher filtration for asthma and sensitivities. MERV 8 Carbon adds odor reduction. Confirm your HVAC system supports higher MERV before upgrading.",
+      "answer": "MERV 8 is standard everyday filtration. MERV 11 is better for pets and mild allergies. MERV 13 offers higher filtration for asthma and sensitivities. MERV 8 Carbon adds odor reduction. When you pick a MERV rating, weigh capacity: tighter filters add resistance by design. Modern HVAC units generally handle higher ratings better than older ones. If the furnace or air handler is older, start lower unless the equipment manual says a tighter filter is OK.",
       "category": "MERV",
       "action": {
         "href": "/#merv",

@@ -18,6 +18,7 @@ import {
 import { MERV_TYPES, isMervKeyOnSale, mervTypesForDisplay, type MervTypeInfo } from "@shared/products";
 import { scrollToHashTarget } from "@/hooks/useHashScroll";
 import { MERV_GUIDE } from "@/lib/merv-guide";
+import { MERV_CAPACITY_NOTE } from "@shared/merv-capacity";
 import {
   setPreferredMerv,
   type PreferredMerv,
@@ -279,8 +280,9 @@ export default function MervCarousel() {
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/65 md:text-base">
               Think of the filter as a screen. A tighter screen catches smaller
-              stuff. Pick the one that matches your house — the MERV number on
-              the box is just the rating name.
+              stuff — and adds more resistance. Match the rating to your house
+              and to what your HVAC unit can push: modern systems generally
+              handle higher MERV better than older ones.
             </p>
           </div>
           <Link href="/how-often-to-change-air-filter" className="section-link">
@@ -429,8 +431,7 @@ export default function MervCarousel() {
               </tbody>
             </table>
             <p className="mt-4 text-xs leading-relaxed text-white/40">
-              If the furnace is older, start with Everyday dust or Pets unless
-              the manual says a tighter filter is OK.
+              {MERV_CAPACITY_NOTE}
             </p>
           </div>
         </div>

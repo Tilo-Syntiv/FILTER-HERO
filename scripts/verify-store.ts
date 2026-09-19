@@ -33,7 +33,14 @@ import {
   liveListPrice,
   liveUnitPrice,
 } from "../shared/pricing/engine.ts";
-import { SITE_DEFAULTS, SITE_FAQS, resolveDocumentSeo, sitemapPaths } from "../shared/seo.ts";
+import { MERV_CAPACITY_NOTE, MERV_PICK_FAQ_ANSWER } from "../shared/merv-capacity.ts";
+import {
+  HVAC_CLOGGED_FILTER_FAQ,
+  HVAC_OVERDUE_HEADLINE,
+  HVAC_REAL_REPAIRS,
+  HVAC_WAIT_STAGES,
+} from "../shared/hvac-overdue-costs.ts";
+import { SITE_DEFAULTS, SITE_FAQS, CHANGE_GUIDE_FAQS, resolveDocumentSeo, sitemapPaths } from "../shared/seo.ts";
 import { resolvePreferredMerv } from "../client/src/lib/merv-pref.ts";
 
 function assert(cond: unknown, message: string): asserts cond {
@@ -50,6 +57,65 @@ assert(
 assert(
   !/30-day (fit )?guarantee/i.test(shippingFaq.answer),
   `shipping FAQ must not promise a 30-day guarantee, got: ${shippingFaq.answer}`,
+);
+const mervFaq = SITE_FAQS.find((f) => f.question.toLowerCase().includes("what merv rating"));
+assert(mervFaq, "homepage FAQ must ask what MERV rating to buy");
+assert(
+  mervFaq.answer === MERV_PICK_FAQ_ANSWER,
+  "MERV FAQ must use shared MERV_PICK_FAQ_ANSWER",
+);
+assert(
+  /resistance/i.test(MERV_CAPACITY_NOTE) &&
+    /modern/i.test(MERV_CAPACITY_NOTE) &&
+    /older/i.test(MERV_CAPACITY_NOTE),
+  "MERV capacity note must cover resistance, modern units, and older units",
+);
+assert(HVAC_REAL_REPAIRS.length === 5, `expected 5 named repairs, got ${HVAC_REAL_REPAIRS.length}`);
+assert(HVAC_WAIT_STAGES.length === 4, `expected 4 wait stages, got ${HVAC_WAIT_STAGES.length}`);
+assert(
+  HVAC_REAL_REPAIRS.every((r) => /\$\d/.test(r.price) && r.name.length > 4),
+  "every named repair needs a dollar price and a label",
+);
+assert(
+  /dirty filter costs more/i.test(HVAC_OVERDUE_HEADLINE),
+  `overdue headline must sell the filter-vs-repair math, got: ${HVAC_OVERDUE_HEADLINE}`,
+);
+const cloggedFaq = CHANGE_GUIDE_FAQS.find((f) =>
+  f.question.toLowerCase().includes("don't change my air filter"),
+);
+assert(cloggedFaq, "change-guide FAQ must cover what happens if you don't change the filter");
+assert(
+  cloggedFaq.answer === HVAC_CLOGGED_FILTER_FAQ,
+  "clogged-filter FAQ must use shared HVAC_CLOGGED_FILTER_FAQ",
+);
+assert(
+  HVAC_REAL_REPAIRS.every((r) => cloggedFaq.answer.includes(r.price)),
+  "clogged-filter FAQ must cite every named repair price",
+);
+const howToInstall = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "client",
+  "public",
+  "life",
+  "how-to-install.png",
+);
+assert(fs.existsSync(howToInstall), "client/public/life/how-to-install.png must exist for size PDP how-to");
+const siteConfigPath = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "server",
+  "data",
+  "site-config.json",
+);
+const siteConfig = JSON.parse(fs.readFileSync(siteConfigPath, "utf8")) as {
+  faqs?: { question: string; answer: string }[];
+};
+const mervCfg = siteConfig.faqs?.find((f) => f.question.toLowerCase().includes("what merv rating"));
+assert(mervCfg, "site-config must keep the MERV FAQ");
+assert(
+  mervCfg.answer === MERV_PICK_FAQ_ANSWER,
+  "site-config MERV FAQ must match MERV_PICK_FAQ_ANSWER (CMS overrides SITE_FAQS on the home FAQ)",
 );
 const sizeDoc = resolveDocumentSeo("/sizes/20x25x1", "https://filterhero.net");
 assert(

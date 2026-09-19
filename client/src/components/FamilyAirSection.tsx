@@ -20,7 +20,7 @@ const STORIES: {
     inset: LIFE.sickSisters,
     label: "Kids & asthma",
     title: "When a cough starts at home",
-    body: "Pollen, dust, and smoke-sized particles recirculate until a tighter filter catches them. MERV 13 is the usual pick for asthma, allergies, and kids who get sick indoors.",
+    body: "Pollen, dust, and smoke-sized particles recirculate until a tighter filter catches them. MERV 13 is the usual pick for asthma, allergies, and kids who get sick indoors — when the system can handle the extra resistance. Modern units take it better than older ones.",
     cta: "Shop MERV 13",
   },
   {
@@ -29,7 +29,7 @@ const STORIES: {
     inset: LIFE.catDander,
     label: "Pets",
     title: "Fur, dander, and a pack on the couch",
-    body: "Dogs and cats load a filter faster than a quiet house. MERV 11 is the upgrade when there's fur on the vents and someone in the family is sniffly.",
+    body: "Dogs and cats load a filter faster than a quiet house. MERV 11 is the upgrade when there's fur on the vents and someone in the family is sniffly. It adds more resistance than MERV 8 — confirm capacity on older equipment.",
     cta: "Shop MERV 11",
   },
   {
@@ -38,7 +38,7 @@ const STORIES: {
     inset: LIFE.familyKitchen,
     label: "Everyday home",
     title: "Dust, lint, and a house that stays busy",
-    body: "Most homes just need a honest workhorse. MERV 8 catches household dust and pollen without extra strain on older furnaces.",
+    body: "Most homes just need an honest workhorse. MERV 8 catches household dust and pollen with lower resistance — the safe start on older furnaces and a solid default on modern ones.",
     cta: "Shop MERV 8",
   },
 ];

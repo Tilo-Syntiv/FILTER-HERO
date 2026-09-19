@@ -14,7 +14,111 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-283**
+Next id: **FH-291**
+
+---
+
+### FH-290 — Verify overdue-cost + how-to invariants in store checks
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Shared MERV capacity / overdue-repair / how-to-install assets could drift without a failing `pnpm verify:store`.
+- **Do NOT:** Drop assertions that `HVAC_REAL_REPAIRS` (5), `HVAC_WAIT_STAGES` (4), `HVAC_CLOGGED_FILTER_FAQ`, site-config MERV FAQ, and `client/public/life/how-to-install.png` stay wired.
+- **Do:** Keep those checks in `scripts/verify-store.ts` alongside the existing MERV_PICK_FAQ_ANSWER lock.
+- **Files:** `scripts/verify-store.ts`
+- **Verify:** `pnpm verify:store`
+- **Added:** 2026-09-19
+- **Fixed:** 2026-09-19
+
+---
+
+### FH-289 — Home overdue band buried the filter-vs-repair punchline
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Homepage `#overdue-costs` used a quiet carousel + a small footer line (“A $9.99 filter is cheaper…”). The comparison did not dominate the band.
+- **Do NOT:** Put the filter price only in a thin footer again, or restore the popular-sizes carousel in this slot.
+- **Do:** Keep the redesigned `OverdueCostsBand`: giant `$filter` vs worst-repair hero, bold punchline bar, full named repair list, wait stages, CTAs — all from `shared/hvac-overdue-costs.ts`. Size PDP `.product-overdue-vs` stays a high-contrast callout with the same sentence pattern.
+- **Files:** `client/src/components/OverdueCostsBand.tsx`, `client/src/index.css`, `client/src/pages/SizeDetail.tsx`
+- **Verify:** `/#overdue-costs` — `$9.99` vs `$1,200–$3,000` hero, then the punchline bar, then the repair list. `/sizes/20x25x1` overdue panel punchline is boxed and bold.
+- **Added:** 2026-09-19
+- **Fixed:** 2026-09-19
+
+---
+
+### FH-288 — Home popular-sizes band replaced with overdue repair costs
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Homepage brand-band under Filter Clock pushed “Popular Filter Hero sizes” instead of the skip-a-change repair math we already use on size PDPs and the change guide.
+- **Do NOT:** Put `PopularSizesCarousel` back as the full-bleed band on `Home.tsx`. Do not invent a second set of repair prices for the home band.
+- **Do:** Keep `OverdueCostsBand` on the home brand-band (`#overdue-costs`) using `HVAC_REAL_REPAIRS` / `HVAC_WAIT_STAGES` / `HVAC_OVERDUE_*` from `shared/hvac-overdue-costs.ts`. Finder may still embed `PopularSizesCarousel` for size shopping.
+- **Files:** `client/src/components/OverdueCostsBand.tsx`, `client/src/pages/Home.tsx`, `shared/hvac-overdue-costs.ts`
+- **Verify:** `/` — after Filter Clock, navy band shows Skip a change? / named repair prices / overdue timeline; no “Popular Filter Hero sizes” carousel there. Finder popular strip still OK when `showPopular`.
+- **Added:** 2026-09-19
+- **Fixed:** 2026-09-19
+
+---
+
+### FH-287 — Size PDP overdue panel used off-brand burgundy wash
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The “Skip a change?” repair panel sat in a heavy burgundy/salmon wash that fought the navy theater, ice trust chips, and mesh accents on size pages.
+- **Do NOT:** Reintroduce a burgundy panel fill, salmon kickers, or red glow on `.product-overdue`. Do not restyle the panel with purple-on-white or cream themes.
+- **Do:** Keep `.product-overdue` on navy/deep fills with ice (`#8eb0d8`) borders, kickers, and links — same language as `.product-trust` / theater. Soft hero tint only on the dollar amounts (`#f7c9cb`), not the shell.
+- **Files:** `client/src/index.css`
+- **Verify:** `/sizes/20x25x1` — overdue panel reads as navy + ice next to trust chips; prices stay readable.
+- **Added:** 2026-09-19
+- **Fixed:** 2026-09-19
+
+---
+
+### FH-286 — Overdue-filter costs were vague buckets, not named repairs
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Change-guide wait cards and the size-page navy panel used soft ranges like “$150–$500 repairs” without naming evaporator coils, blower motors, compressors, or heat exchangers — so the filter vs repair math did not land.
+- **Do NOT:** Soften `HVAC_REAL_REPAIRS` / `HVAC_WAIT_STAGES` back to unlabelled buckets. Do not invent repair prices outside `shared/hvac-overdue-costs.ts`.
+- **Do:** Keep named repairs with ballpark prices (service thaw, blower, coil, compressor, heat exchanger) on the size PDP list, change-guide timeline + price table, and the clogged-filter FAQ via `HVAC_CLOGGED_FILTER_FAQ`. Frame as typical U.S. residential ballparks, not quotes.
+- **Files:** `shared/hvac-overdue-costs.ts`, `shared/seo.ts`, `client/src/pages/FilterChangeGuide.tsx`, `client/src/pages/SizeDetail.tsx`, `client/src/index.css`
+- **Verify:** `/how-often-to-change-air-filter#wait` — four timeline cards plus “Real repairs · real sticker prices” table; `/sizes/20x25x1` navy panel lists five named repair prices vs pack unit price.
+- **Added:** 2026-09-19
+- **Fixed:** 2026-09-19
+
+---
+
+### FH-285 — Size PDP left navy column empty under trust chips
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** On catalog size pages the left theater stretched with the tall buy column, leaving empty navy mesh below Guaranteed fit / 2-day / Major brands. Shoppers never saw repair-cost stakes next to Add to cart.
+- **Do NOT:** Leave `.product-theater` without `.product-overdue`, or drop the named repair price list. Do not invent different dollar ranges outside `shared/hvac-overdue-costs.ts`.
+- **Do:** Keep the overdue panel under trust chips (`margin-top: auto`) with `HVAC_REAL_REPAIRS` / `HVAC_OVERDUE_*` from `shared/hvac-overdue-costs.ts`, DOE 5–15% line, live unit price vs repair, and link to `CHANGE_GUIDE_PATH`. Change-guide wait stages reuse the same shared costs.
+- **Files:** `shared/hvac-overdue-costs.ts`, `client/src/pages/SizeDetail.tsx`, `client/src/index.css`, `client/src/pages/FilterChangeGuide.tsx`
+- **Verify:** `/sizes/20x25x1` desktop — below trust chips, named repair prices sit in the navy column beside quantity / Add to cart.
+- **Added:** 2026-09-19
+- **Fixed:** 2026-09-19
+
+---
+
+### FH-284 — MERV pick copy skipped capacity / resistance
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** FAQ, llms, home MERV, and size pages said “confirm higher MERV” or nothing about capacity. Shoppers were not told that tighter filters add resistance and that modern units handle higher ratings better than older ones.
+- **Do NOT:** Soften or drop capacity/resistance/modern-vs-older language from `shared/merv-capacity.ts`, or re-duplicate a weaker MERV FAQ answer in `site-config.json` / `llms.txt` / component locals.
+- **Do:** Import `MERV_CAPACITY_NOTE`, `MERV_CAPACITY_SHORT`, and `MERV_PICK_FAQ_ANSWER` from `shared/merv-capacity.ts` on FAQ, SEO/llms, `#merv`, size Choose MERV, Filter Clock, family stories, and brand heroes. Keep per-rating notes in `MERV_GUIDE` aligned with that capacity story.
+- **Files:** `shared/merv-capacity.ts`, `shared/seo.ts`, `server/data/site-config.json`, `client/public/llms.txt`, `client/src/lib/merv-guide.ts`, `MervCarousel.tsx`, `SizeDetail.tsx`, `FilterPower.tsx`, `FamilyAirSection.tsx`, `BrandBrowse.tsx`, `scripts/verify-store.ts`
+- **Verify:** `/#merv` intro + compare footer; `/sizes/20x25x1` Choose MERV note + MERV FAQ; `/#faq` What MERV; `pnpm exec tsx scripts/verify-store.ts`.
+- **Added:** 2026-09-19
+- **Fixed:** 2026-09-19
+
+---
+
+### FH-283 — Size pages had no how-to-replace section
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Product size pages had measure + finder, but no on-page how-to for seating a new filter. Shoppers had to leave for the change guide.
+- **Do NOT:** Drop `HowToReplaceGuide` from catalog size pages, or put another graphic ahead of `LIFE.howToInstall` in that section’s shot list.
+- **Do:** Keep `HowToReplaceGuide` first in the white PDP panel (`#how-to-replace`). Lead with `/life/how-to-install.png`, then wall + ceiling support shots. Link through to `CHANGE_GUIDE_PATH`.
+- **Files:** `client/src/components/HowToReplaceGuide.tsx`, `client/src/pages/SizeDetail.tsx`, `client/src/data/life-photos.ts`, `client/public/life/how-to-install.png`
+- **Verify:** `/sizes/20x25x1` — How to / Replace your air filter shows the install graphic first, then two support photos, above How to measure.
+- **Added:** 2026-09-19
+- **Fixed:** 2026-09-19
 
 ---
 

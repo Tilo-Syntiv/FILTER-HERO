@@ -134,6 +134,12 @@ export const LIFE = {
     height: 1440,
     position: "40% center",
   },
+  howToInstall: {
+    src: "/life/how-to-install.png",
+    alt: "Filter Hero how-to graphic: install a ceiling return filter in three steps",
+    width: 1024,
+    height: 1024,
+  },
   installWall: {
     src: "/life/install-wall.jpg",
     alt: "A homeowner sliding a new pleated air filter into a wall return vent",

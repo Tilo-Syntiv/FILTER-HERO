@@ -30,6 +30,7 @@ import {
 import LifeImage from "@/components/LifeImage";
 import { LIFE, type LifePhoto } from "@/data/life-photos";
 import { liveListPrice } from "@shared/products";
+import { HVAC_REAL_REPAIRS, HVAC_WAIT_STAGES } from "@shared/hvac-overdue-costs";
 
 const FLAGSHIP_FILTER_PRICE = liveListPrice("20x25x1", 8) ?? 9.99;
 
@@ -183,28 +184,7 @@ const STEPS: { num: string; title: string; body: string; icon: ReactNode }[] = [
   },
 ];
 
-const WAIT_STAGES = [
-  {
-    when: "1–2 months late",
-    what: "Dust wins. Energy creeps 5–15%. You probably haven’t noticed yet — that’s the trap.",
-    cost: "Quiet money leak",
-  },
-  {
-    when: "3–6 months late",
-    what: "Weak airflow, uneven rooms, a film on the TV. The blower is already working overtime.",
-    cost: "Comfort + wear",
-  },
-  {
-    when: "6–12 months late",
-    what: "Iced evaporator coils in summer. Overheated furnace in winter. Service techs see this every week.",
-    cost: "$150–$500 repairs",
-  },
-  {
-    when: "A year or more",
-    what: "Heat exchanger stress, compressor strain, the kind of failure that becomes a replacement quote.",
-    cost: "$1,000–$5,000+",
-  },
-];
+const WAIT_STAGES = HVAC_WAIT_STAGES;
 
 function LightTest() {
   const [load, setLoad] = useState(28);
@@ -636,8 +616,11 @@ export default function FilterChangeGuidePage() {
             </h2>
             <p className="mb-10 max-w-2xl text-muted-foreground leading-relaxed">
               A late filter is quiet at first. Then it’s the energy bill. Then
-              it’s a technician. Repair ranges below are typical residential
-              ballparks — your house may be kinder, or meaner.
+              it’s a technician. Numbers below are typical U.S. residential
+              repair ballparks for the jobs a clogged filter helps cause —
+              your house may be kinder, or meaner. A $
+              {FLAGSHIP_FILTER_PRICE.toFixed(2)} filter is still cheaper than
+              any of them.
             </p>
             <LifeImage
               photo={LIFE.filterMonths}
@@ -660,10 +643,39 @@ export default function FilterChangeGuidePage() {
                   <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-white/70">
                     {stage.when}
                   </p>
-                  <p className="mt-2 text-lg font-extrabold tracking-tight">{stage.cost}</p>
+                  <p className="mt-2 text-2xl font-extrabold tracking-tight md:text-[1.65rem]">
+                    {stage.cost}
+                  </p>
                   <p className="mt-3 text-sm leading-relaxed text-white/85">{stage.what}</p>
                 </article>
               ))}
+            </div>
+
+            <div className="mt-6 overflow-hidden rounded-2xl border border-border/80 bg-white">
+              <div className="border-b border-border/70 bg-deep px-4 py-3 sm:px-5">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-ice">
+                  Real repairs · real sticker prices
+                </p>
+                <p className="mt-1 text-sm font-bold text-white">
+                  What homeowners pay when airflow stays blocked
+                </p>
+              </div>
+              <ul className="divide-y divide-border/70">
+                {HVAC_REAL_REPAIRS.map((row) => (
+                  <li
+                    key={row.name}
+                    className="flex flex-col gap-1 px-4 py-3.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6 sm:px-5"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-extrabold tracking-tight text-deep">{row.name}</p>
+                      <p className="mt-0.5 text-sm text-muted-foreground">{row.note}</p>
+                    </div>
+                    <p className="shrink-0 text-xl font-extrabold tracking-tight text-hero sm:text-right">
+                      {row.price}
+                    </p>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </section>

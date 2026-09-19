@@ -11,6 +11,7 @@ import {
   ShoppingCart,
   Truck,
   Wind,
+  ArrowRight,
 } from "lucide-react";
 import {
   MERV_TYPES,
@@ -40,6 +41,7 @@ import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
 import FilterFinder from "@/components/FilterFinder";
 import HowToMeasureGuide from "@/components/HowToMeasureGuide";
+import HowToReplaceGuide from "@/components/HowToReplaceGuide";
 import FaqSection from "@/components/FaqSection";
 import LifeImage from "@/components/LifeImage";
 import { cn } from "@/lib/utils";
@@ -52,6 +54,14 @@ import { brandsForSize } from "@shared/hvac-brands";
 import BrandLogo from "@/components/BrandLogo";
 import { LIFE } from "@/data/life-photos";
 import { MERV_GUIDE } from "@/lib/merv-guide";
+import { MERV_CAPACITY_SHORT } from "@shared/merv-capacity";
+import {
+  HVAC_DIRTY_FILTER_ENERGY,
+  HVAC_OVERDUE_HEADLINE,
+  HVAC_OVERDUE_KICKER,
+  HVAC_OVERDUE_SUB,
+  HVAC_REAL_REPAIRS,
+} from "@shared/hvac-overdue-costs";
 import {
   getPreferredMerv,
   getPowerPackQty,
@@ -176,8 +186,8 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
         question: `What MERV options are available for ${decoded}?`,
         category: "MERV",
         answer: inCatalog
-          ? `${decoded} is available in ${mervOptions}. Choose based on everyday dust, pets/allergies, or high filtration needs. Carbon and other ratings can be quoted if you need them.`
-          : "Once we confirm your custom size, we can quote MERV 8, 11, 13, or carbon options when available.",
+          ? `${decoded} is available in ${mervOptions}. Choose based on everyday dust, pets/allergies, or high filtration needs. ${MERV_CAPACITY_SHORT} Carbon and other ratings can be quoted if you need them.`
+          : `Once we confirm your custom size, we can quote MERV 8, 11, 13, or carbon options when available. ${MERV_CAPACITY_SHORT}`,
         action: { href: "/#merv", label: "Compare MERV ratings" },
       },
     ],
@@ -364,6 +374,30 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                     <ShieldCheck className="h-4 w-4" /> Major brands + custom
                   </li>
                 </ul>
+
+                <aside className="product-overdue" aria-label="Cost of skipping a filter change">
+                  <p className="product-overdue-kicker">{HVAC_OVERDUE_KICKER}</p>
+                  <p className="product-overdue-title">{HVAC_OVERDUE_HEADLINE}</p>
+                  <p className="product-overdue-sub">{HVAC_OVERDUE_SUB}</p>
+                  <ul className="product-overdue-list">
+                    {HVAC_REAL_REPAIRS.map((row) => (
+                      <li key={row.name}>
+                        <span className="product-overdue-repair">{row.name}</span>
+                        <span className="product-overdue-dollar">{row.price}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="product-overdue-energy">
+                    Dirty filter → cooling costs up {HVAC_DIRTY_FILTER_ENERGY} (U.S. DOE)
+                  </p>
+                  <p className="product-overdue-vs">
+                    A ${unitPrice.toFixed(2)} filter is cheaper than any line above.
+                  </p>
+                  <Link href={CHANGE_GUIDE_PATH} className="product-overdue-link">
+                    See the overdue curve
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </aside>
               </div>
 
               <div className="product-buy">
@@ -430,6 +464,9 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                     <p className="pdp-merv-copy">
                       <span>{guide.bestFor}.</span> {guide.note} Catches{" "}
                       {guide.catches.join(", ").toLowerCase()}.
+                    </p>
+                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                      {MERV_CAPACITY_SHORT}
                     </p>
                   </div>
                 </div>
@@ -615,6 +652,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
               )}
 
               <div className="mt-12 rounded-3xl bg-white p-4 sm:p-6 text-foreground space-y-10">
+                <HowToReplaceGuide />
                 <HowToMeasureGuide />
                 <FilterFinder showPopular compact />
               </div>

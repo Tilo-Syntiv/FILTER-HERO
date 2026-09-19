@@ -15,6 +15,7 @@ import {
   type Thickness,
 } from "@/lib/filter-cadence";
 import { CHANGE_GUIDE_PATH } from "@shared/seo";
+import { MERV_CAPACITY_SHORT } from "@shared/merv-capacity";
 import { THICKNESSES, mervTypesForDisplay } from "@shared/products";
 import { setPowerPackQty, setPreferredMerv } from "@/lib/merv-pref";
 import { scrollToHashTarget } from "@/hooks/useHashScroll";
@@ -237,7 +238,8 @@ export default function FilterPower() {
             </p>
             <p className="mt-1 text-xl font-extrabold tracking-tight">{result.packHeadline}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {result.packDetail} Suggested MERV: {result.recommendedMervName}.
+              {result.packDetail} Suggested MERV: {result.recommendedMervName}.{" "}
+              {MERV_CAPACITY_SHORT}
             </p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
               <Link
