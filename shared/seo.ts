@@ -34,7 +34,7 @@ export const SITE_DEFAULTS = {
   email: BRAND_EMAIL,
   titleDefault: `${BRAND_NAME} | Exact-Fit HVAC & Furnace Air Filters`,
     descriptionDefault:
-    "Find your exact HVAC filter size in seconds. Shop MERV 8, MERV 8 Carbon, 11, and 13 air filters by Width × Length × Depth with bulk pricing and a 30-day fit guarantee.",
+    "Find your exact HVAC filter size in seconds. Shop MERV 8, MERV 8 Carbon, 11, and 13 air filters by Width × Length × Depth with bulk pricing and a guaranteed fit for major brands and custom sizes.",
   locale: "en_US",
   twitterHandle: "",
 } as const;
@@ -102,7 +102,7 @@ export const SITE_FAQS: FaqItem[] = [
     question: "Where do you ship?",
     category: "Ordering",
     answer:
-      `${BRAND_NAME} ships HVAC filters within the contiguous United States from four fulfillment centers. About 80% of the country can receive 2-day delivery. Standard catalog sizes also carry a 30-day fit guarantee.`,
+      `${BRAND_NAME} ships HVAC filters within the contiguous United States from four fulfillment centers. About 80% of the country can receive 2-day delivery. Filters are guaranteed to fit major HVAC brands, and sizes we do not list can be custom-fit.`,
     action: { href: "/#delivery", label: "See delivery times" },
   },
 ];
@@ -232,7 +232,7 @@ export function sizeSeo(siteUrl: string, size: FilterSize | string) {
     : "";
   return {
     title: `${slug} Air Filter | HVAC & Furnace | ${BRAND_NAME}`,
-    description: `Buy ${slug} air filters for HVAC and furnace systems. Choose ${sellableMervPhrase(slug)}.${actual} Bulk packs, a 30-day fit guarantee, and fast checkout.`,
+    description: `Buy ${slug} air filters for HVAC and furnace systems. Choose ${sellableMervPhrase(slug)}.${actual} Bulk packs, a guaranteed fit for major brands and custom sizes, and fast checkout.`,
     path,
     canonical: absoluteUrl(siteUrl, path),
     type: "product" as const,
@@ -320,13 +320,6 @@ export function buildOnlineStoreSchema(siteUrl: string) {
     currenciesAccepted: "USD",
     paymentAccepted: "Credit Card",
     areaServed: { "@type": "Country", name: "United States" },
-    hasMerchantReturnPolicy: {
-      "@type": "MerchantReturnPolicy",
-      returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-      merchantReturnDays: 30,
-      returnMethod: "https://schema.org/ReturnByMail",
-      applicableCountry: "US",
-    },
   };
 }
 
@@ -540,13 +533,6 @@ export function buildProductSchema(
       availability: "https://schema.org/InStock",
       itemCondition: "https://schema.org/NewCondition",
       seller: { "@type": "Organization", name: BRAND_NAME },
-      hasMerchantReturnPolicy: {
-        "@type": "MerchantReturnPolicy",
-        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-        merchantReturnDays: 30,
-        returnMethod: "https://schema.org/ReturnByMail",
-        applicableCountry: "US",
-      },
     },
   };
 }

@@ -127,6 +127,13 @@ export const LIFE = {
     height: 682,
     position: "center 38%",
   },
+  shippingWarehouse: {
+    src: "/life/shipping-warehouse.png",
+    alt: "A fulfillment worker scanning a sealed shipping box in a warehouse aisle",
+    width: 2560,
+    height: 1440,
+    position: "40% center",
+  },
   installWall: {
     src: "/life/install-wall.jpg",
     alt: "A homeowner sliding a new pleated air filter into a wall return vent",

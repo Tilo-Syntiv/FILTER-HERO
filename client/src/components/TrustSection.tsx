@@ -23,12 +23,12 @@ export default function TrustSection() {
       icon: Truck,
       title: "2-day delivery",
       description: "Four US fulfillment centers — about 80% of the country in two days",
-      photo: LIFE.installWall,
+      photo: LIFE.shippingWarehouse,
     },
     {
       icon: ShieldCheck,
-      title: "30-day guarantee",
-      description: "Wrong fit? Full refund within 30 days",
+      title: "Guaranteed to fit",
+      description: "Major brands and custom sizes — we make them fit",
       photo: LIFE.installCeilingMan,
     },
     {
@@ -54,9 +54,9 @@ export default function TrustSection() {
             Built for an exact-fit buy — and the people at home
           </h2>
           <p className="mt-3 max-w-xl text-muted-foreground leading-relaxed">
-            A 30-day fit guarantee and real humans if the label is
-            unreadable. The point is cleaner air for kids, pets, and anyone
-            who sleeps in the house.
+            Guaranteed to fit major brands and custom sizes, plus real
+            humans if the label is unreadable. The point is cleaner air for
+            kids, pets, and anyone who sleeps in the house.
           </p>
         </div>
 

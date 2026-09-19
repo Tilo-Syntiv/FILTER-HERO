@@ -61,7 +61,7 @@
     },
     {
       "question": "Where do you ship?",
-      "answer": "Filter Hero ships HVAC filters within the contiguous United States from four fulfillment centers. About 80% of the country can receive 2-day delivery. Standard catalog sizes also carry a 30-day fit guarantee.",
+      "answer": "Filter Hero ships HVAC filters within the contiguous United States from four fulfillment centers. About 80% of the country can receive 2-day delivery. Filters are guaranteed to fit major HVAC brands, and sizes we do not list can be custom-fit.",
       "category": "Ordering",
       "action": {
         "href": "/#delivery",

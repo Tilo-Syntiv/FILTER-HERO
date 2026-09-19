@@ -361,7 +361,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                     <Truck className="h-4 w-4" /> 2-day delivery
                   </li>
                   <li>
-                    <ShieldCheck className="h-4 w-4" /> 30-day guarantee
+                    <ShieldCheck className="h-4 w-4" /> Major brands + custom
                   </li>
                 </ul>
               </div>

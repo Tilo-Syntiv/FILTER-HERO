@@ -7,7 +7,7 @@ const FEATURED = {
 };
 
 const ITEMS = [
-  { icon: ShieldCheck, label: "30-day fit guarantee" },
+  { icon: ShieldCheck, label: "Guaranteed to fit + custom" },
   { icon: Crosshair, label: "All Sizes Available" },
   { icon: Hammer, label: "Built To Last" },
   { icon: Sparkles, label: "MERV 8 · MERV 8 Carbon · MERV 11 · MERV 13" },

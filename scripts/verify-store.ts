@@ -33,7 +33,7 @@ import {
   liveListPrice,
   liveUnitPrice,
 } from "../shared/pricing/engine.ts";
-import { SITE_FAQS, resolveDocumentSeo, sitemapPaths } from "../shared/seo.ts";
+import { SITE_DEFAULTS, SITE_FAQS, resolveDocumentSeo, sitemapPaths } from "../shared/seo.ts";
 import { resolvePreferredMerv } from "../client/src/lib/merv-pref.ts";
 
 function assert(cond: unknown, message: string): asserts cond {
@@ -47,10 +47,19 @@ assert(
   /contiguous United States/i.test(shippingFaq.answer) && !/free shipping/i.test(shippingFaq.answer),
   `shipping FAQ must not promise free shipping, got: ${shippingFaq.answer}`,
 );
+assert(
+  !/30-day (fit )?guarantee/i.test(shippingFaq.answer),
+  `shipping FAQ must not promise a 30-day guarantee, got: ${shippingFaq.answer}`,
+);
 const sizeDoc = resolveDocumentSeo("/sizes/20x25x1", "https://filterhero.net");
 assert(
   !/free shipping/i.test(sizeDoc.description),
   `size SEO must not promise free shipping, got: ${sizeDoc.description}`,
+);
+assert(
+  !/30-day (fit )?guarantee/i.test(sizeDoc.description) &&
+    !/30-day (fit )?guarantee/i.test(SITE_DEFAULTS.descriptionDefault),
+  "shopper SEO must not promise a 30-day guarantee",
 );
 const sizeJson = JSON.stringify(sizeDoc.jsonLd ?? []);
 assert(sizeJson.includes("9.99"), "20x25x1 JSON-LD must use live qty-1 $9.99");

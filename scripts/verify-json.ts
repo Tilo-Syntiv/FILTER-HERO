@@ -231,6 +231,11 @@ for (const route of routes) {
     record("jsonld:home:types", ["Organization", "OnlineStore", "WebSite", "FAQPage", "HowTo", "WebPage", "BreadcrumbList"].every((t) => types.has(t)), [...types].join(","));
     const blob = JSON.stringify(extracted);
     record("jsonld:home:shipping", /contiguous/i.test(blob) && !/free shipping/i.test(blob), "no free-shipping claim");
+    record(
+      "jsonld:home:no-30-day-return",
+      !/merchantReturnDays":\s*30/i.test(blob) && !/30-day (fit )?guarantee/i.test(blob),
+      "no 30-day return window or guarantee",
+    );
   }
 
   if (route === "/sizes/20x25x1") {
@@ -250,6 +255,12 @@ for (const route of routes) {
       speakableUrl || "missing",
     );
     record("jsonld:size:shipping-offer", !JSON.stringify(extracted).includes("OfferShippingDetails"), "no $0 shippingDetails");
+    record(
+      "jsonld:size:no-30-day-return",
+      !/merchantReturnDays":\s*30/i.test(JSON.stringify(extracted)) &&
+        !/30-day (fit )?guarantee/i.test(JSON.stringify(extracted)),
+      "no 30-day return window or guarantee",
+    );
   }
 
   if (route === CHANGE_GUIDE_PATH) {

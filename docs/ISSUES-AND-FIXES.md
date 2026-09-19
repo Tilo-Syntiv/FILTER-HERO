@@ -14,7 +14,33 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-281**
+Next id: **FH-283**
+
+---
+
+### FH-282 — Shop still promised a 30-day guarantee
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Why Filter Hero card, marquee, size-page chip, FAQ, meta, and `/llms.txt` said “30-day guarantee” / “30-day fit guarantee” with a refund-in-30-days line. JSON-LD also advertised `merchantReturnDays: 30`.
+- **Do NOT:** Put a 30-day guarantee, 30-day fit guarantee, “full refund within 30 days,” or `merchantReturnDays: 30` back on any shopper surface (trust cards, marquee, size chips, FAQ, meta, JSON-LD OnlineStore/Offer, `/llms.txt`).
+- **Do:** Talk about a guaranteed fit for major brands and custom sizes. Trust card title is “Guaranteed to fit”; body is “Major brands and custom sizes — we make them fit.” Omit MerchantReturnPolicy until a real policy is published.
+- **Files:** `client/src/components/TrustSection.tsx`, `client/src/components/TrustMarquee.tsx`, `client/src/pages/SizeDetail.tsx`, `shared/seo.ts`, `client/index.html`, `server/data/site-config.json`, `client/public/llms.txt`, `scripts/verify-store.ts`, `scripts/verify-json.ts`
+- **Verify:** `/` Why Filter Hero second card and intro; marquee chip; `/sizes/20x25x1` trust list; `/#faq` shipping answer; `pnpm verify:store`; `pnpm verify:json`.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
+
+---
+
+### FH-281 — 2-day delivery card used a wall-install photo
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Homepage Why Filter Hero “2-day delivery” showed `LIFE.installWall` (homeowner seating a filter). The warehouse scan photo belongs in that slot.
+- **Do NOT:** Point the 2-day delivery trust card back at `LIFE.installWall`. Do not swap Size Detail, Size Browse, or the filter-change guide — those keep the wall install.
+- **Do:** Keep `LIFE.shippingWarehouse` (`/life/shipping-warehouse.png`, `object-position: 40% center`) on the 2-day delivery card so the box and scanner stay in the 5:4 crop.
+- **Files:** `client/src/components/TrustSection.tsx`, `client/src/data/life-photos.ts`, `client/public/life/shipping-warehouse.png`
+- **Verify:** `/` Why Filter Hero — first card is the warehouse scan, not the wall vent.
+- **Added:** 2026-09-18
+- **Fixed:** 2026-09-18
 
 ---
 
