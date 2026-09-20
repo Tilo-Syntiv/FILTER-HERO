@@ -155,8 +155,8 @@ async function main() {
   if (/free shipping/i.test(sizeCopy)) {
     throw new Error("size page must not promise free shipping");
   }
-  if (!/2-day delivery/i.test(sizeCopy)) {
-    throw new Error("size page must keep the 2-day delivery chip");
+  if (!/2-3 day delivery/i.test(sizeCopy)) {
+    throw new Error("size page must keep the 2-3 day delivery chip");
   }
 
   await page.getByRole("button", { name: /add \d+ to cart/i }).first().click();

@@ -21,15 +21,16 @@ export default function TrustSection() {
   }[] = [
     {
       icon: Truck,
-      title: "2-day delivery",
-      description: "Four US fulfillment centers — about 80% of the country in two days",
+      title: "2-3 day delivery",
+      description: "Four US fulfillment centers — about 80% of the country in 2-3 days",
       photo: LIFE.shippingWarehouse,
     },
     {
       icon: ShieldCheck,
-      title: "Guaranteed to fit",
-      description: "Major brands and custom sizes — we make them fit",
-      photo: LIFE.installCeilingMan,
+      title: "Built to last",
+      description: "Beverage-board frames and metal-mesh support — holds its shape",
+      photo: LIFE.filterLayers,
+      graphic: true,
     },
     {
       icon: Crosshair,
@@ -76,18 +77,16 @@ export default function TrustSection() {
                     photo={point.photo}
                     className={cn(
                       "aspect-[5/4] rounded-xl",
-                      point.graphic && "!bg-white",
+                      point.graphic && "!bg-[#e8ecf2]",
                     )}
                     imgClassName={
-                      point.graphic ? "object-contain p-5" : undefined
+                      point.graphic ? "object-contain" : undefined
                     }
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
-                  {!point.graphic && (
-                    <div className="absolute bottom-3 left-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/95 text-primary shadow-sm">
-                      <Icon className="h-5 w-5" strokeWidth={1.75} />
-                    </div>
-                  )}
+                  <div className="absolute bottom-3 left-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/95 text-primary shadow-sm">
+                    <Icon className="h-5 w-5" strokeWidth={1.75} />
+                  </div>
                 </div>
                 <h3 className="font-bold text-base mb-2 tracking-tight">
                   {point.title}

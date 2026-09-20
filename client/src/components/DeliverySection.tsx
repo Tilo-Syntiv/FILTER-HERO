@@ -194,7 +194,7 @@ export default function DeliverySection() {
             id="delivery-heading"
             className="text-3xl font-bold tracking-tight text-navy md:text-4xl lg:text-[2.6rem]"
           >
-            2-day delivery for 80% of the US
+            2-3 day delivery for 80% of the US
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-navy/70 md:text-lg">
             Ships from 4 fulfillment centers across the USA.

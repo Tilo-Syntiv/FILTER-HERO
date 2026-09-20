@@ -140,6 +140,12 @@ export const LIFE = {
     width: 1024,
     height: 1024,
   },
+  filterLayers: {
+    src: "/products/merv-8-layers.png",
+    alt: "Exploded MERV 8 filter: beverage-board frames, pleated media, and metal mesh support",
+    width: 1024,
+    height: 1024,
+  },
   installWall: {
     src: "/life/install-wall.jpg",
     alt: "A homeowner sliding a new pleated air filter into a wall return vent",

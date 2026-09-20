@@ -107,7 +107,7 @@ export const SITE_FAQS: FaqItem[] = [
     question: "Where do you ship?",
     category: "Ordering",
     answer:
-      `${BRAND_NAME} ships HVAC filters within the contiguous United States from four fulfillment centers. About 80% of the country can receive 2-day delivery. Filters are guaranteed to fit major HVAC brands, and sizes we do not list can be custom-fit.`,
+      `${BRAND_NAME} ships HVAC filters within the contiguous United States from four fulfillment centers. About 80% of the country can receive 2-3 day delivery. Filters are guaranteed to fit major HVAC brands, and sizes we do not list can be custom-fit.`,
     action: { href: "/#delivery", label: "See delivery times" },
   },
 ];
@@ -616,7 +616,7 @@ export function buildLlmsTxt(siteUrl: string): string {
 - Sizing model: Width × Length × Depth (nominal + actual listed)
 - MERV options: ${mervList}
 - Thicknesses: ${THICKNESSES.map((d) => `${d}"`).join(", ")}
-- Shipping: Contiguous United States from 4 fulfillment centers; 2-day delivery for about 80% of the US
+- Shipping: Contiguous United States from 4 fulfillment centers; 2-3 day delivery for about 80% of the US
 
 ## Key pages
 - Home / size finder: ${absoluteUrl(siteUrl, "/")}

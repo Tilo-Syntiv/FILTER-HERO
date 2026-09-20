@@ -14,7 +14,121 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-291**
+Next id: **FH-300**
+
+---
+
+### FH-299 — Built to last card was taller than the other trust photos
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** FH-298 used `aspect-square` so the 1024×1024 layers art would not clip. That card sat taller than the 5:4 warehouse / ceiling / tech photos, so titles did not line up.
+- **Do NOT:** Give only the layers card `aspect-square`. Do not cover-crop it back to 5:4. Do not add `p-5`.
+- **Do:** All four Why Filter Hero frames are `aspect-[5/4]`. Layers stays `object-contain` on studio `#e8ecf2` so the full diagram fits the same-height frame.
+- **Files:** `client/src/components/TrustSection.tsx`
+- **Verify:** `/` Why Filter Hero — four photo frames the same height; Built to last still shows labels and filter bottoms.
+- **Added:** 2026-09-20
+- **Fixed:** 2026-09-20
+
+---
+
+### FH-298 — Built to last layers crop clipped the diagram and labels
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** 5:4 `object-cover` + `center top` cut the filter bottoms and made Frame / Filter media / Support type too small to read. Extra `p-5` contain (FH-297) had the opposite problem — a postage stamp on white.
+- **Do NOT:** Cover-crop `/products/merv-8-layers.png` into `aspect-[5/4]`. Do not add `p-5` around it.
+- **Do:** Full 1024×1024 diagram stays in view (`object-contain`, no `p-5`). Frame height matches the other cards via 5:4 (FH-299).
+- **Files:** `client/src/components/TrustSection.tsx`, `client/src/data/life-photos.ts`
+- **Verify:** `/` Why Filter Hero second card — full exploded diagram, readable labels, no bottom clip.
+- **Added:** 2026-09-20
+- **Fixed:** 2026-09-20
+
+---
+
+### FH-297 — Built to last layers graphic did not fill the trust card
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** Why Filter Hero “Built to last” used `graphic: true` (`object-contain` + padding on white). The exploded diagram sat in a letterbox while the other three cards were full-bleed 5:4 crops.
+- **Do NOT:** Add `p-5` around the layers graphic (postage-stamp letterbox).
+- **Do:** Card fill without clipping is FH-298. Title/body/photo stay FH-296.
+- **Files:** `client/src/components/TrustSection.tsx`, `client/src/data/life-photos.ts`
+- **Verify:** `/` Why Filter Hero — second card fills the rounded frame like the warehouse / ceiling / tech shots.
+- **Added:** 2026-09-20
+- **Fixed:** 2026-09-20
+
+---
+
+### FH-296 — Why Filter Hero fit card should say Built to last
+- **Status:** fixed
+- **Area:** photos
+- **Symptom:** The second Why Filter Hero card said “Guaranteed to fit” with `LIFE.installCeilingMan` (ceiling install). Shopper asked for “Built to last” and the exploded construction diagram.
+- **Do NOT:** Put “Guaranteed to fit” or `LIFE.installCeilingMan` back on that trust card.
+- **Do:** Title is “Built to last.” Body is “Beverage-board frames and metal-mesh support — holds its shape.” Photo is `LIFE.filterLayers` (`/products/merv-8-layers.png`). Crop fill is FH-297. Fit promise stays on the section intro, marquee, and size-page chip.
+- **Files:** `client/src/components/TrustSection.tsx`, `client/src/data/life-photos.ts`
+- **Verify:** `/` Why Filter Hero second card.
+- **Added:** 2026-09-20
+- **Fixed:** 2026-09-20
+
+---
+
+### FH-295 — Delivery promise said 2-day instead of 2-3 day
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Homepage Why Filter Hero card, size-page chip, delivery heading, shipping FAQ, and `/llms.txt` said “2-day delivery” / “in two days.” The real window is 2-3 days.
+- **Do NOT:** Put “2-day delivery” or “in two days” back as the shopper promise.
+- **Do:** Say 2-3 day delivery on the trust card, size chip, `/#delivery` heading, shipping FAQ, and llms copy. Map legend can still break out 1 day / 2 days / 3+ days.
+- **Files:** `client/src/components/TrustSection.tsx`, `client/src/pages/SizeDetail.tsx`, `client/src/components/DeliverySection.tsx`, `shared/seo.ts`, `server/data/site-config.json`, `client/public/llms.txt`, `scripts/click-ui.ts`
+- **Verify:** Homepage Why Filter Hero card. `/#delivery`. `/sizes/20x25x1` chip. FAQ “Where do you ship?”
+- **Added:** 2026-09-20
+- **Fixed:** 2026-09-20
+
+---
+
+### FH-294 — Sandbox Stripe webhooks impersonated live FILTER HERO
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Local `STRIPE_SECRET_KEY` is FILTER HERO sandbox (`acct_1U9bqs790NnFGDLv`). That account had Dashboard endpoints to `https://filterhero.net/api/stripe/webhook` and `https://a.klaviyo.com/api/webhook/integration/stripe?c=VnVNmQ`. `verify:env` treated both as success. Live Klaviyo OAuth is FILTER HERO (`acct_1U9bqlQEENEs0Qmw`). Test Checkout could POST signed sandbox events at production; Klaviyo Connect on sandbox cannot record Successfully Paid.
+- **Do NOT:** Point sandbox or FILTER HERO test-mode endpoints at filterhero.net. Do not treat a sandbox copy of the Klaviyo URL as `oauthAccountMatch`. Do not run `pnpm setup:klaviyo-stripe` against sandbox keys. Do not add Checkout events to the Klaviyo endpoint.
+- **Do:** Shop fulfillment webhook only on FILTER HERO live. Local uses `stripe listen`. Native charge/invoice webhook only on FILTER HERO. `pnpm setup:stripe-webhook` scrubs the wrong endpoints. Webhook handler ignores livemode/key mismatches. Shared invariant is `shared/stripe-accounts.ts`.
+- **Files:** `shared/stripe-accounts.ts`, `server/stripe-webhooks.ts`, `server/stripe.ts`, `server/klaviyo-stripe.ts`, `scripts/setup-stripe-webhook.ts`, `scripts/verify-env.ts`, `scripts/verify-stripe-books.ts`, `scripts/check-klaviyo-stripe.ts`, `scripts/debug-stripe-checkout.ts`, `scripts/verify-klaviyo.ts`, `client/src/pages/admin/Settings.tsx`, `docs/STRIPE-BOOKS.md`
+- **Verify:** `pnpm setup:stripe-webhook` (sandbox). `pnpm verify:env`. `pnpm exec tsx scripts/check-klaviyo-stripe.ts`. `pnpm verify:stripe-books`. `pnpm verify:klaviyo`. Staff Settings shows oauth mismatch on sandbox without leftover conflict dots.
+- **Added:** 2026-09-20
+- **Fixed:** 2026-09-20
+
+---
+
+### FH-293 — Klaviyo refunds unmapped and welcome-list fallback could split Email List
+- **Status:** fixed
+- **Area:** other
+- **Symptom:** Live `refunded_sales` had no metric, so Klaviyo revenue would not subtract Stripe **Refunded Payment**. `resolveMarketingListId` looked for **Filter Hero Marketing** and could create a second list if `KLAVIYO_LIST_ID` was empty — Welcome stays on **Email List** `RiTKiS`. `pnpm inspect:klaviyo` also 400ed `/api/brand-logos` on revision `2026-07-15`.
+- **Do NOT:** Map revenue or a flow to **Successfully Paid**. Do not trigger welcome / abandon / replenish / a receipt from that metric. Do not create a second marketing list. Do not map `cancelled_sales` to Checkout Expired.
+- **Do:** `refunded_sales` → Refunded Payment (`TvC7dY`). List resolution prefers `RiTKiS` / Email List. `pnpm verify:klaviyo` fails if an extra flow appears, if replenish uses `clock_next_change_date`, or if Successfully Paid / quote / clock metrics trigger a flow.
+- **Files:** `server/klaviyo.ts`, `scripts/verify-klaviyo.ts`, `scripts/map-klaviyo-metrics.ts`, `scripts/inspect-klaviyo-account.ts`, `docs/KLAVIYO.md`
+- **Verify:** `pnpm verify:klaviyo`. `pnpm map:klaviyo-metrics`. Live mapped-metrics `refunded_sales` is `TvC7dY`.
+- **Added:** 2026-09-20
+
+### FH-292 — Stripe webhook could send a second Resend confirmation
+- **Status:** fixed
+- **Area:** contact
+- **Symptom:** `checkout.session.completed` always called `sendOrderConfirmation`. Resend idempotency keys last 24 hours; Stripe retries for up to 3 days, so a late retry could mail a second branded confirmation.
+- **Do NOT:** Skip the send whenever the order row already exists — a first-send failure still needs the retry. Do not rely on Resend idempotency alone.
+- **Do:** Persist `confirmationSentAt` on the order only after Resend accepts the send. Retries keep trying until that stamp lands, then stop.
+- **Files:** `server/stripe.ts`, `scripts/verify-resend.ts`, `docs/RESEND.md`
+- **Verify:** `pnpm verify:resend`. Webhook QA: no stamp when Resend is down, stamp after retry, unchanged on a second retry.
+- **Added:** 2026-09-20
+- **Fixed:** 2026-09-20
+
+---
+
+### FH-291 — Resend verify died on Turnstile
+- **Status:** fixed
+- **Area:** contact
+- **Symptom:** `pnpm verify:resend` sent the branded templates, then `submitContact` quote QA threw `Could not verify that form` because a local `TURNSTILE_SECRET_KEY` (or `NODE_ENV=production`) enforces the widget. CRM and Klaviyo were already off; Turnstile was not.
+- **Do NOT:** Disable Turnstile in production contact. Do not skip `shouldEnforceTurnstile` on quote/support. Do not treat a failed verify as a dead Resend key.
+- **Do:** Unset `TURNSTILE_SECRET_KEY` and force a non-production `NODE_ENV` only inside the `submitContact` QA block, then restore both. Clock reminders stay widget-free.
+- **Files:** `scripts/verify-resend.ts`, `docs/RESEND.md`
+- **Verify:** `pnpm verify:resend` with a real Turnstile secret in `.env`. Output includes send ids for staff, quote, support, and order, plus `submitContact` quote/clock ids.
+- **Added:** 2026-09-20
+- **Fixed:** 2026-09-20
 
 ---
 
@@ -127,7 +241,7 @@ Next id: **FH-291**
 - **Area:** other
 - **Symptom:** Why Filter Hero card, marquee, size-page chip, FAQ, meta, and `/llms.txt` said “30-day guarantee” / “30-day fit guarantee” with a refund-in-30-days line. JSON-LD also advertised `merchantReturnDays: 30`.
 - **Do NOT:** Put a 30-day guarantee, 30-day fit guarantee, “full refund within 30 days,” or `merchantReturnDays: 30` back on any shopper surface (trust cards, marquee, size chips, FAQ, meta, JSON-LD OnlineStore/Offer, `/llms.txt`).
-- **Do:** Talk about a guaranteed fit for major brands and custom sizes. Trust card title is “Guaranteed to fit”; body is “Major brands and custom sizes — we make them fit.” Omit MerchantReturnPolicy until a real policy is published.
+- **Do:** Talk about a guaranteed fit for major brands and custom sizes on the Why Filter Hero intro, marquee, and size-page chip. The second trust card is “Built to last” (FH-296), not a 30-day guarantee. Omit MerchantReturnPolicy until a real policy is published.
 - **Files:** `client/src/components/TrustSection.tsx`, `client/src/components/TrustMarquee.tsx`, `client/src/pages/SizeDetail.tsx`, `shared/seo.ts`, `client/index.html`, `server/data/site-config.json`, `client/public/llms.txt`, `scripts/verify-store.ts`, `scripts/verify-json.ts`
 - **Verify:** `/` Why Filter Hero second card and intro; marquee chip; `/sizes/20x25x1` trust list; `/#faq` shipping answer; `pnpm verify:store`; `pnpm verify:json`.
 - **Added:** 2026-09-18
@@ -520,7 +634,7 @@ Next id: **FH-291**
 - **Area:** cart
 - **Symptom:** Marquee, trust tiles, delivery copy, size-page chips, footer, cart, Stripe Checkout, FAQ, meta, JSON-LD, and `/llms.txt` all said free shipping.
 - **Do NOT:** Put “free shipping” back on any shopper surface, including Stripe `display_name`, OfferShippingDetails `$0`, FAQ, or the FREE DELIVERY truck graphic.
-- **Do:** Talk about 2-day delivery and contiguous-US fulfillment only. Cart says Shipping at checkout. Checkout shipping option is labeled Shipping. Size Offers keep the 30-day return policy and omit a `$0` shipping rate.
+- **Do:** Talk about 2-3 day delivery and contiguous-US fulfillment only. Cart says Shipping at checkout. Checkout shipping option is labeled Shipping. Size Offers keep the 30-day return policy and omit a `$0` shipping rate.
 - **Files:** `shared/seo.ts`, `client/index.html`, `client/src/components/TrustMarquee.tsx`, `client/src/components/TrustSection.tsx`, `client/src/components/DeliverySection.tsx`, `client/src/components/CartDrawer.tsx`, `client/src/pages/Home.tsx`, `client/src/pages/SizeDetail.tsx`, `server/stripe.ts`, `server/data/site-config.json`, `docs/STRIPE-BOOKS.md`
 - **Verify:** Homepage, `/#delivery`, `/sizes/20x25x1`, cart, `/custom-air-filters` FAQ. `pnpm verify:store`. `pnpm verify:json`. Stripe Checkout lists Shipping, not Free shipping.
 - **Added:** 2026-09-18

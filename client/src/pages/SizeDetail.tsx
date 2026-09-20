@@ -368,7 +368,7 @@ export default function SizeDetailPage({ sizeSlug }: SizeDetailPageProps) {
                     <Crosshair className="h-4 w-4" /> Guaranteed fit
                   </li>
                   <li>
-                    <Truck className="h-4 w-4" /> 2-day delivery
+                    <Truck className="h-4 w-4" /> 2-3 day delivery
                   </li>
                   <li>
                     <ShieldCheck className="h-4 w-4" /> Major brands + custom
