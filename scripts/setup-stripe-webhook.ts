@@ -1,9 +1,12 @@
 import "dotenv/config";
 import { spawn } from "node:child_process";
 import Stripe from "stripe";
-
-const FULFILLMENT_URL = "https://filterhero.net/api/stripe/webhook";
-const EVENTS = ["checkout.session.completed", "checkout.session.expired"] as const;
+import {
+  SHOP_FULFILLMENT_EVENTS,
+  SHOP_FULFILLMENT_WEBHOOK_URL,
+  shopFulfillmentWebhookAllowed,
+} from "../shared/stripe-accounts.ts";
+import { scrubConflictingStripeWebhooks, stripeAccountContext } from "../server/stripe-webhooks.ts";
 
 function last4(secret: string | null | undefined): string {
   if (!secret) return "none";
@@ -44,8 +47,22 @@ async function main() {
 
   const stripe = new Stripe(key);
   const rotate = process.argv.includes("--rotate");
+  const ctx = await stripeAccountContext(stripe);
+  const scrubbed = await scrubConflictingStripeWebhooks(stripe);
+  if (scrubbed.deleted.length) {
+    console.log(`Removed conflicting webhook(s): ${scrubbed.deleted.join(", ")}`);
+  }
+  if (!shopFulfillmentWebhookAllowed({ accountId: ctx.accountId, livemode: ctx.livemode })) {
+    console.log(
+      `This key is ${ctx.accountName || ctx.accountId} (${ctx.livemode ? "live" : "test"}). Production fulfillment stays on FILTER HERO live only.`,
+    );
+    console.log("Local Checkout uses `stripe listen --forward-to localhost:3001/api/stripe/webhook`.");
+    console.log("Do not point a sandbox or test-mode endpoint at https://filterhero.net/api/stripe/webhook.");
+    await enableGooglePay(stripe);
+    return;
+  }
   const hooks = await stripe.webhookEndpoints.list({ limit: 100 });
-  let endpoint = hooks.data.find((hook) => hook.url === FULFILLMENT_URL);
+  let endpoint = hooks.data.find((hook) => hook.url === SHOP_FULFILLMENT_WEBHOOK_URL);
   if (rotate && endpoint) {
     await stripe.webhookEndpoints.del(endpoint.id);
     console.log(`Deleted ${endpoint.id} so a new signing secret can be stored on Railway`);
@@ -54,10 +71,10 @@ async function main() {
 
   if (endpoint && endpoint.status === "enabled") {
     const enabled = endpoint;
-    const missing = EVENTS.filter((event) => !enabled.enabled_events.includes(event));
+    const missing = SHOP_FULFILLMENT_EVENTS.filter((event) => !enabled.enabled_events.includes(event));
     if (missing.length) {
       endpoint = await stripe.webhookEndpoints.update(enabled.id, {
-        enabled_events: [...EVENTS],
+        enabled_events: [...SHOP_FULFILLMENT_EVENTS],
       });
       console.log(`Updated ${endpoint.id} events (+${missing.join(",")})`);
     } else {
@@ -69,8 +86,8 @@ async function main() {
     console.log(`Re-enabled ${endpoint.id} → ${endpoint.url}`);
   } else {
     endpoint = await stripe.webhookEndpoints.create({
-      url: FULFILLMENT_URL,
-      enabled_events: [...EVENTS],
+      url: SHOP_FULFILLMENT_WEBHOOK_URL,
+      enabled_events: [...SHOP_FULFILLMENT_EVENTS],
       description: "Filter Hero Checkout fulfillment",
     });
     const secret = endpoint.secret;
@@ -89,17 +106,24 @@ async function main() {
     console.log("Do not overwrite local .env if you use `stripe listen` — that secret is different.");
   }
 
+  await enableGooglePay(stripe);
+}
+
+async function enableGooglePay(stripe: Stripe): Promise<void> {
   try {
     const configs = await stripe.paymentMethodConfigurations.list({ limit: 10 });
-    const pmcId = configs.data.find((cfg) => cfg.is_default)?.id ?? configs.data[0]?.id;
+    const pmcId =
+      configs.data.find((cfg) => cfg.is_default && !cfg.application)?.id ??
+      configs.data.find((cfg) => cfg.is_default)?.id ??
+      configs.data[0]?.id;
     if (!pmcId) {
       console.warn("No payment method configuration to update");
-    } else {
-      const pmc = await stripe.paymentMethodConfigurations.update(pmcId, {
-        google_pay: { display_preference: { preference: "on" } },
-      });
-      console.log(`Google Pay display preference=${pmc.google_pay?.display_preference?.value}`);
+      return;
     }
+    const pmc = await stripe.paymentMethodConfigurations.update(pmcId, {
+      google_pay: { display_preference: { preference: "on" } },
+    });
+    console.log(`Google Pay display preference=${pmc.google_pay?.display_preference?.value}`);
   } catch (err) {
     console.warn("Could not enable Google Pay on the default PMC", err);
   }

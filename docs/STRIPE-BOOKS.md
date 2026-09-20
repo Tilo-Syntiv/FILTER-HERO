@@ -44,8 +44,8 @@ Stripe never sees wholesale. In QBO: Supplier **Filter King LLC**, enter each de
 | Customer + invoice on pay | `customer_creation`, `invoice_creation` |
 | Order log for packing | `server/data/orders.json` (subtotal, tax, customer, invoice, payment intent) |
 | Reuse Stripe Customer | Lookup by email before `checkout.sessions.create` |
-| Production webhook | Dashboard → `https://filterhero.net/api/stripe/webhook` (`pnpm setup:stripe-webhook`) |
-| Klaviyo Stripe app | Dashboard → `https://a.klaviyo.com/api/webhook/integration/stripe?c=VnVNmQ` (`pnpm setup:klaviyo-stripe`). Charge/invoice only. Connect **FILTER HERO** (`acct_1U9bqlQEENEs0Qmw`), never sandbox. Klaviyo (`VnVNmQ`) owns welcome / abandon / replenish / win-back email — Stripe only sends the payment receipt. |
+| Production webhook | FILTER HERO **live** Dashboard → `https://filterhero.net/api/stripe/webhook` (`pnpm setup:stripe-webhook`). Sandbox and FILTER HERO test mode use `stripe listen` — they must not point at the live URL. |
+| Klaviyo Stripe app | FILTER HERO Dashboard → `https://a.klaviyo.com/api/webhook/integration/stripe?c=VnVNmQ` (`pnpm setup:klaviyo-stripe`). Charge/invoice only. Connect **FILTER HERO** (`acct_1U9bqlQEENEs0Qmw`), never sandbox. Klaviyo (`VnVNmQ`) owns welcome / abandon / replenish / win-back email — Stripe only sends the payment receipt. |
 | Product catalog | `pnpm sync:catalog` writes 293 contractor SKUs as Stripe Products (`prod_fh_{id}`). Checkout attaches those products and still uses `price_data` for pack-qty unit prices. |
 
 Klaviyo / Resend / `orders.json` are not the ledger.

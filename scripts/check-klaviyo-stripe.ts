@@ -58,6 +58,8 @@ async function main() {
     },
     stripeWebhook: {
       nativeWebhook: stripeStatus.nativeWebhook,
+      nativeConflict: stripeStatus.nativeConflict,
+      fulfillmentConflict: stripeStatus.fulfillmentConflict,
       url: stripeStatus.url,
       webhookId: stripeStatus.webhookId,
       stripeAccountId: stripeStatus.stripeAccountId,
@@ -75,7 +77,15 @@ async function main() {
 
   const missing = stripeMetrics.filter((row) => !row.id).map((row) => row.name);
   if (!account.ok) throw new Error(account.error || "Klaviyo account ping failed");
-  if (!stripeStatus.nativeWebhook) throw new Error("Native Klaviyo Stripe webhook is missing");
+  if (stripeStatus.nativeConflict) {
+    throw new Error("Sandbox must not host the Klaviyo native webhook. Run pnpm setup:stripe-webhook.");
+  }
+  if (stripeStatus.fulfillmentConflict) {
+    throw new Error("This Stripe key must not post checkout events to filterhero.net. Run pnpm setup:stripe-webhook.");
+  }
+  if (stripeStatus.oauthAccountMatch && !stripeStatus.nativeWebhook) {
+    throw new Error("Native Klaviyo Stripe webhook is missing on FILTER HERO");
+  }
   if (missing.length) {
     throw new Error(`Stripe metrics missing: ${missing.join(", ")}`);
   }

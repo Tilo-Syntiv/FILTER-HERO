@@ -59,7 +59,7 @@ stripe listen --forward-to localhost:3001/api/stripe/webhook
 
 Paste the CLI signing secret into `.env` as `STRIPE_WEBHOOK_SECRET`.
 
-Production needs a Dashboard endpoint at `https://filterhero.net/api/stripe/webhook` (`checkout.session.completed` + `checkout.session.expired`). Create or repair it with `pnpm setup:stripe-webhook`, then put that endpoint's signing secret on Railway — it is not the `stripe listen` secret.
+Production needs a Dashboard endpoint at `https://filterhero.net/api/stripe/webhook` on **FILTER HERO live** (`acct_1U9bqlQEENEs0Qmw`) only (`checkout.session.completed` + `checkout.session.expired`). `pnpm setup:stripe-webhook` creates that endpoint when the key is live FILTER HERO, and deletes it from sandbox / test keys so test Checkout cannot hit the live shop. Put the live endpoint's signing secret on Railway — it is not the `stripe listen` secret.
 
 ## Production
 
@@ -93,6 +93,6 @@ Serves the SPA and API from the Express server (`NODE_ENV=production`).
 | `pnpm verify:env` | Load `.env`, check formats, live-ping Stripe / Resend / Klaviyo / Supabase / Turnstile / Cloudflare |
 | `pnpm verify:resend` | Brand kit + domain + From checks, then a branded probe to `delivered@resend.dev` |
 | `pnpm debug:stripe-checkout` | Webhook + live Checkout Session + test charge probe |
-| `pnpm setup:stripe-webhook` | Create/repair the production Checkout webhook endpoint |
+| `pnpm setup:stripe-webhook` | Live FILTER HERO: create/repair production Checkout webhook. Sandbox: remove conflicting endpoints |
 | `pnpm setup:klaviyo-stripe` | Create/repair Stripe → Klaviyo charge/invoice webhook |
 | `pnpm sync:catalog` | Push the contractor sheet to Stripe Products, Klaviyo catalog, and Supabase `catalog_skus` |

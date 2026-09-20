@@ -35,6 +35,10 @@ function ensureOrdersFile() {
   if (!fs.existsSync(file)) fs.writeFileSync(file, "[]", "utf-8");
 }
 
+function writeOrders(orders: StoredOrder[]) {
+  fs.writeFileSync(ordersPath(), JSON.stringify(orders, null, 2), "utf-8");
+}
+
 export function isCheckoutSessionId(sessionId: string): boolean {
   return SESSION_ID.test(sessionId);
 }
@@ -63,6 +67,8 @@ export type StoredOrder = {
   items: string;
   taxStatus: string | null;
   paidAt: string;
+  /** Set only after Resend accepts the branded confirmation. Retries keep sending until this lands. */
+  confirmationSentAt?: string | null;
 };
 
 export function listAllOrders(): StoredOrder[] {
@@ -295,6 +301,14 @@ export async function handleStripeWebhook(
   if (!signature) throw new Error("Missing stripe-signature header");
 
   const event = stripe.webhooks.constructEvent(rawBody, signature, secret);
+  if (event.livemode && !stripeKeyIsLive()) {
+    console.warn("[stripe webhook] ignored live event on a test key");
+    return { received: true };
+  }
+  if (!event.livemode && stripeKeyIsLive()) {
+    console.warn("[stripe webhook] ignored test event on a live key");
+    return { received: true };
+  }
 
   if (event.type === "checkout.session.completed") {
     const completed = event.data.object as Stripe.Checkout.Session;
@@ -309,8 +323,7 @@ export async function handleStripeWebhook(
       }
     }
     ensureOrdersFile();
-    const file = ordersPath();
-    const orders = JSON.parse(fs.readFileSync(file, "utf-8")) as StoredOrder[];
+    const orders = JSON.parse(fs.readFileSync(ordersPath(), "utf-8")) as StoredOrder[];
     const existing = orders.find((order) => order.sessionId === session.id);
     const stored: StoredOrder = existing ?? {
       id: nanoid(),
@@ -318,7 +331,7 @@ export async function handleStripeWebhook(
     };
     if (!existing) {
       orders.push(stored);
-      fs.writeFileSync(file, JSON.stringify(orders, null, 2), "utf-8");
+      writeOrders(orders);
     }
     try {
       await syncPlacedOrder(stored);
@@ -326,7 +339,13 @@ export async function handleStripeWebhook(
       console.error("[stripe webhook] klaviyo Placed Order failed", err);
     }
     try {
-      await sendOrderConfirmation(stored);
+      if (!stored.confirmationSentAt) {
+        const mail = await sendOrderConfirmation(stored);
+        if (mail.sent) {
+          stored.confirmationSentAt = new Date().toISOString();
+          writeOrders(orders);
+        }
+      }
     } catch (err) {
       console.error("[stripe webhook] resend order confirmation failed", err);
     }

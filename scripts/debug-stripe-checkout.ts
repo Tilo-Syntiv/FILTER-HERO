@@ -277,17 +277,17 @@ async function main() {
     check(false, `test charge failed: ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  const hooks = await stripe.webhookEndpoints.list({ limit: 20 });
-  const fulfillment = hooks.data.find((hook) =>
-    hook.url.includes("/api/stripe/webhook"),
-  );
-  if (fulfillment && fulfillment.status === "enabled") {
-    check(true, `fulfillment webhook ${fulfillment.url}`);
-  } else {
+  const { readStripeWebhookHealth } = await import("../server/stripe-webhooks.ts");
+  const listed = await readStripeWebhookHealth(stripe);
+  check(!listed.health.shop.conflict, "test/sandbox key does not post checkout events to filterhero.net");
+  check(!listed.health.klaviyo.conflict, "sandbox key does not host the Klaviyo native webhook");
+  if (listed.livemode) {
     check(
-      false,
-      "no enabled Dashboard webhook to /api/stripe/webhook — paid orders will not fulfill (Klaviyo / CRM / account)",
+      listed.health.shop.present,
+      "live FILTER HERO has a Dashboard webhook to /api/stripe/webhook",
     );
+  } else {
+    check(true, "test key uses stripe listen for Checkout fulfillment");
   }
 
   if (failures.length) {

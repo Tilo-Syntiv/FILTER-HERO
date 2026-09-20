@@ -5,13 +5,17 @@ import {
   isKlaviyoStripeWebhookUrl,
   klaviyoStripeWebhookUrl,
 } from "../shared/klaviyo-stripe";
+import { FILTER_HERO_ACCOUNT_ID, klaviyoNativeWebhookAllowed } from "../shared/stripe-accounts";
 import { getKlaviyoAccount, klaviyoPublicKey } from "./klaviyo";
 import { getStripe } from "./stripe";
+import { readStripeWebhookHealth, scrubConflictingStripeWebhooks } from "./stripe-webhooks";
 
 export type KlaviyoStripeStatus = {
   shopEvents: true;
   configured: boolean;
   nativeWebhook: boolean;
+  fulfillmentConflict: boolean;
+  nativeConflict: boolean;
   url: string | null;
   connectUrl: string;
   companyId: string;
@@ -48,6 +52,8 @@ function emptyStatus(
     shopEvents: true,
     configured: false,
     nativeWebhook: false,
+    fulfillmentConflict: false,
+    nativeConflict: false,
     url: expected,
     connectUrl: KLAVIYO_STRIPE_INSTALL_URL,
     companyId,
@@ -65,23 +71,22 @@ export async function klaviyoStripeStatus(): Promise<KlaviyoStripeStatus> {
   const stripe = getStripe();
   if (!stripe) return emptyStatus(companyId, expected);
   try {
-    const [hooks, account] = await Promise.all([
-      stripe.webhookEndpoints.list({ limit: 100 }),
-      stripe.accounts.retrieve(),
-    ]);
-    const found = hooks.data.find(
+    const listed = await readStripeWebhookHealth(stripe);
+    const found = listed.hooks.find(
       (hook) => isKlaviyoStripeWebhookUrl(hook.url) && hook.status === "enabled",
     );
-    const stripeAccountId = account.id || null;
+    const stripeAccountId = listed.accountId || null;
     return {
       shopEvents: true,
       configured: true,
-      nativeWebhook: Boolean(found),
+      nativeWebhook: Boolean(found) && klaviyoNativeWebhookAllowed(stripeAccountId),
+      fulfillmentConflict: listed.health.shop.conflict,
+      nativeConflict: listed.health.klaviyo.conflict,
       url: found?.url || expected,
       connectUrl: KLAVIYO_STRIPE_INSTALL_URL,
       companyId,
       stripeAccountId,
-      stripeAccountName: account.settings?.dashboard?.display_name || account.business_profile?.name || null,
+      stripeAccountName: listed.accountName,
       webhookId: found?.id || null,
       oauthAccountMatch: stripeAccountId === KLAVIYO_STRIPE_OAUTH_ACCOUNT_ID,
     };
@@ -103,6 +108,12 @@ export async function ensureKlaviyoStripeWebhook(opts?: {
 }> {
   const stripe = getStripe();
   if (!stripe) throw new Error("Stripe is not configured");
+  const scrubbed = await scrubConflictingStripeWebhooks(stripe);
+  if (!klaviyoNativeWebhookAllowed(scrubbed.accountId)) {
+    throw new Error(
+      `Klaviyo Stripe Connect must use FILTER HERO (${FILTER_HERO_ACCOUNT_ID}). This key is ${scrubbed.accountId}. Sandboxes cannot OAuth to live Klaviyo.`,
+    );
+  }
   const companyId = await resolveKlaviyoCompanyId();
   const url = klaviyoStripeWebhookUrl(companyId);
   const events = [...KLAVIYO_STRIPE_EVENTS];

@@ -39,4 +39,4 @@ Sending domain is `filterhero.net` / `send.filterhero.net`. Klaviyo already uses
 
 ## Verify
 
-`pnpm verify:resend` checks the From address, domain, branded HTML (logo + navy + burgundy), sends staff / quote / support / order templates to `delivered@resend.dev`, then runs `submitContact` (honeypot, quote, Filter Clock) with CRM and Klaviyo off.
+`pnpm verify:resend` checks the From address, domain, branded HTML (logo + navy + burgundy), sends staff / quote / support / order templates to `delivered@resend.dev`, then runs `submitContact` (honeypot, quote, Filter Clock) with CRM, Klaviyo, and Turnstile off. It also fires a signed `checkout.session.completed` payload twice: first with Resend off (order saved, no stamp), then with Resend on (`confirmationSentAt` lands), then a third time (stamp unchanged).

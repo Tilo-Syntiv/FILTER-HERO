@@ -1,0 +1,26 @@
+---
+description: Higgsfield generation — GPT Image 2 for stills, Seedance 2.0 for video, spend only what the job needs.
+alwaysApply: true
+---
+
+# Higgsfield spend and models
+
+When generating Filter Hero media on Higgsfield, spend the minimum credits that can finish the job. Do not burn retries, extra resolutions, or unused clips.
+
+## Models (do not substitute)
+
+- **Images:** GPT Image 2 only (`gpt_image_2`). One still, 16:9, 1K, batch 1. Quality medium unless the user asked for print.
+- **Video:** Seedance 2.0 only (`bytedance/seedance-2.0/image-to-video` or `text-to-video`). 720p, 16:9, up to 15s. Audio on only when the shot needs VO or room sound.
+
+## Spend rules
+
+- Generate **one identity still**, then **one test clip**. Stop if that clip fails; do not queue the rest.
+- Batch size **1**. No 4-up grids, no 1080p/4K, no Seedance 2.5, no Kling/Veo/Soul unless the user names them.
+- One retry per failed request. Then report the error.
+- Do not regenerate a clip that already passed. Do not produce unused alt takes.
+
+## How-to pipeline
+
+1. GPT Image 2 — opening furnace/filter frame (identity lock).
+2. Seedance 2.0 image-to-video — animate that frame.
+3. Next clip only after the previous file is on disk and usable.

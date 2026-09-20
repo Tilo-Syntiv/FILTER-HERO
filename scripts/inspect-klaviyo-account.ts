@@ -45,14 +45,13 @@ async function main() {
     "Signed Up Reminder",
   ];
 
-  const [metrics, flows, templates, lists, items, segments, logos] = await Promise.all([
+  const [metrics, flows, templates, lists, items, segments] = await Promise.all([
     collect<Named>("/api/metrics"),
     collect<Named>("/api/flows?filter=equals(archived,false)"),
     collect<Named>("/api/templates?page[size]=10"),
     collect<Named>("/api/lists?page[size]=10"),
     collect<Named>("/api/catalog-items?page[size]=100"),
     collect<Named>("/api/segments?page[size]=10"),
-    collect<Named>("/api/brand-logos"),
   ]);
   const catalogJobs = await klaviyoApi<{
     data?: Array<{ id?: string; attributes?: Record<string, unknown> }>;
@@ -93,11 +92,6 @@ async function main() {
           trigger: row.attributes?.trigger_type,
         })),
         templates: templates.map((row) => row.attributes?.name),
-        brandLogos: logos.map((row) => ({
-          id: row.id,
-          name: row.attributes?.name,
-          alt: row.attributes?.alt_text,
-        })),
         lists: lists.map((row) => ({ id: row.id, name: row.attributes?.name })),
         segments: segments.map((row) => ({ id: row.id, name: row.attributes?.name })),
         catalogItemCount: items.length,

@@ -468,6 +468,8 @@ export const getAdminSettings = () =>
       shopEvents: boolean;
       configured: boolean;
       nativeWebhook: boolean;
+      fulfillmentConflict: boolean;
+      nativeConflict: boolean;
       url: string | null;
       connectUrl: string;
       companyId: string;

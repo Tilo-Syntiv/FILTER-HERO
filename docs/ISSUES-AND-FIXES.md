@@ -14,9 +14,88 @@ Append here when you find or fix a bug. Chat is not the log. Never reuse ids.
 - **Added:** YYYY-MM-DD
 ```
 
-Next id: **FH-300**
+Next id: **FH-307**
 
 ---
+
+### FH-306 — Railway has no HTTP healthcheck
+- **Status:** open
+- **Area:** other
+- **Symptom:** FILTER-HERO is Online and `/api/health` returns 200, but `deploy.healthcheckPath` is unset. Railway will mark a deploy SUCCESS before Express is listening.
+- **Do NOT:** Add a second region to attach healthchecks (FH-182). Do not healthcheck `/`.
+- **Do:** `deploy.healthcheckPath=/api/health` and `healthcheckTimeout=30` on FILTER-HERO. Keep one replica in `us-east4-eqdc4a`.
+- **Files:** `.railway/config.json`
+- **Verify:** `railway environment config --json` shows healthcheckPath `/api/health`. After the next deploy, `railway deployment list --limit 1 --json` is SUCCESS and `https://filterhero.net/api/health` is `{"ok":true,"brand":"Filter Hero"}`.
+- **Added:** 2026-09-20
+
+---
+
+### FH-305 — Railway Stripe keys are FILTER HERO sandbox test, not live FILTER HERO
+- **Status:** open
+- **Area:** other
+- **Symptom:** Live `filterhero.net` Checkout uses Railway `sk_test_` / `pk_test_` from **FILTER HERO sandbox** (`acct_1U9bqs790NnFGDLv`). Shop fulfillment and Klaviyo OAuth belong on live **FILTER HERO** (`acct_1U9bqlQEENEs0Qmw`). Real cards cannot pay. Local `.env` staying sandbox is correct; Railway was supposed to get `sk_live_` / `pk_live_`. Those live keys are not in `.env` and Stripe MCP has no live-mode session.
+- **Do NOT:** Copy local `STRIPE_SECRET_KEY` onto Railway. Do not point sandbox or FILTER HERO test-mode Dashboard endpoints at `https://filterhero.net/api/stripe/webhook`. Do not connect Klaviyo to sandbox.
+- **Do:** Put FILTER HERO **live** `sk_live_` + `pk_live_` + `VITE_STRIPE_PUBLISHABLE_KEY` on Railway, then rebuild (Vite bakes `VITE_`). Run `pnpm setup:stripe-webhook` against that live key so `STRIPE_WEBHOOK_SECRET` is the Dashboard endpoint for `/api/stripe/webhook`. Keep local `.env` on sandbox + `stripe listen`.
+- **Files:** `shared/stripe-accounts.ts`, `scripts/setup-stripe-webhook.ts`, README Production
+- **Verify:** Railway `STRIPE_SECRET_KEY` starts with `sk_live_`. Dashboard → FILTER HERO live → Webhooks shows `https://filterhero.net/api/stripe/webhook` enabled. A live Checkout session is `livemode: true`.
+- **Added:** 2026-09-20
+
+---
+
+### FH-304 — GitHub autodeploy and `railway up` both own FILTER-HERO
+- **Status:** open
+- **Area:** other
+- **Symptom:** Service source is `Tilo-Syntiv/FILTER-HERO` with **no** `source.branch`. Latest SUCCESS (`53f7af54`, 2026-09-17 03:29 UTC) is a Cursor `railway up` with no commit SHA. GitHub deploys of `main` `20c53e8` were REMOVED. `origin/main` is `1895e06` (Intuit + staff catalog helpers) and has not autodeployed since. A later push to any connected branch, or a variable change, can replace the CLI snapshot. Local `design/family-section-blue` is 10 commits ahead of origin with uncommitted scrape/video files — `railway up` of this tree would ship that and then get rolled back by `main`.
+- **Do NOT:** `railway up` this branch while GitHub watches the repo. Do not attach `www` on Railway. Do not scale a second region.
+- **Do:** Pin `source.branch=main`. Deploy production only from `main` (`railway redeploy --from-source` or a merge to `main`). Feature work stays on the branch until merge.
+- **Files:** `.railway/config.json`
+- **Verify:** `railway environment config --json` `source.branch` is `main`. Latest SUCCESS deploy has `meta.branch=main` and a `commitHash`.
+- **Added:** 2026-09-20
+
+---
+
+### FH-303 — Railway FULL_CATALOG=true conflicts with the contractor shop
+- **Status:** open
+- **Area:** catalog
+- **Symptom:** Local `.env` and `.env.example` are `FULL_CATALOG=false` / `VITE_FULL_CATALOG=false` (293 contractor SKUs). Railway has both set to `true` (archived size universe). Live `GET /api/klaviyo/catalog.json` is still 299 because the 2026-09-17 CLI image baked the old allowlist. The next rebuild with current Railway vars would sell every archived size × MERV (FH-216 / FH-300).
+- **Do NOT:** Leave Railway `VITE_FULL_CATALOG=true`. Do not `railway up` to “fix” the feed while this branch is dirty.
+- **Do:** `railway variable set FULL_CATALOG=false VITE_FULL_CATALOG=false --service FILTER-HERO --skip-deploys`, then rebuild from `main` so Vite bakes `false`.
+- **Files:** `.env.example`, `docs/WHOLESALE-PRICE-LISTS.md`
+- **Verify:** `railway variable list --service FILTER-HERO` shows both flags `false`. After rebuild, live catalog.json is the contractor allowlist (293 once FH-300 ships), not the archive.
+- **Added:** 2026-09-20
+
+---
+
+### FH-302 — Add to cart leaves focus on a button Radix then marks aria-hidden
+- **Status:** open
+- **Area:** cart
+- **Symptom:** Clicking **Add 6 to cart** on `/sizes/20x25x1` opens the cart dialog while the CTA still has focus. Chromium warns that `.pdp-checkout` (ancestor) is `aria-hidden` with a focused descendant. Cart still opens and Klaviyo **Added to Cart** still fires.
+- **Do NOT:** Remove `aria-hidden` from the dialog overlay or disable the Radix cart drawer.
+- **Do:** Move focus into the cart dialog (or blur the CTA) before the rest of the page is `aria-hidden`.
+- **Files:** `client/src/pages/SizeDetail.tsx`, cart drawer
+- **Verify:** `/sizes/20x25x1` → Add 6 to cart → no `aria-hidden` console warning; heading `Your cart`.
+- **Added:** 2026-09-20
+
+### FH-301 — Smoke treated a rate-limited contact post as a Turnstile miss
+- **Status:** fixed
+- **Area:** contact
+- **Symptom:** `pnpm smoke` failed with `invalid contact should 400, got 429` (and then `contact without Turnstile should 400, got 429`) after earlier local posts filled the 5/15-minute contact limiter. The shop was blocking correctly; the suite expected only 400 / `bot_check_failed`.
+- **Do NOT:** Raise the contact limiter to make smoke green. Do not skip the Turnstile assertion when the response is 400.
+- **Do:** A 429 on the invalid-contact or missing-Turnstile post must be `rate_limited_contact`. A 400 on missing Turnstile must still be `bot_check_failed`. Honeypot already followed this split.
+- **Files:** `scripts/smoke-site.ts`
+- **Verify:** `pnpm smoke` after five contact posts in the window still passes. Fresh server: missing Turnstile is 400 `bot_check_failed`.
+- **Added:** 2026-09-20
+- **Fixed:** 2026-09-20
+
+### FH-300 — Production Klaviyo JSON feed still serves a 299-SKU mix
+- **Status:** open
+- **Area:** other
+- **Symptom:** Local `GET /api/klaviyo/catalog.json` and the Klaviyo custom catalog are 293 contractor SKUs. Live `https://filterhero.net/api/klaviyo/catalog.json` still returns 299 items (88 ids not on the current sheet). Email product blocks use the API catalog (293), but a later feed pull from the live URL would re-import extras.
+- **Do NOT:** Point Klaviyo’s custom catalog at the live JSON feed while production is on the old mix. Do not map those extras into Stripe or `catalog_skus`.
+- **Do:** Deploy the current shop so the public feed is 293. `pnpm smoke` fails if local catalog.json is not 293.
+- **Files:** `scripts/smoke-site.ts`, `server/klaviyo.ts`
+- **Verify:** Local `/api/klaviyo/catalog.json` is 293. After deploy, live feed is 293. `pnpm inspect:klaviyo` catalogItemCount stays 293.
+- **Added:** 2026-09-20
 
 ### FH-299 — Built to last card was taller than the other trust photos
 - **Status:** fixed
@@ -1575,6 +1654,7 @@ Next id: **FH-300**
 - **Verify:** `curl.exe -sI --resolve www.filterhero.net:80:104.21.41.176 http://www.filterhero.net/sizes/20x25x1` → 301 `https://filterhero.net/sizes/20x25x1`. Done when `curl.exe -sI https://www.filterhero.net/` → 301 to `https://filterhero.net/` with a valid cert.
 - **Added:** 2026-09-07
 - **Fixed:** 2026-09-07
+- **Recheck:** 2026-09-20 — default `https://www.filterhero.net/` 301s to `https://filterhero.net/` via Cloudflare (`Server: cloudflare`). Apex A remains Railway `69.46.46.70`. Do not attach `www` on Railway.
 
 ---
 

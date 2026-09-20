@@ -13,6 +13,7 @@ import {
   stripeKeyIsLive,
   writeStripeCatalogFile,
 } from "../../shared/stripe-catalog.ts";
+import { FILTER_HERO_ACCOUNT_ID } from "../../shared/stripe-accounts.ts";
 import { DEFAULT_SITE_URL } from "../../shared/seo.ts";
 import { productTaxCode } from "../../shared/stripe-tax.ts";
 import {
@@ -296,6 +297,11 @@ export async function syncStripeCatalog(): Promise<StripeSyncResult> {
   try {
     const account = await stripe.accounts.retrieve();
     accountId = account.id;
+    if (accountId && accountId !== FILTER_HERO_ACCOUNT_ID) {
+      console.warn(
+        `[catalog] synced Stripe Products on ${accountId}. Live Checkout catalog is FILTER HERO ${FILTER_HERO_ACCOUNT_ID} — run sync:catalog with that live key before go-live.`,
+      );
+    }
   } catch {
     accountId = null;
   }

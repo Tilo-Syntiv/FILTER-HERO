@@ -14,6 +14,11 @@ import {
 import { EMAIL_OWNER, resendSendsShopperReceipt } from "../shared/email-channels.ts";
 import { findProductVariant } from "../shared/products.ts";
 import {
+  getStripe,
+  handleStripeWebhook,
+  listAllOrders,
+} from "../server/stripe.ts";
+import {
   buildContactReceipt,
   buildLeadAlert,
   buildOrderConfirmation,
@@ -63,6 +68,12 @@ assert(to.toLowerCase().includes("@filterhero.net"), `CONTACT_TO should be a Fil
 assert(EMAIL_OWNER.order_confirmation === "resend", "Resend owns the order confirmation");
 assert(EMAIL_OWNER.quote_receipt === "resend", "Resend owns the quote receipt");
 assert(EMAIL_OWNER.support_receipt === "resend", "Resend owns the support receipt");
+assert(EMAIL_OWNER.staff_lead_alert === "resend", "Resend owns the staff lead alert");
+assert(EMAIL_OWNER.stripe_receipt === "stripe", "Stripe owns the payment receipt");
+assert(EMAIL_OWNER.welcome === "klaviyo", "welcome stays on Klaviyo");
+assert(EMAIL_OWNER.abandoned_checkout === "klaviyo", "abandon stays on Klaviyo");
+assert(EMAIL_OWNER.replenish === "klaviyo", "replenish stays on Klaviyo");
+assert(EMAIL_OWNER.clock_cadence === "none", "Filter Clock is not a mailbox");
 assert(resendSendsShopperReceipt("quote"), "quote sends a shopper receipt");
 assert(resendSendsShopperReceipt("support"), "support sends a shopper receipt");
 assert(!resendSendsShopperReceipt("reminder"), "Filter Clock must not email the shopper");
@@ -76,10 +87,16 @@ assert(!/welcome|abandoned checkout|win-back|replenish/i.test(mailerSource), "ma
 const contactSource = fs.readFileSync("server/contact.ts", "utf-8");
 assert(contactSource.includes("sendLeadAlert"), "contact sends the branded staff alert");
 assert(contactSource.includes("sendContactReceipt"), "contact sends the branded shopper receipt");
+assert(contactSource.includes("shouldEnforceTurnstile"), "quote/support still require Turnstile in production");
 assert(!/from\s+["']resend["']/.test(contactSource), "contact must send through the mailer");
 
 const stripeSource = fs.readFileSync("server/stripe.ts", "utf-8");
 assert(stripeSource.includes("sendOrderConfirmation"), "paid checkout sends the branded confirmation");
+assert(stripeSource.includes("confirmationSentAt"), "webhook persists a successful confirmation so retries do not double-send");
+assert(
+  /if\s*\(\s*!stored\.confirmationSentAt\s*\)/.test(stripeSource),
+  "webhook only sends the confirmation until Resend accepts it",
+);
 
 const quoteLead = {
   id: "verify-quote",
@@ -304,45 +321,128 @@ const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "fh-resend-"));
 const prevDataDir = process.env.DATA_DIR;
 const prevCrm = process.env.CRM_DISABLE;
 const prevKlaviyo = process.env.KLAVIYO_DISABLE;
+const prevTurnstile = process.env.TURNSTILE_SECRET_KEY;
+const prevNodeEnv = process.env.NODE_ENV;
+const prevAccount = process.env.ACCOUNT_DISABLE;
+const prevWebhook = process.env.STRIPE_WEBHOOK_SECRET;
 process.env.DATA_DIR = dataDir;
 process.env.CRM_DISABLE = "1";
 process.env.KLAVIYO_DISABLE = "1";
+process.env.ACCOUNT_DISABLE = "1";
 process.env.CONTACT_TO = "delivered@resend.dev";
-const { submitContact } = await import("../server/contact.ts");
-const trapped = await submitContact({
-  name: "Smoke Bot",
-  email: "smoke-bot@example.com",
-  message: "honeypot",
-  intent: "support",
-  website: "http://spam.example",
-});
-assert(trapped.ok && trapped.id === "ignored" && trapped.emailed === false, "honeypot must not mail");
-const quotePosted = await submitContact({
-  name: "Resend QA",
-  email: "delivered@resend.dev",
-  message: "Ignore — submitContact brand QA.",
-  intent: "quote",
-  filterSize: "20x25x1",
-});
-assert(quotePosted.ok && quotePosted.emailed, "quote submitContact must send the staff alert");
-const clockPosted = await submitContact({
-  name: "Filter Clock reminder",
-  email: "delivered@resend.dev",
-  message: "Clock cadence saved (no shopper email).",
-  intent: "reminder",
-  marketingConsent: false,
-  cadence: { next_change_date: "2026-12-16", change_interval_days: 90, house_type: "pet" },
-});
-assert(clockPosted.ok && clockPosted.emailed, "clock save still alerts staff");
-if (prevDataDir) process.env.DATA_DIR = prevDataDir;
-else delete process.env.DATA_DIR;
-if (prevCrm) process.env.CRM_DISABLE = prevCrm;
-else delete process.env.CRM_DISABLE;
-if (prevKlaviyo) process.env.KLAVIYO_DISABLE = prevKlaviyo;
-else delete process.env.KLAVIYO_DISABLE;
-if (savedTo) process.env.CONTACT_TO = savedTo;
-else delete process.env.CONTACT_TO;
-fs.rmSync(dataDir, { recursive: true, force: true });
-console.log(`submitContact quote id=${quotePosted.id} clock id=${clockPosted.id}`);
+delete process.env.TURNSTILE_SECRET_KEY;
+if (process.env.NODE_ENV === "production") process.env.NODE_ENV = "test";
+try {
+  const { submitContact } = await import("../server/contact.ts");
+  const trapped = await submitContact({
+    name: "Smoke Bot",
+    email: "smoke-bot@example.com",
+    message: "honeypot",
+    intent: "support",
+    website: "http://spam.example",
+  });
+  assert(trapped.ok && trapped.id === "ignored" && trapped.emailed === false, "honeypot must not mail");
+  const quotePosted = await submitContact({
+    name: "Resend QA",
+    email: "delivered@resend.dev",
+    message: "Ignore — submitContact brand QA.",
+    intent: "quote",
+    filterSize: "20x25x1",
+  });
+  assert(quotePosted.ok && quotePosted.emailed, "quote submitContact must send the staff alert");
+  const clockPosted = await submitContact({
+    name: "Filter Clock reminder",
+    email: "delivered@resend.dev",
+    message: "Clock cadence saved (no shopper email).",
+    intent: "reminder",
+    marketingConsent: false,
+    cadence: { next_change_date: "2026-12-16", change_interval_days: 90, house_type: "pet" },
+  });
+  assert(clockPosted.ok && clockPosted.emailed, "clock save still alerts staff");
+  console.log(`submitContact quote id=${quotePosted.id} clock id=${clockPosted.id}`);
+
+  const stripeClient = getStripe();
+  assert(stripeClient, "STRIPE_SECRET_KEY required to exercise checkout.session.completed");
+  const webhookSecret =
+    process.env.STRIPE_WEBHOOK_SECRET && !process.env.STRIPE_WEBHOOK_SECRET.includes("...")
+      ? process.env.STRIPE_WEBHOOK_SECRET
+      : "whsec_resend_verify_filter_hero";
+  process.env.STRIPE_WEBHOOK_SECRET = webhookSecret;
+  const sessionId = `cs_test_fhresend${stamp}`;
+  const payload = JSON.stringify({
+    id: `evt_resend_${stamp}`,
+    object: "event",
+    type: "checkout.session.completed",
+    data: {
+      object: {
+        id: sessionId,
+        object: "checkout.session",
+        amount_subtotal: 4594,
+        amount_total: 4594,
+        currency: "usd",
+        customer: "cus_resend_qa",
+        invoice: "in_resend_qa",
+        payment_intent: "pi_resend_qa",
+        customer_email: "delivered@resend.dev",
+        customer_details: { email: "delivered@resend.dev", phone: "+15555550100" },
+        shipping_details: {
+          name: "Resend QA",
+          address: {
+            line1: "1 Market St",
+            city: "San Francisco",
+            state: "CA",
+            postal_code: "94105",
+            country: "US",
+          },
+        },
+        metadata: { items: JSON.stringify([{ productId: variant.id, quantity: 6 }]) },
+        total_details: { amount_tax: 0, amount_discount: 0, amount_shipping: 0 },
+        payment_status: "paid",
+      },
+    },
+  });
+  const header = stripeClient.webhooks.generateTestHeaderString({ payload, secret: webhookSecret });
+  const savedResend = process.env.RESEND_API_KEY;
+  delete process.env.RESEND_API_KEY;
+  try {
+    await handleStripeWebhook(Buffer.from(payload), header);
+    const pending = listAllOrders();
+    assert(pending.length === 1, `paid webhook writes one order (got ${pending.length})`);
+    assert(pending[0]?.sessionId === sessionId, "webhook stores the checkout session");
+    assert(!pending[0]?.confirmationSentAt, "failed confirmation must not stamp confirmationSentAt");
+  } finally {
+    if (savedResend) process.env.RESEND_API_KEY = savedResend;
+    else delete process.env.RESEND_API_KEY;
+  }
+  await handleStripeWebhook(Buffer.from(payload), header);
+  const sentOrder = listAllOrders();
+  assert(sentOrder.length === 1, "retry still has one order");
+  assert(sentOrder[0]?.confirmationSentAt, "retry sends the confirmation once Resend is back");
+  const sentAt = sentOrder[0]?.confirmationSentAt;
+  await new Promise((resolve) => setTimeout(resolve, 25));
+  await handleStripeWebhook(Buffer.from(payload), header);
+  const again = listAllOrders();
+  assert(again.length === 1, "second retry does not duplicate the order");
+  assert(again[0]?.confirmationSentAt === sentAt, "successful confirmation is not sent twice");
+  console.log(`webhook confirmationSentAt=${sentAt} session=${sessionId}`);
+} finally {
+  if (prevDataDir) process.env.DATA_DIR = prevDataDir;
+  else delete process.env.DATA_DIR;
+  if (prevCrm) process.env.CRM_DISABLE = prevCrm;
+  else delete process.env.CRM_DISABLE;
+  if (prevKlaviyo) process.env.KLAVIYO_DISABLE = prevKlaviyo;
+  else delete process.env.KLAVIYO_DISABLE;
+  if (prevAccount) process.env.ACCOUNT_DISABLE = prevAccount;
+  else delete process.env.ACCOUNT_DISABLE;
+  if (prevWebhook) process.env.STRIPE_WEBHOOK_SECRET = prevWebhook;
+  else delete process.env.STRIPE_WEBHOOK_SECRET;
+  if (prevTurnstile) process.env.TURNSTILE_SECRET_KEY = prevTurnstile;
+  else delete process.env.TURNSTILE_SECRET_KEY;
+  if (prevNodeEnv) process.env.NODE_ENV = prevNodeEnv;
+  else delete process.env.NODE_ENV;
+  if (savedTo) process.env.CONTACT_TO = savedTo;
+  else delete process.env.CONTACT_TO;
+  fs.rmSync(dataDir, { recursive: true, force: true });
+}
 
 console.log("Resend checks passed.");

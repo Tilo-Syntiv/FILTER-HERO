@@ -6,6 +6,8 @@ import { BRAND_EMAIL, BRAND_NAME } from "../shared/const.ts";
 import { renderBrandedEmail, transactionalFooterNote } from "../shared/email-brand.ts";
 import { getKlaviyoAccount, isKlaviyoEnabled, klaviyoPublicKey } from "../server/klaviyo.ts";
 import { accountDisabledReason, crmDisabledReason, resetDbClient } from "../server/db.ts";
+import { FILTER_HERO_ACCOUNT_ID } from "../shared/stripe-accounts.ts";
+import { readStripeWebhookHealth } from "../server/stripe-webhooks.ts";
 
 type Status = "ok" | "fail" | "skip";
 
@@ -183,24 +185,37 @@ async function main() {
         account.details_submitted || !balance.livemode ? "ok" : "fail",
         `${account.id} ${account.charges_enabled ? "charges on" : "charges off (test ok)"} ${balance.livemode ? "live" : "test"}`,
       );
-      const hooks = await stripe.webhookEndpoints.list({ limit: 20 });
-      const fulfillment = hooks.data.find((hook) => hook.url.includes("/api/stripe/webhook"));
-      add(
-        "STRIPE_WEBHOOK",
-        fulfillment?.status === "enabled" ? "ok" : "fail",
-        fulfillment
-          ? `${fulfillment.url} ${fulfillment.status}`
-          : "no Dashboard endpoint for /api/stripe/webhook",
-      );
-      const klaviyo = hooks.data.find(
-        (hook) =>
-          hook.url.includes("a.klaviyo.com/api/webhook/integration/stripe") && hook.status === "enabled",
-      );
-      add(
-        "STRIPE_KLAVIYO",
-        klaviyo ? "ok" : "fail",
-        klaviyo ? klaviyo.url : "run pnpm setup:klaviyo-stripe",
-      );
+      const listed = await readStripeWebhookHealth(stripe);
+      if (listed.health.shop.conflict) {
+        add(
+          "STRIPE_WEBHOOK",
+          "fail",
+          `${listed.accountId} must not post checkout events to filterhero.net — run pnpm setup:stripe-webhook`,
+        );
+      } else if (listed.livemode && listed.accountId === FILTER_HERO_ACCOUNT_ID && !listed.health.shop.present) {
+        add("STRIPE_WEBHOOK", "fail", "no Dashboard endpoint for /api/stripe/webhook");
+      } else if (!listed.livemode) {
+        add("STRIPE_WEBHOOK", "ok", "test key uses stripe listen, not filterhero.net");
+      } else {
+        add("STRIPE_WEBHOOK", "ok", "https://filterhero.net/api/stripe/webhook enabled");
+      }
+      if (listed.health.klaviyo.conflict) {
+        add(
+          "STRIPE_KLAVIYO",
+          "fail",
+          `${listed.accountId} must not host the Klaviyo native webhook — run pnpm setup:stripe-webhook`,
+        );
+      } else if (listed.accountId === FILTER_HERO_ACCOUNT_ID && !listed.health.klaviyo.present) {
+        add("STRIPE_KLAVIYO", "fail", "run pnpm setup:klaviyo-stripe on FILTER HERO");
+      } else if (listed.accountId !== FILTER_HERO_ACCOUNT_ID) {
+        add(
+          "STRIPE_KLAVIYO",
+          "ok",
+          `sandbox key — native webhook lives on FILTER HERO ${FILTER_HERO_ACCOUNT_ID}`,
+        );
+      } else {
+        add("STRIPE_KLAVIYO", "ok", "https://a.klaviyo.com/api/webhook/integration/stripe?c=VnVNmQ");
+      }
     } catch (err) {
       add("STRIPE_LIVE", "fail", err instanceof Error ? err.message : "Stripe API failed");
     }

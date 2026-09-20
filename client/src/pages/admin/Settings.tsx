@@ -180,6 +180,14 @@ function SettingsBody() {
             ok={data.klaviyoStripe.oauthAccountMatch}
             label="Stripe key is FILTER HERO (Klaviyo OAuth), not sandbox"
           />
+          <StatusDot
+            ok={!data.klaviyoStripe.fulfillmentConflict}
+            label="This key does not post Checkout to filterhero.net unless it is FILTER HERO live"
+          />
+          <StatusDot
+            ok={!data.klaviyoStripe.nativeConflict}
+            label="This key does not host a leftover Klaviyo webhook on sandbox"
+          />
           {data.klaviyoStripe.url ? (
             <p className="break-all text-muted-foreground">{data.klaviyoStripe.url}</p>
           ) : (

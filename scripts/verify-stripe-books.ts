@@ -10,6 +10,8 @@ import {
   taxRegistrationsCollecting,
 } from "../shared/stripe-tax.ts";
 import { compactItemsMeta, orderFromCheckoutSession } from "../server/stripe.ts";
+import { FILTER_HERO_ACCOUNT_ID } from "../shared/stripe-accounts.ts";
+import { readStripeWebhookHealth } from "../server/stripe-webhooks.ts";
 
 function assert(cond: unknown, message: string): asserts cond {
   if (!cond) throw new Error(message);
@@ -66,6 +68,7 @@ async function checkLiveTax() {
   const stripe = new Stripe(key);
   await ensureStripeTaxDefaults(stripe);
   const tax = await readStripeTaxReadiness(stripe);
+  const listed = await readStripeWebhookHealth(stripe);
   console.log(
     `Tax Settings ${tax.settingsStatus ?? "unknown"} · automatic_tax ${tax.automaticTax ? "on" : "off"} · collecting ${tax.collecting ? "yes" : "no"}`,
   );
@@ -76,29 +79,35 @@ async function checkLiveTax() {
         .join(", ")}`,
     );
   }
-  assert(tax.headOfficeReady && tax.settingsStatus === "active", "set a head office in Tax Settings");
-  assert(tax.automaticTax, "Checkout must enable automatic_tax when Tax Settings are active");
-  assert(
-    tax.collecting,
-    "add at least one active Tax registration or Checkout charges $0 tax",
-  );
-
-  const hooks = await stripe.webhookEndpoints.list({ limit: 20 });
-  const fulfillment = hooks.data.find((hook) => hook.url.includes("/api/stripe/webhook"));
-  if (fulfillment && fulfillment.status === "enabled") {
-    console.log(`Fulfillment webhook: ${fulfillment.url} (${fulfillment.status})`);
+  if (listed.accountId === FILTER_HERO_ACCOUNT_ID) {
+    assert(tax.headOfficeReady && tax.settingsStatus === "active", "set a head office in Tax Settings");
+    assert(tax.automaticTax, "Checkout must enable automatic_tax when Tax Settings are active");
+    assert(
+      tax.collecting,
+      "add at least one active Tax registration or Checkout charges $0 tax",
+    );
   } else {
+    console.log(
+      `Sandbox ${listed.accountId} Tax Settings stay pending until a head office is set — that is expected locally.`,
+    );
+  }
+  assert(!listed.health.shop.conflict, "sandbox/test must not post checkout events to filterhero.net");
+  assert(!listed.health.klaviyo.conflict, "sandbox must not host the Klaviyo native webhook");
+  if (listed.health.shop.present) {
+    console.log("Fulfillment webhook: https://filterhero.net/api/stripe/webhook (enabled)");
+  } else if (listed.livemode && listed.accountId === FILTER_HERO_ACCOUNT_ID) {
     console.log("No enabled Dashboard webhook to /api/stripe/webhook.");
     console.log("Paid Checkout will not write orders or sync Klaviyo / CRM / accounts.");
     console.log("Run: pnpm setup:stripe-webhook");
-  }
-  const klaviyo = hooks.data.find((hook) =>
-    hook.url.includes("a.klaviyo.com/api/webhook/integration/stripe"),
-  );
-  if (klaviyo && klaviyo.status === "enabled") {
-    console.log(`Klaviyo Stripe webhook: ${klaviyo.url} (${klaviyo.status})`);
   } else {
+    console.log("No production fulfillment webhook on this test key (use stripe listen).");
+  }
+  if (listed.health.klaviyo.present) {
+    console.log("Klaviyo Stripe webhook: https://a.klaviyo.com/api/webhook/integration/stripe?c=VnVNmQ");
+  } else if (listed.accountId === FILTER_HERO_ACCOUNT_ID) {
     console.log("No enabled Klaviyo charge/invoice webhook. Run: pnpm setup:klaviyo-stripe");
+  } else {
+    console.log(`Klaviyo native webhook stays on FILTER HERO ${FILTER_HERO_ACCOUNT_ID}.`);
   }
   console.log("See docs/STRIPE-BOOKS.md and docs/KLAVIYO.md");
 }

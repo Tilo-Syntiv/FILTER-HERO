@@ -22,6 +22,8 @@ import {
   isClientMetric,
   getKlaviyoAccount,
   isKlaviyoEnabled,
+  pickMarketingList,
+  PREFERRED_MARKETING_LIST_ID,
   klaviyoApi,
   klaviyoLineFromProduct,
   klaviyoPublicConfig,
@@ -39,6 +41,12 @@ import {
   isKlaviyoStripeWebhookUrl,
   klaviyoStripeWebhookUrl,
 } from "../shared/klaviyo-stripe.ts";
+import {
+  FILTER_HERO_ACCOUNT_ID,
+  FILTER_HERO_SANDBOX_ACCOUNT_ID,
+  shopFulfillmentWebhookAllowed,
+  stripeWebhookHealth,
+} from "../shared/stripe-accounts.ts";
 import { httpsKlaviyoClientUrl } from "../shared/klaviyo-onsite.ts";
 import { emailLogoUrl } from "../shared/email-brand.ts";
 import type { StoredOrder } from "../server/stripe.ts";
@@ -191,6 +199,10 @@ assert(props.change_interval_days === 90, "purchase interval from depth");
 const catalog = buildKlaviyoCatalog("https://filterhero.net");
 assert(catalog.items.length === 293, `catalog should be 293 SKUs, got ${catalog.items.length}`);
 assert(
+  fs.readFileSync("scripts/smoke-site.ts", "utf-8").includes("must list 293 contractor SKUs"),
+  "smoke must fail if catalog.json is not the contractor sheet",
+);
+assert(
   catalog.items.every((row) => row.link.startsWith("https://filterhero.net/sizes/")),
   "catalog links are PDPs",
 );
@@ -227,15 +239,53 @@ assert(
   "non-Klaviyo HTTP URLs are left alone",
 );
 assert(httpsKlaviyoClientUrl("/api/identify") === "/api/identify", "same-origin identify is not rewritten");
+assert(
+  pickMarketingList([
+    { id: "YuBhkN", attributes: { name: "Preview List" } },
+    { id: "RiTKiS", attributes: { name: "Email List" } },
+  ]) === PREFERRED_MARKETING_LIST_ID,
+  "welcome list is Email List RiTKiS, not Preview List",
+);
+assert(
+  pickMarketingList([{ id: "other", attributes: { name: "Filter Hero Marketing" } }]) === "other",
+  "Filter Hero Marketing alias still resolves",
+);
 assert(KLAVIYO_STRIPE_EVENTS.includes("charge.succeeded"), "charges sync");
 assert(KLAVIYO_STRIPE_EVENTS.includes("invoice.payment_succeeded"), "invoices sync");
 assert(
-  KLAVIYO_STRIPE_OAUTH_ACCOUNT_ID === "acct_1U9bqlQEENEs0Qmw",
+  KLAVIYO_STRIPE_OAUTH_ACCOUNT_ID === FILTER_HERO_ACCOUNT_ID,
   "Klaviyo OAuth targets FILTER HERO, not sandbox",
+);
+assert(
+  !shopFulfillmentWebhookAllowed({
+    accountId: FILTER_HERO_SANDBOX_ACCOUNT_ID,
+    livemode: false,
+  }),
+  "sandbox must not post checkout events to filterhero.net",
+);
+assert(
+  !shopFulfillmentWebhookAllowed({ accountId: FILTER_HERO_ACCOUNT_ID, livemode: false }),
+  "FILTER HERO test mode must not post checkout events to filterhero.net",
+);
+assert(
+  shopFulfillmentWebhookAllowed({ accountId: FILTER_HERO_ACCOUNT_ID, livemode: true }),
+  "FILTER HERO live owns the shop fulfillment webhook",
+);
+assert(
+  stripeWebhookHealth({
+    accountId: FILTER_HERO_SANDBOX_ACCOUNT_ID,
+    livemode: false,
+    hooks: [{ url: "https://filterhero.net/api/stripe/webhook", status: "enabled" }],
+  }).shop.conflict,
+  "sandbox shop webhook is a conflict",
 );
 assert(
   !(KLAVIYO_STRIPE_EVENTS as readonly string[]).includes("checkout.session.completed"),
   "Checkout stays on Filter Hero",
+);
+assert(
+  fs.readFileSync("scripts/map-klaviyo-metrics.ts", "utf-8").includes('mapping: "refunded_sales"'),
+  "refunded_sales stays mapped so Successfully Paid cannot own revenue math",
 );
 
 const config = klaviyoPublicConfig();
@@ -263,14 +313,44 @@ async function livePing() {
       };
     };
   };
+  type FlowTrigger = {
+    type?: string;
+    id?: string;
+    date_profile_property?: string;
+  };
+  type FlowRow = {
+    id?: string;
+    attributes?: {
+      name?: string;
+      status?: string;
+      definition?: { triggers?: FlowTrigger[] };
+    };
+    relationships?: { "flow-actions"?: { data?: Array<FlowAction & { id?: string }> } };
+  };
   const flows = await klaviyoApi<{
-    data?: Array<{
-      attributes?: { name?: string; status?: string };
-      relationships?: { "flow-actions"?: { data?: Array<FlowAction & { id?: string }> } };
-    }>;
+    data?: FlowRow[];
     included?: Array<{ type?: string; id?: string; attributes?: FlowAction["attributes"] }>;
   }>("GET", "/api/flows?filter=equals(archived,false)&include=flow-actions");
-  assert(flows.ok && (flows.data?.data?.length || 0) >= 7, "seven live Filter Hero flows");
+  assert(
+    flows.ok && (flows.data?.data?.length || 0) >= 7,
+    `seven live Filter Hero flows: ${flows.error || flows.data?.data?.length || 0}`,
+  );
+  const expectedFlows = new Map([
+    ["UMtCJP", "FH Welcome"],
+    ["SN8epW", "FH Abandoned checkout"],
+    ["WVmMG9", "FH Post-purchase nurture"],
+    ["WPU3gW", "FH Replenish T-7"],
+    ["RZ2b2J", "FH Replenish T-2"],
+    ["TaqZUA", "FH Replenish due"],
+    ["UkEkSf", "FH Win-back"],
+  ]);
+  const extraFlows = (flows.data?.data || []).filter((row) => !expectedFlows.has(row.id || ""));
+  assert(
+    !extraFlows.length,
+    `unexpected live flows would collide with Resend/Stripe: ${extraFlows
+      .map((row) => row.attributes?.name || row.id)
+      .join(", ")}`,
+  );
   const includedActions = new Map(
     (flows.data?.included || [])
       .filter((row) => row.type === "flow-action" && row.id)
@@ -279,6 +359,28 @@ async function livePing() {
   const logo = emailLogoUrl();
   const missing: string[] = [];
   const wordmark: string[] = [];
+  const definitions = new Map<string, FlowTrigger | undefined>();
+  for (const id of expectedFlows.keys()) {
+    const detail = await klaviyoApi<{ data?: FlowRow }>(
+      "GET",
+      `/api/flows/${id}?additional-fields[flow]=definition`,
+    );
+    definitions.set(id, detail.data?.data?.attributes?.definition?.triggers?.[0]);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  const triggerOf = (id: string) => definitions.get(id);
+  assert(triggerOf("UMtCJP")?.id === PREFERRED_MARKETING_LIST_ID, "Welcome triggers on Email List");
+  assert(triggerOf("SN8epW")?.id === "VEnspC", "Abandon triggers on Started Checkout");
+  assert(triggerOf("WVmMG9")?.id === "TeVwgw", "Post-purchase triggers on Placed Order");
+  assert(triggerOf("UkEkSf")?.id === "TfSLjM", "Win-back triggers on FH Lapsed 120");
+  for (const id of ["WPU3gW", "RZ2b2J", "TaqZUA"]) {
+    const trigger = triggerOf(id);
+    assert(
+      trigger?.date_profile_property === REPLENISH_DATE_PROPERTY,
+      `${id} must trigger on ${REPLENISH_DATE_PROPERTY}, not clock_next_change_date`,
+    );
+  }
+
   for (const flow of flows.data?.data || []) {
     assert(flow.attributes?.status === "live", `${flow.attributes?.name} must stay live`);
     for (const rel of flow.relationships?.["flow-actions"]?.data || []) {
@@ -334,6 +436,42 @@ async function livePing() {
     headerLinks.every((link) => !/\/shop$|\/measure$/.test(link.url || "")),
     "email default header links must be live shop URLs",
   );
+
+  const mapped = await klaviyoApi<{
+    data?: Array<{
+      id?: string;
+      relationships?: { metric?: { data?: { id?: string; attributes?: { name?: string } } } };
+    }>;
+    included?: Array<{ type?: string; id?: string; attributes?: { name?: string } }>;
+  }>("GET", "/api/mapped-metrics?include=metric");
+  assert(mapped.ok, `mapped metrics failed: ${mapped.error || "unknown"}`);
+  const mappedName = (id: string) => {
+    const row = mapped.data?.data?.find((item) => item.id === id);
+    const metricId = row?.relationships?.metric?.data?.id;
+    return (
+      mapped.data?.included?.find((item) => item.id === metricId)?.attributes?.name ||
+      row?.relationships?.metric?.data?.attributes?.name ||
+      ""
+    );
+  };
+  assert(mappedName("revenue") === "Placed Order", "revenue mapping must stay Placed Order");
+  assert(mappedName("refunded_sales") === "Refunded Payment", "refunds map to Refunded Payment");
+  assert(mappedName("revenue") !== "Successfully Paid", "Successfully Paid must not own revenue");
+
+  const metrics = await klaviyoApi<{
+    data?: Array<{
+      id?: string;
+      attributes?: { name?: string };
+      relationships?: { "flow-triggers"?: { data?: Array<{ id?: string }> } };
+    }>;
+  }>("GET", "/api/metrics?include=flow-triggers");
+  assert(metrics.ok, `metrics list failed: ${metrics.error || "unknown"}`);
+  const forbiddenTriggers = ["Successfully Paid", "Requested Quote", "Requested Support", "Signed Up Reminder"];
+  for (const name of forbiddenTriggers) {
+    const row = metrics.data?.data?.find((item) => item.attributes?.name === name);
+    const count = row?.relationships?.["flow-triggers"]?.data?.length || 0;
+    assert(count === 0, `${name} must not trigger a flow`);
+  }
 
   console.log(`Klaviyo payload checks passed. Live account ${account.accountId} ok. Flow templates branded.`);
 }

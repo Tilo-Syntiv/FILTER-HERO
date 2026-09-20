@@ -40,6 +40,23 @@ const BASE_DAYS: Record<string, number> = {
 };
 
 const MARKETING_LIST_NAME = "Filter Hero Marketing";
+/** Live list is named Email List; never create a second welcome list. */
+export const PREFERRED_MARKETING_LIST_ID = "RiTKiS";
+export const MARKETING_LIST_ALIASES = [MARKETING_LIST_NAME, "Email List"] as const;
+
+export function pickMarketingList(
+  lists: Array<{ id?: string; attributes?: { name?: string } }>,
+): string | null {
+  const byId = lists.find((row) => row.id === PREFERRED_MARKETING_LIST_ID);
+  if (byId?.id) return byId.id;
+  const byName = lists.find((row) =>
+    MARKETING_LIST_ALIASES.includes(
+      (row.attributes?.name || "") as (typeof MARKETING_LIST_ALIASES)[number],
+    ),
+  );
+  if (byName?.id) return byName.id;
+  return lists[0]?.id ?? null;
+}
 
 export type KlaviyoProfileInput = {
   email: string;
@@ -404,11 +421,9 @@ export async function resolveMarketingListId(): Promise<string | null> {
     data?: Array<{ id?: string; attributes?: { name?: string } }>;
   }>("GET", "/api/lists");
   if (listed.ok && listed.data?.data?.length) {
-    const match =
-      listed.data.data.find((row) => row.attributes?.name === MARKETING_LIST_NAME) ||
-      listed.data.data[0];
-    if (match?.id) {
-      cachedListId = match.id;
+    const match = pickMarketingList(listed.data.data);
+    if (match) {
+      cachedListId = match;
       return cachedListId;
     }
   }

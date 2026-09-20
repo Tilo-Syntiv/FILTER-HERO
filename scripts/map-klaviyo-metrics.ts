@@ -7,6 +7,7 @@ const MAPS = [
   { mapping: "started_checkout", metric: "Started Checkout" },
   { mapping: "added_to_cart", metric: "Added to Cart" },
   { mapping: "viewed_product", metric: "Viewed Product" },
+  { mapping: "refunded_sales", metric: "Refunded Payment" },
 ] as const;
 
 type MetricRow = { id?: string; attributes?: { name?: string } };

@@ -26,7 +26,7 @@ In the Klaviyo UI, **do not** add a flow that sends another order confirmation o
 |---|---|
 | `KLAVIYO_PRIVATE_API_KEY` | Klaviyo → Settings → API keys → Private. Server only. |
 | `KLAVIYO_PUBLIC_API_KEY` | Same page, six-character public / site ID. Loads `onsite.js`. |
-| `KLAVIYO_LIST_ID` | Optional. If empty, the API reuses or creates **Filter Hero Marketing**. |
+| `KLAVIYO_LIST_ID` | Optional. Prefer `RiTKiS` (**Email List**). If empty, the API reuses that list (or **Filter Hero Marketing**). It does not create a second welcome list. |
 | `KLAVIYO_DISABLE=1` | Scripts and local tests. |
 
 Never put the private key in a `VITE_` variable.
@@ -98,7 +98,7 @@ Brand library uses the shop lockup at `https://filterhero.net/logo.png`. Email d
 
 Do **not** add an order-confirmation or quote-receipt flow. Resend + Stripe already send those.
 
-Mapped metrics (API, 2026-09-07): **Placed Order** → revenue (`TeVwgw`), **Ordered Product** → ordered_product, **Started Checkout** → started_checkout, **Added to Cart** → added_to_cart, **Viewed Product** → viewed_product.
+Mapped metrics: **Placed Order** → revenue (`TeVwgw`), **Ordered Product** → ordered_product, **Started Checkout** → started_checkout, **Added to Cart** → added_to_cart, **Viewed Product** → viewed_product, **Refunded Payment** → refunded_sales (`TvC7dY`). Leave **cancelled_sales** unmapped — Checkout Expired is not a cancelled sale. Do **not** map revenue to Successfully Paid.
 
 ### Sending domain
 

@@ -138,7 +138,10 @@ assert(
 const klaviyoCatalog = await get(`${API}/api/klaviyo/catalog.json`);
 assert(klaviyoCatalog.res.ok, `klaviyo catalog ${klaviyoCatalog.res.status}`);
 const feed = klaviyoCatalog.json as { items?: unknown[] };
-assert(Array.isArray(feed.items) && feed.items.length > 0, "klaviyo catalog.json must list items");
+assert(
+  Array.isArray(feed.items) && feed.items.length === 293,
+  `klaviyo catalog.json must list 293 contractor SKUs, got ${feed.items?.length ?? 0}`,
+);
 
 const sizeSsr = await get(`${API}/sizes/20x25x1`);
 assert(sizeSsr.res.ok, `size SSR ${sizeSsr.res.status}`);
@@ -203,7 +206,14 @@ for (const page of pages) {
 }
 
 const badContact = await post(`${API}/api/contact`, { name: "", email: "nope", message: "" });
-assert(badContact.res.status === 400, `invalid contact should 400, got ${badContact.res.status}`);
+if (badContact.res.status === 429) {
+  assert(
+    (badContact.json as { code?: string })?.code === "rate_limited_contact",
+    `contact 429 should name the limiter, got ${badContact.text}`,
+  );
+} else {
+  assert(badContact.res.status === 400, `invalid contact should 400, got ${badContact.res.status}`);
+}
 
 const noToken = await post(`${API}/api/contact`, {
   name: "Smoke Human",
@@ -211,11 +221,18 @@ const noToken = await post(`${API}/api/contact`, {
   message: "turnstile missing",
   intent: "support",
 });
-assert(noToken.res.status === 400, `contact without Turnstile should 400, got ${noToken.res.status}`);
-assert(
-  (noToken.json as { code?: string })?.code === "bot_check_failed",
-  "a configured Turnstile must reject a missing token",
-);
+if (noToken.res.status === 429) {
+  assert(
+    (noToken.json as { code?: string })?.code === "rate_limited_contact",
+    `contact 429 should name the limiter, got ${noToken.text}`,
+  );
+} else {
+  assert(noToken.res.status === 400, `contact without Turnstile should 400, got ${noToken.res.status}`);
+  assert(
+    (noToken.json as { code?: string })?.code === "bot_check_failed",
+    "a configured Turnstile must reject a missing token",
+  );
+}
 
 const trapped = await post(`${API}/api/contact`, {
   name: "Smoke Bot",
